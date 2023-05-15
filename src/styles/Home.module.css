@@ -3,19 +3,49 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  background-color: aquamarine;
+
 }
 
 .ImageContainer {
   display: flex;
-  width: 100%;
+  flex-direction: column;
+  width: 80%;
   height: 1024;
-  background-image: url('./fundoLogin.png');
-  background-size: cover;
+  background-image: url('/fundoLogin.png');
   background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.LoginContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Login {
+  display: flex;
+  flex-direction: column;
+}
+
+.sign {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
 }
 
 .logo {
   margin-top: 36px;
   margin-left: 24px;
+  height: 150.43px;
+  width: 189.7px;
+}
+
+.Social {
+  display: flex;
+  flex-direction: row;
+  margin-left: 47px;
+  margin-top: 40.20rem;
+  gap: 24px;
+  margin-bottom: 3.75rem;
 }
