@@ -1,0 +1,95 @@
+.sideMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: #faf8f6;
+  width: 15rem;
+  height: 73rem;
+}
+
+.Steps {
+  margin-top: 16px;
+  margin-left: 16px;
+  margin-bottom: 16px;
+  color: rgb(0, 0, 0);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.Click {
+  margin-left: 16px;
+  margin-bottom: 1rem;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: black;
+}
+
+.MenuNavigate {
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  cursor: pointer;
+
+  &.active {
+    background-color: #F0EBED;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
+
+    .NavigateItem {
+      color: #7C0000;
+    }
+
+    .Pointer {}
+  }
+}
+
+.NavigateItem {
+  font-size: 16px;
+  font-weight: medium;
+  font-family: 'Outfit', sans-serif;
+  color: #B5B5BA;
+
+}
+
+.NavigateItemEnd {
+  font-size: 16px;
+  font-weight: medium;
+  font-family: 'Outfit', sans-serif;
+  color: #B5B5BA;
+  margin-left: 1.5rem;
+
+}
+
+.Pointer {
+  width: 16px;
+  height: 16px;
+  margin-left: 1.5rem;
+
+}
+
+.PointerEnd {
+  width: 16px;
+  height: 16px;
+}
+
+.Logo {
+  width: 140px;
+  height: 110px;
+  margin-left: 2rem;
+  margin-top: 1rem;
+}
+
+.linha {
+  border: none;
+  height: 1px;
+  background-color: #E4E5EB;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5px;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}

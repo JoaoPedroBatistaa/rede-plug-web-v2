@@ -2,7 +2,11 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 
-import Login from '../components/Login';
+import Login from './Login';
+import BudgetSize from './BudgetSize';
+import ViewOrderData from './ViewOrderData';
+import ViewBudgetData from './ViewBudgetData';
+import ViewOrderBudget from './ViewOrderBudget';
 
 export default function Home() {
   return (
@@ -13,7 +17,7 @@ export default function Home() {
         `}</style>
       </Head>
 
-      <Login></Login>
+      <ViewOrderBudget></ViewOrderBudget>
     </>
   )
 }

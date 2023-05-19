@@ -1,0 +1,63 @@
+.sideMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: #faf8f6;
+  width: 15rem;
+  height: 60rem;
+}
+
+.Steps {
+  margin-top: 41px;
+  margin-left: 16px;
+  margin-bottom: 16px;
+  color: rgb(0, 0, 0);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.Click {
+  margin-left: 16px;
+  margin-bottom: 1rem;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: black;
+}
+
+.MenuNavigate {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  cursor: pointer;
+
+  &.active {
+    .NavigateItem {
+      color: #0BB07B;
+    }
+
+    .Pointer {
+      background-color: #0BB07B;
+      border: solid 3px #0BB07B;
+    }
+  }
+}
+
+.NavigateItem {
+  font-size: 16px;
+  font-weight: medium;
+  font-family: 'Outfit', sans-serif;
+  color: #7C0000;
+}
+
+.Pointer {
+  background-color: #ffffff;
+  width: 10px;
+  height: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  border: solid 3px #7C0000;
+}

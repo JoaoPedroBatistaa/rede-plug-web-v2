@@ -1,6 +1,7 @@
 
 import Head from 'next/head';
-import styles from '../../styles/Login.module.css';
+import styles from '../../styles/Login.module.scss';
+import Link from 'next/link';
 
 export default function Login() {
   return (
@@ -33,7 +34,9 @@ export default function Login() {
 
             <a className={styles.forget} href="">Esqueci minha senha</a>
 
+
             <button className={styles.button}>Entrar</button>
+
 
             <div className={styles.linha}></div>
 
