@@ -13,6 +13,7 @@ export default function Home() {
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [searchText, setSearchText] = useState("");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);

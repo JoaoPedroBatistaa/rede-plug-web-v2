@@ -1,9 +1,9 @@
 import Head from 'next/head';
-import styles from '../../styles/Header.Home.module.scss';
+import styles from '../../styles/Header.Home.Result.module.scss';
 import SearchInput from '../InputSearch';
 import { useState } from 'react';
 
-export default function HeaderHome() {
+export default function HeaderHomeResult() {
     const [searchText, setSearchText] = useState("");
   return (
     <>
@@ -26,17 +26,10 @@ export default function HeaderHome() {
         </div>    
         <div className={styles.HeaderTextContainer}>
             <div className={styles.HeaderTextTitle}>
-                Bem vindo de volta, <b>Evandro</b>
+                Resultado da busca:
             </div>
             
-        </div>       
-        <div className={styles.HeaderTextContainer}>
-            <div className={styles.HeaderTextDescription}>
-              <p>Aqui você pode realizar ações de forma rápida e fácil ou buscar por outras funcionalidades que esteja precisando </p>
-            </div>
-            
-        </div>       
-       
+        </div>              
       </div>
     </>
   )

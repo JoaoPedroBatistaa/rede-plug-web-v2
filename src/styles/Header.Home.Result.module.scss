@@ -1,0 +1,64 @@
+.HeaderContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: baseline;
+  align-items: flex-start;
+  background-color: #7C0000;
+  height: 20.75rem;
+  width: 100%;
+  padding-top: 24px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.HeaderSearch{
+  display: flex;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.HeaderTextContainer {
+  width: 50%;
+  display: flex;
+
+}
+
+.HeaderTextTitle {
+  font-family: 'Outfit';
+  font-size: 26px;
+  color:#fff
+
+
+}
+
+.HeaderTextDescription{
+  font-family: 'Outfit';
+  font-size: 16px;
+  color: #fff;
+  margin-top: 20px;
+}
+
+.HeaderContainerIcons{
+   display: flex;
+   align-items: center;
+   justify-content: flex-end;
+   flex:1;
+}
+
+.HeaderIcon{
+  margin-left: 16px;
+
+}
+
+
+.Close {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.NewBudget {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: medium;
+  font-family: 'Outfit', sans-serif;
+}
