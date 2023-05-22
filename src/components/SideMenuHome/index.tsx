@@ -29,17 +29,20 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
           <div className={`${styles.MenuNavigate} ${activeRoute === '/ViewOrderData' ? styles.active : ''}`}>
             <img src='./homeIconMenu.svg' className={styles.Pointer}></img>
-            <p className={styles.NavigateItem}>Home</p>
+            {/* <p className={styles.NavigateItem}>Home</p> */}
+              <Link  className={styles.NavigateItem} href="/Home">Home</Link>
           </div>
 
           <div className={`${styles.MenuNavigate} ${activeRoute === '/BudgetPerfil' ? styles.active : ''}`}>
             <img src='./orcamentoIcon.svg' className={styles.Pointer}></img>
-            <p className={styles.NavigateItem}>Orçamentos</p>
+            {/* <p className={styles.NavigateItem}>Orçamentos</p> */}
+            <Link  className={styles.NavigateItem} href="/Budgets">Orçamentos</Link>
           </div>
 
           <div className={`${styles.MenuNavigate} ${activeRoute === '/BudgetGlass' ? styles.active : ''}`}>
             <img src='./pedidosIcon.svg' className={styles.Pointer}></img>
-            <p className={styles.NavigateItem}>Pedidos</p>
+            <Link  className={styles.NavigateItem} href="/Requests">Pedidos</Link>
+            {/* <p className={styles.NavigateItem}>Pedidos</p> */}
           </div>
 
           <div className={`${styles.MenuNavigate} ${activeRoute === '/BudgetFoam' ? styles.active : ''}`}>
