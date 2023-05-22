@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import styles from '../../styles/Requests.module.scss';
+import styles from '../../styles/Budgets.module.scss';
 import { useRouter } from 'next/router';
 
 
