@@ -7,11 +7,72 @@
 }
 
 
-.CardsMenusContainer {
+.MainContainer {
   flex: 1;
   padding: 0px 24px;
-  margin-top: -87px;
+  margin-top: -183px;
   justify-content: center;
+}
+
+.ListContainer {
+  display: flex;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 15px 20px;
+  flex-direction: column;
+}
+
+.ListMenu{
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.MarginTop{
+  margin-top:16px ;
+}
+
+.ListMenuRight{
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+
+}
+
+.ListMenuButton{
+  background: #0BB07B;
+  border-radius: 6px;
+  height: 39px;
+  width: 135px;
+  border:0;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ListMenuFilter {
+  width: 99px;
+  height: 40px;
+  border: 1px solid #C6C2DE;
+  border-radius: 6px;
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+} 
+
+.ListMenuFilterText {
+
+    font-family: 'Outfit';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 20px;
+      color: #404049;
+      margin-left: 8px;
+
 }
 
 .CardsMenus {
