@@ -15,7 +15,7 @@ export default function HeaderRequests() {
       
         <div className={styles.HeaderSearch}>
           <div className={styles.HeaderTextTitle}>
-             <b>Pedido</b>
+             <b>Pedidos</b>
           </div>
           <div className={styles.HeaderContainerIcons}>
               <img src='./iconSino.png' className={styles.HeaderIcon} height={20} width={20} />
