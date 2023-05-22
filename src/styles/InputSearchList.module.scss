@@ -19,14 +19,15 @@
  .searchInput {
    background-color: transparent;
    font-family: 'Outfit';
-   color: 404049;
    border: none;
    outline: none;
    &::placeholder {
-        color:  #404049;;
+        color:  #404049;
       }
   width: 100%;
   font-size: 16px;
+   color:  #404049;
+
 
  }
 
