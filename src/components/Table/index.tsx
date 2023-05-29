@@ -1,11 +1,56 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from '../../styles/Table.module.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 
+import { collection, db, getDoc, doc } from '../../../firebase';
+import { GetServerSidePropsContext } from 'next';
+import { getDocs } from 'firebase/firestore';
+
+interface Order {
+  id: string;
+
+  NumeroPedido: string;
+  Telefone: string;
+  nomeCompleto: string;
+  Ativo: boolean;
+  Entrega: string;
+  dataCadastro: string;
+  formaPagamento: string;
+  valorTotal: string;
+}
+
 
 export default function Table() {
+
+  const [teste, setTeste] = useState<Order[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, 'Orders');
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const budget: Order = {
+          id: doc.id,
+          NumeroPedido: data.NumeroPedido,
+          Telefone: data.Telefone,
+          nomeCompleto: data.nomeCompleto,
+          Ativo: data.Ativo,
+          Entrega: data.Entrega,
+          dataCadastro: data.dataCadastro,
+          formaPagamento: data.formaPagamento,
+          valorTotal: data.valorTotal,
+        };
+        return budget;
+      });
+      setTeste(budgetList);
+      console.log(budgetList);
+    }
+    fetchData();
+  }, []);
+
   const data = [
     { numeroPedido: "1231", numeroTelefone: '(11) 99999-9999', cliente: "Cliente A", situacao: "Ativo", prazoEntrega: "10/05/2023", dataCadastro: "05/05/2023", valorTotal: "R$ 100,00" },
     { numeroPedido: "4567", numeroTelefone: '(11) 99999-9999', cliente: "Cliente B", situacao: "Inativo", prazoEntrega: "15/05/2023", dataCadastro: "08/05/2023", valorTotal: "R$ 150,00" },
@@ -43,51 +88,50 @@ export default function Table() {
           </tr>
         </thead>
         <Link href='/ViewOrderData'>
-          <tbody>
-            {currentData.map((item, index) => (
-              <tr key={item.numeroPedido}>
-                <td>
-                  <img src="./More.png" width={5} height={20} className={styles.MarginRight} />
-                </td>
-                <td>
-                  <b>#{item.numeroPedido}</b>
-                </td>
-                <td>
-                  <b>{item.cliente}</b><br />
-                  <span className={styles.diasUteis}> (11) 99999-9999</span>
-
-                </td>
-                <td>
-                  <span className={item.situacao == "Ativo" ? styles.badge : styles.badgeInativo}>
-                    {item.situacao == "Ativo" ?
-                      <img src="./circleBlue.png" width={6} height={6} className={styles.marginRight8} /> :
-                      <img src="./circleRed.png" width={6} height={6} className={styles.marginRight8} />}
-                    {item.situacao}
-                  </span>
-                  <br />
-                  <span className={styles.dataCadastro}>
-                    Data de cadastro:{item.dataCadastro}
-                  </span>
-
-                </td>
-                <td>
-                  {item.prazoEntrega}<br />
-                  <span className={styles.diasUteis}>15 dias Utéis</span>
-                </td>
-                <td>
-                  {item.dataCadastro}<br />
-                  <span className={styles.diasUteis}>Claudio Duarte Sintra</span>
-                </td>
-                <td>
-                  {item.valorTotal}
-                  <br />
-                  <span className={styles.diasUteis}>À Vista</span>
-                </td>
-
-              </tr>
-            ))
-            }
-          </tbody>
+          <Link href='ViewOrderData'>
+            <tbody>
+              {teste.map((item, index) => (
+                <tr className={styles.budgetItem} key={item.id}>
+                  <td>
+                    <img src="./More.png" width={5} height={20} className={styles.MarginRight} />
+                  </td>
+                  <td>
+                    <b>#{item.NumeroPedido}</b>
+                  </td>
+                  <td>
+                    <b>{item.nomeCompleto}</b><br />
+                    <span className={styles.diasUteis}> {item.Telefone}</span>
+                  </td>
+                  <td>
+                    <span className={item.Ativo == true ? styles.badge : styles.badgeInativo}>
+                      {item.Ativo ?
+                        <img src="./circleBlue.png" width={6} height={6} className={styles.marginRight8} /> :
+                        <img src="./circleRed.png" width={6} height={6} className={styles.marginRight8} />}
+                      {item.Ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                    <br />
+                    <span className={styles.dataCadastro}>
+                      Data de cadastro:{item.dataCadastro}
+                    </span>
+                  </td>
+                  <td>
+                    {item.Entrega}<br />
+                    <span className={styles.diasUteis}>15 dias Utéis</span>
+                  </td>
+                  <td>
+                    {item.dataCadastro}<br />
+                    <span className={styles.diasUteis}>{item.nomeCompleto}</span>
+                  </td>
+                  <td>
+                    {item.valorTotal}
+                    <br />
+                    <span className={styles.diasUteis}>À Vista</span>
+                  </td>
+                </tr>
+              ))
+              }
+            </tbody>
+          </Link>
         </Link>
       </table>
       <div className={styles.RodapeContainer}>

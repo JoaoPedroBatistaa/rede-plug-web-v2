@@ -4,16 +4,27 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 export default function BudgetPerfil() {
 
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [espessura, setEspessura] = useState('');
+
+  // Salva as informações no localStorage sempre que são alteradas
+  useEffect(() => {
+    localStorage.setItem('codigoPerfil', selectedOption);
+    localStorage.setItem('espessuraPerfil', espessura);
+  }, [selectedOption, espessura]);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+  };
+
+  const handleEspessuraChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEspessura(event.target.value);
   };
 
   return (
@@ -49,15 +60,15 @@ export default function BudgetPerfil() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
-              <select className={styles.SelectField} value={selectedOption}
+              <select id='codigo' className={styles.SelectField} value={selectedOption}
                 onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+                <option value="4401" selected={selectedOption === '4401'}>
                   4401
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="4402" selected={selectedOption === '4402'}>
                   4402
                 </option>
-                <option value="opcao3" selected={selectedOption === 'opcao3'}>
+                <option value="4403" selected={selectedOption === '4403'}>
                   4403
                 </option>
               </select>
@@ -65,7 +76,7 @@ export default function BudgetPerfil() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espessura do perfil</p>
-              <input type="text" className={styles.Field} placeholder='10CM' />
+              <input id='espessura' type="text" className={styles.Field} placeholder='' value={espessura} onChange={handleEspessuraChange} />
             </div>
           </div>
 
@@ -76,7 +87,7 @@ export default function BudgetPerfil() {
               <img src="./molduraPerfil.png" className={styles.PreviewImg} />
             </div>
 
-            <p className={styles.PreviewSize}>10 CM</p>
+            <p className={styles.PreviewSize}>{espessura} CM</p>
 
 
           </div>

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 export default function BudgetPrint() {
 
@@ -19,6 +19,24 @@ export default function BudgetPrint() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [isFileSelected, setIsFileSelected] = useState(false);
+  const [selectedOptionPrint, setSelectedOptionPrint] = useState('opcao1');
+  const [selectedOptionPrintType, setSelectedOptionPrintType] = useState('opcao1');
+
+  useEffect(() => {
+    localStorage.setItem('impressao', selectedOptionPrint);
+  }, [selectedOptionPrint]);
+
+  const handleSelectChangePrint = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionPrint(event.target.value);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('tipoImpressao', selectedOptionPrintType);
+  }, [selectedOptionPrintType]);
+
+  const handleSelectChangePrintType = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionPrintType(event.target.value);
+  };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -81,12 +99,11 @@ export default function BudgetPrint() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Impressão</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='impressao' className={styles.SelectField} value={selectedOptionPrint} onChange={handleSelectChangePrint}>
+                <option value="SIM" selected={selectedOptionPrint === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionPrint === 'NÃO'}>
                   NÃO
                 </option>
               </select>
@@ -95,15 +112,14 @@ export default function BudgetPrint() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Tipo de impressão</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='tipoImpressao' className={styles.SelectField} value={selectedOptionPrintType} onChange={handleSelectChangePrintType}>
+                <option value="PAPEL" selected={selectedOptionPrintType === 'PAPEL'}>
                   PAPEL
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="TELA" selected={selectedOptionPrintType === 'TELA'}>
                   TELA
                 </option>
-                <option value="opcao3" selected={selectedOption === 'opcao3'}>
+                <option value="BANNER" selected={selectedOptionPrintType === 'BANNER'}>
                   BANNER
                 </option>
               </select>

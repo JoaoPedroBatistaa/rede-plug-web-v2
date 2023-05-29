@@ -4,16 +4,20 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 export default function BudgetCollage() {
 
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOptionCollage, setSelectedOptionCollage] = useState('opcao1');
 
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
+  useEffect(() => {
+    localStorage.setItem('collage', selectedOptionCollage);
+  }, [selectedOptionCollage]);
+
+  const handleSelectChangeCollage = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionCollage(event.target.value);
   };
 
   return (
@@ -49,12 +53,11 @@ export default function BudgetCollage() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Colagem</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='collage' className={styles.SelectField} value={selectedOptionCollage} onChange={handleSelectChangeCollage}>
+                <option value="SIM" selected={selectedOptionCollage === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionCollage === 'NÃO'}>
                   NÃO
                 </option>
               </select>

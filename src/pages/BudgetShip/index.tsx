@@ -4,17 +4,44 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 export default function BudgetShip() {
 
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  // UseStates para instalação
+  const [selectedOptionInstall, setSelectedOptionInstall] = useState('opcao1');
+  const [selectedOptionDelivery, setSelectedOptionDelivery] = useState('opcao1');
 
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
+  useEffect(() => {
+    window.localStorage.setItem('instalacao', selectedOptionInstall);
+  }, [selectedOptionInstall]);
+
+  const handleSelectChangeInstall = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionInstall(event.target.value);
   };
+
+  useEffect(() => {
+    localStorage.setItem('tipoEntrega', selectedOptionDelivery);
+  }, [selectedOptionDelivery]);
+
+  const handleSelectChangeDelivery = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionDelivery(event.target.value);
+  };
+
+  let valorInstalacaoElement = document.getElementById('valorInstalacao') as HTMLInputElement;
+
+  if (valorInstalacaoElement) {
+    localStorage.setItem('valorInstalacao', valorInstalacaoElement.value);
+  }
+
+  let valorEntregaElement = document.getElementById('valorEntrega') as HTMLInputElement;
+
+  if (valorEntregaElement) {
+    localStorage.setItem('valorEntrega', valorEntregaElement.value);
+  }
+
 
   return (
     <>
@@ -49,12 +76,11 @@ export default function BudgetShip() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Necessita de instalação? *</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='instalacao' className={styles.SelectField} value={selectedOptionInstall} onChange={handleSelectChangeInstall}>
+                <option value="SIM" selected={selectedOptionInstall === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionInstall === 'NÃO'}>
                   NÃO
                 </option>
               </select>
@@ -62,7 +88,7 @@ export default function BudgetShip() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Valor da instalação</p>
-              <p className={styles.FixedValue}>R$45,30</p>
+              <p id='valorInstalacao' className={styles.FixedValue}>R$245,30</p>
             </div>
 
 
@@ -71,12 +97,11 @@ export default function BudgetShip() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Tipo de entrega</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='Entrega' className={styles.SelectField} value={selectedOptionDelivery} onChange={handleSelectChangeDelivery}>
+                <option value="SEDEX" selected={selectedOptionDelivery === 'SEDEX'}>
                   SEDEX
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="TRANSPORTADORA" selected={selectedOptionDelivery === 'TRANSPORTADORA'}>
                   TRANSPORTADORA
                 </option>
               </select>
@@ -84,7 +109,7 @@ export default function BudgetShip() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Valor da entrega</p>
-              <p className={styles.FixedValue}>R$245,30</p>
+              <p id='valorEntrega' className={styles.FixedValue}>R$245,30</p>
             </div>
 
 

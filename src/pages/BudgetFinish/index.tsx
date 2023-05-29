@@ -4,16 +4,154 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
+import Link from 'next/link';
+
+import { db, addDoc, collection } from '../../../firebase';
 
 export default function BudgetFinish() {
 
   const router = useRouter();
 
+  const nomeCompleto = localStorage.getItem('nomeCompleto');
+  const Telefone = localStorage.getItem('Telefone');
+  const email = localStorage.getItem('email');
+  const instalacao = localStorage.getItem('instalacao');
+  const valorInstalacao = localStorage.getItem('valorInstalacao');
+  const tipoEntrega = localStorage.getItem('tipoEntrega');
+  const valorEntrega = localStorage.getItem('valorEntrega');
+  const impressao = localStorage.getItem('impressao');
+  const tipoImpressao = localStorage.getItem('tipoImpressao');
+  const fileInput = localStorage.getItem('fileInput');
+  const collage = localStorage.getItem('collage');
+  const paspatur = localStorage.getItem('paspatur');
+  const codigoPaspatur = localStorage.getItem('codigoPaspatur');
+  const dimensoesPaspatur = localStorage.getItem('dimensoesPaspatur');
+  const foam = localStorage.getItem('foam');
+  const codigoFoam = localStorage.getItem('codigoFoam');
+  const mdf = localStorage.getItem('mdf');
+  const codigoMdf = localStorage.getItem('codigoMdf');
+  const vidro = localStorage.getItem('vidro');
+  const espessuraVidro = localStorage.getItem('espessuraVidro');
+  const espelho = localStorage.getItem('espelho');
+  const espessuraEspelho = localStorage.getItem('espessuraEspelho');
+  const codigoPerfil = localStorage.getItem('codigoPerfil');
+  const espessuraPerfil = localStorage.getItem('espessuraPerfil');
+  const Tamanho = localStorage.getItem('Tamanho');
+  const tipoPessoa = localStorage.getItem('tipoPessoa');
+
+  const handleSaveOrder = async () => {
+    try {
+      await addDoc(collection(db, 'Orders'), {
+        nomeCompleto,
+        Telefone,
+        email,
+        instalacao,
+        valorInstalacao,
+        tipoEntrega,
+        valorEntrega,
+        impressao,
+        tipoImpressao,
+        fileInput,
+        collage,
+        paspatur,
+        codigoPaspatur,
+        dimensoesPaspatur,
+        foam,
+        codigoFoam,
+        mdf,
+        codigoMdf,
+        vidro,
+        espessuraVidro,
+        espelho,
+        espessuraEspelho,
+        codigoPerfil,
+        espessuraPerfil,
+        Tamanho,
+        dataCadastro,
+        Entrega,
+        cpf,
+        endereco,
+        cidade,
+        bairro,
+        cep,
+        complemento,
+        tipoPessoa,
+      });
+    } catch (e) {
+      console.error("Erro ao adicionar documento: ", e);
+    }
+  };
+
+  const formatarData = (data: Date) => {
+    const dia = data.getDate();
+    const mes = data.getMonth() + 1; // Os meses começam do 0 em JavaScript
+    const ano = data.getFullYear();
+
+    return `${dia}/${mes}/${ano}`;
+  };
+
+  const dataCadastroInicial = new Date();
+  const EntregaInicial = new Date();
+  EntregaInicial.setDate(dataCadastroInicial.getDate() + 5);
+
+  const dataCadastro = formatarData(dataCadastroInicial);
+  const Entrega = formatarData(EntregaInicial);
+
   const [selectedOption, setSelectedOption] = useState('opcao1');
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+    localStorage.setItem('tipoPessoa', selectedOption);
+  };
+
+  const [cpf, setCpf] = useState('');
+  const [endereco, setEndereco] = useState('');
+  const [numero, setNumero] = useState('');
+  const [cep, setCep] = useState('');
+  const [estado, setEstado] = useState('');
+  const [complemento, setComplemento] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('cpf', cpf);
+    localStorage.setItem('endereco', endereco);
+    localStorage.setItem('numero', numero);
+    localStorage.setItem('cep', cep);
+    localStorage.setItem('estado', estado);
+    localStorage.setItem('complemento', complemento);
+    localStorage.setItem('bairro', bairro);
+    localStorage.setItem('cidade', cidade);
+  }, [cpf, endereco, numero, cep, estado, complemento, bairro, cidade]);
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    switch (event.target.id) {
+      case 'CPF':
+        setCpf(event.target.value);
+        break;
+      case 'Endereco':
+        setEndereco(event.target.value);
+        break;
+      case 'Numero':
+        setNumero(event.target.value);
+        break;
+      case 'CEP':
+        setCep(event.target.value);
+        break;
+      case 'estado':
+        setEstado(event.target.value);
+        break;
+      case 'Complemento':
+        setComplemento(event.target.value);
+        break;
+      case 'Bairro':
+        setBairro(event.target.value);
+        break;
+      case 'Cidade':
+        setCidade(event.target.value);
+        break;
+    }
   };
 
   return (
@@ -32,7 +170,7 @@ export default function BudgetFinish() {
         <div className={styles.BudgetContainer}>
 
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Efetivar Orçamento</p>
+            <p className={styles.BudgetTitle}>Efetivar Pedido</p>
           </div>
 
           <div className={styles.BudgetData}>
@@ -44,10 +182,10 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>Tipo de pessoa</p>
                   <select className={styles.SelectFieldPerson} value={selectedOption}
                     onChange={handleSelectChange}>
-                    <option value="opcao1" selected={selectedOption === 'opcao1'}>
+                    <option value="FÍSICA" selected={selectedOption === 'FÍSICA'}>
                       FÍSICA
                     </option>
-                    <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                    <option value="JURÍDICA" selected={selectedOption === 'JURÍDICA'}>
                       JURÍDICA
                     </option>
                   </select>
@@ -64,7 +202,7 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>CPF</p>
-                  <input type="text" className={styles.FieldSave} placeholder='111111111-11' />
+                  <input id='CPF' type="text" className={styles.FieldSave} placeholder='111111111-11' onChange={handleInputChange} />
                 </div>
               </div>
 
@@ -91,43 +229,43 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>CEP</p>
-                  <input type="text" className={styles.FieldSmall} placeholder='99999-999' />
+                  <input id='CEP' type="text" className={styles.FieldSmall} placeholder='99999-999' onChange={handleInputChange} />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Endereço *</p>
-                  <input type="text" className={styles.FieldSave} placeholder='Rua X Num 9' />
+                  <input id='Endereco' type="text" className={styles.FieldSave} placeholder='Rua X Num 9' onChange={handleInputChange} />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Número *</p>
-                  <input type="text" className={styles.FieldSmall} placeholder='999' />
+                  <input id='Numero' type="text" className={styles.FieldSmall} placeholder='999' onChange={handleInputChange} />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Complemento</p>
-                  <input type="text" className={styles.FieldSave} placeholder='Casa' />
+                  <input id='Complemento' type="text" className={styles.FieldSave} placeholder='Casa' onChange={handleInputChange} />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Bairro *</p>
-                  <input type="text" className={styles.Field} placeholder='Lapa' />
+                  <input id='Bairro' type="text" className={styles.Field} placeholder='Lapa' onChange={handleInputChange} />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Cidade</p>
-                  <input type="text" className={styles.Field} placeholder='São Paulo' />
+                  <input id='Cidade' type="text" className={styles.Field} placeholder='São Paulo' onChange={handleInputChange} />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Estado *</p>
-                  <input type="text" className={styles.Field} placeholder='São Paulo' />
+                  <input id='estado' type="text" className={styles.Field} placeholder='São Paulo' onChange={handleInputChange} />
                 </div>
               </div>
 
@@ -178,8 +316,12 @@ export default function BudgetFinish() {
           <div className={styles.linhaSave}></div>
 
           <div className={styles.ButtonsFinish}>
-            <button className={styles.CancelButton}>Cancelar</button>
-            <button className={styles.SaveButton}>Efetivar Orçamento</button>
+            <Link href='BudgetSave'>
+              <button className={styles.CancelButton}>Cancelar</button>
+            </Link>
+            <Link href='Home'>
+              <button className={styles.SaveButton} onClick={handleSaveOrder}>Efetivar pedido</button>
+            </Link>
           </div>
 
           <div className={styles.Copyright}>

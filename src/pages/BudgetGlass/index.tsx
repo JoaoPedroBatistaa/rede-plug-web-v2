@@ -4,16 +4,38 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 export default function BudgetGlass() {
 
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOptionVidro, setSelectedOptionVidro] = useState('opcao1');
+  const [selectedOptionEspessuraVidro, setSelectedOptionEspessuraVidro] = useState('opcao1');
+  const [selectedOptionEspelho, setSelectedOptionEspelho] = useState('opcao1');
+  const [selectedOptionEspessuraEspelho, setSelectedOptionEspessuraEspelho] = useState('opcao1');
 
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
+  useEffect(() => {
+    localStorage.setItem('vidro', selectedOptionVidro);
+    localStorage.setItem('espessuraVidro', selectedOptionEspessuraVidro);
+    localStorage.setItem('espelho', selectedOptionEspelho);
+    localStorage.setItem('espessuraEspelho', selectedOptionEspessuraEspelho);
+  }, [selectedOptionVidro, selectedOptionEspessuraVidro, selectedOptionEspelho, selectedOptionEspessuraEspelho]);
+
+  const handleSelectChangeVidro = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionVidro(event.target.value);
+  };
+
+  const handleSelectChangeEspessuraVidro = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionEspessuraVidro(event.target.value);
+  };
+
+  const handleSelectChangeEspelho = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionEspelho(event.target.value);
+  };
+
+  const handleSelectChangeEspessuraEspelho = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionEspessuraEspelho(event.target.value);
   };
 
   return (
@@ -49,12 +71,11 @@ export default function BudgetGlass() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Vidro</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='vidro' className={styles.SelectField} value={selectedOptionVidro} onChange={handleSelectChangeVidro}>
+                <option value="SIM" selected={selectedOptionVidro === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionVidro === 'NÃO'}>
                   NÃO
                 </option>
               </select>
@@ -63,15 +84,14 @@ export default function BudgetGlass() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espessura do Vidro</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='espessuraVidro' className={styles.SelectField} value={selectedOptionEspessuraVidro} onChange={handleSelectChangeEspessuraVidro}>
+                <option value="2MM" selected={selectedOptionEspessuraVidro === '2MM'}>
                   2MM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="4MM" selected={selectedOptionEspessuraVidro === '4MM'}>
                   4MM
                 </option>
-                <option value="opcao3" selected={selectedOption === 'opcao3'}>
+                <option value="6MM" selected={selectedOptionEspessuraVidro === '6MM'}>
                   6MM
                 </option>
               </select>
@@ -84,12 +104,11 @@ export default function BudgetGlass() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espelho</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='espelho' className={styles.SelectField} value={selectedOptionEspelho} onChange={handleSelectChangeEspelho}>
+                <option value="SIM" selected={selectedOptionEspelho === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionEspelho === 'NÃO'}>
                   NÃO
                 </option>
               </select>
@@ -98,15 +117,14 @@ export default function BudgetGlass() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espessura do Espelho</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='espessuraEspelho' className={styles.SelectField} value={selectedOptionEspessuraEspelho} onChange={handleSelectChangeEspessuraEspelho}>
+                <option value="2MM" selected={selectedOptionEspessuraEspelho === '2MM'}>
                   2MM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="4MM" selected={selectedOptionEspessuraEspelho === '4MM'}>
                   4MM
                 </option>
-                <option value="opcao3" selected={selectedOption === 'opcao3'}>
+                <option value="6MM" selected={selectedOptionEspessuraEspelho === '6MM'}>
                   6MM
                 </option>
               </select>

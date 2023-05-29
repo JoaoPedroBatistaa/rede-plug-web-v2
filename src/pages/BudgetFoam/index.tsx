@@ -4,16 +4,38 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 export default function BudgetFoam() {
 
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOptionFoam, setSelectedOptionFoam] = useState('opcao1');
+  const [selectedOptionCodigoFoam, setSelectedOptionCodigoFoam] = useState('opcao1');
+  const [selectedOptionMdf, setSelectedOptionMdf] = useState('opcao1');
+  const [selectedOptionCodigoMdf, setSelectedOptionCodigoMdf] = useState('opcao1');
 
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
+  useEffect(() => {
+    localStorage.setItem('foam', selectedOptionFoam);
+    localStorage.setItem('codigoFoam', selectedOptionCodigoFoam);
+    localStorage.setItem('mdf', selectedOptionMdf);
+    localStorage.setItem('codigoMdf', selectedOptionCodigoMdf);
+  }, [selectedOptionFoam, selectedOptionCodigoFoam, selectedOptionMdf, selectedOptionCodigoMdf]);
+
+  const handleSelectChangeFoam = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionFoam(event.target.value);
+  };
+
+  const handleSelectChangeCodigoFoam = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionCodigoFoam(event.target.value);
+  };
+
+  const handleSelectChangeMdf = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionMdf(event.target.value);
+  };
+
+  const handleSelectChangeCodigoMdf = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionCodigoMdf(event.target.value);
   };
 
   return (
@@ -49,12 +71,11 @@ export default function BudgetFoam() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Foam</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='Foam' className={styles.SelectField} value={selectedOptionFoam} onChange={handleSelectChangeFoam}>
+                <option value="SIM" selected={selectedOptionFoam === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionFoam === 'NÃO'}>
                   NÃO
                 </option>
               </select>
@@ -63,15 +84,14 @@ export default function BudgetFoam() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='codigoFoam' className={styles.SelectField} value={selectedOptionCodigoFoam} onChange={handleSelectChangeCodigoFoam}>
+                <option value="55022" selected={selectedOptionCodigoFoam === '55022'}>
                   55022
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="55023" selected={selectedOptionCodigoFoam === '55023'}>
                   55023
                 </option>
-                <option value="opcao3" selected={selectedOption === 'opcao3'}>
+                <option value="55024" selected={selectedOptionCodigoFoam === '55024'}>
                   55024
                 </option>
               </select>
@@ -84,12 +104,11 @@ export default function BudgetFoam() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>MDF</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='mdf' className={styles.SelectField} value={selectedOptionMdf} onChange={handleSelectChangeMdf}>
+                <option value="SIM" selected={selectedOptionMdf === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionMdf === 'NÃO'}>
                   NÃO
                 </option>
               </select>
@@ -98,15 +117,14 @@ export default function BudgetFoam() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espessura do Espelho</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='codigoMdf' className={styles.SelectField} value={selectedOptionCodigoMdf} onChange={handleSelectChangeCodigoMdf}>
+                <option value="55020" selected={selectedOptionCodigoMdf === '55020'}>
                   55020
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="55021" selected={selectedOptionCodigoMdf === '55021'}>
                   55021
                 </option>
-                <option value="opcao3" selected={selectedOption === 'opcao3'}>
+                <option value="55025" selected={selectedOptionCodigoMdf === '55025'}>
                   55025
                 </option>
               </select>

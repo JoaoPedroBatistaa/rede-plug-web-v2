@@ -4,10 +4,28 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
+import { SetStateAction, useEffect, useState } from 'react';
 
 export default function BudgetSize() {
 
   const router = useRouter();
+
+  const [altura, setAltura] = useState('');
+  const [largura, setLargura] = useState('');
+
+  // Ao alterar os valores de altura ou largura, salva no localStorage
+  useEffect(() => {
+    const value = `${altura}x${largura}`;
+    localStorage.setItem('Tamanho', value);
+  }, [altura, largura]);
+
+  const handleAlturaChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setAltura(event.target.value);
+  };
+
+  const handleLarguraChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setLargura(event.target.value);
+  };
 
   return (
     <>
@@ -42,12 +60,12 @@ export default function BudgetSize() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Altura *</p>
-              <input type="text" className={styles.Field} placeholder='120' />
+              <input id='altura' type="text" className={styles.Field} placeholder='' value={altura} onChange={handleAlturaChange} />
             </div>
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Largura *</p>
-              <input type="text" className={styles.Field} placeholder='90' />
+              <input id='largura' type="text" className={styles.Field} placeholder='' value={largura} onChange={handleLarguraChange} />
             </div>
           </div>
 
@@ -56,10 +74,10 @@ export default function BudgetSize() {
           <div className={styles.PreviewContainer}>
             <div className={styles.PreviewImgContainer}>
               <img src="./molduraSize.png" className={styles.PreviewImg} />
-              <p className={styles.PreviewSize}>90 CM</p>
+              <p className={styles.PreviewSize}>{altura} CM</p>
             </div>
 
-            <p className={styles.PreviewSize}>120 CM</p>
+            <p className={styles.PreviewSize}>{largura} CM</p>
 
 
           </div>

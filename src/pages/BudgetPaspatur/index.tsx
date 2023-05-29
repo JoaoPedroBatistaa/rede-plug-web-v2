@@ -4,16 +4,47 @@ import { useRouter } from 'next/router';
 
 import HeaderBudget from '@/components/HeaderBudget';
 import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 export default function BudgetPaspatur() {
 
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOptionPaspatur, setSelectedOptionPaspatur] = useState('opcao1');
+  const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] = useState('opcao1');
+  const [larguraSuperior, setLarguraSuperior] = useState('');
+  const [larguraEsquerda, setLarguraEsquerda] = useState('');
+  const [larguraInferior, setLarguraInferior] = useState('');
+  const [larguraDireita, setLarguraDireita] = useState('');
 
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
+  useEffect(() => {
+    localStorage.setItem('paspatur', selectedOptionPaspatur);
+    localStorage.setItem('codigoPaspatur', selectedOptionCodigoPaspatur);
+    localStorage.setItem('dimensoesPaspatur', `${larguraSuperior}x${larguraEsquerda}x${larguraInferior}x${larguraDireita}`);
+  }, [selectedOptionPaspatur, selectedOptionCodigoPaspatur, larguraSuperior, larguraEsquerda, larguraInferior, larguraDireita]);
+
+  const handleSelectChangePaspatur = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionPaspatur(event.target.value);
+  };
+
+  const handleSelectChangeCodigoPaspatur = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOptionCodigoPaspatur(event.target.value);
+  };
+
+  const handleInputChangeSuperior = (event: ChangeEvent<HTMLInputElement>) => {
+    setLarguraSuperior(event.target.value);
+  };
+
+  const handleInputChangeEsquerda = (event: ChangeEvent<HTMLInputElement>) => {
+    setLarguraEsquerda(event.target.value);
+  };
+
+  const handleInputChangeInferior = (event: ChangeEvent<HTMLInputElement>) => {
+    setLarguraInferior(event.target.value);
+  };
+
+  const handleInputChangeDireita = (event: ChangeEvent<HTMLInputElement>) => {
+    setLarguraDireita(event.target.value);
   };
 
   return (
@@ -49,12 +80,11 @@ export default function BudgetPaspatur() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Paspatur</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='paspatur' className={styles.SelectField} value={selectedOptionPaspatur} onChange={handleSelectChangePaspatur}>
+                <option value="SIM" selected={selectedOptionPaspatur === 'SIM'}>
                   SIM
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="NÃO" selected={selectedOptionPaspatur === 'NÃO'}>
                   NÃO
                 </option>
               </select>
@@ -63,15 +93,14 @@ export default function BudgetPaspatur() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
-              <select className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="opcao1" selected={selectedOption === 'opcao1'}>
+              <select id='codigoPaspatur' className={styles.SelectField} value={selectedOptionCodigoPaspatur} onChange={handleSelectChangeCodigoPaspatur}>
+                <option value="55022" selected={selectedOptionCodigoPaspatur === '55022'}>
                   55022
                 </option>
-                <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                <option value="55023" selected={selectedOptionCodigoPaspatur === '55023'}>
                   55023
                 </option>
-                <option value="opcao3" selected={selectedOption === 'opcao3'}>
+                <option value="55024" selected={selectedOptionCodigoPaspatur === '55024'}>
                   55024
                 </option>
               </select>
@@ -81,26 +110,26 @@ export default function BudgetPaspatur() {
           <div className={styles.PreviewContainer}>
             <div className={styles.InputFieldPreview}>
               <p className={styles.FieldLabel}>Largura superior</p>
-              <input type="text" className={styles.FieldPreview} placeholder='10' />
+              <input id='larguraSuperior' type="text" className={styles.FieldPreview} placeholder='' value={larguraSuperior} onChange={handleInputChangeSuperior} />
             </div>
 
             <div className={styles.PreviewImgContainer}>
               <div className={styles.InputFieldPreview}>
                 <p className={styles.FieldLabel}>Largura esquerda</p>
-                <input type="text" className={styles.FieldPreview} placeholder='15' />
+                <input id='larguraEsquerda' type="text" className={styles.FieldPreview} placeholder='' value={larguraEsquerda} onChange={handleInputChangeEsquerda} />
               </div>
 
               <img src="./molduraSize.png" className={styles.PreviewImg} />
 
               <div className={styles.InputFieldPreview}>
                 <p className={styles.FieldLabel}>Largura direita</p>
-                <input type="text" className={styles.FieldPreview} placeholder='15' />
+                <input id='larguraDireita' type="text" className={styles.FieldPreview} placeholder='' value={larguraDireita} onChange={handleInputChangeDireita} />
               </div>
             </div>
 
             <div className={styles.InputFieldPreview}>
               <p className={styles.FieldLabel}>Largura inferior</p>
-              <input type="text" className={styles.FieldPreview} placeholder='10' />
+              <input id='larguraInferior' type="text" className={styles.FieldPreview} placeholder='' value={larguraInferior} onChange={handleInputChangeInferior} />
             </div>
           </div>
 
