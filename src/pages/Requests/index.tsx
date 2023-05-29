@@ -39,25 +39,27 @@ export default function Requests() {
         <div className={styles.OrderContainer}>
           <HeaderRequests></HeaderRequests>
           <div className={styles.MainContainer}>
-              <div className={styles.ListContainer}>
+            <div className={styles.ListContainer}>
+              <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  <div  className={styles.ListMenu}>
-                    <div className={styles.ListMenuFilter}>
-                        <img src='./Filter.png' ></img>  <span className={styles.ListMenuFilterText}>Filtros</span>
-                    </div>
-                    <SearchInputList></SearchInputList>
-                   </div>
-                  <div  className={styles.ListMenuRight}>
-                        <button className={styles.ListMenuButton}>
-                          Novo Pedido
-                        </button>
-                   </div>
+                  <div className={styles.ListMenuFilter}>
+                    <img src='./Filter.png' ></img>  <span className={styles.ListMenuFilterText}>Filtros</span>
+                  </div>
+                  <SearchInputList></SearchInputList>
                 </div>
-                <div className={styles.MarginTop}></div>
-                {/* <GridComponent/> */}
-                <Table />
-               
+                <div className={styles.ListMenuRight}>
+                  <Link href='/BudgetSize'>
+                    <button className={styles.ListMenuButton}>
+                      Novo Pedido
+                    </button>
+                  </Link>
+                </div>
               </div>
+              <div className={styles.MarginTop}></div>
+              {/* <GridComponent/> */}
+              <Table />
+
+            </div>
           </div>
 
 

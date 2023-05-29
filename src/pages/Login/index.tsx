@@ -35,7 +35,9 @@ export default function Login() {
             <a className={styles.forget} href="">Esqueci minha senha</a>
 
 
-            <button className={styles.button}>Entrar</button>
+            <Link href='/Home'>
+              <button className={styles.button}>Entrar</button>
+            </Link>
 
 
             <div className={styles.linha}></div>

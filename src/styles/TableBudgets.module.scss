@@ -1,6 +1,5 @@
-
 .tableContianer {
-  overflow-x:auto;
+  overflow-x: auto;
 }
 
 .tableHeader {
@@ -14,6 +13,8 @@
   text-transform: uppercase;
   color: #404049;
 }
+
+
 
 .table {
   width: 100%;
@@ -31,9 +32,13 @@
   border-bottom: 1px solid #ddd;
   height: 45px;
   color: #404049;
-    font-family: 'Outfit';
-      font-style: normal;
-      text-align: center;
+  font-family: 'Outfit';
+  font-style: normal;
+  text-align: center;
+}
+
+.table tbody {
+  width: 100%;
 }
 
 @media screen and (max-width: 600px) {
@@ -62,6 +67,7 @@
   flex: 1;
   align-items: center;
 }
+
 .RodapeContinaerRight {
   display: flex;
   flex: 1;
@@ -69,8 +75,8 @@
   align-items: center;
 }
 
-.RodapePaginacaoIcone{
-  transform: scale(0.2); 
+.RodapePaginacaoIcone {
+  transform: scale(0.2);
 }
 
 .RodapePaginacaoContador {
@@ -81,9 +87,10 @@
   height: 35px;
   border-radius: 5px;
   border: 1px solid rgba(143, 142, 145, 0.4);
-    cursor: pointer;
+  cursor: pointer;
   margin-right: 8px;
 }
+
 .RodapePaginacaoContadorSemBorda {
   display: flex;
   justify-content: center;
@@ -92,7 +99,7 @@
   height: 35px;
   border: none;
   margin-right: 8px;
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .RodapePaginacaoContadorDestaque {
@@ -104,11 +111,11 @@
   border: none;
   border-radius: 5px;
   margin-right: 8px;
-  background-color:#D0D4DD ;
-  color:#7C0000 ;
+  background-color: #D0D4DD;
+  color: #7C0000;
   font-weight: bold;
-    cursor: pointer;
-  
+  cursor: pointer;
+
 }
 
 .SelectMax {
@@ -124,20 +131,20 @@
   border: 1px solid rgba(143, 142, 145, 0.5);
 }
 
-.badge{
+.badge {
 
-  color:#4A4AFF;
+  color: #4A4AFF;
   background-color: #DEE2ED;
   padding: 5px 10px;
   font-weight: bold;
   border-radius: 50px;
   align-items: center;
-  justify-content: center; 
-    text-align: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.badgeInativo{
-  color:#F92C38;
+.badgeInativo {
+  color: #F92C38;
   background-color: rgba(249, 44, 56, 0.24);
   padding: 5px 10px;
 
@@ -150,17 +157,18 @@
   margin-right: 8px;
 }
 
-.dataCadastro{
- font-family: 'DM Sans';
+.dataCadastro {
+  font-family: 'DM Sans';
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  color:#404049;
+  color: #404049;
 }
-.diasUteis{
-    font-family: 'DM Sans';
-      font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      color:#404049;
+
+.diasUteis {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #404049;
 }

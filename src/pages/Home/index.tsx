@@ -35,24 +35,26 @@ export default function Home() {
         <div className={styles.OrderContainer}>
           <HeaderHome></HeaderHome>
           <div className={styles.CardsMenusContainer}>
-              <div className={styles.CardsMenus}>
+            <div className={styles.CardsMenus}>
+              <Link href='/Budgets'>
                 <div className={styles.CardMenu}>
                   <img src='./homeMenuCardOrc.png' ></img>
                   <span className={styles.CardMenuText}>Orçamento</span>
                 </div>
-                <div className={styles.CardMenu}>
-                  <img src='./homeMenuCardNegocios.png' ></img>
-                  <span className={styles.CardMenuText}>Negócios</span>
-                </div>
-                <div className={styles.CardMenu}>
-                  <img src='./HomeMenuCardNotaFiscal.png' ></img>
-                  <span className={styles.CardMenuText}>Notas Ficais</span>
-                </div>
-                <div className={styles.CardMenu}>
-                  <img src='./HomeMenuCardVendas.png' ></img>
-                  <span className={styles.CardMenuText}>Vendas</span>
-                </div>
+              </Link>
+              <div className={styles.CardMenu}>
+                <img src='./homeMenuCardNegocios.png' ></img>
+                <span className={styles.CardMenuText}>Negócios</span>
               </div>
+              <div className={styles.CardMenu}>
+                <img src='./HomeMenuCardNotaFiscal.png' ></img>
+                <span className={styles.CardMenuText}>Notas Ficais</span>
+              </div>
+              <div className={styles.CardMenu}>
+                <img src='./HomeMenuCardVendas.png' ></img>
+                <span className={styles.CardMenuText}>Vendas</span>
+              </div>
+            </div>
           </div>
 
 

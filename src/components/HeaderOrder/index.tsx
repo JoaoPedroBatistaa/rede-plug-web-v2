@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import styles from '../../styles/HeaderOrder.module.scss';
+import Link from 'next/link';
 
 export default function HeaderBudget() {
   return (
@@ -13,7 +14,9 @@ export default function HeaderBudget() {
 
       <div className={styles.HeaderContainer}>
         <p className={styles.NewBudget}>VISUALIZAR PEDIDO</p>
-        <img src="./close.png" className={styles.Close} />
+        <Link href='/Requests'>
+          <img src="./close.png" className={styles.Close} />
+        </Link>
       </div>
     </>
   )

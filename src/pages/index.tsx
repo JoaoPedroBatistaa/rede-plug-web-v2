@@ -17,7 +17,7 @@ export default function Home() {
         `}</style>
       </Head>
 
-      <ViewOrderBudget></ViewOrderBudget>
+      <Login></Login>
     </>
   )
 }
