@@ -14,34 +14,48 @@ export default function BudgetShip() {
   const [selectedOptionInstall, setSelectedOptionInstall] = useState('opcao1');
   const [selectedOptionDelivery, setSelectedOptionDelivery] = useState('opcao1');
 
-  useEffect(() => {
-    window.localStorage.setItem('instalacao', selectedOptionInstall);
-  }, [selectedOptionInstall]);
-
   const handleSelectChangeInstall = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOptionInstall(event.target.value);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('instalacao', event.target.value);
+    }
   };
-
-  useEffect(() => {
-    localStorage.setItem('tipoEntrega', selectedOptionDelivery);
-  }, [selectedOptionDelivery]);
 
   const handleSelectChangeDelivery = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOptionDelivery(event.target.value);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('tipoEntrega', event.target.value);
+    }
   };
 
-  let valorInstalacaoElement = document.getElementById('valorInstalacao') as HTMLInputElement;
+  const handleInputValueChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(target.id, target.value);
+    }
+  };
 
-  if (valorInstalacaoElement) {
-    localStorage.setItem('valorInstalacao', valorInstalacaoElement.value);
-  }
+  useEffect(() => {
+    const valorInstalacaoElement = document.getElementById('valorInstalacao') as HTMLInputElement;
+    const valorEntregaElement = document.getElementById('valorEntrega') as HTMLInputElement;
 
-  let valorEntregaElement = document.getElementById('valorEntrega') as HTMLInputElement;
+    if (valorInstalacaoElement) {
+      valorInstalacaoElement.addEventListener('input', handleInputValueChange);
+    }
 
-  if (valorEntregaElement) {
-    localStorage.setItem('valorEntrega', valorEntregaElement.value);
-  }
+    if (valorEntregaElement) {
+      valorEntregaElement.addEventListener('input', handleInputValueChange);
+    }
 
+    // Removendo os event listeners na desmontagem do componente
+    return () => {
+      if (valorInstalacaoElement) {
+        valorInstalacaoElement.removeEventListener('input', handleInputValueChange);
+      }
+
+      if (valorEntregaElement) {
+        valorEntregaElement.removeEventListener('input', handleInputValueChange);
+      }
+    };
+  }, []);
 
   return (
     <>

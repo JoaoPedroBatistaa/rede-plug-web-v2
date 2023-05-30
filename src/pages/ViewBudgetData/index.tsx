@@ -20,14 +20,18 @@ export default function ViewBudgetData() {
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [userData, setUserData] = useState<UserDataType | null>(null);
+  const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
 
-  const [userData, setUserData] = useState<UserDataType | null>(null);
-
-  const selectedBudgetId = localStorage.getItem('selectedBudgetId')
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSelectedBudgetId(localStorage.getItem('selectedBudgetId'));
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -51,6 +55,7 @@ export default function ViewBudgetData() {
 
     fetchData();
   }, [selectedBudgetId]);
+
 
   return (
     <>

@@ -31,18 +31,44 @@ type UserDataType = {
 };
 
 export default function ViewOrderBudget() {
-
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [userData, setUserData] = useState<UserDataType | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
 
-  const [userData, setUserData] = useState<UserDataType | null>(null);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSelectedId(localStorage.getItem('selectedId'));
+    }
+  }, []);
 
-  const selectedId = localStorage.getItem('selectedId')
+  useEffect(() => {
+    async function fetchData() {
+      if (selectedId) {
+        try {
+          const docRef = doc(db, 'Orders', selectedId);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserDataType);
+          } else {
+            console.log("Nenhum documento encontrado!");
+          }
+        } catch (error) {
+          console.error("Erro ao buscar documento:", error);
+        }
+      } else {
+        console.log("Nenhum ID selecionado!");
+      }
+    }
+
+    fetchData();
+  }, [selectedId]);
 
   useEffect(() => {
     async function fetchData() {

@@ -24,14 +24,18 @@ export default function ViewOrderShip() {
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [userData, setUserData] = useState<UserDataType | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
 
-  const [userData, setUserData] = useState<UserDataType | null>(null);
-
-  const selectedId = localStorage.getItem('selectedId')
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSelectedId(localStorage.getItem('selectedId'));
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -55,6 +59,7 @@ export default function ViewOrderShip() {
 
     fetchData();
   }, [selectedId]);
+
 
   return (
     <>
