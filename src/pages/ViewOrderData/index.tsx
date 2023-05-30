@@ -1,11 +1,22 @@
 import Head from 'next/head';
 import styles from '../../styles/ViewOrderData.module.scss';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 import HeaderOrder from '@/components/HeaderOrder';
 import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 import Link from 'next/link';
+
+import { db, doc, getDoc } from '../../../firebase';
+
+type UserDataType = {
+  nomeCompleto: string;
+  email: string;
+  Telefone: string;
+  tipoPessoa: string;
+  cpf: string;
+};
 
 export default function ViewOrderData() {
 
@@ -16,6 +27,35 @@ export default function ViewOrderData() {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
+
+  const [userData, setUserData] = useState<UserDataType | null>(null);
+
+  const selectedId = localStorage.getItem('selectedId')
+
+  useEffect(() => {
+    async function fetchData() {
+      if (selectedId) {
+        try {
+          const docRef = doc(db, 'Orders', selectedId);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserDataType);
+          } else {
+            console.log("Nenhum documento encontrado!");
+          }
+        } catch (error) {
+          console.error("Erro ao buscar documento:", error);
+        }
+      } else {
+        console.log("Nenhum ID selecionado!");
+      }
+    }
+
+    fetchData();
+  }, [selectedId]);
+
+
 
   return (
     <>
@@ -69,32 +109,24 @@ export default function ViewOrderData() {
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Tipo de pessoa</p>
-                    <select className={styles.SelectFieldPerson} value={selectedOption}
-                      onChange={handleSelectChange}>
-                      <option value="opcao1" selected={selectedOption === 'opcao1'}>
-                        FÍSICA
-                      </option>
-                      <option value="opcao2" selected={selectedOption === 'opcao2'}>
-                        JURÍDICA
-                      </option>
-                    </select>
+                    <p className={styles.FixedData}>{userData?.tipoPessoa}</p>
                   </div>
 
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>CPF</p>
-                    <input type="text" className={styles.FieldSave} placeholder='111111111-11' />
+                    <p className={styles.FixedData}>{userData?.cpf}</p>
                   </div>
                 </div>
 
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Nome completo</p>
-                    <input type="text" className={styles.FieldSave} placeholder='JOSÉ ALBERTO SANTIAGO' />
+                    <p className={styles.FixedData}>{userData?.nomeCompleto}</p>
                   </div>
 
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Email</p>
-                    <input type="mail" className={styles.FieldSave} placeholder='josealberto@gmail.com' />
+                    <p className={styles.FixedData}>{userData?.email}</p>
                   </div>
                 </div>
 
@@ -102,7 +134,7 @@ export default function ViewOrderData() {
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Telefone</p>
-                    <input type="tel" className={styles.FieldSave} placeholder='(61) 99999-9999' />
+                    <p className={styles.FixedData}>{userData?.Telefone}</p>
                   </div>
                 </div>
 

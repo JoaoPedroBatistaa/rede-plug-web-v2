@@ -93,7 +93,11 @@ export default function TableBudgets() {
         <Link href='/ViewBudgetData'>
           <tbody>
             {teste.map((item, index) => (
-              <tr className={styles.budgetItem} key={item.id}>
+              <tr className={styles.budgetItem}
+                key={item.id}
+                onClick={() => {
+                  localStorage.setItem('selectedBudgetId', item.id);
+                }}>
                 <td>
                   <img src="./More.png" width={5} height={20} className={styles.MarginRight} />
                 </td>

@@ -4,8 +4,31 @@ import { useRouter } from 'next/router';
 
 import HeaderOrder from '@/components/HeaderOrder';
 import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
+
+import { db, doc, getDoc } from '../../../firebase';
+
+type UserDataType = {
+  Tamanho: string;
+  impressao: string;
+  tipoImpressao: string;
+  codigoPerfil: string;
+  espessuraPerfil: string;
+  vidro: string;
+  espessuraVidro: string;
+  foam: string;
+  paspatur: string;
+  codigoPaspatur: string;
+  dimensoesPaspatur: string;
+  collage: string;
+  instalacao: string;
+  valorInstalacao: string;
+  tipoEntrega: string;
+  formaPagamento: string;
+  observacao: string;
+  dataCadastro: string;
+};
 
 export default function ViewOrderBudget() {
 
@@ -16,6 +39,33 @@ export default function ViewOrderBudget() {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
+
+  const [userData, setUserData] = useState<UserDataType | null>(null);
+
+  const selectedId = localStorage.getItem('selectedId')
+
+  useEffect(() => {
+    async function fetchData() {
+      if (selectedId) {
+        try {
+          const docRef = doc(db, 'Orders', selectedId);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserDataType);
+          } else {
+            console.log("Nenhum documento encontrado!");
+          }
+        } catch (error) {
+          console.error("Erro ao buscar documento:", error);
+        }
+      } else {
+        console.log("Nenhum ID selecionado!");
+      }
+    }
+
+    fetchData();
+  }, [selectedId]);
 
   return (
     <>
@@ -70,43 +120,35 @@ export default function ViewOrderBudget() {
                   <div>
                     <p className={styles.ResName}>Tamanho</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>120cm</p>
-                      <p className={styles.ResValue}>-</p>
-                      <p className={styles.ResValue}>90 cm</p>
+                      <p className={styles.ResValue}>{userData?.Tamanho}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Impressão</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>SIM</p>
-                      <p className={styles.ResValue}>-</p>
-                      <p className={styles.ResValue}>PAPEL</p>
+                      <p className={styles.ResValue}>{userData?.impressao} - {userData?.tipoImpressao}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Perfil</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>4402</p>
-                      <p className={styles.ResValue}>-</p>
-                      <p className={styles.ResValue}>10cm</p>
+                      <p className={styles.ResValue}>{userData?.codigoPerfil} - {userData?.espessuraPerfil}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Vidro</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>SIM</p>
-                      <p className={styles.ResValue}>-</p>
-                      <p className={styles.ResValue}>10cm</p>
+                      <p className={styles.ResValue}>{userData?.vidro} - {userData?.espessuraVidro}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Foam</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>SIM</p>
+                      <p className={styles.ResValue}>{userData?.foam}</p>
                     </div>
                   </div>
 
@@ -114,42 +156,38 @@ export default function ViewOrderBudget() {
                     <p className={styles.ResName}>Paspatur</p>
                     <div>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>SIM</p>
-                        <p className={styles.ResValue}>-</p>
-                        <p className={styles.ResValue}>4052</p>
+                        <p className={styles.ResValue}>{userData?.paspatur} - {userData?.codigoPaspatur}</p>
                       </div>
 
-                      <p className={styles.ResValue}>10cmX10cmX10cmX10cm</p>
+                      <p className={styles.ResValue}>{userData?.dimensoesPaspatur}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Colagem</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>SIM</p>
+                      <p className={styles.ResValue}>{userData?.collage}</p>
                     </div>
                   </div>
-
+                  {/* 
                   <div>
                     <p className={styles.ResName}>Impressão</p>
                     <div className={styles.OrderResValue}>
                       <p className={styles.ResValue}>SIM</p>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div>
                     <p className={styles.ResName}>Instalação</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>SIM</p>
-                      <p className={styles.ResValue}>-</p>
-                      <p className={styles.ResValue}>1R$82,00</p>
+                      <p className={styles.ResValue}>{userData?.instalacao} - {userData?.valorInstalacao}</p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Entrega</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>Retirada na loja</p>
+                      <p className={styles.ResValue}>{userData?.tipoEntrega}</p>
                     </div>
                   </div>
 

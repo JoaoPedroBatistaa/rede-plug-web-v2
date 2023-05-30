@@ -4,8 +4,16 @@ import { useRouter } from 'next/router';
 
 import HeaderViewBudget from '@/components/HeaderViewBudget';
 import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
+
+import { db, doc, getDoc } from '../../../firebase';
+
+type UserDataType = {
+  nomeCompleto: string;
+  Telefone: string;
+  email: string
+};
 
 export default function ViewBudgetData() {
 
@@ -16,6 +24,33 @@ export default function ViewBudgetData() {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
+
+  const [userData, setUserData] = useState<UserDataType | null>(null);
+
+  const selectedBudgetId = localStorage.getItem('selectedBudgetId')
+
+  useEffect(() => {
+    async function fetchData() {
+      if (selectedBudgetId) {
+        try {
+          const docRef = doc(db, 'Budget', selectedBudgetId);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserDataType);
+          } else {
+            console.log("Nenhum documento encontrado!");
+          }
+        } catch (error) {
+          console.error("Erro ao buscar documento:", error);
+        }
+      } else {
+        console.log("Nenhum ID selecionado!");
+      }
+    }
+
+    fetchData();
+  }, [selectedBudgetId]);
 
   return (
     <>
@@ -66,12 +101,12 @@ export default function ViewBudgetData() {
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Nome completo</p>
-                    <input type="text" className={styles.FieldSave} placeholder='JOSÉ ALBERTO SANTIAGO' />
+                    <p className={styles.FixedData}>{userData?.nomeCompleto}</p>
                   </div>
 
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Email</p>
-                    <input type="mail" className={styles.FieldSave} placeholder='josealberto@gmail.com' />
+                    <p className={styles.FixedData}>{userData?.email}</p>
                   </div>
                 </div>
 
@@ -79,7 +114,7 @@ export default function ViewBudgetData() {
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Telefone</p>
-                    <input type="tel" className={styles.FieldSave} placeholder='(61) 99999-9999' />
+                    <p className={styles.FixedData}>{userData?.Telefone}</p>
                   </div>
                 </div>
 

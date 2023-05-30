@@ -4,8 +4,20 @@ import { useRouter } from 'next/router';
 
 import HeaderOrder from '@/components/HeaderOrder';
 import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
+
+import { db, doc, getDoc } from '../../../firebase';
+
+type UserDataType = {
+  cep: string;
+  endereco: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+};
 
 export default function ViewOrderShip() {
 
@@ -16,6 +28,33 @@ export default function ViewOrderShip() {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
+
+  const [userData, setUserData] = useState<UserDataType | null>(null);
+
+  const selectedId = localStorage.getItem('selectedId')
+
+  useEffect(() => {
+    async function fetchData() {
+      if (selectedId) {
+        try {
+          const docRef = doc(db, 'Orders', selectedId);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserDataType);
+          } else {
+            console.log("Nenhum documento encontrado!");
+          }
+        } catch (error) {
+          console.error("Erro ao buscar documento:", error);
+        }
+      } else {
+        console.log("Nenhum ID selecionado!");
+      }
+    }
+
+    fetchData();
+  }, [selectedId]);
 
   return (
     <>
@@ -68,43 +107,43 @@ export default function ViewOrderShip() {
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>CEP</p>
-                    <input type="text" className={styles.FieldSmall} placeholder='99999-999' />
+                    <p className={styles.FixedDataSmall}>{userData?.cep}</p>
                   </div>
 
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Endereço *</p>
-                    <input type="text" className={styles.FieldSave} placeholder='Rua X Num 9' />
+                    <p className={styles.FixedData}>{userData?.endereco}</p>
                   </div>
                 </div>
 
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Número *</p>
-                    <input type="text" className={styles.FieldSmall} placeholder='999' />
+                    <p className={styles.FixedDataSmall}>{userData?.numero}</p>
                   </div>
 
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Complemento</p>
-                    <input type="text" className={styles.FieldSave} placeholder='Casa' />
+                    <p className={styles.FixedData}>{userData?.complemento}</p>
                   </div>
                 </div>
 
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Bairro *</p>
-                    <input type="text" className={styles.Field} placeholder='Lapa' />
+                    <p className={styles.FixedDataMedium}>{userData?.bairro}</p>
                   </div>
 
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Cidade</p>
-                    <input type="text" className={styles.Field} placeholder='São Paulo' />
+                    <p className={styles.FixedDataMedium}>{userData?.cidade}</p>
                   </div>
                 </div>
 
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Estado *</p>
-                    <input type="text" className={styles.Field} placeholder='São Paulo' />
+                    <p className={styles.FixedDataMedium}>{userData?.estado}</p>
                   </div>
                 </div>
 

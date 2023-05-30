@@ -88,50 +88,53 @@ export default function Table() {
           </tr>
         </thead>
         <Link href='/ViewOrderData'>
-          <Link href='ViewOrderData'>
-            <tbody>
-              {teste.map((item, index) => (
-                <tr className={styles.budgetItem} key={item.id}>
-                  <td>
-                    <img src="./More.png" width={5} height={20} className={styles.MarginRight} />
-                  </td>
-                  <td>
-                    <b>#{item.NumeroPedido}</b>
-                  </td>
-                  <td>
-                    <b>{item.nomeCompleto}</b><br />
-                    <span className={styles.diasUteis}> {item.Telefone}</span>
-                  </td>
-                  <td>
-                    <span className={item.Ativo == true ? styles.badge : styles.badgeInativo}>
-                      {item.Ativo ?
-                        <img src="./circleBlue.png" width={6} height={6} className={styles.marginRight8} /> :
-                        <img src="./circleRed.png" width={6} height={6} className={styles.marginRight8} />}
-                      {item.Ativo ? 'Ativo' : 'Inativo'}
-                    </span>
-                    <br />
-                    <span className={styles.dataCadastro}>
-                      Data de cadastro:{item.dataCadastro}
-                    </span>
-                  </td>
-                  <td>
-                    {item.Entrega}<br />
-                    <span className={styles.diasUteis}>15 dias Utéis</span>
-                  </td>
-                  <td>
-                    {item.dataCadastro}<br />
-                    <span className={styles.diasUteis}>{item.nomeCompleto}</span>
-                  </td>
-                  <td>
-                    {item.valorTotal}
-                    <br />
-                    <span className={styles.diasUteis}>À Vista</span>
-                  </td>
-                </tr>
-              ))
-              }
-            </tbody>
-          </Link>
+          <tbody>
+            {teste.map((item, index) => (
+              <tr
+                className={styles.budgetItem}
+                key={item.id}
+                onClick={() => {
+                  localStorage.setItem('selectedId', item.id);
+                }}
+              >
+                <td>
+                  <img src="./More.png" width={5} height={20} className={styles.MarginRight} />
+                </td>
+                <td>
+                  <b>#{item.NumeroPedido}</b>
+                </td>
+                <td>
+                  <b>{item.nomeCompleto}</b><br />
+                  <span className={styles.diasUteis}> {item.Telefone}</span>
+                </td>
+                <td>
+                  <span className={item.Ativo == true ? styles.badge : styles.badgeInativo}>
+                    {item.Ativo ?
+                      <img src="./circleBlue.png" width={6} height={6} className={styles.marginRight8} /> :
+                      <img src="./circleRed.png" width={6} height={6} className={styles.marginRight8} />}
+                    {item.Ativo ? 'Ativo' : 'Inativo'}
+                  </span>
+                  <br />
+                  <span className={styles.dataCadastro}>
+                    Data de cadastro:{item.dataCadastro}
+                  </span>
+                </td>
+                <td>
+                  {item.Entrega}<br />
+                  <span className={styles.diasUteis}>15 dias Utéis</span>
+                </td>
+                <td>
+                  {item.dataCadastro}<br />
+                  <span className={styles.diasUteis}>{item.nomeCompleto}</span>
+                </td>
+                <td>
+                  {item.valorTotal}
+                  <br />
+                  <span className={styles.diasUteis}>À Vista</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </Link>
       </table>
       <div className={styles.RodapeContainer}>

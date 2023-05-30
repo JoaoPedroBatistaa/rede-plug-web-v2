@@ -195,28 +195,28 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome completo</p>
-                  <input type="text" className={styles.FieldSave} placeholder='JOSÉ ALBERTO SANTIAGO' />
+                  <input type="text" className={styles.FieldSave} placeholder='' />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>CPF</p>
-                  <input id='CPF' type="text" className={styles.FieldSave} placeholder='111111111-11' onChange={handleInputChange} />
+                  <input id='CPF' type="text" className={styles.FieldSave} placeholder='' onChange={handleInputChange} />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Telefone</p>
-                  <input type="tel" className={styles.FieldSave} placeholder='(61) 99999-9999' />
+                  <input type="tel" className={styles.FieldSave} placeholder='' />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Email</p>
-                  <input type="mail" className={styles.FieldSave} placeholder='josealberto@gmail.com' />
+                  <input type="mail" className={styles.FieldSave} placeholder='' />
                 </div>
               </div>
             </div>
@@ -229,43 +229,43 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>CEP</p>
-                  <input id='CEP' type="text" className={styles.FieldSmall} placeholder='99999-999' onChange={handleInputChange} />
+                  <input id='CEP' type="text" className={styles.FieldSmall} placeholder='' onChange={handleInputChange} />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Endereço *</p>
-                  <input id='Endereco' type="text" className={styles.FieldSave} placeholder='Rua X Num 9' onChange={handleInputChange} />
+                  <input id='Endereco' type="text" className={styles.FieldSave} placeholder='' onChange={handleInputChange} />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Número *</p>
-                  <input id='Numero' type="text" className={styles.FieldSmall} placeholder='999' onChange={handleInputChange} />
+                  <input id='Numero' type="text" className={styles.FieldSmall} placeholder='' onChange={handleInputChange} />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Complemento</p>
-                  <input id='Complemento' type="text" className={styles.FieldSave} placeholder='Casa' onChange={handleInputChange} />
+                  <input id='Complemento' type="text" className={styles.FieldSave} placeholder='' onChange={handleInputChange} />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Bairro *</p>
-                  <input id='Bairro' type="text" className={styles.Field} placeholder='Lapa' onChange={handleInputChange} />
+                  <input id='Bairro' type="text" className={styles.Field} placeholder='' onChange={handleInputChange} />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Cidade</p>
-                  <input id='Cidade' type="text" className={styles.Field} placeholder='São Paulo' onChange={handleInputChange} />
+                  <input id='Cidade' type="text" className={styles.Field} placeholder='' onChange={handleInputChange} />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Estado *</p>
-                  <input id='estado' type="text" className={styles.Field} placeholder='São Paulo' onChange={handleInputChange} />
+                  <input id='estado' type="text" className={styles.Field} placeholder='' onChange={handleInputChange} />
                 </div>
               </div>
 
