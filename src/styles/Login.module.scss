@@ -88,10 +88,17 @@
 .field {
   width: 27.6em;
   height: 2.7rem;
-  border-radius: 5px;
+  padding-left: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
   background-color: #F6F7FA;
-  border: solid 1px #40404941;
-  margin-bottom: 20px;
+  border-radius: 5px;
+  border: solid 1px;
+  border-color: #4040492d;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #404049;
 }
 
 .button {
@@ -131,4 +138,12 @@
   margin-bottom: 24px;
 
 
+}
+
+.erro {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #ff0000;
+  margin-bottom: 1rem;
 }

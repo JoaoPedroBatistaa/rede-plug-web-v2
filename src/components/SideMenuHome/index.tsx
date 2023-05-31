@@ -30,18 +30,18 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           <div className={`${styles.MenuNavigate} ${activeRoute === '/ViewOrderData' ? styles.active : ''}`}>
             <img src='./homeIconMenu.svg' className={styles.Pointer}></img>
             {/* <p className={styles.NavigateItem}>Home</p> */}
-              <Link  className={styles.NavigateItem} href="/Home">Home</Link>
+            <Link className={styles.NavigateItem} href="/Home">Home</Link>
           </div>
 
-          <div className={`${styles.MenuNavigate} ${activeRoute === '/BudgetPerfil' ? styles.active : ''}`}>
+          <div className={`${styles.MenuNavigate} ${activeRoute === '/Budgets' ? styles.active : ''}`}>
             <img src='./orcamentoIcon.svg' className={styles.Pointer}></img>
             {/* <p className={styles.NavigateItem}>Orçamentos</p> */}
-            <Link  className={styles.NavigateItem} href="/Budgets">Orçamentos</Link>
+            <Link className={styles.NavigateItem} href="/Budgets">Orçamentos</Link>
           </div>
 
-          <div className={`${styles.MenuNavigate} ${activeRoute === '/BudgetGlass' ? styles.active : ''}`}>
+          <div className={`${styles.MenuNavigate} ${activeRoute === '/Requests' ? styles.active : ''}`}>
             <img src='./pedidosIcon.svg' className={styles.Pointer}></img>
-            <Link  className={styles.NavigateItem} href="/Requests">Pedidos</Link>
+            <Link className={styles.NavigateItem} href="/Requests">Pedidos</Link>
             {/* <p className={styles.NavigateItem}>Pedidos</p> */}
           </div>
 
@@ -94,10 +94,12 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <div>
 
-          <div className={`${styles.MenuNavigate} ${activeRoute === '/BudgetSize' ? styles.active : ''}`}>
-            <p className={styles.NavigateItemEnd}>Encerrar sessão</p>
-            <img src='./Logout.svg' className={styles.PointerEnd}></img>
-          </div>
+          <Link href='/Login'>
+            <div className={`${styles.MenuNavigate} ${activeRoute === '/BudgetSize' ? styles.active : ''}`}>
+              <p className={styles.NavigateItemEnd}>Encerrar sessão</p>
+              <img src='./Logout.svg' className={styles.PointerEnd}></img>
+            </div>
+          </Link>
 
         </div>
 
