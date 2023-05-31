@@ -1,10 +1,24 @@
 .tableContianer {
+  width: 100%;
+  height: auto;
   overflow-x: auto;
 }
-
+.table {
+  width: 100%;
+height: auto;
+  border-collapse: collapse;
+}
+.table thead {
+  width: 100%;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .tableHeader {
-  background-color: #F6F7FA;
-  font-family: 'Outfit';
+  height: 100%;
+  background-color: #f6f7fa;
+  font-family: "Outfit";
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
@@ -12,34 +26,54 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #404049;
-}
-
-
-
-.table {
   width: 100%;
-  border-collapse: collapse;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin: 0 auto;
+  th {
+   
+    width: 250px;
+    padding: 8px;
+    border: 0px solid #ddd;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+   
+  }
+}
+.table .budgetItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+ gap: 3px;
+
+  td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    height: 62px;
+    color: #404049;
+    font-family: "Outfit";
+    font-style: normal;
+    text-align: start;
+
+   
+  }
 }
 
-.table th {
-  padding: 8px;
-  border: 0px solid #ddd;
-  height: 45px;
-}
+.td {
+  width: 250px;
+ 
 
-.table td {
-  padding: 8px;
-  border-bottom: 1px solid #ddd;
-  height: 45px;
-  color: #404049;
-  font-family: 'Outfit';
-  font-style: normal;
-  text-align: center;
 }
 
 .table tbody {
   width: 100%;
 }
+
 
 @media screen and (max-width: 600px) {
   .table {
@@ -48,12 +82,10 @@
   }
 }
 
-
-
 .RodapeContainer {
   display: flex;
   flex: 1;
-  font-family: 'Outfit';
+  font-family: "Outfit";
   font-style: normal;
   font-weight: 400;
   color: #404049;
@@ -111,15 +143,14 @@
   border: none;
   border-radius: 5px;
   margin-right: 8px;
-  background-color: #D0D4DD;
-  color: #7C0000;
+  background-color: #d0d4dd;
+  color: #7c0000;
   font-weight: bold;
   cursor: pointer;
-
 }
 
 .SelectMax {
-  font-family: 'Outfit';
+  font-family: "Outfit";
   font-style: normal;
   font-weight: 600;
   height: 34px;
@@ -132,25 +163,24 @@
 }
 
 .badge {
-
-  color: #4A4AFF;
-  background-color: #DEE2ED;
+  color: #4a4aff;
+  background-color: #dee2ed;
   padding: 5px 10px;
   font-weight: bold;
   border-radius: 50px;
   align-items: center;
   justify-content: center;
   text-align: center;
+  
 }
 
 .badgeInativo {
-  color: #F92C38;
+  color: #f92c38;
   background-color: rgba(249, 44, 56, 0.24);
   padding: 5px 10px;
-
   font-weight: bold;
   border-radius: 50px;
-  text-align: center;
+
 }
 
 .marginRight8 {
@@ -158,15 +188,18 @@
 }
 
 .dataCadastro {
-  font-family: 'DM Sans';
+  font-family: "DM Sans";
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
   color: #404049;
+  height: 30px;
+   padding-bottom: 10px;
+ 
 }
 
 .diasUteis {
-  font-family: 'DM Sans';
+  font-family: "DM Sans";
   font-style: normal;
   font-weight: 400;
   font-size: 12px;

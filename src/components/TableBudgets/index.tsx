@@ -81,7 +81,7 @@ export default function TableBudgets() {
       <table className={styles.table}>
         <thead>
           <tr className={styles.tableHeader}>
-            <th></th>
+      
             <th>Nº Orçamento</th>
             <th>CLIENTE</th>
             <th>SITUAÇÃO</th>
@@ -101,14 +101,14 @@ export default function TableBudgets() {
                 <td>
                   <img src="./More.png" width={5} height={20} className={styles.MarginRight} />
                 </td>
-                <td>
+                <td className={styles.td}>
                   <b>#{item.NumeroPedido}</b>
                 </td>
-                <td>
+                <td className={styles.td}>
                   <b>{item.nomeCompleto}</b><br />
                   <span className={styles.diasUteis}> {item.Telefone}</span>
                 </td>
-                <td>
+                <td className={styles.td}>
                   <span className={item.Ativo == true ? styles.badge : styles.badgeInativo}>
                     {item.Ativo ?
                       <img src="./circleBlue.png" width={6} height={6} className={styles.marginRight8} /> :
@@ -120,15 +120,15 @@ export default function TableBudgets() {
                     Data de cadastro:{item.dataCadastro}
                   </span>
                 </td>
-                <td>
+                <td className={styles.td}>
                   {item.Entrega}<br />
                   <span className={styles.diasUteis}>15 dias Utéis</span>
                 </td>
-                <td>
+                <td className={styles.td}>
                   {item.dataCadastro}<br />
                   <span className={styles.diasUteis}>{item.nomeCompleto}</span>
                 </td>
-                <td>
+                <td className={styles.td}>
                   {item.valorTotal}
                   <br />
                   <span className={styles.diasUteis}>À Vista</span>
