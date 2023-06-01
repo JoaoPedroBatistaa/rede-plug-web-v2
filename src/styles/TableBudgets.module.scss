@@ -2,11 +2,13 @@
   width: 100%;
   height: auto;
   overflow-x: auto;
+ 
 }
 .table {
   width: 100%;
 height: auto;
   border-collapse: collapse;
+ 
 }
 .table thead {
   width: 100%;
@@ -14,6 +16,7 @@ height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  
 }
 .tableHeader {
   height: 100%;
@@ -40,7 +43,7 @@ height: auto;
     height: 45px;
     display: flex;
     align-items: center;
-    justify-content: start;
+  
    
   }
 }
@@ -160,6 +163,7 @@ height: auto;
   margin-left: 11px;
   margin-right: 11px;
   border: 1px solid rgba(143, 142, 145, 0.5);
+  
 }
 
 .badge {
@@ -194,7 +198,9 @@ height: auto;
   font-size: 12px;
   color: #404049;
   height: 30px;
-   padding-bottom: 10px;
+  p{
+    margin-top: 10px;
+  }
  
 }
 

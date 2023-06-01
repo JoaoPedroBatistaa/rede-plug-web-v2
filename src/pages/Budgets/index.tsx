@@ -20,11 +20,20 @@ export default function Budgets() {
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [searchValue, setSearchValue] = useState("");
+
+  
+  
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     setSearchValue(e.target.value);
+  
+  };
+  console.log(searchValue)
   return (
     <>
       <Head>
@@ -47,7 +56,7 @@ export default function Budgets() {
                   <div className={styles.ListMenuFilter}>
                     <img src='./Filter.png' ></img>  <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList></SearchInputList>
+                  <SearchInputList handleSearchChange={(e)=> handleSearchChange(e)}></SearchInputList>
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href='/BudgetSize'>
@@ -59,7 +68,7 @@ export default function Budgets() {
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <TableBudgets />
+              <TableBudgets searchValue={searchValue}/>
 
             </div>
           </div>
