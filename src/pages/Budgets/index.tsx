@@ -21,7 +21,7 @@ export default function Budgets() {
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchValue, setSearchValue] = useState("");
 
-  const [openFilter, setOpenFilter] = useState(true);
+  const [openFilter, setOpenFilter] = useState(false);
 
   const handleOpenFilter = () => {
     setOpenFilter(!openFilter);

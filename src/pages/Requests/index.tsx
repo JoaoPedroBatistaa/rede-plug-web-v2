@@ -16,7 +16,7 @@ import Table from '@/components/Table';
 export default function Requests() {
 
   const router = useRouter();
-  const [openFilter, setOpenFilter] = useState(true);
+  const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState('opcao1');
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
