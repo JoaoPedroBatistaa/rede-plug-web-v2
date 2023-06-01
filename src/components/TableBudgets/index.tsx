@@ -61,13 +61,14 @@ export default function TableBudgets({
       const filteredItems = teste.filter((item) =>
         item.nomeCompleto.toLowerCase().includes(searchValue.toLowerCase()) ||
         item.dataCadastro.toLowerCase().includes(searchValue.toLowerCase()) ||
-        (item.Ativo ? "Ativo" : "Inativo").toLowerCase().includes(searchValue.toLowerCase())
+        (item.Ativo ? "Ativo" : "Inativo").toLowerCase().includes(searchValue.toLowerCase()) 
+    
 
-   
         
         
       );
       setFilteredData(filteredItems);
+      console.log(filteredItems);
     };
     filterData();
   }, [searchValue, teste]);
