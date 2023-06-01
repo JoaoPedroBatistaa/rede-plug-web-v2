@@ -20,17 +20,17 @@ export default function Budgets() {
 
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchValue, setSearchValue] = useState("");
-  const [valueFilter, setValueFilter] = useState("");
+
   const [openFilter, setOpenFilter] = useState(true);
 
   const handleOpenFilter = () => {
     setOpenFilter(!openFilter);
   };
 
-  const handleRadioChange = (event: React.MouseEvent<HTMLInputElement>) => {
-    setValueFilter(valueFilter);
-    console.log(valueFilter);
-  };
+ // const handleRadioChange = (event: React.MouseEvent<HTMLInputElement>) => {
+  //  setValueFilter(valueFilter);
+  //  console.log(valueFilter);
+ // };
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
@@ -91,9 +91,7 @@ export default function Budgets() {
                       type="radio"
                       id="nomeCrescente"
                       name="ordenarPor"
-                      value="nomeCrescente"
-                      checked={valueFilter === "nomeCrescente"}
-                      onClick={handleRadioChange}
+                     
                     />
                     <label htmlFor="nomeCrescente">Nome crescente</label>
                   </div>

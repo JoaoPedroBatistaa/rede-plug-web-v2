@@ -16,13 +16,15 @@ import Table from '@/components/Table';
 export default function Requests() {
 
   const router = useRouter();
-
+  const [openFilter, setOpenFilter] = useState(true);
   const [selectedOption, setSelectedOption] = useState('opcao1');
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
-
+  const handleOpenFilter = () => {
+    setOpenFilter(!openFilter);
+  };
   return (
     <>
       <Head>
@@ -42,7 +44,7 @@ export default function Requests() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  <div className={styles.ListMenuFilter}>
+                  <div className={styles.ListMenuFilter} onClick={handleOpenFilter}>
                     <img src='./Filter.png' ></img>  <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
                   <SearchInputList></SearchInputList>
@@ -53,6 +55,60 @@ export default function Requests() {
                       Novo Pedido
                     </button>
                   </Link>
+                </div>
+              </div>
+              <div
+                className={`${
+                  openFilter
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
+              >
+                <div className={styles.listFilter}>
+                  <h2>ORDENAR POR:</h2>
+                  <div>
+                    <input
+                      type="radio"
+                      id="nomeCrescente"
+                      name="ordenarPor"
+                     
+                    />
+                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      id="nomeDecrescente"
+                      name="ordenarPor"
+                    />
+                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="maiorValor" name="ordenarPor" />
+                    <label htmlFor="maiorValor">Maior Valor</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="dataVencimento" name="ordenarPor" />
+                    <label htmlFor="dataVencimento">Data de vencimento</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="dataCadastro" name="ordenarPor" />
+                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                  </div>
+                  <span className={styles.sublinado}></span>
+                  <h2>SITUAÇÃO</h2>
+                  <div>
+                    <input type="radio" id="todos" name="situacao" />
+                    <label htmlFor="todos">Todos</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="ativos" name="situacao" />
+                    <label htmlFor="ativos">Ativos</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="inativos" name="situacao" />
+                    <label htmlFor="inativos">Inativos</label>
+                  </div>
                 </div>
               </div>
               <div className={styles.MarginTop}></div>

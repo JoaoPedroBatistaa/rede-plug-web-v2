@@ -75,7 +75,7 @@ export default function BudgetPerfil() {
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espessura do perfil</p>
+              <p className={styles.FieldLabel}>Largura do perfil</p>
               <input id='espessura' type="text" className={styles.Field} placeholder='' value={espessura} onChange={handleEspessuraChange} />
             </div>
           </div>

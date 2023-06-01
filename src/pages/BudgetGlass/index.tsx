@@ -83,7 +83,7 @@ export default function BudgetGlass() {
 
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espessura do Vidro</p>
+              <p className={styles.FieldLabel}>Largura do Vidro</p>
               <select id='espessuraVidro' className={styles.SelectField} value={selectedOptionEspessuraVidro} onChange={handleSelectChangeEspessuraVidro}>
                 <option value="2MM" selected={selectedOptionEspessuraVidro === '2MM'}>
                   2MM
@@ -116,7 +116,7 @@ export default function BudgetGlass() {
 
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espessura do Espelho</p>
+              <p className={styles.FieldLabel}>Largura do Espelho</p>
               <select id='espessuraEspelho' className={styles.SelectField} value={selectedOptionEspessuraEspelho} onChange={handleSelectChangeEspessuraEspelho}>
                 <option value="2MM" selected={selectedOptionEspessuraEspelho === '2MM'}>
                   2MM

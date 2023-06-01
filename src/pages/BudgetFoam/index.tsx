@@ -116,7 +116,7 @@ export default function BudgetFoam() {
 
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espessura do Espelho</p>
+              <p className={styles.FieldLabel}>Largura do Espelho</p>
               <select id='codigoMdf' className={styles.SelectField} value={selectedOptionCodigoMdf} onChange={handleSelectChangeCodigoMdf}>
                 <option value="55020" selected={selectedOptionCodigoMdf === '55020'}>
                   55020
