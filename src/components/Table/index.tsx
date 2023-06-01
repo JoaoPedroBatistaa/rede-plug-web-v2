@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import styles from '../../styles/Table.module.scss'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import Link from 'next/link';
+import React, { useEffect, useState } from "react";
+import styles from "../../styles/Table.module.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
 
-import { collection, db, getDoc, doc } from '../../../firebase';
-import { GetServerSidePropsContext } from 'next';
-import { getDocs } from 'firebase/firestore';
+import { collection, db, getDoc, doc } from "../../../firebase";
+import { GetServerSidePropsContext } from "next";
+import { getDocs } from "firebase/firestore";
+import {ITableBudgets} from "./type"
 
 interface Order {
   id: string;
@@ -23,12 +24,11 @@ interface Order {
 
 
 export default function Table() {
-
   const [teste, setTeste] = useState<Order[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, 'Orders');
+      const dbCollection = collection(db, "Orders");
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -47,17 +47,65 @@ export default function Table() {
       });
       setTeste(budgetList);
       console.log(budgetList);
-    }
+    };
     fetchData();
   }, []);
 
   const data = [
-    { numeroPedido: "1231", numeroTelefone: '(11) 99999-9999', cliente: "Cliente A", situacao: "Ativo", prazoEntrega: "10/05/2023", dataCadastro: "05/05/2023", valorTotal: "R$ 100,00" },
-    { numeroPedido: "4567", numeroTelefone: '(11) 99999-9999', cliente: "Cliente B", situacao: "Inativo", prazoEntrega: "15/05/2023", dataCadastro: "08/05/2023", valorTotal: "R$ 150,00" },
-    { numeroPedido: "4562", numeroTelefone: '(11) 99999-9999', cliente: "Cliente B", situacao: "Ativo", prazoEntrega: "15/05/2023", dataCadastro: "08/05/2023", valorTotal: "R$ 150,00" },
-    { numeroPedido: "4561", numeroTelefone: '(11) 99999-9999', cliente: "Cliente B", situacao: "Ativo", prazoEntrega: "15/05/2023", dataCadastro: "08/05/2023", valorTotal: "R$ 150,00" },
-    { numeroPedido: "4563", numeroTelefone: '(11) 99999-9999', cliente: "Cliente B", situacao: "Ativo", prazoEntrega: "15/05/2023", dataCadastro: "08/05/2023", valorTotal: "R$ 150,00" },
-    { numeroPedido: "4568", numeroTelefone: '(11) 99999-9999', cliente: "Cliente B", situacao: "Inativo", prazoEntrega: "15/05/2023", dataCadastro: "08/05/2023", valorTotal: "R$ 150,00" },
+    {
+      numeroPedido: "1231",
+      numeroTelefone: "(11) 99999-9999",
+      cliente: "Cliente A",
+      situacao: "Ativo",
+      prazoEntrega: "10/05/2023",
+      dataCadastro: "05/05/2023",
+      valorTotal: "R$ 100,00",
+    },
+    {
+      numeroPedido: "4567",
+      numeroTelefone: "(11) 99999-9999",
+      cliente: "Cliente B",
+      situacao: "Inativo",
+      prazoEntrega: "15/05/2023",
+      dataCadastro: "08/05/2023",
+      valorTotal: "R$ 150,00",
+    },
+    {
+      numeroPedido: "4562",
+      numeroTelefone: "(11) 99999-9999",
+      cliente: "Cliente B",
+      situacao: "Ativo",
+      prazoEntrega: "15/05/2023",
+      dataCadastro: "08/05/2023",
+      valorTotal: "R$ 150,00",
+    },
+    {
+      numeroPedido: "4561",
+      numeroTelefone: "(11) 99999-9999",
+      cliente: "Cliente B",
+      situacao: "Ativo",
+      prazoEntrega: "15/05/2023",
+      dataCadastro: "08/05/2023",
+      valorTotal: "R$ 150,00",
+    },
+    {
+      numeroPedido: "4563",
+      numeroTelefone: "(11) 99999-9999",
+      cliente: "Cliente B",
+      situacao: "Ativo",
+      prazoEntrega: "15/05/2023",
+      dataCadastro: "08/05/2023",
+      valorTotal: "R$ 150,00",
+    },
+    {
+      numeroPedido: "4568",
+      numeroTelefone: "(11) 99999-9999",
+      cliente: "Cliente B",
+      situacao: "Inativo",
+      prazoEntrega: "15/05/2023",
+      dataCadastro: "08/05/2023",
+      valorTotal: "R$ 150,00",
+    },
     // ... adicione mais linhas de dados conforme necessário
   ];
   // Configuração da paginação
@@ -78,7 +126,7 @@ export default function Table() {
       <table className={styles.table}>
         <thead>
           <tr className={styles.tableHeader}>
-            <th></th>
+            
             <th>Nº Pedido</th>
             <th>CLIENTE</th>
             <th>SITUAÇÃO</th>
@@ -87,47 +135,71 @@ export default function Table() {
             <th>VALOR TOTAL</th>
           </tr>
         </thead>
-        <Link href='/ViewOrderData'>
+        <Link href="/ViewOrderData">
           <tbody>
             {teste.map((item, index) => (
               <tr
                 className={styles.budgetItem}
                 key={item.id}
                 onClick={() => {
-                  localStorage.setItem('selectedId', item.id);
+                  localStorage.setItem("selectedId", item.id);
                 }}
               >
                 <td>
-                  <img src="./More.png" width={5} height={20} className={styles.MarginRight} />
+                  <img
+                    src="./More.png"
+                    width={5}
+                    height={20}
+                    className={styles.MarginRight}
+                  />
                 </td>
-                <td>
+                <td className={styles.td}>
                   <b>#{item.NumeroPedido}</b>
                 </td>
-                <td>
-                  <b>{item.nomeCompleto}</b><br />
+                <td className={styles.td}>
+                  <b>{item.nomeCompleto}</b>
+                  <br />
                   <span className={styles.diasUteis}> {item.Telefone}</span>
                 </td>
-                <td>
-                  <span className={item.Ativo == true ? styles.badge : styles.badgeInativo}>
-                    {item.Ativo ?
-                      <img src="./circleBlue.png" width={6} height={6} className={styles.marginRight8} /> :
-                      <img src="./circleRed.png" width={6} height={6} className={styles.marginRight8} />}
-                    {item.Ativo ? 'Ativo' : 'Inativo'}
+                <td className={styles.td}>
+                  <span
+                    className={
+                      item.Ativo == true ? styles.badge : styles.badgeInativo
+                    }
+                  >
+                    {item.Ativo ? (
+                      <img
+                        src="./circleBlue.png"
+                        width={6}
+                        height={6}
+                        className={styles.marginRight8}
+                      />
+                    ) : (
+                      <img
+                        src="./circleRed.png"
+                        width={6}
+                        height={6}
+                        className={styles.marginRight8}
+                      />
+                    )}
+                    {item.Ativo ? "Ativo" : "Inativo"}
                   </span>
                   <br />
                   <span className={styles.dataCadastro}>
                     Data de cadastro:{item.dataCadastro}
                   </span>
                 </td>
-                <td>
-                  {item.Entrega}<br />
+                <td className={styles.td}>
+                  {item.Entrega}
+                  <br />
                   <span className={styles.diasUteis}>15 dias Utéis</span>
                 </td>
-                <td>
-                  {item.dataCadastro}<br />
+                <td className={styles.td}>
+                  {item.dataCadastro}
+                  <br />
                   <span className={styles.diasUteis}>{item.nomeCompleto}</span>
                 </td>
-                <td>
+                <td className={styles.td}>
                   {item.valorTotal}
                   <br />
                   <span className={styles.diasUteis}>À Vista</span>
@@ -164,9 +236,11 @@ export default function Table() {
         </div>
 
         <div className={styles.RodapeContinaerRight}>
-
           <div className={styles.RodapePaginacaoContador}>
-            <FontAwesomeIcon icon={faAngleLeft} className={styles.RodapePaginacaoIcone}></FontAwesomeIcon>
+            <FontAwesomeIcon
+              icon={faAngleLeft}
+              className={styles.RodapePaginacaoIcone}
+            ></FontAwesomeIcon>
           </div>
           <div className={styles.RodapePaginacaoContadorDestaque}>1</div>
           <div className={styles.RodapePaginacaoContadorSemBorda}>2</div>
@@ -174,8 +248,10 @@ export default function Table() {
           <div className={styles.RodapePaginacaoContadorSemBorda}>4</div>
           <div className={styles.RodapePaginacaoContadorSemBorda}>5</div>
           <div className={styles.RodapePaginacaoContador}>
-            <FontAwesomeIcon icon={faAngleRight}
-              className={styles.RodapePaginacaoIcone} ></FontAwesomeIcon>
+            <FontAwesomeIcon
+              icon={faAngleRight}
+              className={styles.RodapePaginacaoIcone}
+            ></FontAwesomeIcon>
           </div>
 
           {/* {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
@@ -188,8 +264,7 @@ export default function Table() {
             </button>
           ))} */}
         </div>
-
       </div>
     </div>
-  )
+  );
 }
