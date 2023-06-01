@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { collection, db, getDoc, doc } from '../../../firebase';
 import { GetServerSidePropsContext } from 'next';
 import { getDocs } from 'firebase/firestore';
+import {ITableBudgets} from "./type"
 
 interface Order {
   id: string;
@@ -22,8 +23,10 @@ interface Order {
 }
 
 
-export default function Table() {
-
+export default function Table({
+  searchValue
+}:ITableBudgets) {
+  const [filteredData, setFilteredData] = useState< Order[]>([]);
   const [teste, setTeste] = useState<Order[]>([]);
 
   useEffect(() => {
@@ -50,6 +53,18 @@ export default function Table() {
     }
     fetchData();
   }, []);
+  useEffect(() => {
+    const filterData = () => {
+      const filteredItems = teste.filter((item) =>
+        item.nomeCompleto?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.dataCadastro?.toLowerCase().includes(searchValue.toLowerCase())
+      
+      );
+      setFilteredData(filteredItems);
+      console.log(filteredItems);
+    };
+    filterData();
+  }, [searchValue, teste]);
 
   const data = [
     { numeroPedido: "1231", numeroTelefone: '(11) 99999-9999', cliente: "Cliente A", situacao: "Ativo", prazoEntrega: "10/05/2023", dataCadastro: "05/05/2023", valorTotal: "R$ 100,00" },
@@ -89,7 +104,7 @@ export default function Table() {
         </thead>
         <Link href='/ViewOrderData'>
           <tbody>
-            {teste.map((item, index) => (
+            {filteredData.map((item, index) => (
               <tr
                 className={styles.budgetItem}
                 key={item.id}

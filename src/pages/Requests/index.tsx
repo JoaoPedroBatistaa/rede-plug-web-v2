@@ -18,6 +18,12 @@ export default function Requests() {
   const router = useRouter();
   const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
+  console.log(searchValue);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
@@ -47,7 +53,9 @@ export default function Requests() {
                   <div className={styles.ListMenuFilter} onClick={handleOpenFilter}>
                     <img src='./Filter.png' ></img>  <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList></SearchInputList>
+                  <SearchInputList
+                  handleSearchChange={(e) => handleSearchChange(e)}
+                  ></SearchInputList>
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href='/BudgetSize'>
@@ -113,7 +121,7 @@ export default function Requests() {
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table />
+              <Table searchValue={searchValue} />
 
             </div>
           </div>
