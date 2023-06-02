@@ -88,6 +88,7 @@ export default function TableBudgets({ searchValue }: ITableBudgets) {
       <table className={styles.table}>
         <thead>
           <tr className={styles.tableHeader}>
+            <th className={styles.thNone}></th>
             <th>Nº Orçamento</th>
             <th>CLIENTE</th>
             <th>SITUAÇÃO</th>
