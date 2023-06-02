@@ -2,13 +2,11 @@
   width: 100%;
   height: auto;
   overflow-x: auto;
- 
 }
 .table {
   width: 100%;
-height: auto;
+  height: auto;
   border-collapse: collapse;
- 
 }
 .table thead {
   width: 100%;
@@ -16,7 +14,6 @@ height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  
 }
 .tableHeader {
   height: 100%;
@@ -36,15 +33,12 @@ height: auto;
   gap: 3px;
   margin: 0 auto;
   th {
-   
     width: 250px;
     padding: 8px;
     border: 0px solid #ddd;
     height: 45px;
     display: flex;
     align-items: center;
-  
-   
   }
 }
 .table .budgetItem {
@@ -52,31 +46,28 @@ height: auto;
   display: flex;
   align-items: center;
   justify-content: space-around;
- gap: 3px;
+  gap: 3px;
 
   td {
     padding: 8px;
     border-bottom: 1px solid #ddd;
-    height: 62px;
+    height: 60px;
     color: #404049;
     font-family: "Outfit";
     font-style: normal;
     text-align: start;
-
-   
+    align-items: center;
+    margin: 6px auto;
   }
 }
 
 .td {
   width: 250px;
- 
-
 }
 
 .table tbody {
   width: 100%;
 }
-
 
 @media screen and (max-width: 600px) {
   .table {
@@ -94,7 +85,8 @@ height: auto;
   color: #404049;
   justify-items: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 25px;
+  margin-bottom: 5px;
 }
 
 .RodapeContinaerLeft {
@@ -163,7 +155,6 @@ height: auto;
   margin-left: 11px;
   margin-right: 11px;
   border: 1px solid rgba(143, 142, 145, 0.5);
-  
 }
 
 .badge {
@@ -175,7 +166,6 @@ height: auto;
   align-items: center;
   justify-content: center;
   text-align: center;
-  
 }
 
 .badgeInativo {
@@ -184,7 +174,6 @@ height: auto;
   padding: 5px 10px;
   font-weight: bold;
   border-radius: 50px;
-
 }
 
 .marginRight8 {
@@ -198,10 +187,9 @@ height: auto;
   font-size: 12px;
   color: #404049;
   height: 30px;
-  p{
+  p {
     margin-top: 10px;
   }
- 
 }
 
 .diasUteis {

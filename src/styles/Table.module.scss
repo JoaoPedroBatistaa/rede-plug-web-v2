@@ -2,13 +2,11 @@
   width: 100%;
   height: auto;
   overflow-x: auto;
- 
 }
 .table {
   width: 100%;
-height: auto;
+  height: auto;
   border-collapse: collapse;
- 
 }
 .table thead {
   width: 100%;
@@ -16,7 +14,6 @@ height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  
 }
 .tableHeader {
   height: 100%;
@@ -32,20 +29,16 @@ height: auto;
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content:center;
+  justify-content: center;
   gap: 3px;
   margin: 0 auto;
   th {
-   
     width: 250px;
     padding: 8px;
     border: 0px solid #ddd;
     height: 45px;
     display: flex;
     align-items: center;
-    
-  
-   
   }
 }
 .table .budgetItem {
@@ -53,7 +46,7 @@ height: auto;
   display: flex;
   align-items: center;
   justify-content: space-around;
- gap: 3px;
+  gap: 3px;
 
   td {
     padding: 8px;
@@ -63,21 +56,17 @@ height: auto;
     font-family: "Outfit";
     font-style: normal;
     text-align: start;
-
-   
+    margin: 6px auto;
   }
 }
 
 .td {
   width: 250px;
- 
-
 }
 
 .table tbody {
   width: 100%;
 }
-
 
 @media screen and (max-width: 600px) {
   .table {
@@ -86,18 +75,17 @@ height: auto;
   }
 }
 
-
-
 .RodapeContainer {
   display: flex;
   flex: 1;
-  font-family: 'Outfit';
+  font-family: "Outfit";
   font-style: normal;
   font-weight: 400;
   color: #404049;
   justify-items: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 25px;
+  margin-bottom: 5px;
 }
 
 .RodapeContinaerLeft {
@@ -112,8 +100,8 @@ height: auto;
   align-items: center;
 }
 
-.RodapePaginacaoIcone{
-  transform: scale(0.2); 
+.RodapePaginacaoIcone {
+  transform: scale(0.2);
 }
 
 .RodapePaginacaoContador {
@@ -124,7 +112,7 @@ height: auto;
   height: 35px;
   border-radius: 5px;
   border: 1px solid rgba(143, 142, 145, 0.4);
-    cursor: pointer;
+  cursor: pointer;
   margin-right: 8px;
 }
 .RodapePaginacaoContadorSemBorda {
@@ -135,7 +123,7 @@ height: auto;
   height: 35px;
   border: none;
   margin-right: 8px;
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .RodapePaginacaoContadorDestaque {
@@ -147,15 +135,14 @@ height: auto;
   border: none;
   border-radius: 5px;
   margin-right: 8px;
-  background-color:#D0D4DD ;
-  color:#7C0000 ;
+  background-color: #d0d4dd;
+  color: #7c0000;
   font-weight: bold;
-    cursor: pointer;
-  
+  cursor: pointer;
 }
 
 .SelectMax {
-  font-family: 'Outfit';
+  font-family: "Outfit";
   font-style: normal;
   font-weight: 600;
   height: 34px;
@@ -167,20 +154,19 @@ height: auto;
   border: 1px solid rgba(143, 142, 145, 0.5);
 }
 
-.badge{
-
-  color:#4A4AFF;
-  background-color: #DEE2ED;
+.badge {
+  color: #4a4aff;
+  background-color: #dee2ed;
   padding: 5px 10px;
   font-weight: bold;
   border-radius: 50px;
   align-items: center;
-  justify-content: center; 
-    text-align: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.badgeInativo{
-  color:#F92C38;
+.badgeInativo {
+  color: #f92c38;
   background-color: rgba(249, 44, 56, 0.24);
   padding: 5px 10px;
 
@@ -193,17 +179,20 @@ height: auto;
   margin-right: 8px;
 }
 
-.dataCadastro{
- font-family: 'DM Sans';
+.dataCadastro {
+  font-family: "DM Sans";
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  color:#404049;
+  color: #404049;
+  p {
+    margin-top: 10px;
+  }
 }
-.diasUteis{
-    font-family: 'DM Sans';
-      font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      color:#404049;
+.diasUteis {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #404049;
 }

@@ -18,7 +18,7 @@ import { faL } from "@fortawesome/free-solid-svg-icons";
 export default function Budgets() {
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState("opcao1");
+  const [selectedOption, setSelectedOption] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
   const [openFilter, setOpenFilter] = useState(false);
@@ -27,11 +27,6 @@ export default function Budgets() {
     setOpenFilter(!openFilter);
   };
 
- // const handleRadioChange = (event: React.MouseEvent<HTMLInputElement>) => {
-  //  setValueFilter(valueFilter);
-  //  console.log(valueFilter);
- // };
-
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
@@ -39,7 +34,20 @@ export default function Budgets() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
-  console.log(searchValue);
+
+  const [nomeCrescente, setNomeCrescente] = useState("nomeCrescente");
+  const [situacao, setSituacao] = useState("");
+
+  const handleOrdenarPorChange = (event: any) => {
+    setNomeCrescente(nomeCrescente);
+    console.log(nomeCrescente);
+    console;
+  };
+
+  const handleSituacaoChange = (event: any) => {
+    setSituacao(event.target.value);
+  };
+
   return (
     <>
       <Head>
@@ -91,7 +99,8 @@ export default function Budgets() {
                       type="radio"
                       id="nomeCrescente"
                       name="ordenarPor"
-                     
+                      value={nomeCrescente}
+                      onChange={handleOrdenarPorChange}
                     />
                     <label htmlFor="nomeCrescente">Nome crescente</label>
                   </div>
@@ -100,6 +109,7 @@ export default function Budgets() {
                       type="radio"
                       id="nomeDecrescente"
                       name="ordenarPor"
+                      onChange={handleOrdenarPorChange}
                     />
                     <label htmlFor="nomeDecrescente">Nome decrescente</label>
                   </div>
