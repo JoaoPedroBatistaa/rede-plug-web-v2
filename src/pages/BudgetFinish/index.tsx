@@ -1,16 +1,15 @@
-import Head from 'next/head';
-import styles from '../../styles/BudgetFinish.module.scss';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import styles from "../../styles/BudgetFinish.module.scss";
+import { useRouter } from "next/router";
 
-import HeaderBudget from '@/components/HeaderBudget';
-import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useEffect, useState } from 'react';
-import Link from 'next/link';
-
-import { db, addDoc, collection } from '../../../firebase';
+import HeaderBudget from "@/components/HeaderBudget";
+import SideMenuBudget from "@/components/SideMenuBudget";
+import { ChangeEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import MaskedInput from "react-input-mask";
+import { db, addDoc, collection } from "../../../firebase";
 
 export default function BudgetFinish() {
-
   const router = useRouter();
 
   let nomeCompleto: string | null;
@@ -40,41 +39,38 @@ export default function BudgetFinish() {
   let Tamanho: string | null;
   let tipoPessoa: string | null;
 
-  if (typeof window !== 'undefined') {
-    nomeCompleto = localStorage.getItem('nomeCompleto');
-    Telefone = localStorage.getItem('Telefone');
-    email = localStorage.getItem('email');
-    instalacao = localStorage.getItem('instalacao');
-    valorInstalacao = localStorage.getItem('valorInstalacao');
-    tipoEntrega = localStorage.getItem('tipoEntrega');
-    valorEntrega = localStorage.getItem('valorEntrega');
-    impressao = localStorage.getItem('impressao');
-    tipoImpressao = localStorage.getItem('tipoImpressao');
-    fileInput = localStorage.getItem('fileInput');
-    collage = localStorage.getItem('collage');
-    paspatur = localStorage.getItem('paspatur');
-    codigoPaspatur = localStorage.getItem('codigoPaspatur');
-    dimensoesPaspatur = localStorage.getItem('dimensoesPaspatur');
-    foam = localStorage.getItem('foam');
-    codigoFoam = localStorage.getItem('codigoFoam');
-    mdf = localStorage.getItem('mdf');
-    codigoMdf = localStorage.getItem('codigoMdf');
-    vidro = localStorage.getItem('vidro');
-    espessuraVidro = localStorage.getItem('espessuraVidro');
-    espelho = localStorage.getItem('espelho');
-    espessuraEspelho = localStorage.getItem('espessuraEspelho');
-    codigoPerfil = localStorage.getItem('codigoPerfil');
-    espessuraPerfil = localStorage.getItem('espessuraPerfil');
-    Tamanho = localStorage.getItem('Tamanho');
-    tipoPessoa = localStorage.getItem('tipoPessoa');
+  if (typeof window !== "undefined") {
+    nomeCompleto = localStorage.getItem("nomeCompleto");
+    Telefone = localStorage.getItem("Telefone");
+    email = localStorage.getItem("email");
+    instalacao = localStorage.getItem("instalacao");
+    valorInstalacao = localStorage.getItem("valorInstalacao");
+    tipoEntrega = localStorage.getItem("tipoEntrega");
+    valorEntrega = localStorage.getItem("valorEntrega");
+    impressao = localStorage.getItem("impressao");
+    tipoImpressao = localStorage.getItem("tipoImpressao");
+    fileInput = localStorage.getItem("fileInput");
+    collage = localStorage.getItem("collage");
+    paspatur = localStorage.getItem("paspatur");
+    codigoPaspatur = localStorage.getItem("codigoPaspatur");
+    dimensoesPaspatur = localStorage.getItem("dimensoesPaspatur");
+    foam = localStorage.getItem("foam");
+    codigoFoam = localStorage.getItem("codigoFoam");
+    mdf = localStorage.getItem("mdf");
+    codigoMdf = localStorage.getItem("codigoMdf");
+    vidro = localStorage.getItem("vidro");
+    espessuraVidro = localStorage.getItem("espessuraVidro");
+    espelho = localStorage.getItem("espelho");
+    espessuraEspelho = localStorage.getItem("espessuraEspelho");
+    codigoPerfil = localStorage.getItem("codigoPerfil");
+    espessuraPerfil = localStorage.getItem("espessuraPerfil");
+    Tamanho = localStorage.getItem("Tamanho");
+    tipoPessoa = localStorage.getItem("tipoPessoa");
   }
-
-
-
 
   const handleSaveOrder = async () => {
     try {
-      await addDoc(collection(db, 'Orders'), {
+      await addDoc(collection(db, "Orders"), {
         nomeCompleto,
         Telefone,
         email,
@@ -130,57 +126,57 @@ export default function BudgetFinish() {
   const dataCadastro = formatarData(dataCadastroInicial);
   const Entrega = formatarData(EntregaInicial);
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOption, setSelectedOption] = useState("opcao1");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
-    localStorage.setItem('tipoPessoa', selectedOption);
+    localStorage.setItem("tipoPessoa", selectedOption);
   };
 
-  const [cpf, setCpf] = useState('');
-  const [endereco, setEndereco] = useState('');
-  const [numero, setNumero] = useState('');
-  const [cep, setCep] = useState('');
-  const [estado, setEstado] = useState('');
-  const [complemento, setComplemento] = useState('');
-  const [bairro, setBairro] = useState('');
-  const [cidade, setCidade] = useState('');
+  const [cpf, setCpf] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [numero, setNumero] = useState("");
+  const [cep, setCep] = useState("");
+  const [estado, setEstado] = useState("");
+  const [complemento, setComplemento] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cidade, setCidade] = useState("");
 
   useEffect(() => {
-    localStorage.setItem('cpf', cpf);
-    localStorage.setItem('endereco', endereco);
-    localStorage.setItem('numero', numero);
-    localStorage.setItem('cep', cep);
-    localStorage.setItem('estado', estado);
-    localStorage.setItem('complemento', complemento);
-    localStorage.setItem('bairro', bairro);
-    localStorage.setItem('cidade', cidade);
+    localStorage.setItem("cpf", cpf);
+    localStorage.setItem("endereco", endereco);
+    localStorage.setItem("numero", numero);
+    localStorage.setItem("cep", cep);
+    localStorage.setItem("estado", estado);
+    localStorage.setItem("complemento", complemento);
+    localStorage.setItem("bairro", bairro);
+    localStorage.setItem("cidade", cidade);
   }, [cpf, endereco, numero, cep, estado, complemento, bairro, cidade]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     switch (event.target.id) {
-      case 'CPF':
+      case "CPF":
         setCpf(event.target.value);
         break;
-      case 'Endereco':
+      case "Endereco":
         setEndereco(event.target.value);
         break;
-      case 'Numero':
+      case "Numero":
         setNumero(event.target.value);
         break;
-      case 'CEP':
+      case "CEP":
         setCep(event.target.value);
         break;
-      case 'estado':
+      case "estado":
         setEstado(event.target.value);
         break;
-      case 'Complemento':
+      case "Complemento":
         setComplemento(event.target.value);
         break;
-      case 'Bairro':
+      case "Bairro":
         setBairro(event.target.value);
         break;
-      case 'Cidade':
+      case "Cidade":
         setCidade(event.target.value);
         break;
     }
@@ -197,10 +193,9 @@ export default function BudgetFinish() {
 
       <HeaderBudget></HeaderBudget>
       <div className={styles.Container}>
-        <SideMenuBudget activeRoute={router.pathname} ></SideMenuBudget>
+        <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
-
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Efetivar Pedido</p>
           </div>
@@ -212,12 +207,21 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Tipo de pessoa</p>
-                  <select className={styles.SelectFieldPerson} value={selectedOption}
-                    onChange={handleSelectChange}>
-                    <option value="FÍSICA" selected={selectedOption === 'FÍSICA'}>
+                  <select
+                    className={styles.SelectFieldPerson}
+                    value={selectedOption}
+                    onChange={handleSelectChange}
+                  >
+                    <option
+                      value="FÍSICA"
+                      selected={selectedOption === "FÍSICA"}
+                    >
                       FÍSICA
                     </option>
-                    <option value="JURÍDICA" selected={selectedOption === 'JURÍDICA'}>
+                    <option
+                      value="JURÍDICA"
+                      selected={selectedOption === "JURÍDICA"}
+                    >
                       JURÍDICA
                     </option>
                   </select>
@@ -227,28 +231,50 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome completo</p>
-                  <input type="text" className={styles.FieldSave} placeholder='' />
+                  <input
+                    type="text"
+                    className={styles.FieldSave}
+                    placeholder=""
+                  />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>CPF</p>
-                  <input id='CPF' type="text" className={styles.FieldSave} placeholder='' onChange={handleInputChange} />
+                  <MaskedInput
+                    mask="999.999.999-99"
+                    id="CPF"
+                    type="text"
+                    className={styles.FieldSave}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Telefone</p>
-                  <input type="tel" className={styles.FieldSave} placeholder='' />
+                  <MaskedInput
+                    id="Telefone"
+                    type="tel"
+                    className={styles.FieldSave}
+                    mask="(99) 99999-9999" // Exemplo de máscara para telefone
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Email</p>
-                  <input type="mail" className={styles.FieldSave} placeholder='' />
+                  <input
+                    type="mail"
+                    className={styles.FieldSave}
+                    placeholder=""
+                  />
                 </div>
               </div>
             </div>
@@ -261,55 +287,106 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>CEP</p>
-                  <input id='CEP' type="text" className={styles.FieldSmall} placeholder='' onChange={handleInputChange} />
+                  <input
+                    id="CEP"
+                    type="text"
+                    className={styles.FieldSmall}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Endereço *</p>
-                  <input id='Endereco' type="text" className={styles.FieldSave} placeholder='' onChange={handleInputChange} />
+                  <input
+                    id="Endereco"
+                    type="text"
+                    className={styles.FieldSave}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Número *</p>
-                  <input id='Numero' type="text" className={styles.FieldSmall} placeholder='' onChange={handleInputChange} />
+                  <input
+                    id="Numero"
+                    type="text"
+                    className={styles.FieldSmall}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Complemento</p>
-                  <input id='Complemento' type="text" className={styles.FieldSave} placeholder='' onChange={handleInputChange} />
+                  <input
+                    id="Complemento"
+                    type="text"
+                    className={styles.FieldSave}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Bairro *</p>
-                  <input id='Bairro' type="text" className={styles.Field} placeholder='' onChange={handleInputChange} />
+                  <input
+                    id="Bairro"
+                    type="text"
+                    className={styles.Field}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Cidade</p>
-                  <input id='Cidade' type="text" className={styles.Field} placeholder='' onChange={handleInputChange} />
+                  <input
+                    id="Cidade"
+                    type="text"
+                    className={styles.Field}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Estado *</p>
-                  <input id='estado' type="text" className={styles.Field} placeholder='' onChange={handleInputChange} />
+                  <input
+                    id="estado"
+                    type="text"
+                    className={styles.Field}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
                 </div>
               </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Tipo de entrega</p>
-                  <select className={styles.SelectField} value={selectedOption}
-                    onChange={handleSelectChange}>
-                    <option value="opcao1" selected={selectedOption === 'opcao1'}>
+                  <select
+                    className={styles.SelectField}
+                    value={selectedOption}
+                    onChange={handleSelectChange}
+                  >
+                    <option
+                      value="opcao1"
+                      selected={selectedOption === "opcao1"}
+                    >
                       TRANSPORTADORA
                     </option>
-                    <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                    <option
+                      value="opcao2"
+                      selected={selectedOption === "opcao2"}
+                    >
                       SEDEX
                     </option>
                   </select>
@@ -324,12 +401,21 @@ export default function BudgetFinish() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Necessita de instalação?</p>
-                  <select className={styles.SelectField} value={selectedOption}
-                    onChange={handleSelectChange}>
-                    <option value="opcao1" selected={selectedOption === 'opcao1'}>
+                  <select
+                    className={styles.SelectField}
+                    value={selectedOption}
+                    onChange={handleSelectChange}
+                  >
+                    <option
+                      value="opcao1"
+                      selected={selectedOption === "opcao1"}
+                    >
                       SIM
                     </option>
-                    <option value="opcao2" selected={selectedOption === 'opcao2'}>
+                    <option
+                      value="opcao2"
+                      selected={selectedOption === "opcao2"}
+                    >
                       NÃO
                     </option>
                   </select>
@@ -340,28 +426,29 @@ export default function BudgetFinish() {
                   <p className={styles.FixedValue}>R$125,30</p>
                 </div>
               </div>
-
-
             </div>
           </div>
 
           <div className={styles.linhaSave}></div>
 
           <div className={styles.ButtonsFinish}>
-            <Link href='BudgetSave'>
+            <Link href="BudgetSave">
               <button className={styles.CancelButton}>Cancelar</button>
             </Link>
-            <Link href='Home'>
-              <button className={styles.SaveButton} onClick={handleSaveOrder}>Efetivar pedido</button>
+            <Link href="Home">
+              <button className={styles.SaveButton} onClick={handleSaveOrder}>
+                Efetivar pedido
+              </button>
             </Link>
           </div>
 
           <div className={styles.Copyright}>
-            <p className={styles.Copy}>© Total Maxx 2023, todos os direitos reservados</p>
+            <p className={styles.Copy}>
+              © Total Maxx 2023, todos os direitos reservados
+            </p>
           </div>
-
         </div>
-      </div >
+      </div>
     </>
-  )
+  );
 }

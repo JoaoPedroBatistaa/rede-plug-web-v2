@@ -7,7 +7,7 @@ import Link from "next/link";
 import { collection, db, getDoc, doc } from "../../../firebase";
 import { GetServerSidePropsContext } from "next";
 import { getDocs } from "firebase/firestore";
-import {ITableBudgets} from "./type"
+import { ITableBudgets } from "./type";
 
 interface Budget {
   id: string;
@@ -22,12 +22,8 @@ interface Budget {
   valorTotal: string;
 }
 
-export default function TableBudgets({
-  searchValue
-}:ITableBudgets) {
- 
+export default function TableBudgets({ searchValue }: ITableBudgets) {
   const [filteredData, setFilteredData] = useState<Budget[]>([]);
-  
 
   const [teste, setTeste] = useState<Budget[]>([]);
 
@@ -58,10 +54,12 @@ export default function TableBudgets({
 
   useEffect(() => {
     const filterData = () => {
-      const filteredItems = teste.filter((item) =>
-        item.nomeCompleto?.toLowerCase().includes(searchValue.toLowerCase()) ||
-        item.dataCadastro?.toLowerCase().includes(searchValue.toLowerCase())
-      
+      const filteredItems = teste.filter(
+        (item) =>
+          item.nomeCompleto
+            ?.toLowerCase()
+            .includes(searchValue.toLowerCase()) ||
+          item.dataCadastro?.toLowerCase().includes(searchValue.toLowerCase())
       );
       setFilteredData(filteredItems);
       console.log(filteredItems);
@@ -154,8 +152,7 @@ export default function TableBudgets({
         </thead>
         <Link href="/ViewBudgetData">
           <tbody>
-            {filteredData
-            .map((item, index) => (
+            {filteredData.map((item, index) => (
               <tr
                 className={styles.budgetItem}
                 key={item.id}
@@ -205,7 +202,6 @@ export default function TableBudgets({
                   <br />
                   <span className={styles.dataCadastro}>
                     <p> Data de cadastro:{item.dataCadastro}</p>
-                   
                   </span>
                 </td>
                 <td className={styles.td}>
