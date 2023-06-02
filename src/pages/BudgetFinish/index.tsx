@@ -163,6 +163,8 @@ export default function BudgetFinish() {
         break;
       case "Numero":
         setNumero(event.target.value);
+        console.log(numero);
+
         break;
       case "CEP":
         setCep(event.target.value);
@@ -172,6 +174,7 @@ export default function BudgetFinish() {
         break;
       case "Complemento":
         setComplemento(event.target.value);
+        console.log(complemento);
         break;
       case "Bairro":
         setBairro(event.target.value);
@@ -179,6 +182,34 @@ export default function BudgetFinish() {
       case "Cidade":
         setCidade(event.target.value);
         break;
+    }
+  };
+  const checkCep = (event: any) => {
+    const cep = event.target.value.replace(/\D/g, "");
+    console.log(cep);
+
+    const cepLength: number = cep.length;
+
+    if (cepLength === 8 && cep.trim() !== "") {
+      fetch(`https://viacep.com.br/ws/${cep}/json/`).then((response) =>
+        response
+          .json()
+          .then((data) => {
+            console.log(data);
+            setEndereco(data.logradouro);
+            setBairro(data.bairro);
+            setCidade(data.localidade);
+            setEstado(data.uf);
+            console.log(data.uf);
+          })
+          .catch((err) => {
+            alert("Digite o CEP!");
+          })
+      );
+      console.log(endereco);
+      console.log(bairro);
+      console.log(cidade);
+      console.log(estado);
     }
   };
 
@@ -260,7 +291,7 @@ export default function BudgetFinish() {
                     id="Telefone"
                     type="tel"
                     className={styles.FieldSave}
-                    mask="(99) 99999-9999" // Exemplo de máscara para telefone
+                    mask="(99) 99999-9999" // máscara para telefone
                     placeholder=""
                     onChange={handleInputChange}
                   />
@@ -293,6 +324,8 @@ export default function BudgetFinish() {
                     className={styles.FieldSmall}
                     placeholder=""
                     onChange={handleInputChange}
+                    onBlur={checkCep}
+                    maxLength={8}
                   />
                 </div>
 
@@ -304,6 +337,8 @@ export default function BudgetFinish() {
                     className={styles.FieldSave}
                     placeholder=""
                     onChange={handleInputChange}
+                    value={endereco}
+                    disabled
                   />
                 </div>
               </div>
@@ -341,6 +376,8 @@ export default function BudgetFinish() {
                     className={styles.Field}
                     placeholder=""
                     onChange={handleInputChange}
+                    value={bairro}
+                    disabled
                   />
                 </div>
 
@@ -352,6 +389,8 @@ export default function BudgetFinish() {
                     className={styles.Field}
                     placeholder=""
                     onChange={handleInputChange}
+                    value={cidade}
+                    disabled
                   />
                 </div>
               </div>
@@ -365,6 +404,8 @@ export default function BudgetFinish() {
                     className={styles.Field}
                     placeholder=""
                     onChange={handleInputChange}
+                    value={estado}
+                    disabled
                   />
                 </div>
               </div>
