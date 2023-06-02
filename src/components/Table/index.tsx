@@ -158,75 +158,77 @@ export default function Table({ searchValue }: ITableBudgets) {
           </tr>
         </thead>
         <tbody>
-          {currentData.map((item, index) => (
-            <tr
-              className={styles.budgetItem}
-              key={item.id}
-              onClick={() => {
-                localStorage.setItem("selectedBudgetId", item.id);
-              }}
-            >
-              <td>
-                <img
-                  src="./More.png"
-                  width={5}
-                  height={20}
-                  className={styles.MarginRight}
-                />
-              </td>
-              <td className={styles.td}>
-                <b>#{item.NumeroPedido}</b>
-              </td>
-              <td className={styles.td}>
-                <b>{item.nomeCompleto}</b>
-                <br />
-                <span className={styles.diasUteis}> {item.Telefone}</span>
-              </td>
-              <td className={styles.td}>
-                <span
-                  className={
-                    item.Ativo == true ? styles.badge : styles.badgeInativo
-                  }
-                >
-                  {item.Ativo ? (
-                    <img
-                      src="./circleBlue.png"
-                      width={6}
-                      height={6}
-                      className={styles.marginRight8}
-                    />
-                  ) : (
-                    <img
-                      src="./circleRed.png"
-                      width={6}
-                      height={6}
-                      className={styles.marginRight8}
-                    />
-                  )}
-                  {item.Ativo ? "Ativo" : "Inativo"}
-                </span>
-                <br />
-                <span className={styles.dataCadastro}>
-                  <p> Data de cadastro:{item.dataCadastro}</p>
-                </span>
-              </td>
-              <td className={styles.td}>
-                {item.Entrega}
-                <br />
-                <span className={styles.diasUteis}>15 dias Utéis</span>
-              </td>
-              <td className={styles.td}>
-                {item.dataCadastro}
-                <br />
-                <span className={styles.diasUteis}>{item.nomeCompleto}</span>
-              </td>
-              <td className={styles.td}>
-                {item.valorTotal}
-                <br />
-                <span className={styles.diasUteis}>À Vista</span>
-              </td>
-            </tr>
-          ))}
+          <Link href="/ViewBudgetData">
+            {currentData.map((item, index) => (
+              <tr
+                className={styles.budgetItem}
+                key={item.id}
+                onClick={() => {
+                  localStorage.setItem("selectedBudgetId", item.id);
+                }}
+              >
+                <td>
+                  <img
+                    src="./More.png"
+                    width={5}
+                    height={20}
+                    className={styles.MarginRight}
+                  />
+                </td>
+                <td className={styles.td}>
+                  <b>#{item.NumeroPedido}</b>
+                </td>
+                <td className={styles.td}>
+                  <b>{item.nomeCompleto}</b>
+                  <br />
+                  <span className={styles.diasUteis}> {item.Telefone}</span>
+                </td>
+                <td className={styles.td}>
+                  <span
+                    className={
+                      item.Ativo == true ? styles.badge : styles.badgeInativo
+                    }
+                  >
+                    {item.Ativo ? (
+                      <img
+                        src="./circleBlue.png"
+                        width={6}
+                        height={6}
+                        className={styles.marginRight8}
+                      />
+                    ) : (
+                      <img
+                        src="./circleRed.png"
+                        width={6}
+                        height={6}
+                        className={styles.marginRight8}
+                      />
+                    )}
+                    {item.Ativo ? "Ativo" : "Inativo"}
+                  </span>
+                  <br />
+                  <span className={styles.dataCadastro}>
+                    <p> Data de cadastro:{item.dataCadastro}</p>
+                  </span>
+                </td>
+                <td className={styles.td}>
+                  {item.Entrega}
+                  <br />
+                  <span className={styles.diasUteis}>15 dias Utéis</span>
+                </td>
+                <td className={styles.td}>
+                  {item.dataCadastro}
+                  <br />
+                  <span className={styles.diasUteis}>{item.nomeCompleto}</span>
+                </td>
+                <td className={styles.td}>
+                  {item.valorTotal}
+                  <br />
+                  <span className={styles.diasUteis}>À Vista</span>
+                </td>
+              </tr>
+            ))}
+          </Link>
         </tbody>
       </table>
       <div className={styles.RodapeContainer}>
