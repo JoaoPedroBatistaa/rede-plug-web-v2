@@ -41,8 +41,8 @@
     align-items: center;
   }
   .thNone {
-    width: 10px;
-    margin-right: 12px;
+    width: 25px;
+    margin-right: 14px;
   }
 }
 .table .budgetItem {
@@ -88,7 +88,7 @@
   color: #404049;
   justify-items: center;
   align-items: center;
-  margin-top: 25px;
+  margin-top: 140px;
   margin-bottom: 5px;
 }
 
@@ -97,6 +97,7 @@
   flex: 1;
   align-items: center;
 }
+
 .RodapeContinaerRight {
   display: flex;
   flex: 1;
@@ -119,6 +120,7 @@
   cursor: pointer;
   margin-right: 8px;
 }
+
 .RodapePaginacaoContadorSemBorda {
   display: flex;
   justify-content: center;
@@ -173,14 +175,15 @@
   color: #f92c38;
   background-color: rgba(249, 44, 56, 0.24);
   padding: 5px 10px;
-
   font-weight: bold;
   border-radius: 50px;
-  text-align: center;
 }
 
 .marginRight8 {
   margin-right: 8px;
+}
+.MarginRight {
+  cursor: pointer;
 }
 
 .dataCadastro {
@@ -189,14 +192,108 @@
   font-weight: 400;
   font-size: 12px;
   color: #404049;
+  height: 30px;
   p {
     margin-top: 10px;
   }
 }
+
 .diasUteis {
   font-family: "DM Sans";
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
   color: #404049;
+}
+
+.containerMoreClose {
+  display: none;
+}
+.containerMore {
+  z-index: 988;
+  position: relative;
+  width: 220px;
+  height: 170px;
+  display: flex;
+}
+.containerX {
+  z-index: 999;
+  width: 25px;
+  height: 20px;
+  border-radius: 100%;
+  color: #8b83ba;
+  text-align: center;
+  font-size: 13px;
+  background: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid #d9d5d5;
+}
+.containerOptionsMore {
+  margin-top: 10px;
+  margin-left: 10px;
+  width: 85%;
+  height: 160px;
+  position: absolute;
+  background: #ffffff;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  flex-direction: column;
+  gap: 2px;
+
+  a {
+    margin-top: 13px;
+    background-color: transparent;
+    border: none;
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 23px;
+    padding: 5px 0px 5px 7px;
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+
+  button {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 25px;
+    padding: 5px 0px 5px 7px;
+
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+  .buttonGren {
+    color: #007f00;
+  }
+  .buttonRed {
+    color: #d30000;
+  }
 }

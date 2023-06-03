@@ -8,6 +8,7 @@ import { collection, db, getDoc, doc } from "../../../firebase";
 import { GetServerSidePropsContext } from "next";
 import { getDocs } from "firebase/firestore";
 import { ITableBudgets } from "./type";
+import { deleteDoc } from "firebase/firestore";
 
 interface Order {
   id: string;
@@ -131,6 +132,7 @@ export default function Table({ searchValue }: ITableBudgets) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentData = filteredData.slice(startIndex, endIndex);
+  const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -141,6 +143,23 @@ export default function Table({ searchValue }: ITableBudgets) {
   ) => {
     setItemsPerPage(Number(event.target.value));
     setCurrentPage(1);
+  };
+  const handleClickImg = (event: any, itemId: any) => {
+    event.stopPropagation();
+    setOpenMenus((prevState) => ({
+      ...prevState,
+      [itemId]: !prevState[itemId],
+    }));
+    console.log(itemId);
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    // Excluir item do banco de dados
+    await deleteDoc(doc(db, "Orders", itemId));
+
+    // Atualizar o estado com os dados filtrados atualizados
+    const updatedData = filteredData.filter((item) => item.id !== itemId);
+    setFilteredData(updatedData);
   };
 
   return (
@@ -158,77 +177,107 @@ export default function Table({ searchValue }: ITableBudgets) {
           </tr>
         </thead>
         <tbody>
-          <Link href="/ViewBudgetData">
-            {currentData.map((item, index) => (
-              <tr
-                className={styles.budgetItem}
-                key={item.id}
-                onClick={() => {
-                  localStorage.setItem("selectedBudgetId", item.id);
-                }}
-              >
-                <td>
-                  <img
-                    src="./More.png"
-                    width={5}
-                    height={20}
-                    className={styles.MarginRight}
-                  />
-                </td>
-                <td className={styles.td}>
-                  <b>#{item.NumeroPedido}</b>
-                </td>
-                <td className={styles.td}>
-                  <b>{item.nomeCompleto}</b>
-                  <br />
-                  <span className={styles.diasUteis}> {item.Telefone}</span>
-                </td>
-                <td className={styles.td}>
-                  <span
-                    className={
-                      item.Ativo == true ? styles.badge : styles.badgeInativo
-                    }
+          {currentData.map((item, index) => (
+            <tr
+              className={styles.budgetItem}
+              key={item.id}
+              onClick={() => {
+                localStorage.setItem("selectedBudgetId", item.id);
+              }}
+            >
+              <td className={styles.tdDisabled}>
+                <div
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
+                >
+                  <div
+                    className={styles.containerX}
+                    onClick={(event) => handleClickImg(event, item.id)}
                   >
-                    {item.Ativo ? (
-                      <img
-                        src="./circleBlue.png"
-                        width={6}
-                        height={6}
-                        className={styles.marginRight8}
-                      />
-                    ) : (
-                      <img
-                        src="./circleRed.png"
-                        width={6}
-                        height={6}
-                        className={styles.marginRight8}
-                      />
-                    )}
-                    {item.Ativo ? "Ativo" : "Inativo"}
-                  </span>
-                  <br />
-                  <span className={styles.dataCadastro}>
-                    <p> Data de cadastro:{item.dataCadastro}</p>
-                  </span>
-                </td>
-                <td className={styles.td}>
-                  {item.Entrega}
-                  <br />
-                  <span className={styles.diasUteis}>15 dias Utéis</span>
-                </td>
-                <td className={styles.td}>
-                  {item.dataCadastro}
-                  <br />
-                  <span className={styles.diasUteis}>{item.nomeCompleto}</span>
-                </td>
-                <td className={styles.td}>
-                  {item.valorTotal}
-                  <br />
-                  <span className={styles.diasUteis}>À Vista</span>
-                </td>
-              </tr>
-            ))}
-          </Link>
+                    X
+                  </div>
+                  <div className={styles.containerOptionsMore}>
+                    <Link href="/ViewBudgetData">Vizualizar</Link>
+
+                    <button>Editar</button>
+                    <button className={styles.buttonGren}>
+                      Efetivar orçamento
+                    </button>
+                    <button
+                      className={styles.buttonRed}
+                      onClick={() => handleDeleteItem(item.id)}
+                    >
+                      Deletar
+                    </button>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <img
+                  src="./More.png"
+                  width={5}
+                  height={20}
+                  className={styles.MarginRight}
+                  onClick={(event) => handleClickImg(event, item.id)}
+                />
+              </td>
+
+              <td className={styles.td}>
+                <b>#{item.NumeroPedido}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.nomeCompleto}</b>
+                <br />
+                <span className={styles.diasUteis}> {item.Telefone}</span>
+              </td>
+              <td className={styles.td}>
+                <span
+                  className={
+                    item.Ativo == true ? styles.badge : styles.badgeInativo
+                  }
+                >
+                  {item.Ativo ? (
+                    <img
+                      src="./circleBlue.png"
+                      width={6}
+                      height={6}
+                      className={styles.marginRight8}
+                    />
+                  ) : (
+                    <img
+                      src="./circleRed.png"
+                      width={6}
+                      height={6}
+                      className={styles.marginRight8}
+                    />
+                  )}
+                  {item.Ativo ? "Ativo" : "Inativo"}
+                </span>
+                <br />
+                <span className={styles.dataCadastro}>
+                  <p> Data de cadastro:{item.dataCadastro}</p>
+                </span>
+              </td>
+              <td className={styles.td}>
+                {item.Entrega}
+                <br />
+                <span className={styles.diasUteis}>15 dias Utéis</span>
+              </td>
+              <td className={styles.td}>
+                {item.dataCadastro}
+                <br />
+                <span className={styles.diasUteis}>{item.nomeCompleto}</span>
+              </td>
+              <td className={styles.td}>
+                {item.valorTotal}
+                <br />
+                <span className={styles.diasUteis}>À Vista</span>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <div className={styles.RodapeContainer}>
