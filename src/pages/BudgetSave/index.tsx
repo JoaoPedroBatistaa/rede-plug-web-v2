@@ -10,6 +10,10 @@ import MaskedInput from "react-input-mask";
 
 import { db, addDoc, collection } from "../../../firebase";
 
+import { ToastContainer, toast } from "react-toastify";
+import { createSourceMapSource } from "typescript";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function BudgetSave() {
   const router = useRouter();
 
@@ -120,6 +124,10 @@ export default function BudgetSave() {
         dataCadastro,
         Entrega,
       });
+      toast.success("Salvo com sucesso!");
+      setTimeout(() => {
+        window.location.href = "/BudgetFinish";
+      }, 500);
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }
@@ -136,6 +144,7 @@ export default function BudgetSave() {
 
       <HeaderBudget></HeaderBudget>
       <div className={styles.Container}>
+        <ToastContainer />
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
@@ -187,11 +196,10 @@ export default function BudgetSave() {
             <Link href="Budgets">
               <button className={styles.CancelButton}>Cancelar</button>
             </Link>
-            <Link href="BudgetFinish">
-              <button className={styles.SaveButton} onClick={handleSaveBudget}>
-                Salvar Orçamento
-              </button>
-            </Link>
+
+            <button className={styles.SaveButton} onClick={handleSaveBudget}>
+              Salvar Orçamento
+            </button>
           </div>
 
           <div className={styles.Copyright}>

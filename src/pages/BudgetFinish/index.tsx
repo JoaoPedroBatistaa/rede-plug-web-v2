@@ -8,6 +8,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import MaskedInput from "react-input-mask";
 import { db, addDoc, collection } from "../../../firebase";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function BudgetFinish() {
   const router = useRouter();
@@ -106,6 +108,10 @@ export default function BudgetFinish() {
         complemento,
         tipoPessoa,
       });
+      toast.success("Pedido com enviado!");
+      setTimeout(() => {
+        window.location.href = "/Home";
+      }, 500);
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }
@@ -223,6 +229,7 @@ export default function BudgetFinish() {
       </Head>
 
       <HeaderBudget></HeaderBudget>
+      <ToastContainer />
       <div className={styles.Container}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
@@ -323,8 +330,7 @@ export default function BudgetFinish() {
                     type="text"
                     className={styles.FieldSmall}
                     placeholder=""
-                    onChange={handleInputChange}
-                    onBlur={checkCep}
+                    onKeyUp={checkCep}
                     maxLength={8}
                   />
                 </div>
@@ -476,11 +482,10 @@ export default function BudgetFinish() {
             <Link href="BudgetSave">
               <button className={styles.CancelButton}>Cancelar</button>
             </Link>
-            <Link href="Home">
-              <button className={styles.SaveButton} onClick={handleSaveOrder}>
-                Efetivar pedido
-              </button>
-            </Link>
+
+            <button className={styles.SaveButton} onClick={handleSaveOrder}>
+              Efetivar pedido
+            </button>
           </div>
 
           <div className={styles.Copyright}>
