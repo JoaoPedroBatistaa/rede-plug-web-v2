@@ -105,6 +105,19 @@ export default function TableBudgets({ searchValue }: ITableBudgets) {
     const updatedData = filteredData.filter((item) => item.id !== itemId);
     setFilteredData(updatedData);
   };
+  // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
+  const sortDataByDate = () => {
+    const sortedData = [...filteredData].sort((a, b) => {
+      return (
+        new Date(b.dataCadastro).getTime() - new Date(a.dataCadastro).getTime()
+      );
+    });
+    setFilteredData(sortedData);
+  };
+
+  useEffect(() => {
+    sortDataByDate();
+  }, []);
 
   return (
     <div className={styles.tableContianer}>

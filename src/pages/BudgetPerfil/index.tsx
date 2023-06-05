@@ -1,22 +1,24 @@
-import Head from 'next/head';
-import styles from '../../styles/BudgetPerfil.module.scss';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import styles from "../../styles/BudgetPerfil.module.scss";
+import { useRouter } from "next/router";
 
-import HeaderBudget from '@/components/HeaderBudget';
-import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useEffect, useState } from 'react';
+import HeaderBudget from "@/components/HeaderBudget";
+import SideMenuBudget from "@/components/SideMenuBudget";
+import { ChangeEvent, useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { MouseEvent } from "react";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function BudgetPerfil() {
-
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
-  const [espessura, setEspessura] = useState('');
+  const [selectedOption, setSelectedOption] = useState("opcao1");
+  const [espessura, setEspessura] = useState("");
 
   // Salva as informações no localStorage sempre que são alteradas
   useEffect(() => {
-    localStorage.setItem('codigoPerfil', selectedOption);
-    localStorage.setItem('espessuraPerfil', espessura);
+    localStorage.setItem("codigoPerfil", selectedOption);
+    localStorage.setItem("espessuraPerfil", espessura);
   }, [selectedOption, espessura]);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -26,6 +28,9 @@ export default function BudgetPerfil() {
   const handleEspessuraChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEspessura(event.target.value);
   };
+  function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
+    toast.error("Informe se opedido incluirá vidro");
+  }
 
   return (
     <>
@@ -37,11 +42,11 @@ export default function BudgetPerfil() {
       </Head>
 
       <HeaderBudget></HeaderBudget>
+      <ToastContainer />
       <div className={styles.Container}>
-        <SideMenuBudget activeRoute={router.pathname} ></SideMenuBudget>
+        <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
-
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Qual perfil será utilizado?</p>
 
@@ -51,24 +56,35 @@ export default function BudgetPerfil() {
                 <p className={styles.Value}>R$650,00</p>
               </div>
 
-              <button className={styles.FinishButton}>Finalizar Orçamento</button>
+              <button
+                className={styles.FinishButton}
+                onClick={handleButtonFinish}
+              >
+                Finalizar Orçamento
+              </button>
             </div>
           </div>
 
-          <p className={styles.Notes}>Informe abaixo qual perfil será utilizado no pedido</p>
+          <p className={styles.Notes}>
+            Informe abaixo qual perfil será utilizado no pedido
+          </p>
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
-              <select id='codigo' className={styles.SelectField} value={selectedOption}
-                onChange={handleSelectChange}>
-                <option value="4401" selected={selectedOption === '4401'}>
+              <select
+                id="codigo"
+                className={styles.SelectField}
+                value={selectedOption}
+                onChange={handleSelectChange}
+              >
+                <option value="4401" selected={selectedOption === "4401"}>
                   4401
                 </option>
-                <option value="4402" selected={selectedOption === '4402'}>
+                <option value="4402" selected={selectedOption === "4402"}>
                   4402
                 </option>
-                <option value="4403" selected={selectedOption === '4403'}>
+                <option value="4403" selected={selectedOption === "4403"}>
                   4403
                 </option>
               </select>
@@ -76,7 +92,14 @@ export default function BudgetPerfil() {
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Largura do perfil</p>
-              <input id='espessura' type="text" className={styles.Field} placeholder='' value={espessura} onChange={handleEspessuraChange} />
+              <input
+                id="espessura"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={espessura}
+                onChange={handleEspessuraChange}
+              />
             </div>
           </div>
 
@@ -88,16 +111,15 @@ export default function BudgetPerfil() {
             </div>
 
             <p className={styles.PreviewSize}>{espessura} CM</p>
-
-
           </div>
 
           <div className={styles.Copyright}>
-            <p className={styles.Copy}>© Total Maxx 2023, todos os direitos reservados</p>
+            <p className={styles.Copy}>
+              © Total Maxx 2023, todos os direitos reservados
+            </p>
           </div>
-
         </div>
       </div>
     </>
-  )
+  );
 }

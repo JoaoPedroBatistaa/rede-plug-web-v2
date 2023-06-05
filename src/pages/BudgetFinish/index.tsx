@@ -71,6 +71,23 @@ export default function BudgetFinish() {
   }
 
   const handleSaveOrder = async () => {
+    if (
+      !nomeCompleto ||
+      !Telefone ||
+      !email ||
+      !cpf ||
+      !endereco ||
+      !cidade ||
+      !bairro ||
+      !cep
+    ) {
+      // Se algum campo estiver vazio, exiba uma mensagem para preencher todos os dados
+
+      console.log(cep);
+      toast.error("Por favor, preencha todos os campos.");
+      return;
+    }
+
     try {
       await addDoc(collection(db, "Orders"), {
         nomeCompleto,
@@ -108,7 +125,7 @@ export default function BudgetFinish() {
         complemento,
         tipoPessoa,
       });
-      toast.success("Pedido com enviado!");
+      toast.success("Pedido enviado!");
       setTimeout(() => {
         window.location.href = "/Home";
       }, 500);
@@ -202,20 +219,13 @@ export default function BudgetFinish() {
           .json()
           .then((data) => {
             console.log(data);
-            setEndereco(data.logradouro);
-            setBairro(data.bairro);
-            setCidade(data.localidade);
-            setEstado(data.uf);
-            console.log(data.uf);
+            setCep(cep);
+            console.log(cep);
           })
           .catch((err) => {
             alert("Digite o CEP!");
           })
       );
-      console.log(endereco);
-      console.log(bairro);
-      console.log(cidade);
-      console.log(estado);
     }
   };
 

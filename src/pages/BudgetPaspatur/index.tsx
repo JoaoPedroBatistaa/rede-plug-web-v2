@@ -1,33 +1,51 @@
-import Head from 'next/head';
-import styles from '../../styles/BudgetPaspatur.module.scss';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import styles from "../../styles/BudgetPaspatur.module.scss";
+import { useRouter } from "next/router";
 
-import HeaderBudget from '@/components/HeaderBudget';
-import SideMenuBudget from '@/components/SideMenuBudget';
-import { ChangeEvent, useEffect, useState } from 'react';
+import HeaderBudget from "@/components/HeaderBudget";
+import SideMenuBudget from "@/components/SideMenuBudget";
+import { ChangeEvent, useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { MouseEvent } from "react";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function BudgetPaspatur() {
-
   const router = useRouter();
 
-  const [selectedOptionPaspatur, setSelectedOptionPaspatur] = useState('opcao1');
-  const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] = useState('opcao1');
-  const [larguraSuperior, setLarguraSuperior] = useState('');
-  const [larguraEsquerda, setLarguraEsquerda] = useState('');
-  const [larguraInferior, setLarguraInferior] = useState('');
-  const [larguraDireita, setLarguraDireita] = useState('');
+  const [selectedOptionPaspatur, setSelectedOptionPaspatur] =
+    useState("opcao1");
+  const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] =
+    useState("opcao1");
+  const [larguraSuperior, setLarguraSuperior] = useState("");
+  const [larguraEsquerda, setLarguraEsquerda] = useState("");
+  const [larguraInferior, setLarguraInferior] = useState("");
+  const [larguraDireita, setLarguraDireita] = useState("");
 
   useEffect(() => {
-    localStorage.setItem('paspatur', selectedOptionPaspatur);
-    localStorage.setItem('codigoPaspatur', selectedOptionCodigoPaspatur);
-    localStorage.setItem('dimensoesPaspatur', `${larguraSuperior}x${larguraEsquerda}x${larguraInferior}x${larguraDireita}`);
-  }, [selectedOptionPaspatur, selectedOptionCodigoPaspatur, larguraSuperior, larguraEsquerda, larguraInferior, larguraDireita]);
+    localStorage.setItem("paspatur", selectedOptionPaspatur);
+    localStorage.setItem("codigoPaspatur", selectedOptionCodigoPaspatur);
+    localStorage.setItem(
+      "dimensoesPaspatur",
+      `${larguraSuperior}x${larguraEsquerda}x${larguraInferior}x${larguraDireita}`
+    );
+  }, [
+    selectedOptionPaspatur,
+    selectedOptionCodigoPaspatur,
+    larguraSuperior,
+    larguraEsquerda,
+    larguraInferior,
+    larguraDireita,
+  ]);
 
-  const handleSelectChangePaspatur = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectChangePaspatur = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
     setSelectedOptionPaspatur(event.target.value);
   };
 
-  const handleSelectChangeCodigoPaspatur = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectChangeCodigoPaspatur = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
     setSelectedOptionCodigoPaspatur(event.target.value);
   };
 
@@ -46,6 +64,12 @@ export default function BudgetPaspatur() {
   const handleInputChangeDireita = (event: ChangeEvent<HTMLInputElement>) => {
     setLarguraDireita(event.target.value);
   };
+  function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
+    toast.success("Finalizando Orçamento!");
+    setTimeout(() => {
+      window.location.href = "/BudgetSave";
+    }, 500);
+  }
 
   return (
     <>
@@ -57,11 +81,11 @@ export default function BudgetPaspatur() {
       </Head>
 
       <HeaderBudget></HeaderBudget>
+      <ToastContainer />
       <div className={styles.Container}>
-        <SideMenuBudget activeRoute={router.pathname} ></SideMenuBudget>
+        <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
-
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>O pedido inclui paspatur?</p>
 
@@ -71,36 +95,61 @@ export default function BudgetPaspatur() {
                 <p className={styles.Value}>R$996,00</p>
               </div>
 
-              <button className={styles.FinishButton}>Finalizar Orçamento</button>
+              <button
+                className={styles.FinishButton}
+                onClick={handleButtonFinish}
+              >
+                Finalizar Orçamento
+              </button>
             </div>
           </div>
 
-          <p className={styles.Notes}>Informe abaixo se paspatur será utilizado no pedido</p>
+          <p className={styles.Notes}>
+            Informe abaixo se paspatur será utilizado no pedido
+          </p>
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Paspatur</p>
-              <select id='paspatur' className={styles.SelectField} value={selectedOptionPaspatur} onChange={handleSelectChangePaspatur}>
-                <option value="SIM" selected={selectedOptionPaspatur === 'SIM'}>
+              <select
+                id="paspatur"
+                className={styles.SelectField}
+                value={selectedOptionPaspatur}
+                onChange={handleSelectChangePaspatur}
+              >
+                <option value="SIM" selected={selectedOptionPaspatur === "SIM"}>
                   SIM
                 </option>
-                <option value="NÃO" selected={selectedOptionPaspatur === 'NÃO'}>
+                <option value="NÃO" selected={selectedOptionPaspatur === "NÃO"}>
                   NÃO
                 </option>
               </select>
             </div>
 
-
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
-              <select id='codigoPaspatur' className={styles.SelectField} value={selectedOptionCodigoPaspatur} onChange={handleSelectChangeCodigoPaspatur}>
-                <option value="55022" selected={selectedOptionCodigoPaspatur === '55022'}>
+              <select
+                id="codigoPaspatur"
+                className={styles.SelectField}
+                value={selectedOptionCodigoPaspatur}
+                onChange={handleSelectChangeCodigoPaspatur}
+              >
+                <option
+                  value="55022"
+                  selected={selectedOptionCodigoPaspatur === "55022"}
+                >
                   55022
                 </option>
-                <option value="55023" selected={selectedOptionCodigoPaspatur === '55023'}>
+                <option
+                  value="55023"
+                  selected={selectedOptionCodigoPaspatur === "55023"}
+                >
                   55023
                 </option>
-                <option value="55024" selected={selectedOptionCodigoPaspatur === '55024'}>
+                <option
+                  value="55024"
+                  selected={selectedOptionCodigoPaspatur === "55024"}
+                >
                   55024
                 </option>
               </select>
@@ -110,36 +159,64 @@ export default function BudgetPaspatur() {
           <div className={styles.PreviewContainer}>
             <div className={styles.InputFieldPreview}>
               <p className={styles.FieldLabel}>Largura superior</p>
-              <input id='larguraSuperior' type="text" className={styles.FieldPreview} placeholder='' value={larguraSuperior} onChange={handleInputChangeSuperior} />
+              <input
+                id="larguraSuperior"
+                type="text"
+                className={styles.FieldPreview}
+                placeholder=""
+                value={larguraSuperior}
+                onChange={handleInputChangeSuperior}
+              />
             </div>
 
             <div className={styles.PreviewImgContainer}>
               <div className={styles.InputFieldPreview}>
                 <p className={styles.FieldLabel}>Largura esquerda</p>
-                <input id='larguraEsquerda' type="text" className={styles.FieldPreview} placeholder='' value={larguraEsquerda} onChange={handleInputChangeEsquerda} />
+                <input
+                  id="larguraEsquerda"
+                  type="text"
+                  className={styles.FieldPreview}
+                  placeholder=""
+                  value={larguraEsquerda}
+                  onChange={handleInputChangeEsquerda}
+                />
               </div>
 
               <img src="./molduraSize.png" className={styles.PreviewImg} />
 
               <div className={styles.InputFieldPreview}>
                 <p className={styles.FieldLabel}>Largura direita</p>
-                <input id='larguraDireita' type="text" className={styles.FieldPreview} placeholder='' value={larguraDireita} onChange={handleInputChangeDireita} />
+                <input
+                  id="larguraDireita"
+                  type="text"
+                  className={styles.FieldPreview}
+                  placeholder=""
+                  value={larguraDireita}
+                  onChange={handleInputChangeDireita}
+                />
               </div>
             </div>
 
             <div className={styles.InputFieldPreview}>
               <p className={styles.FieldLabel}>Largura inferior</p>
-              <input id='larguraInferior' type="text" className={styles.FieldPreview} placeholder='' value={larguraInferior} onChange={handleInputChangeInferior} />
+              <input
+                id="larguraInferior"
+                type="text"
+                className={styles.FieldPreview}
+                placeholder=""
+                value={larguraInferior}
+                onChange={handleInputChangeInferior}
+              />
             </div>
           </div>
 
-
           <div className={styles.Copyright}>
-            <p className={styles.Copy}>© Total Maxx 2023, todos os direitos reservados</p>
+            <p className={styles.Copy}>
+              © Total Maxx 2023, todos os direitos reservados
+            </p>
           </div>
-
         </div>
       </div>
     </>
-  )
+  );
 }
