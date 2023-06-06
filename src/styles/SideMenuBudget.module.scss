@@ -5,6 +5,14 @@
   background-color: #faf8f6;
   width: 15rem;
   height: 60rem;
+
+}
+
+@media (max-width: 430px) {
+  .sideMenu {
+    display: none;
+  }
+
 }
 
 .Steps {

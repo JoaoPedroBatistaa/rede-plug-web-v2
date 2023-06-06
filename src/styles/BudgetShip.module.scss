@@ -237,3 +237,49 @@
   margin-top: 24rem;
   margin-bottom: 2rem;
 }
+
+@media (max-width: 430px) {
+  .FinishButton {
+    width: 3rem;
+    border-radius: 1.5rem;
+  }
+
+  .BudgetTitle {
+    font-size: 20px;
+    max-width: 12rem;
+  }
+
+  .Copyright {
+    margin-top: 18rem;
+  }
+
+  .Container {
+    height: 100vh;
+  }
+
+  .Value {
+    font-size: 20px;
+
+  }
+
+  .InputContainer {
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+
+  .PrintContainer {
+    width: 23rem;
+  }
+
+  .FileSelectedName {
+    width: 15rem;
+  }
+
+  .FileSelected {
+    width: 23rem;
+  }
+
+  .FixedValue {
+    width: 17.5rem;
+  }
+}

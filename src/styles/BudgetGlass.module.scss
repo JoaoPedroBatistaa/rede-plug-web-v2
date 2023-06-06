@@ -200,3 +200,152 @@
   width: 100%;
   margin-top: 24rem;
 }
+
+@media (max-width: 430px) {
+  .FinishButton {
+    width: 3rem;
+    border-radius: 1.5rem;
+  }
+
+  .BudgetTitle {
+    font-size: 20px;
+    max-width: 14rem;
+  }
+
+  .Copyright {
+    margin-top: 18rem;
+    margin-bottom: 2rem;
+  }
+
+  .Container {
+    height: 100vh;
+  }
+
+  .Value {
+    font-size: 20px;
+
+  }
+
+  .InputContainer {
+    flex-direction: column;
+    margin-bottom: 0rem;
+  }
+
+  .PrintContainer {
+    width: 23rem;
+  }
+
+  .FileSelectedName {
+    width: 15rem;
+  }
+
+  .FileSelected {
+    width: 23rem;
+  }
+
+  .FixedValue {
+    width: 17.5rem;
+  }
+
+  .FieldSave {
+    width: 17.5rem;
+  }
+
+  .InputField {
+    width: 17.5rem;
+    margin-top: 1rem;
+  }
+
+  .BudgetData {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .linhaData {
+    display: none;
+  }
+
+  .SelectFieldPerson {
+    width: 17.5rem;
+  }
+
+  .FieldSmall {
+    width: 17.5rem;
+  }
+
+  .BudgetHeadO {
+    display: none;
+  }
+
+  .FixedData {
+
+    width: 17.5rem;
+    height: 2.5rem;
+  }
+
+  .FixedDataMedium {
+    width: 17.5rem;
+    height: 2.5rem;
+  }
+
+  .FixedDataSmall {
+    width: 17.5rem;
+    height: 2.5rem;
+  }
+
+  .OrderAll {
+    flex-direction: column;
+  }
+
+  .OrderData {
+    flex-direction: column;
+  }
+
+  .ResName {
+    font-size: 16px;
+  }
+
+  .WhatsButton {
+    flex-direction: row;
+    margin-top: 3rem;
+    margin-left: 0;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    gap: 1rem;
+  }
+
+  .WhatsImg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .WhatsText {
+    font-size: 16px;
+  }
+
+  .PdfButton {
+    flex-direction: row;
+    margin-top: 3rem;
+    margin-left: 0;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    gap: 1rem;
+  }
+
+  .PdfText {
+    font-size: 16px;
+
+  }
+
+  .BudgetHead {
+    margin-top: 2.5rem;
+  }
+
+  .Preview {
+    margin-top: 2rem;
+  }
+}

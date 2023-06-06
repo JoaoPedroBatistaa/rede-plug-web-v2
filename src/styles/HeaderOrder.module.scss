@@ -21,3 +21,11 @@
   font-weight: medium;
   font-family: 'Outfit', sans-serif;
 }
+
+@media (max-width: 430px) {
+  .HeaderContainer {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+}
