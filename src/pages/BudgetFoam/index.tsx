@@ -78,11 +78,9 @@ export default function BudgetFoam() {
                 <p className={styles.Value}>R$942,00</p>
               </div>
 
-              <button
-                className={styles.FinishButton}
-                onClick={handleButtonFinish}
-              >
-                Finalizar Orçamento
+              <button className={styles.FinishButton} onClick={handleButtonFinish}>
+                <img src="./finishBudget.png" alt="Finalizar" className={styles.buttonImage} />
+                <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, addDoc, doc, getDoc } from 'firebase/firestore'
+import { getFirestore, collection, addDoc, doc, getDoc, where, query } from 'firebase/firestore'
 import { getAuth, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { getDownloadURL, ref, uploadBytesResumable, getStorage } from 'firebase/storage';
 // TODO: Add SDKs for Firebase products that you want to use
@@ -38,5 +38,7 @@ export {
   getDoc,
   getDownloadURL,
   ref,
-  uploadBytesResumable
+  uploadBytesResumable,
+  query,
+  where
 }

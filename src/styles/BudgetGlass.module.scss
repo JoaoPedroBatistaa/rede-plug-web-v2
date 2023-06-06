@@ -52,16 +52,36 @@
 }
 
 .FinishButton {
-  color: #fff;
-  font-family: 'Outfit', sans-serif;
-  font-size: 16px;
-  font-weight: medium;
+
   width: 23em;
   height: 2.7rem;
   border-radius: 5px;
   background-color: #0BB07B;
   border: none;
   cursor: pointer;
+
+  .buttonImage {
+    display: none;
+    padding-left: 0.9rem; // Esconde a imagem por padrão
+  }
+
+  .buttonText {
+    display: block; // Mostra o texto por padrão
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: medium;
+  }
+
+  @media (max-width: 768px) {
+    .buttonImage {
+      display: block; // Mostra a imagem em telas pequenas
+    }
+
+    .buttonText {
+      display: none; // Esconde o texto em telas pequenas
+    }
+  }
 }
 
 .Notes {
