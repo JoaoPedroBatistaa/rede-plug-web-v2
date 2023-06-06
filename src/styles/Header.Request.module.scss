@@ -3,7 +3,7 @@
   flex-direction: column;
   justify-content: baseline;
   align-items: flex-start;
-  background-color: #7C0000;
+  background-color: #7c0000;
   height: 20.75rem;
   width: 100%;
   padding-top: 24px;
@@ -11,45 +11,39 @@
   padding-right: 24px;
 }
 
-.HeaderSearch{
+.HeaderSearch {
   display: flex;
   width: 100%;
-
 }
 
 .HeaderTextContainer {
   width: 50%;
   display: flex;
-
 }
 
 .HeaderTextTitle {
-  font-family: 'Outfit';
+  font-family: "Outfit";
   font-size: 26px;
-  color:#fff
-
-
+  color: #fff;
 }
 
-.HeaderTextDescription{
-  font-family: 'Outfit';
+.HeaderTextDescription {
+  font-family: "Outfit";
   font-size: 16px;
   color: #fff;
   margin-top: 20px;
 }
 
-.HeaderContainerIcons{
-   display: flex;
-   align-items: center;
-   justify-content: flex-end;
-   flex:1;
+.HeaderContainerIcons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
 }
 
-.HeaderIcon{
+.HeaderIcon {
   margin-left: 16px;
-
 }
-
 
 .Close {
   width: 1.5rem;
@@ -60,5 +54,5 @@
   color: #ffffff;
   font-size: 20px;
   font-weight: medium;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
 }

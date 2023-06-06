@@ -13,19 +13,18 @@
   margin-bottom: 16px;
   color: rgb(0, 0, 0);
   font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
 }
 
 .Click {
   margin-left: 16px;
   margin-bottom: 1rem;
   font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   color: black;
 }
 
 .MenuNavigate {
-
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -35,41 +34,38 @@
   cursor: pointer;
 
   &.active {
-    background-color: #F0EBED;
+    background-color: #f0ebed;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 
-
     .NavigateItem {
-      color: #7C0000;
+      color: #7c0000;
     }
 
-    .Pointer {}
+    .Pointer {
+    }
   }
 }
 
 .NavigateItem {
   font-size: 16px;
   font-weight: medium;
-  font-family: 'Outfit', sans-serif;
-  color: #B5B5BA;
-
+  font-family: "Outfit", sans-serif;
+  color: #b5b5ba;
 }
 
 .NavigateItemEnd {
   font-size: 16px;
   font-weight: medium;
-  font-family: 'Outfit', sans-serif;
-  color: #B5B5BA;
+  font-family: "Outfit", sans-serif;
+  color: #b5b5ba;
   margin-left: 1.5rem;
-
 }
 
 .Pointer {
   width: 16px;
   height: 16px;
   margin-left: 1.5rem;
-
 }
 
 .PointerEnd {
@@ -87,9 +83,15 @@
 .linha {
   border: none;
   height: 1px;
-  background-color: #E4E5EB;
+  background-color: #e4e5eb;
   margin-top: 0.5rem;
   margin-bottom: 0.5px;
   margin-left: 1rem;
   margin-right: 1rem;
+}
+
+@media (max-width: 768px) {
+  .sideMenu {
+    display: none;
+  }
 }
