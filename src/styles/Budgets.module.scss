@@ -43,7 +43,7 @@
   background: #0bb07b;
   border-radius: 6px;
   height: 39px;
-  min-width: 135px;
+  width: 135px;
   padding: 0px 15px;
   border: 0;
   text-transform: uppercase;
@@ -654,4 +654,37 @@
 
 .containerFilterClose {
   display: none;
+}
+.containerFilterClose {
+  display: none;
+}
+.maisNone {
+  display: none;
+}
+@media (max-width: 768px) {
+  .ListMenuFilterText {
+    display: none !important;
+  }
+  .maisNoneMobile {
+    display: none !important;
+  }
+  .maisNone {
+    display: flex;
+
+    font-size: 18px;
+  }
+  .ListMenuRight {
+    .ListMenuButton {
+      width: 30px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+  }
+
+  .ListMenuFilter {
+    width: 15%;
+  }
 }

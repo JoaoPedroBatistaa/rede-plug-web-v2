@@ -1,13 +1,13 @@
-import Head from 'next/head';
-import styles from '../../styles/ViewOrderBudget.module.scss';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import styles from "../../styles/ViewOrderBudget.module.scss";
+import { useRouter } from "next/router";
 
-import HeaderViewBudget from '@/components/HeaderViewBudget';
-import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useEffect, useState } from 'react';
-import Link from 'next/link';
+import HeaderViewBudget from "@/components/HeaderViewBudget";
+import SideMenuHome from "@/components/SideMenuHome";
+import { ChangeEvent, useEffect, useState } from "react";
+import Link from "next/link";
 
-import { db, doc, getDoc } from '../../../firebase';
+import { db, doc, getDoc } from "../../../firebase";
 
 type UserDataType = {
   Tamanho: string;
@@ -33,7 +33,7 @@ type UserDataType = {
 export default function ViewBudgetBudget() {
   const router = useRouter();
 
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOption, setSelectedOption] = useState("opcao1");
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
 
@@ -42,8 +42,8 @@ export default function ViewBudgetBudget() {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setSelectedBudgetId(localStorage.getItem('selectedBudgetId'));
+    if (typeof window !== "undefined") {
+      setSelectedBudgetId(localStorage.getItem("selectedBudgetId"));
     }
   }, []);
 
@@ -51,7 +51,7 @@ export default function ViewBudgetBudget() {
     async function fetchData() {
       if (selectedBudgetId) {
         try {
-          const docRef = doc(db, 'Budget', selectedBudgetId);
+          const docRef = doc(db, "Budget", selectedBudgetId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
@@ -70,7 +70,6 @@ export default function ViewBudgetBudget() {
     fetchData();
   }, [selectedBudgetId]);
 
-
   return (
     <>
       <Head>
@@ -80,24 +79,24 @@ export default function ViewBudgetBudget() {
         `}</style>
       </Head>
 
-
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} ></SideMenuHome>
+        <SideMenuHome activeRoute={router.pathname}></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderViewBudget></HeaderViewBudget>
 
           <div className={styles.OrderDataContainer}>
-
             <div className={styles.BudgetHead}>
               <div className={styles.Nav}>
-                <Link href='ViewBudgetData'>
+                <Link href="ViewBudgetData">
                   <p className={styles.NavItem}>Dados do cliente</p>
                 </Link>
 
-                <Link href='ViewBudgetBudget'>
+                <Link href="ViewBudgetBudget">
                   <div>
-                    <p className={`${styles.NavItem} ${styles.active}`}>Orçamento</p>
+                    <p className={`${styles.NavItem} ${styles.active}`}>
+                      Orçamento
+                    </p>
                     <div className={styles.NavItemBar}></div>
                   </div>
                 </Link>
@@ -113,7 +112,6 @@ export default function ViewBudgetBudget() {
 
             <div className={styles.OrderData}>
               <div className={styles.OrderAll}>
-
                 <div className={styles.OrderRes}>
                   <p className={styles.ResTitle}>Resumo do orçamento</p>
 
@@ -127,21 +125,27 @@ export default function ViewBudgetBudget() {
                   <div>
                     <p className={styles.ResName}>Impressão</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.impressao} - {userData?.tipoImpressao}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.impressao} - {userData?.tipoImpressao}
+                      </p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Perfil</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.codigoPerfil} - {userData?.espessuraPerfil}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.codigoPerfil} - {userData?.espessuraPerfil}
+                      </p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Vidro</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.vidro} - {userData?.espessuraVidro}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.vidro} - {userData?.espessuraVidro}
+                      </p>
                     </div>
                   </div>
 
@@ -156,10 +160,14 @@ export default function ViewBudgetBudget() {
                     <p className={styles.ResName}>Paspatur</p>
                     <div>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{userData?.paspatur} - {userData?.codigoPaspatur}</p>
+                        <p className={styles.ResValue}>
+                          {userData?.paspatur} - {userData?.codigoPaspatur}
+                        </p>
                       </div>
 
-                      <p className={styles.ResValue}>{userData?.dimensoesPaspatur}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.dimensoesPaspatur}
+                      </p>
                     </div>
                   </div>
 
@@ -180,7 +188,9 @@ export default function ViewBudgetBudget() {
                   <div>
                     <p className={styles.ResName}>Instalação</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.instalacao} - {userData?.valorInstalacao}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.instalacao} - {userData?.valorInstalacao}
+                      </p>
                     </div>
                   </div>
 
@@ -190,7 +200,6 @@ export default function ViewBudgetBudget() {
                       <p className={styles.ResValue}>{userData?.tipoEntrega}</p>
                     </div>
                   </div>
-
                 </div>
 
                 <div className={styles.OrderRes}>
@@ -220,7 +229,11 @@ export default function ViewBudgetBudget() {
                   <div className={styles.OrderNotes}>
                     <p className={styles.ResName}>Observação</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour</p>
+                      <p className={styles.ResValue}>
+                        There are many variations of passages of Lorem Ipsum
+                        available, but the majority have suffered alteration in
+                        some form, by injected humour
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -244,17 +257,16 @@ export default function ViewBudgetBudget() {
                   <p className={styles.PdfText}>GERAR PDF</p>
                 </div>
               </div>
-
             </div>
           </div>
 
           <div className={styles.Copyright}>
-            <p className={styles.Copy}>© Total Maxx 2023, todos os direitos reservados</p>
+            <p className={styles.Copy}>
+              © Total Maxx 2023, todos os direitos reservados
+            </p>
           </div>
-
         </div>
-
-      </div >
+      </div>
     </>
-  )
+  );
 }

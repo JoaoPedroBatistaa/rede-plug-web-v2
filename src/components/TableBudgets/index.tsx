@@ -128,9 +128,9 @@ export default function TableBudgets({ searchValue }: ITableBudgets) {
             <th>Nº Orçamento</th>
             <th>CLIENTE</th>
             <th>SITUAÇÃO</th>
-            <th>PRAZO DE ENTREGA</th>
-            <th>DATA DE CADASTRO</th>
-            <th>VALOR TOTAL</th>
+            <th id={styles.tdNone}>PRAZO DE ENTREGA </th>
+            <th id={styles.tdNone}>DATA DE CADASTRO</th>
+            <th id={styles.tdNone}>VALOR TOTAL</th>
           </tr>
         </thead>
 
@@ -216,20 +216,23 @@ export default function TableBudgets({ searchValue }: ITableBudgets) {
                 </span>
                 <br />
                 <span className={styles.dataCadastro}>
-                  <p> Data de cadastro:{item.dataCadastro}</p>
+                  <p id={styles.tdNone}>
+                    {" "}
+                    Data de cadastro:{item.dataCadastro}
+                  </p>
                 </span>
               </td>
-              <td className={styles.td}>
+              <td className={styles.td} id={styles.tdNone}>
                 {item.Entrega}
                 <br />
                 <span className={styles.diasUteis}>15 dias Utéis</span>
               </td>
-              <td className={styles.td}>
+              <td className={styles.td} id={styles.tdNone}>
                 {item.dataCadastro}
                 <br />
                 <span className={styles.diasUteis}>{item.nomeCompleto}</span>
               </td>
-              <td className={styles.td}>
+              <td className={styles.td} id={styles.tdNone}>
                 {item.valorTotal}
                 <br />
                 <span className={styles.diasUteis}>À Vista</span>

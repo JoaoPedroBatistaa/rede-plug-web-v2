@@ -1,6 +1,6 @@
-import Head from 'next/head';
-import styles from '../../styles/Header.Budgets.module.scss';
-import SearchInput from '../InputSearch';
+import Head from "next/head";
+import styles from "../../styles/Header.Budgets.module.scss";
+import SearchInput from "../InputSearch";
 
 export default function HeaderRequests() {
   return (
@@ -12,26 +12,44 @@ export default function HeaderRequests() {
         `}</style>
       </Head>
       <div className={styles.HeaderContainer}>
-      
         <div className={styles.HeaderSearch}>
+          <div className={styles.menuSamduba}>
+            {" "}
+            <img src="./menuSamduba.png" height={20} width={20} alt="" />
+          </div>
           <div className={styles.HeaderTextTitle}>
-             <b>Orçamentos</b>
+            <b>Orçamentos</b>
           </div>
           <div className={styles.HeaderContainerIcons}>
-              <img src='./iconSino.png' className={styles.HeaderIcon} height={20} width={20} />
-              <img src='./iconProfile.png' className={styles.HeaderIcon}  height={20} width={20} />
-              <img src='./iconInterro.png' className={styles.HeaderIcon}  height={20} width={20} />
+            <img
+              src="./iconSino.png"
+              className={styles.HeaderIcon}
+              height={20}
+              width={20}
+            />
+            <img
+              src="./iconProfile.png"
+              className={styles.HeaderIcon}
+              height={20}
+              width={20}
+            />
+            <img
+              src="./iconInterro.png"
+              className={styles.HeaderIcon}
+              height={20}
+              width={20}
+            />
           </div>
-
-        </div>         
+        </div>
         <div className={styles.HeaderTextContainer}>
-            <div className={styles.HeaderTextDescription}>
-              <p>Aqui voce encontra todos os orçamentos ainda não efetivados em pedidos</p>
-            </div>
-            
-        </div>       
-       
+          <div className={styles.HeaderTextDescription}>
+            <p>
+              Aqui voce encontra todos os orçamentos ainda não efetivados em
+              pedidos
+            </p>
+          </div>
+        </div>
       </div>
     </>
-  )
+  );
 }

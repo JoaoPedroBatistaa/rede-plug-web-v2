@@ -80,7 +80,11 @@ export default function Budgets() {
                 <div className={styles.ListMenuRight}>
                   <Link href="/BudgetSize">
                     <button className={styles.ListMenuButton}>
-                      Novo Orçamento
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Novo Pedido
+                      </span>
+                      <span className={styles.maisNone}> +</span>
                     </button>
                   </Link>
                 </div>
