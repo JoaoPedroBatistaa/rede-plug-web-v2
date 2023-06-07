@@ -93,6 +93,9 @@ export default function BudgetSave() {
   const dataCadastro = formatarData(dataCadastroInicial);
   const Entrega = formatarData(EntregaInicial);
 
+  const Ativo = true;
+  const valorTotal = "99,99";
+
   const handleSaveBudget = async () => {
     if (!nomeCompleto || !Telefone || !email) {
       // Se algum campo estiver vazio, exiba uma mensagem para preencher todos os dados
@@ -129,6 +132,8 @@ export default function BudgetSave() {
         Tamanho,
         dataCadastro,
         Entrega,
+        Ativo,
+        valorTotal
       });
 
       toast.success("Salvo com sucesso!");

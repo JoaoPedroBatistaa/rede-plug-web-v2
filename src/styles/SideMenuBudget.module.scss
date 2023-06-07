@@ -73,3 +73,42 @@
   display: flex;
   position: relative;
 }
+
+.closeMenu {
+  display: none;
+}
+
+@media (max-width: 430px) {
+  .sideMenu {
+    z-index: 999;
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 100%;
+    z-index: 9999;
+    transition: transform 0.5s ease-in-out;
+    transform: translateX(0%);
+    box-shadow: 0 0 300px rgba(0, 0, 0);
+
+  }
+
+
+
+  .sideMenuClose {
+    transform: translateX(-160%);
+
+  }
+
+  .closeMenu {
+    display: block;
+    margin-left: 1rem;
+    margin-right: -1rem;
+    margin-top: 1rem;
+    margin-bottom: -1rem;
+    width: 32px;
+    height: 32px;
+
+  }
+}

@@ -70,6 +70,9 @@ export default function BudgetFinish() {
     tipoPessoa = localStorage.getItem("tipoPessoa");
   }
 
+  const Ativo = true;
+  const valorTotal = "99,99";
+
   const handleSaveOrder = async () => {
     if (
       !nomeCompleto ||
@@ -124,6 +127,8 @@ export default function BudgetFinish() {
         cep,
         complemento,
         tipoPessoa,
+        Ativo,
+        valorTotal
       });
       toast.success("Pedido enviado!");
       setTimeout(() => {
