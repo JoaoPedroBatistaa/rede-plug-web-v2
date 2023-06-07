@@ -6,6 +6,7 @@ import classnames from "classnames";
 
 export default function HeaderRequests() {
   const { openMenu, setOpenMenu } = useMenu();
+
   const handleOpenMenu = () => {
     setOpenMenu(!openMenu);
     console.log(openMenu);
@@ -20,9 +21,15 @@ export default function HeaderRequests() {
       </Head>
       <div className={styles.HeaderContainer}>
         <div className={styles.HeaderSearch}>
-          <div className={styles.menuSamduba} onClick={handleOpenMenu}>
+          <div className={styles.menuSamduba}>
             {" "}
-            <img src="./menuSamduba.png" height={20} width={20} alt="" />
+            <img
+              src="./menuSamduba.png"
+              height={20}
+              width={20}
+              alt=""
+              onClick={handleOpenMenu}
+            />
           </div>
           <div className={styles.HeaderTextTitle}>
             <b>Pedidos</b>

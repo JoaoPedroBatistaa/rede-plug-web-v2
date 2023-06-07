@@ -2,8 +2,16 @@ import Head from "next/head";
 import styles from "../../styles/Header.Home.Result.module.scss";
 import SearchInput from "../InputSearch";
 import { useState } from "react";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 export default function HeaderHomeResult() {
+  const { openMenu, setOpenMenu } = useMenu();
+
+  const handleOpenMenu = () => {
+    setOpenMenu(!openMenu);
+    console.log(openMenu);
+  };
   const [searchText, setSearchText] = useState("");
   return (
     <>
@@ -16,7 +24,14 @@ export default function HeaderHomeResult() {
       <div className={styles.HeaderContainer}>
         <div className={styles.HeaderSearch}>
           <div className={styles.menuSamduba}>
-            <img src="./menuSamduba.png" height={20} width={20} alt="" />
+            {" "}
+            <img
+              src="./menuSamduba.png"
+              height={20}
+              width={20}
+              alt=""
+              onClick={handleOpenMenu}
+            />
           </div>
           <SearchInput></SearchInput>
           <div className={styles.HeaderContainerIcons}>

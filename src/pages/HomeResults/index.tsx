@@ -7,6 +7,7 @@ import { ChangeEvent, useState } from "react";
 import Link from "next/link";
 import HeaderHome from "@/components/HeaderHome";
 import HeaderHomeResult from "@/components/HeaderHomeResults";
+import { useMenu } from "../../components/Context/context";
 
 export default function HomeResults() {
   const router = useRouter();
