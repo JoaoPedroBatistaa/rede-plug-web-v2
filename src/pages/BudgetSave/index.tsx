@@ -97,12 +97,6 @@ export default function BudgetSave() {
   const valorTotal = "99,99";
 
   const handleSaveBudget = async () => {
-    if (!nomeCompleto || !Telefone || !email) {
-      // Se algum campo estiver vazio, exiba uma mensagem para preencher todos os dados
-
-      toast.error("Por favor, preencha todos os campos.");
-      return;
-    }
     try {
       await addDoc(collection(db, "Budget"), {
         nomeCompleto,
@@ -133,7 +127,7 @@ export default function BudgetSave() {
         dataCadastro,
         Entrega,
         Ativo,
-        valorTotal
+        valorTotal,
       });
 
       toast.success("Salvo com sucesso!");

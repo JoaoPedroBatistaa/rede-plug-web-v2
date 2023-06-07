@@ -31,11 +31,15 @@ export default function Budgets() {
     setSearchValue(e.target.value);
   };
 
-  const handleOrderValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOrderValueChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setOrderValue(event.target.value);
   };
 
-  const handleFilterValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterValueChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setFilterValue(event.target.value);
   };
 
@@ -51,23 +55,28 @@ export default function Budgets() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
+        <SideMenuHome
+          activeRoute={router.pathname}
+          openMenu={openMenu}
+        ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderBudgets></HeaderBudgets>
           <div className={styles.MainContainer}>
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
-                <div
-                  className={styles.ListMenuFilter}
-                  onClick={handleOpenFilter}
-                >
-                  <img src="./Filter.png"></img>{" "}
-                  <span className={styles.ListMenuFilterText}>Filtros</span>
+                <div className={styles.ListMenu}>
+                  <div
+                    className={styles.ListMenuFilter}
+                    onClick={handleOpenFilter}
+                  >
+                    <img src="./Filter.png"></img>{" "}
+                    <span className={styles.ListMenuFilterText}>Filtros</span>
+                  </div>
+                  <SearchInputList
+                    handleSearchChange={(e) => handleSearchChange(e)}
+                  ></SearchInputList>
                 </div>
-                <SearchInputList
-                  handleSearchChange={(e) => handleSearchChange(e)}
-                ></SearchInputList>
                 <div className={styles.ListMenuRight}>
                   <Link href="/BudgetSize">
                     <button className={styles.ListMenuButton}>
@@ -80,7 +89,13 @@ export default function Budgets() {
                   </Link>
                 </div>
               </div>
-              <div className={`${openFilter ? styles.containerFilter : styles.containerFilterClose}`}>
+              <div
+                className={`${
+                  openFilter
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
+              >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
                   <div className={styles.filterItem}>
@@ -106,29 +121,71 @@ export default function Budgets() {
                     <label htmlFor="nomeDecrescente">Nome decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="maiorValor" name="ordenarPor" value="maiorValor" onChange={handleOrderValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="maiorValor"
+                      name="ordenarPor"
+                      value="maiorValor"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="maiorValor">Maior Valor</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="dataCadastro" name="ordenarPor" value="dataCadastro" onChange={handleOrderValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="dataCadastro"
+                      name="ordenarPor"
+                      value="dataCadastro"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="dataCadastro">Data de cadastro</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="dataVencimento" name="ordenarPor" value="dataVencimento" onChange={handleOrderValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="dataVencimento"
+                      name="ordenarPor"
+                      value="dataVencimento"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="dataVencimento">Data de vencimento</label>
                   </div>
                   <span className={styles.sublinado}></span>
                   <h2>SITUAÇÃO</h2>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="todos" name="situacao" value="todos" onChange={handleFilterValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="todos"
+                      name="situacao"
+                      value="todos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="todos">Todos</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="ativos" name="situacao" value="ativos" onChange={handleFilterValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="ativos"
+                      name="situacao"
+                      value="ativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="ativos">Ativos</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="inativos" name="situacao" value="inativos" onChange={handleFilterValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="inativos"
+                      name="situacao"
+                      value="inativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="inativos">Inativos</label>
                   </div>
                 </div>
@@ -140,7 +197,6 @@ export default function Budgets() {
                 orderValue={orderValue}
                 filterValue={filterValue}
               />
-
             </div>
           </div>
 

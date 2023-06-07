@@ -17,7 +17,6 @@ export default function Requests() {
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
-
   const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchValue, setSearchValue] = useState("");
@@ -39,12 +38,15 @@ export default function Requests() {
     setOpenFilter(!openFilter);
   };
 
-
-  const handleOrderValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOrderValueChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setOrderValue(event.target.value);
   };
 
-  const handleFilterValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterValueChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setFilterValue(event.target.value);
   };
   return (
@@ -57,7 +59,10 @@ export default function Requests() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
+        <SideMenuHome
+          activeRoute={router.pathname}
+          openMenu={openMenu}
+        ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderRequests></HeaderRequests>
@@ -89,10 +94,11 @@ export default function Requests() {
                 </div>
               </div>
               <div
-                className={`${openFilter
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  openFilter
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -119,38 +125,82 @@ export default function Requests() {
                     <label htmlFor="nomeDecrescente">Nome decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="maiorValor" name="ordenarPor" value="maiorValor" onChange={handleOrderValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="maiorValor"
+                      name="ordenarPor"
+                      value="maiorValor"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="maiorValor">Maior Valor</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="dataCadastro" name="ordenarPor" value="dataCadastro" onChange={handleOrderValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="dataCadastro"
+                      name="ordenarPor"
+                      value="dataCadastro"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="dataCadastro">Data de cadastro</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="dataVencimento" name="ordenarPor" value="dataVencimento" onChange={handleOrderValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="dataVencimento"
+                      name="ordenarPor"
+                      value="dataVencimento"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="dataVencimento">Data de vencimento</label>
                   </div>
                   <span className={styles.sublinado}></span>
                   <h2>SITUAÇÃO</h2>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="todos" name="situacao" value="todos" onChange={handleFilterValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="todos"
+                      name="situacao"
+                      value="todos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="todos">Todos</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="ativos" name="situacao" value="ativos" onChange={handleFilterValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="ativos"
+                      name="situacao"
+                      value="ativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="ativos">Ativos</label>
                   </div>
                   <div className={styles.filterItem}>
-                    <input type="radio" id="inativos" name="situacao" value="inativos" onChange={handleFilterValueChange} className={styles.filterItem} />
+                    <input
+                      type="radio"
+                      id="inativos"
+                      name="situacao"
+                      value="inativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
                     <label htmlFor="inativos">Inativos</label>
                   </div>
                 </div>
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table searchValue={searchValue}
+              <Table
+                searchValue={searchValue}
                 orderValue={orderValue}
-                filterValue={filterValue} />
+                filterValue={filterValue}
+              />
             </div>
           </div>
 

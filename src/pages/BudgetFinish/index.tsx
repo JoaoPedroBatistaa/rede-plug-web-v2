@@ -70,9 +70,6 @@ export default function BudgetFinish() {
     tipoPessoa = localStorage.getItem("tipoPessoa");
   }
 
-  const Ativo = true;
-  const valorTotal = "99,99";
-
   const handleSaveOrder = async () => {
     if (
       !nomeCompleto ||
@@ -127,8 +124,6 @@ export default function BudgetFinish() {
         cep,
         complemento,
         tipoPessoa,
-        Ativo,
-        valorTotal
       });
       toast.success("Pedido enviado!");
       setTimeout(() => {
@@ -225,7 +220,11 @@ export default function BudgetFinish() {
           .then((data) => {
             console.log(data);
             setCep(cep);
-            console.log(cep);
+            setEndereco(data.logradouro);
+            setBairro(data.bairro);
+            setCidade(data.localidade);
+            setEstado(data.uf);
+            console.log(endereco);
           })
           .catch((err) => {
             alert("Digite o CEP!");
@@ -397,6 +396,7 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={bairro}
+                    disabled
                   />
                 </div>
 
@@ -409,6 +409,7 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={cidade}
+                    disabled
                   />
                 </div>
               </div>
@@ -423,6 +424,7 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={estado}
+                    disabled
                   />
                 </div>
               </div>

@@ -649,7 +649,7 @@
   color: #404049;
 }
 
-.listFilter div>input[type="radio"]:checked {
+.listFilter div > input[type="radio"]:checked {
   accent-color: red;
 }
 
@@ -685,7 +685,12 @@
   }
 
   .ListMenuFilter {
-    width: 15%;
+    width: 40px;
+    height: 35px;
+    img {
+      width: 15px;
+      height: 15px;
+    }
   }
 }
 
