@@ -354,7 +354,6 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={endereco}
-                    disabled
                   />
                 </div>
               </div>
@@ -393,7 +392,6 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={bairro}
-                    disabled
                   />
                 </div>
 
@@ -406,7 +404,6 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={cidade}
-                    disabled
                   />
                 </div>
               </div>
@@ -421,7 +418,6 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={estado}
-                    disabled
                   />
                 </div>
               </div>
