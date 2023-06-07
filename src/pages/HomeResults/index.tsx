@@ -12,6 +12,9 @@ import { useMenu } from "../../components/Context/context";
 export default function HomeResults() {
   const router = useRouter();
 
+  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
+
+
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchText, setSearchText] = useState("");
 
@@ -29,7 +32,7 @@ export default function HomeResults() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname}></SideMenuHome>
+        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderHomeResult></HeaderHomeResult>

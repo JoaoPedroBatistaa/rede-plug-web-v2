@@ -10,6 +10,9 @@ import HeaderHome from "@/components/HeaderHome";
 export default function Home() {
   const router = useRouter();
 
+  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
+
+
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchText, setSearchText] = useState("");
 
@@ -27,7 +30,7 @@ export default function Home() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname}></SideMenuHome>
+        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderHome></HeaderHome>

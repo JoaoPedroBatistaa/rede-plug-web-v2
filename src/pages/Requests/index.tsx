@@ -14,6 +14,10 @@ import Table from "@/components/Table";
 
 export default function Requests() {
   const router = useRouter();
+
+  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
+
+
   const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchValue, setSearchValue] = useState("");
@@ -41,7 +45,7 @@ export default function Requests() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname}></SideMenuHome>
+        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderRequests></HeaderRequests>
@@ -73,11 +77,10 @@ export default function Requests() {
                 </div>
               </div>
               <div
-                className={`${
-                  openFilter
+                className={`${openFilter
                     ? styles.containerFilter
                     : styles.containerFilterClose
-                }`}
+                  }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>

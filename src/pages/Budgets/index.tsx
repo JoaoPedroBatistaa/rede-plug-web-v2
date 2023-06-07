@@ -18,6 +18,8 @@ import { faL } from "@fortawesome/free-solid-svg-icons";
 export default function Budgets() {
   const router = useRouter();
 
+  const [openMenu, setOpenMenu] = useState(false);
+
   const [selectedOption, setSelectedOption] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
@@ -58,7 +60,7 @@ export default function Budgets() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname}></SideMenuHome>
+        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderBudgets></HeaderBudgets>
@@ -90,11 +92,10 @@ export default function Budgets() {
                 </div>
               </div>
               <div
-                className={`${
-                  openFilter
+                className={`${openFilter
                     ? styles.containerFilter
                     : styles.containerFilterClose
-                }`}
+                  }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>

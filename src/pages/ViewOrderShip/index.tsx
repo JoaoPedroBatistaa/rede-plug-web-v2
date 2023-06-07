@@ -23,6 +23,9 @@ export default function ViewOrderShip() {
 
   const router = useRouter();
 
+  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
+
+
   const [selectedOption, setSelectedOption] = useState('opcao1');
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -72,7 +75,7 @@ export default function ViewOrderShip() {
 
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} ></SideMenuHome>
+        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderOrder></HeaderOrder>
