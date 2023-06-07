@@ -58,6 +58,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .ListMenuFilterText {
@@ -601,6 +602,7 @@
   align-items: center;
   margin: 0 auto;
   justify-content: center;
+
   .sublinado {
     width: 204px;
     height: 1px;
@@ -647,28 +649,33 @@
   color: #404049;
 }
 
-.listFilter div > input[type="radio"]:checked {
+.listFilter div>input[type="radio"]:checked {
   accent-color: red;
 }
 
 .containerFilterClose {
   display: none;
 }
+
 .maisNone {
   display: none;
 }
+
 @media (max-width: 768px) {
   .ListMenuFilterText {
     display: none !important;
   }
+
   .maisNoneMobile {
     display: none !important;
   }
+
   .maisNone {
     display: flex;
 
     font-size: 18px;
   }
+
   .ListMenuButton {
     width: 30px;
     height: 32px;
@@ -676,7 +683,12 @@
     align-items: center;
     justify-content: center;
   }
+
   .ListMenuFilter {
     width: 15%;
   }
+}
+
+.filterItem {
+  cursor: pointer;
 }

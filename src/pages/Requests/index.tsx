@@ -24,6 +24,9 @@ export default function Requests() {
 
   const [valueRadio, setValueRadio] = useState("");
 
+  const [orderValue, setOrderValue] = useState<string>("");
+  const [filterValue, setFilterValue] = useState<string>("");
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
@@ -34,6 +37,15 @@ export default function Requests() {
   };
   const handleOpenFilter = () => {
     setOpenFilter(!openFilter);
+  };
+
+
+  const handleOrderValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setOrderValue(event.target.value);
+  };
+
+  const handleFilterValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFilterValue(event.target.value);
   };
   return (
     <>
@@ -78,60 +90,67 @@ export default function Requests() {
               </div>
               <div
                 className={`${openFilter
-                    ? styles.containerFilter
-                    : styles.containerFilterClose
+                  ? styles.containerFilter
+                  : styles.containerFilterClose
                   }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
-                  <div>
+                  <div className={styles.filterItem}>
                     <input
                       type="radio"
                       id="nomeCrescente"
                       name="ordenarPor"
-                      value="Nome crescente"
+                      value="nomeCrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
                     />
                     <label htmlFor="nomeCrescente">Nome crescente</label>
                   </div>
-                  <div>
+                  <div className={styles.filterItem}>
                     <input
                       type="radio"
                       id="nomeDecrescente"
                       name="ordenarPor"
+                      value="nomeDecrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
                     />
                     <label htmlFor="nomeDecrescente">Nome decrescente</label>
                   </div>
-                  <div>
-                    <input type="radio" id="maiorValor" name="ordenarPor" />
+                  <div className={styles.filterItem}>
+                    <input type="radio" id="maiorValor" name="ordenarPor" value="maiorValor" onChange={handleOrderValueChange} className={styles.filterItem} />
                     <label htmlFor="maiorValor">Maior Valor</label>
                   </div>
-                  <div>
-                    <input type="radio" id="dataVencimento" name="ordenarPor" />
-                    <label htmlFor="dataVencimento">Data de vencimento</label>
-                  </div>
-                  <div>
-                    <input type="radio" id="dataCadastro" name="ordenarPor" />
+                  <div className={styles.filterItem}>
+                    <input type="radio" id="dataCadastro" name="ordenarPor" value="dataCadastro" onChange={handleOrderValueChange} className={styles.filterItem} />
                     <label htmlFor="dataCadastro">Data de cadastro</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input type="radio" id="dataVencimento" name="ordenarPor" value="dataVencimento" onChange={handleOrderValueChange} className={styles.filterItem} />
+                    <label htmlFor="dataVencimento">Data de vencimento</label>
                   </div>
                   <span className={styles.sublinado}></span>
                   <h2>SITUAÇÃO</h2>
-                  <div>
-                    <input type="radio" id="todos" name="situacao" />
+                  <div className={styles.filterItem}>
+                    <input type="radio" id="todos" name="situacao" value="todos" onChange={handleFilterValueChange} className={styles.filterItem} />
                     <label htmlFor="todos">Todos</label>
                   </div>
-                  <div>
-                    <input type="radio" id="ativos" name="situacao" />
+                  <div className={styles.filterItem}>
+                    <input type="radio" id="ativos" name="situacao" value="ativos" onChange={handleFilterValueChange} className={styles.filterItem} />
                     <label htmlFor="ativos">Ativos</label>
                   </div>
-                  <div>
-                    <input type="radio" id="inativos" name="situacao" />
+                  <div className={styles.filterItem}>
+                    <input type="radio" id="inativos" name="situacao" value="inativos" onChange={handleFilterValueChange} className={styles.filterItem} />
                     <label htmlFor="inativos">Inativos</label>
                   </div>
                 </div>
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table searchValue={searchValue} />
+              <Table searchValue={searchValue}
+                orderValue={orderValue}
+                filterValue={filterValue} />
             </div>
           </div>
 

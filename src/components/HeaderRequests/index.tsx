@@ -26,7 +26,7 @@ export default function HeaderRequests() {
             <img
               src="./menuSamduba.png"
               height={20}
-              width={20}
+              width={26}
               alt=""
               onClick={handleOpenMenu}
             />

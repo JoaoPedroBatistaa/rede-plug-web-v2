@@ -10,6 +10,8 @@ import { getDocs } from "firebase/firestore";
 import { ITableBudgets } from "./type";
 import { deleteDoc } from "firebase/firestore";
 
+import { toast } from 'react-toastify';
+
 interface Order {
   id: string;
 
@@ -23,7 +25,7 @@ interface Order {
   valorTotal: string;
 }
 
-export default function Table({ searchValue }: ITableBudgets) {
+export default function Table({ searchValue, orderValue, filterValue }: ITableBudgets) {
   const [filteredData, setFilteredData] = useState<Order[]>([]);
   const [teste, setTeste] = useState<Order[]>([]);
 
@@ -69,63 +71,84 @@ export default function Table({ searchValue }: ITableBudgets) {
     filterData();
   }, [searchValue, teste]);
 
-  const data = [
-    {
-      numeroPedido: "1231",
-      numeroTelefone: "(11) 99999-9999",
-      cliente: "Cliente A",
-      situacao: "Ativo",
-      prazoEntrega: "10/05/2023",
-      dataCadastro: "05/05/2023",
-      valorTotal: "R$ 100,00",
-    },
-    {
-      numeroPedido: "4567",
-      numeroTelefone: "(11) 99999-9999",
-      cliente: "Cliente B",
-      situacao: "Inativo",
-      prazoEntrega: "15/05/2023",
-      dataCadastro: "08/05/2023",
-      valorTotal: "R$ 150,00",
-    },
-    {
-      numeroPedido: "4562",
-      numeroTelefone: "(11) 99999-9999",
-      cliente: "Cliente B",
-      situacao: "Ativo",
-      prazoEntrega: "15/05/2023",
-      dataCadastro: "08/05/2023",
-      valorTotal: "R$ 150,00",
-    },
-    {
-      numeroPedido: "4561",
-      numeroTelefone: "(11) 99999-9999",
-      cliente: "Cliente B",
-      situacao: "Ativo",
-      prazoEntrega: "15/05/2023",
-      dataCadastro: "08/05/2023",
-      valorTotal: "R$ 150,00",
-    },
-    {
-      numeroPedido: "4563",
-      numeroTelefone: "(11) 99999-9999",
-      cliente: "Cliente B",
-      situacao: "Ativo",
-      prazoEntrega: "15/05/2023",
-      dataCadastro: "08/05/2023",
-      valorTotal: "R$ 150,00",
-    },
-    {
-      numeroPedido: "4568",
-      numeroTelefone: "(11) 99999-9999",
-      cliente: "Cliente B",
-      situacao: "Inativo",
-      prazoEntrega: "15/05/2023",
-      dataCadastro: "08/05/2023",
-      valorTotal: "R$ 150,00",
-    },
-    // ... adicione mais linhas de dados conforme necessário
-  ];
+  useEffect(() => {
+    let sortedData = [...teste];
+
+    // Filtragem
+    if (filterValue !== "") {
+      if (filterValue === "ativos") {
+        sortedData = sortedData.filter((item) => item.Ativo === true);
+      } else if (filterValue === "inativos") {
+        sortedData = sortedData.filter((item) => item.Ativo === undefined || item.Ativo === false);
+      }
+    }
+
+    // Ordenação
+    if (orderValue !== "") {
+      switch (orderValue) {
+        case "nomeCrescente":
+          sortedData.sort((a, b) => {
+            const nomeA = a.nomeCompleto.toUpperCase();
+            const nomeB = b.nomeCompleto.toUpperCase();
+            if (nomeA < nomeB) {
+              return -1;
+            }
+            if (nomeA > nomeB) {
+              return 1;
+            }
+            return 0;
+          });
+          break;
+        case "nomeDecrescente":
+          sortedData.sort((a, b) => {
+            const nomeA = a.nomeCompleto.toUpperCase();
+            const nomeB = b.nomeCompleto.toUpperCase();
+            if (nomeA > nomeB) {
+              return -1;
+            }
+            if (nomeA < nomeB) {
+              return 1;
+            }
+            return 0;
+          });
+          break;
+        case "maiorValor":
+          sortedData = [...sortedData]; // Cria uma cópia da array original
+          sortedData.sort((a, b) => parseFloat(b.valorTotal) - parseFloat(a.valorTotal));
+          break;
+        case "dataCadastro":
+          sortedData.sort((a, b) => {
+            const dataA = new Date(a.dataCadastro);
+            const dataB = new Date(b.dataCadastro);
+            if (dataA < dataB) {
+              return -1;
+            }
+            if (dataA > dataB) {
+              return 1;
+            }
+            return 0;
+          });
+          break;
+        case "dataVencimento":
+          sortedData.sort((a, b) => {
+            const dataA = new Date(a.Entrega);
+            const dataB = new Date(b.Entrega);
+            if (dataA < dataB) {
+              return -1;
+            }
+            if (dataA > dataB) {
+              return 1;
+            }
+            return 0;
+          });
+          break;
+        // Adicione mais casos para outras opções de ordenação
+      }
+    }
+
+    setFilteredData(sortedData);
+  }, [orderValue, filterValue, teste]);
+
   const totalItems = filteredData.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -154,12 +177,22 @@ export default function Table({ searchValue }: ITableBudgets) {
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    // Excluir item do banco de dados
-    await deleteDoc(doc(db, "Orders", itemId));
+    try {
+      await deleteDoc(doc(db, "Orders", itemId));
 
-    // Atualizar o estado com os dados filtrados atualizados
-    const updatedData = filteredData.filter((item) => item.id !== itemId);
-    setFilteredData(updatedData);
+      const updatedData = filteredData.filter((item) => item.id !== itemId);
+      setFilteredData(updatedData);
+
+      toast.success('Pedido excluído com sucesso!', {
+        style: {
+          fontSize: '12px',
+          fontWeight: 600,
+        }
+      });
+
+    } catch (error) {
+      toast.error('Ocorreu um erro ao excluir o orçamento.');
+    }
   };
   // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
   const sortDataByDate = () => {
@@ -200,11 +233,10 @@ export default function Table({ searchValue }: ITableBudgets) {
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${
-                    openMenus[item.id]
-                      ? styles.containerMore
-                      : styles.containerMoreClose
-                  }`}
+                  className={`${openMenus[item.id]
+                    ? styles.containerMore
+                    : styles.containerMoreClose
+                    }`}
                 >
                   <div
                     className={styles.containerX}
@@ -215,10 +247,10 @@ export default function Table({ searchValue }: ITableBudgets) {
                   <div className={styles.containerOptionsMore}>
                     <Link href="/ViewBudgetData">Vizualizar</Link>
 
-                    <button>Editar</button>
+                    {/* <button>Editar</button>
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
-                    </button>
+                    </button> */}
                     <button
                       className={styles.buttonRed}
                       onClick={() => handleDeleteItem(item.id)}
@@ -342,11 +374,10 @@ export default function Table({ searchValue }: ITableBudgets) {
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${
-                  pageNumber === currentPage
-                    ? styles.RodapePaginacaoContadorDestaque
-                    : styles.RodapePaginacaoContadorSemBorda
-                }`}
+                className={`${pageNumber === currentPage
+                  ? styles.RodapePaginacaoContadorDestaque
+                  : styles.RodapePaginacaoContadorSemBorda
+                  }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

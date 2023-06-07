@@ -28,7 +28,7 @@ export default function HeaderHomeResult() {
             <img
               src="./menuSamduba.png"
               height={20}
-              width={20}
+              width={26}
               alt=""
               onClick={handleOpenMenu}
             />
