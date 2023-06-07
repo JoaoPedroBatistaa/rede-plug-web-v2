@@ -1,8 +1,15 @@
 import Head from "next/head";
 import styles from "../../styles/Header.Request.module.scss";
 import SearchInput from "../InputSearch";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 export default function HeaderRequests() {
+  const { openMenu, setOpenMenu } = useMenu();
+  const handleOpenMenu = () => {
+    setOpenMenu(!openMenu);
+    console.log(openMenu);
+  };
   return (
     <>
       <Head>
@@ -13,7 +20,7 @@ export default function HeaderRequests() {
       </Head>
       <div className={styles.HeaderContainer}>
         <div className={styles.HeaderSearch}>
-          <div className={styles.menuSamduba}>
+          <div className={styles.menuSamduba} onClick={handleOpenMenu}>
             {" "}
             <img src="./menuSamduba.png" height={20} width={20} alt="" />
           </div>

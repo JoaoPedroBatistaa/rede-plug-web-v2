@@ -2,12 +2,19 @@ import Head from "next/head";
 import styles from "../../styles/SideMenuHome.module.scss";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 interface SideMenuBudgetProps {
   activeRoute: string;
 }
+interface SideMenuBudgetProps {
+  activeRoute: string;
+  openMenu: boolean;
+}
 
 export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
+  const { openMenu } = useMenu();
   const router = useRouter();
 
   return (
@@ -18,8 +25,11 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
         `}</style>
       </Head>
-
-      <div className={styles.sideMenu}>
+      <div
+        className={classnames(styles.sideMenu, {
+          [styles.sideMenuClose]: !openMenu,
+        })}
+      >
         <div className={styles.MenuContainer}>
           <img src="./LogoMenu.png" className={styles.Logo} />
 

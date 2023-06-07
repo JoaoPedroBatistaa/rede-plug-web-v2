@@ -108,7 +108,12 @@ export default function BudgetShip() {
                 className={styles.FinishButton}
                 onClick={handleButtonFinish}
               >
-                Finalizar Orçamento
+                <img
+                  src="./finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
+                <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
             </div>
           </div>

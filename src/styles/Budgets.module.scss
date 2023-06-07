@@ -668,23 +668,23 @@
   .maisNoneMobile {
     display: none !important;
   }
+
   .maisNone {
     display: flex;
-
+    color: #ffff;
     font-size: 18px;
   }
-  .ListMenuRight {
-    .ListMenuButton {
-      width: 30px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
+  .ListMenuButton {
+    width: 30px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
 
   .ListMenuFilter {
-    width: 15%;
+    width: 35px;
+    height: 35px;
   }
 }

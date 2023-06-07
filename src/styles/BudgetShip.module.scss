@@ -32,7 +32,7 @@
 }
 
 .BudgetTitle {
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 26px;
   color: #000000;
   font-weight: medium;
@@ -45,7 +45,7 @@
 }
 
 .Value {
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 26px;
   color: #000000;
   font-weight: medium;
@@ -53,19 +53,19 @@
 
 .FinishButton {
   color: #fff;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 16px;
   font-weight: medium;
   width: 23em;
   height: 2.7rem;
   border-radius: 5px;
-  background-color: #0BB07B;
+  background-color: #0bb07b;
   border: none;
   cursor: pointer;
 }
 
 .Notes {
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #222222;
@@ -95,7 +95,7 @@
 .FieldLabel {
   font-size: 14px;
   font-weight: medium;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   color: #404049;
   margin-bottom: -0.5rem;
 }
@@ -104,11 +104,11 @@
   width: 17.5rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #F6F7FA;
+  background-color: #f6f7fa;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #404049;
@@ -118,11 +118,11 @@
   width: 26rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #F6F7FA;
+  background-color: #f6f7fa;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #404049;
@@ -132,11 +132,11 @@
   width: 8rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #F6F7FA;
+  background-color: #f6f7fa;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #404049;
@@ -147,11 +147,11 @@
   padding-right: 12.5rem;
   padding-bottom: 0.55rem;
   padding-top: 0.55rem;
-  background-color: #F6F7FA;
+  background-color: #f6f7fa;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #404049;
@@ -162,10 +162,10 @@
   height: 2.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #F6F7FA;
+  background-color: #f6f7fa;
   border-radius: 5px;
   border-color: #4040492d;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #404049;
@@ -175,21 +175,19 @@
   width: 17.5rem;
   height: 2.5rem;
   padding-left: 1rem;
-  background-color: #F6F7FA;
+  background-color: #f6f7fa;
   border-radius: 5px;
   border-color: #4040492d;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #404049;
 }
 
-
-
 .Preview {
   font-size: 14px;
   font-weight: 600;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   color: #404049;
   margin-bottom: 0.5rem;
 }
@@ -211,7 +209,7 @@
 .PreviewSize {
   font-size: 16px;
   font-weight: 600;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   color: #404049;
   margin-bottom: 1rem;
 }
@@ -223,7 +221,7 @@
 }
 
 .Copy {
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 14px;
   font-weight: 400;
   color: #404049;
@@ -236,6 +234,10 @@
   width: 100%;
   margin-top: 24rem;
   margin-bottom: 2rem;
+}
+.buttonImage {
+  display: none;
+  padding-left: 0.9rem; // Esconde a imagem por padrão
 }
 
 @media (max-width: 430px) {
@@ -254,12 +256,11 @@
   }
 
   .Container {
-    height: 100vh;
+    height: 1000px;
   }
 
   .Value {
     font-size: 20px;
-
   }
 
   .InputContainer {
@@ -281,5 +282,12 @@
 
   .FixedValue {
     width: 17.5rem;
+  }
+  .buttonText {
+    display: none;
+  }
+
+  .buttonImage {
+    display: flex;
   }
 }

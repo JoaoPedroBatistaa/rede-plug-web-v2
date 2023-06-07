@@ -89,9 +89,14 @@
   margin-left: 1rem;
   margin-right: 1rem;
 }
-
 @media (max-width: 768px) {
   .sideMenu {
     display: none;
   }
+}
+
+.sideMenuClose {
+  z-index: 999;
+  display: flex;
+  position: relative;
 }

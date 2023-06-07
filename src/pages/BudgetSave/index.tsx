@@ -94,6 +94,12 @@ export default function BudgetSave() {
   const Entrega = formatarData(EntregaInicial);
 
   const handleSaveBudget = async () => {
+    if (!nomeCompleto || !Telefone || !email) {
+      // Se algum campo estiver vazio, exiba uma mensagem para preencher todos os dados
+
+      toast.error("Por favor, preencha todos os campos.");
+      return;
+    }
     try {
       await addDoc(collection(db, "Budget"), {
         nomeCompleto,
@@ -124,7 +130,9 @@ export default function BudgetSave() {
         dataCadastro,
         Entrega,
       });
+
       toast.success("Salvo com sucesso!");
+
       setTimeout(() => {
         window.location.href = "/BudgetFinish";
       }, 500);
