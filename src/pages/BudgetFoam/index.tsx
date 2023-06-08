@@ -9,6 +9,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
 
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 export default function BudgetFoam() {
   const router = useRouter();
 
@@ -53,6 +55,10 @@ export default function BudgetFoam() {
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
     toast.error("Informe se paspatur será utilizado no pedido");
   }
+  const { openMenu, setOpenMenu } = useMenu();
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
 
   return (
     <>
@@ -65,7 +71,7 @@ export default function BudgetFoam() {
 
       <HeaderBudget></HeaderBudget>
       <ToastContainer />
-      <div className={styles.Container}>
+      <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
@@ -78,8 +84,15 @@ export default function BudgetFoam() {
                 <p className={styles.Value}>R$942,00</p>
               </div>
 
-              <button className={styles.FinishButton} onClick={handleButtonFinish}>
-                <img src="./finishBudget.png" alt="Finalizar" className={styles.buttonImage} />
+              <button
+                className={styles.FinishButton}
+                onClick={handleButtonFinish}
+              >
+                <img
+                  src="./finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
             </div>
@@ -156,7 +169,7 @@ export default function BudgetFoam() {
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Largura do Espelho</p>
+              <p className={styles.FieldLabel}>Espessura do MDF</p>
               <select
                 id="codigoMdf"
                 className={styles.SelectField}

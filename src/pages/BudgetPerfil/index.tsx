@@ -8,13 +8,15 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 export default function BudgetPerfil() {
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [espessura, setEspessura] = useState("");
-
+  const { openMenu, setOpenMenu } = useMenu();
   // Salva as informações no localStorage sempre que são alteradas
   useEffect(() => {
     localStorage.setItem("codigoPerfil", selectedOption);
@@ -31,6 +33,9 @@ export default function BudgetPerfil() {
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
     toast.error("Informe se opedido incluirá vidro");
   }
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
 
   return (
     <>
@@ -43,7 +48,7 @@ export default function BudgetPerfil() {
 
       <HeaderBudget></HeaderBudget>
       <ToastContainer />
-      <div className={styles.Container}>
+      <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
@@ -56,9 +61,15 @@ export default function BudgetPerfil() {
                 <p className={styles.Value}>R$650,00</p>
               </div>
 
-
-              <button className={styles.FinishButton} onClick={handleButtonFinish}>
-                <img src="./finishBudget.png" alt="Finalizar" className={styles.buttonImage} />
+              <button
+                className={styles.FinishButton}
+                onClick={handleButtonFinish}
+              >
+                <img
+                  src="./finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
             </div>
@@ -90,7 +101,7 @@ export default function BudgetPerfil() {
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Largura do perfil</p>
+              <p className={styles.FieldLabel}>Espessura do perfil</p>
               <input
                 id="espessura"
                 type="text"

@@ -8,6 +8,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 export default function BudgetPrint() {
   const router = useRouter();
@@ -76,6 +78,10 @@ export default function BudgetPrint() {
       window.location.href = "/BudgetSave";
     }, 500);
   }
+  const { openMenu, setOpenMenu } = useMenu();
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
 
   return (
     <>
@@ -88,7 +94,7 @@ export default function BudgetPrint() {
 
       <HeaderBudget></HeaderBudget>
       <ToastContainer />
-      <div className={styles.Container}>
+      <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
@@ -103,9 +109,15 @@ export default function BudgetPrint() {
                 <p className={styles.Value}>R$996,00</p>
               </div>
 
-
-              <button className={styles.FinishButton} onClick={handleButtonFinish}>
-                <img src="./finishBudget.png" alt="Finalizar" className={styles.buttonImage} />
+              <button
+                className={styles.FinishButton}
+                onClick={handleButtonFinish}
+              >
+                <img
+                  src="./finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
             </div>

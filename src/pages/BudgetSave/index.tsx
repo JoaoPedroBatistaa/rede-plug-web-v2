@@ -14,6 +14,9 @@ import { ToastContainer, toast } from "react-toastify";
 import { createSourceMapSource } from "typescript";
 import "react-toastify/dist/ReactToastify.css";
 
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
+
 export default function BudgetSave() {
   const router = useRouter();
 
@@ -139,6 +142,10 @@ export default function BudgetSave() {
       console.error("Erro ao adicionar documento: ", e);
     }
   };
+  const { openMenu, setOpenMenu } = useMenu();
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
 
   return (
     <>
@@ -150,7 +157,7 @@ export default function BudgetSave() {
       </Head>
 
       <HeaderBudget></HeaderBudget>
-      <div className={styles.Container}>
+      <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <ToastContainer />
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 

@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
+
 interface SideMenuBudgetProps {
   activeRoute: string;
 }
@@ -16,7 +17,9 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
     setOpenMenu(!openMenu);
     console.log(openMenu);
   };
-
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
   return (
     <>
       <Head>
@@ -31,15 +34,22 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           [styles.sideMenuClose]: !openMenu,
         })}
       >
-        <img src="./closeMenu.png" alt="" className={styles.closeMenu} onClick={handleOpenMenu} />
+        <img
+          src="./closeMenu.png"
+          alt=""
+          className={styles.closeMenu}
+          onClick={handleOpenMenu}
+        />
 
         <p className={styles.Steps}>Etapas do orçamento</p>
         <p className={styles.Click}>Clique para navegar</p>
 
         <Link href="/BudgetSize">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetSize" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetSize" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Tamanho</p>
@@ -48,8 +58,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="/BudgetPerfil">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetPerfil" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetPerfil" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Perfil</p>
@@ -58,8 +70,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="/BudgetGlass">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetGlass" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetGlass" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Vidro / Espelho</p>
@@ -68,8 +82,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="/BudgetFoam">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetFoam" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetFoam" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Foam / MDF</p>
@@ -78,8 +94,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="/BudgetPaspatur">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetPaspatur" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetPaspatur" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Paspatur</p>
@@ -88,8 +106,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="BudgetCollage">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetCollage" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetCollage" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Colagem</p>
@@ -98,8 +118,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="BudgetPrint">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetPrint" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetPrint" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Impressão</p>
@@ -108,8 +130,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="BudgetShip">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetShip" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetShip" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Instalação / Frete</p>
@@ -118,8 +142,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
         <Link href="BudgetSave">
           <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetSave" ? styles.active : ""
-              }`}
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetSave" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Finalização</p>

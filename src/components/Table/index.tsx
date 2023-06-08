@@ -9,8 +9,10 @@ import { GetServerSidePropsContext } from "next";
 import { getDocs } from "firebase/firestore";
 import { ITableBudgets } from "./type";
 import { deleteDoc } from "firebase/firestore";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 interface Order {
   id: string;
@@ -25,7 +27,11 @@ interface Order {
   valorTotal: string;
 }
 
-export default function Table({ searchValue, orderValue, filterValue }: ITableBudgets) {
+export default function Table({
+  searchValue,
+  orderValue,
+  filterValue,
+}: ITableBudgets) {
   const [filteredData, setFilteredData] = useState<Order[]>([]);
   const [teste, setTeste] = useState<Order[]>([]);
 
@@ -79,7 +85,9 @@ export default function Table({ searchValue, orderValue, filterValue }: ITableBu
       if (filterValue === "ativos") {
         sortedData = sortedData.filter((item) => item.Ativo === true);
       } else if (filterValue === "inativos") {
-        sortedData = sortedData.filter((item) => item.Ativo === undefined || item.Ativo === false);
+        sortedData = sortedData.filter(
+          (item) => item.Ativo === undefined || item.Ativo === false
+        );
       }
     }
 
@@ -114,7 +122,9 @@ export default function Table({ searchValue, orderValue, filterValue }: ITableBu
           break;
         case "maiorValor":
           sortedData = [...sortedData]; // Cria uma cópia da array original
-          sortedData.sort((a, b) => parseFloat(b.valorTotal) - parseFloat(a.valorTotal));
+          sortedData.sort(
+            (a, b) => parseFloat(b.valorTotal) - parseFloat(a.valorTotal)
+          );
           break;
         case "dataCadastro":
           sortedData.sort((a, b) => {
@@ -183,15 +193,14 @@ export default function Table({ searchValue, orderValue, filterValue }: ITableBu
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success('Pedido excluído com sucesso!', {
+      toast.success("Pedido excluído com sucesso!", {
         style: {
-          fontSize: '12px',
+          fontSize: "12px",
           fontWeight: 600,
-        }
+        },
       });
-
     } catch (error) {
-      toast.error('Ocorreu um erro ao excluir o orçamento.');
+      toast.error("Ocorreu um erro ao excluir o orçamento.");
     }
   };
   // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
@@ -208,8 +217,15 @@ export default function Table({ searchValue, orderValue, filterValue }: ITableBu
     sortDataByDate();
   }, []);
 
+  const { openMenu, setOpenMenu } = useMenu();
+
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+    console.log(openMenu);
+  };
+
   return (
-    <div className={styles.tableContianer}>
+    <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
         <thead>
           <tr className={styles.tableHeader}>
@@ -233,10 +249,11 @@ export default function Table({ searchValue, orderValue, filterValue }: ITableBu
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
-                    }`}
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
                 >
                   <div
                     className={styles.containerX}
@@ -374,10 +391,11 @@ export default function Table({ searchValue, orderValue, filterValue }: ITableBu
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
-                  }`}
+                className={`${
+                  pageNumber === currentPage
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

@@ -9,6 +9,8 @@ import { GetServerSidePropsContext } from "next";
 import { getDocs } from "firebase/firestore";
 import { ITableBudgets } from "./type";
 import { deleteDoc } from "firebase/firestore";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 import { toast } from "react-toastify";
 
@@ -218,8 +220,14 @@ export default function TableBudgets({
     sortDataByDate();
   }, []);
 
+  const { openMenu, setOpenMenu } = useMenu();
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+    console.log(openMenu);
+  };
+
   return (
-    <div className={styles.tableContianer}>
+    <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
         <thead>
           <tr className={styles.tableHeader}>

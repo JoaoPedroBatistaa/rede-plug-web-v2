@@ -91,14 +91,10 @@
     transition: transform 0.5s ease-in-out;
     transform: translateX(0%);
     box-shadow: 0 0 300px rgba(0, 0, 0);
-
   }
-
-
 
   .sideMenuClose {
     transform: translateX(-160%);
-
   }
 
   .closeMenu {
@@ -109,6 +105,10 @@
     margin-bottom: -1rem;
     width: 32px;
     height: 32px;
-
   }
+}
+
+.displayFlex {
+  display: grid;
+  grid-template-columns: 60% 40%;
 }

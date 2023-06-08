@@ -10,6 +10,8 @@ import MaskedInput from "react-input-mask";
 import { db, addDoc, collection } from "../../../firebase";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 export default function BudgetFinish() {
   const router = useRouter();
@@ -232,6 +234,10 @@ export default function BudgetFinish() {
       );
     }
   };
+  const { openMenu, setOpenMenu } = useMenu();
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
 
   return (
     <>
@@ -244,7 +250,7 @@ export default function BudgetFinish() {
 
       <HeaderBudget></HeaderBudget>
       <ToastContainer />
-      <div className={styles.Container}>
+      <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>

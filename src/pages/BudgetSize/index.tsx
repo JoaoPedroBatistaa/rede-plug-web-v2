@@ -8,6 +8,8 @@ import { SetStateAction, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 export default function BudgetSize() {
   const router = useRouter();
@@ -36,6 +38,11 @@ export default function BudgetSize() {
     toast.error("Informe qual perfil será utilizado");
   }
 
+  const { openMenu, setOpenMenu } = useMenu();
+
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
   return (
     <>
       <Head>
@@ -50,7 +57,7 @@ export default function BudgetSize() {
       <div className={styles.Container}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
-        <div className={styles.BudgetContainer}>
+        <div className={styles.BudgetContainer} onClick={handleOpenMenuDiv}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>
               Qual o tamanho do que deseja emoldurar?
@@ -62,11 +69,17 @@ export default function BudgetSize() {
                 <p className={styles.Value}>R$450,00</p>
               </div>
 
-              <button className={styles.FinishButton} onClick={handleButtonFinish}>
-                <img src="./finishBudget.png" alt="Finalizar" className={styles.buttonImage} />
+              <button
+                className={styles.FinishButton}
+                onClick={handleButtonFinish}
+              >
+                <img
+                  src="./finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
-
             </div>
           </div>
 

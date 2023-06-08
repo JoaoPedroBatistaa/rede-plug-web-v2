@@ -8,10 +8,11 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 export default function BudgetPaspatur() {
   const router = useRouter();
-
+  const { openMenu, setOpenMenu } = useMenu();
   const [selectedOptionPaspatur, setSelectedOptionPaspatur] =
     useState("opcao1");
   const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] =
@@ -70,6 +71,9 @@ export default function BudgetPaspatur() {
       window.location.href = "/BudgetSave";
     }, 500);
   }
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
 
   return (
     <>
@@ -82,7 +86,7 @@ export default function BudgetPaspatur() {
 
       <HeaderBudget></HeaderBudget>
       <ToastContainer />
-      <div className={styles.Container}>
+      <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
@@ -95,8 +99,15 @@ export default function BudgetPaspatur() {
                 <p className={styles.Value}>R$996,00</p>
               </div>
 
-              <button className={styles.FinishButton} onClick={handleButtonFinish}>
-                <img src="./finishBudget.png" alt="Finalizar" className={styles.buttonImage} />
+              <button
+                className={styles.FinishButton}
+                onClick={handleButtonFinish}
+              >
+                <img
+                  src="./finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
             </div>
@@ -156,7 +167,7 @@ export default function BudgetPaspatur() {
 
           <div className={styles.PreviewContainer}>
             <div className={styles.InputFieldPreview}>
-              <p className={styles.FieldLabel}>Largura superior</p>
+              <p className={styles.FieldLabel}>Espessura superior</p>
               <input
                 id="larguraSuperior"
                 type="text"
@@ -169,7 +180,7 @@ export default function BudgetPaspatur() {
 
             <div className={styles.PreviewImgContainer}>
               <div className={styles.InputFieldPreview}>
-                <p className={styles.FieldLabel}>Largura esquerda</p>
+                <p className={styles.FieldLabel}>Espessura esquerda</p>
                 <input
                   id="larguraEsquerda"
                   type="text"
@@ -183,7 +194,7 @@ export default function BudgetPaspatur() {
               <img src="./molduraSize.png" className={styles.PreviewImg} />
 
               <div className={styles.InputFieldPreview}>
-                <p className={styles.FieldLabel}>Largura direita</p>
+                <p className={styles.FieldLabel}>Espessura direita</p>
                 <input
                   id="larguraDireita"
                   type="text"
@@ -196,7 +207,7 @@ export default function BudgetPaspatur() {
             </div>
 
             <div className={styles.InputFieldPreview}>
-              <p className={styles.FieldLabel}>Largura inferior</p>
+              <p className={styles.FieldLabel}>Espessura inferior</p>
               <input
                 id="larguraInferior"
                 type="text"

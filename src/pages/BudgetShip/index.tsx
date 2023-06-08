@@ -8,10 +8,12 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { useMenu } from "../../components/Context/context";
+import classnames from "classnames";
 
 export default function BudgetShip() {
   const router = useRouter();
-
+  const { openMenu, setOpenMenu } = useMenu();
   // UseStates para instalação
   const [selectedOptionInstall, setSelectedOptionInstall] = useState("opcao1");
   const [selectedOptionDelivery, setSelectedOptionDelivery] =
@@ -78,6 +80,10 @@ export default function BudgetShip() {
       window.location.href = "/BudgetSave";
     }, 500);
   }
+
+  const handleOpenMenuDiv = () => {
+    setOpenMenu(false);
+  };
   return (
     <>
       <Head>
@@ -89,7 +95,7 @@ export default function BudgetShip() {
 
       <HeaderBudget></HeaderBudget>
       <ToastContainer />
-      <div className={styles.Container}>
+      <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <SideMenuBudget activeRoute={router.pathname}></SideMenuBudget>
 
         <div className={styles.BudgetContainer}>
