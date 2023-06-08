@@ -1,28 +1,26 @@
-import Head from 'next/head';
-import styles from '../../styles/ViewBudgetData.module.scss';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import styles from "../../styles/ViewBudgetData.module.scss";
+import { useRouter } from "next/router";
 
-import HeaderViewBudget from '@/components/HeaderViewBudget';
-import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useEffect, useState } from 'react';
-import Link from 'next/link';
+import HeaderViewBudget from "@/components/HeaderViewBudget";
+import SideMenuHome from "@/components/SideMenuHome";
+import { ChangeEvent, useEffect, useState } from "react";
+import Link from "next/link";
 
-import { db, doc, getDoc } from '../../../firebase';
+import { db, doc, getDoc } from "../../../firebase";
 
 type UserDataType = {
   nomeCompleto: string;
   Telefone: string;
-  email: string
+  email: string;
 };
 
 export default function ViewBudgetData() {
-
   const router = useRouter();
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
-
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOption, setSelectedOption] = useState("opcao1");
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
 
@@ -31,8 +29,8 @@ export default function ViewBudgetData() {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setSelectedBudgetId(localStorage.getItem('selectedBudgetId'));
+    if (typeof window !== "undefined") {
+      setSelectedBudgetId(localStorage.getItem("selectedBudgetId"));
     }
   }, []);
 
@@ -40,7 +38,7 @@ export default function ViewBudgetData() {
     async function fetchData() {
       if (selectedBudgetId) {
         try {
-          const docRef = doc(db, 'Budget', selectedBudgetId);
+          const docRef = doc(db, "Budget", selectedBudgetId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
@@ -59,7 +57,6 @@ export default function ViewBudgetData() {
     fetchData();
   }, [selectedBudgetId]);
 
-
   return (
     <>
       <Head>
@@ -69,28 +66,30 @@ export default function ViewBudgetData() {
         `}</style>
       </Head>
 
-
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
+        <SideMenuHome
+          activeRoute={router.pathname}
+          openMenu={openMenu}
+        ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderViewBudget></HeaderViewBudget>
 
           <div className={styles.OrderDataContainer}>
-
             <div className={styles.BudgetHead}>
               <div className={styles.Nav}>
-                <Link href='ViewBudgetData'>
+                <Link href="ViewBudgetData">
                   <div>
-                    <p className={`${styles.NavItem} ${styles.active}`}>Dados do cliente</p>
+                    <p className={`${styles.NavItem} ${styles.active}`}>
+                      Dados do cliente
+                    </p>
                     <div className={styles.NavItemBar}></div>
                   </div>
                 </Link>
 
-                <Link href='ViewBudgetBudget'>
+                <Link href="ViewBudgetBudget">
                   <p className={styles.NavItem}>Orçamento</p>
                 </Link>
-
               </div>
 
               <div className={styles.BudgetHeadO}>
@@ -102,10 +101,7 @@ export default function ViewBudgetData() {
             <div className={styles.linhaOrder}></div>
 
             <div className={styles.BudgetData}>
-
               <div className={styles.PessoalData}>
-
-
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Nome completo</p>
@@ -118,26 +114,23 @@ export default function ViewBudgetData() {
                   </div>
                 </div>
 
-
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Telefone</p>
                     <p className={styles.FixedData}>{userData?.Telefone}</p>
                   </div>
                 </div>
-
               </div>
-
             </div>
           </div>
 
           <div className={styles.Copyright}>
-            <p className={styles.Copy}>© Total Maxx 2023, todos os direitos reservados</p>
+            <p className={styles.Copy}>
+              © Total Maxx 2023, todos os direitos reservados
+            </p>
           </div>
-
         </div>
-
-      </div >
+      </div>
     </>
-  )
+  );
 }

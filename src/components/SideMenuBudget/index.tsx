@@ -18,7 +18,9 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
     console.log(openMenu);
   };
   const handleOpenMenuDiv = () => {
-    setOpenMenu(false);
+    setTimeout(() => {
+      setOpenMenu(false);
+    }, 600);
   };
   return (
     <>
@@ -38,7 +40,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           src="./closeMenu.png"
           alt=""
           className={styles.closeMenu}
-          onClick={handleOpenMenu}
+          onClick={handleOpenMenuDiv}
         />
 
         <p className={styles.Steps}>Etapas do orçamento</p>

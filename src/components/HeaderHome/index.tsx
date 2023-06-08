@@ -26,7 +26,7 @@ export default function HeaderHome() {
         <div className={styles.HeaderSearch}>
           <div className={styles.menuSamduba} onClick={handleOpenMenu}>
             {" "}
-            <img src="./menuSamduba.png" height={20} width={26} alt="" />
+            <img src="./menuSamduba.svg" height={20} width={26} alt="" />
           </div>
 
           <Link href="/HomeResults">
@@ -50,6 +50,7 @@ export default function HeaderHome() {
               className={styles.HeaderIcon}
               height={20}
               width={20}
+              id={styles.HeaderIcon}
             />
           </div>
         </div>

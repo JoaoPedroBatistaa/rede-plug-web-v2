@@ -34,7 +34,9 @@ export default function BudgetPerfil() {
     toast.error("Informe se opedido incluirá vidro");
   }
   const handleOpenMenuDiv = () => {
-    setOpenMenu(false);
+    setTimeout(() => {
+      setOpenMenu(false);
+    }, 100);
   };
 
   return (

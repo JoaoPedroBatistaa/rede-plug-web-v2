@@ -15,7 +15,7 @@ export const useMenu = () => useContext(MenuContext);
 export const MenuProvider: React.FunctionComponent<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [openMenu, setOpenMenu] = useState(true);
+  const [openMenu, setOpenMenu] = useState(false);
 
   return (
     <MenuContext.Provider value={{ openMenu, setOpenMenu }}>

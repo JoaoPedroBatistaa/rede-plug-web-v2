@@ -41,7 +41,9 @@ export default function BudgetSize() {
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
-    setOpenMenu(false);
+    setTimeout(() => {
+      setOpenMenu(false);
+    }, 100);
   };
   return (
     <>

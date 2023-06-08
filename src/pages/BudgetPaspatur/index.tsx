@@ -72,7 +72,9 @@ export default function BudgetPaspatur() {
     }, 500);
   }
   const handleOpenMenuDiv = () => {
-    setOpenMenu(false);
+    setTimeout(() => {
+      setOpenMenu(false);
+    }, 100);
   };
 
   return (

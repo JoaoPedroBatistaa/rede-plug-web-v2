@@ -80,3 +80,23 @@
     display: none;
   }
 }
+@media (max-width: 768px) {
+  .HeaderTextContainer {
+    width: 100%;
+    display: flex;
+    margin-top: 10px;
+
+    p {
+      text-align: center;
+    }
+  }
+  .HeaderTextTitle {
+    margin-left: 37px;
+    width: 50%;
+    text-align: center;
+  }
+  #HeaderIcon {
+    display: none;
+    width: 1290192811px;
+  }
+}

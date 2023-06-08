@@ -24,7 +24,9 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
   };
 
   const handleOpenMenuDiv = () => {
-    setOpenMenu(false);
+    setTimeout(() => {
+      setOpenMenu(false);
+    }, 200);
   };
 
   return (
@@ -43,7 +45,12 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
         >
           <div className={styles.MenuContainer}>
             <div className={styles.topMenu}>
-              <img src="./closeMenu.png" alt="" className={styles.closeMenu} />
+              <img
+                src="./closeMenu.png"
+                alt=""
+                className={styles.closeMenu}
+                onClick={handleOpenMenuDiv}
+              />
               <img src="./LogoMenu.png" className={styles.Logo} />
             </div>
 
@@ -69,7 +76,8 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               onClick={handleOpenMenuDiv}
             >
               <img src="./orcamentoIcon.svg" className={styles.Pointer}></img>
-              {/* <p className={styles.NavigateItem}>Orçamentos</p> */}
+              {/* <
+              p className={styles.NavigateItem}>Orçamentos</p> */}
               <Link className={styles.NavigateItem} href="/Budgets">
                 Orçamentos
               </Link>

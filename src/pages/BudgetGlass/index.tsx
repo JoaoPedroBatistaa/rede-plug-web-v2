@@ -58,7 +58,9 @@ export default function BudgetGlass() {
     toast.error("Informe qual foam será utilizado no pedido");
   }
   const handleOpenMenuDiv = () => {
-    setOpenMenu(false);
+    setTimeout(() => {
+      setOpenMenu(false);
+    }, 100);
   };
 
   return (

@@ -24,7 +24,7 @@ export default function HeaderBudget() {
         <div className={styles.menuSamduba}>
           {" "}
           <img
-            src="./menuSamduba.png"
+            src="./menuSamduba.svg"
             height={20}
             width={20}
             alt=""

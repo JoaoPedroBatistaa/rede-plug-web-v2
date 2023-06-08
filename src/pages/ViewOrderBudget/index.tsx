@@ -1,13 +1,13 @@
-import Head from 'next/head';
-import styles from '../../styles/ViewOrderBudget.module.scss';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import styles from "../../styles/ViewOrderBudget.module.scss";
+import { useRouter } from "next/router";
 
-import HeaderOrder from '@/components/HeaderOrder';
-import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useEffect, useState } from 'react';
-import Link from 'next/link';
+import HeaderOrder from "@/components/HeaderOrder";
+import SideMenuHome from "@/components/SideMenuHome";
+import { ChangeEvent, useEffect, useState } from "react";
+import Link from "next/link";
 
-import { db, doc, getDoc } from '../../../firebase';
+import { db, doc, getDoc } from "../../../firebase";
 
 type UserDataType = {
   Tamanho: string;
@@ -35,8 +35,7 @@ export default function ViewOrderBudget() {
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
-
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOption, setSelectedOption] = useState("opcao1");
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -45,8 +44,8 @@ export default function ViewOrderBudget() {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setSelectedId(localStorage.getItem('selectedId'));
+    if (typeof window !== "undefined") {
+      setSelectedId(localStorage.getItem("selectedId"));
     }
   }, []);
 
@@ -54,7 +53,7 @@ export default function ViewOrderBudget() {
     async function fetchData() {
       if (selectedId) {
         try {
-          const docRef = doc(db, 'Orders', selectedId);
+          const docRef = doc(db, "Orders", selectedId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
@@ -77,7 +76,7 @@ export default function ViewOrderBudget() {
     async function fetchData() {
       if (selectedId) {
         try {
-          const docRef = doc(db, 'Orders', selectedId);
+          const docRef = doc(db, "Orders", selectedId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
@@ -105,28 +104,31 @@ export default function ViewOrderBudget() {
         `}</style>
       </Head>
 
-
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
+        <SideMenuHome
+          activeRoute={router.pathname}
+          openMenu={openMenu}
+        ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderOrder></HeaderOrder>
 
           <div className={styles.OrderDataContainer}>
-
             <div className={styles.BudgetHead}>
               <div className={styles.Nav}>
-                <Link href='ViewOrderData'>
+                <Link href="ViewOrderData">
                   <p className={styles.NavItem}>Dados do cliente</p>
                 </Link>
 
-                <Link href='ViewOrderShip'>
+                <Link href="ViewOrderShip">
                   <p className={styles.NavItem}>Endereço</p>
                 </Link>
 
-                <Link href='ViewOrderBudget'>
+                <Link href="ViewOrderBudget">
                   <div>
-                    <p className={`${styles.NavItem} ${styles.active}`}>Orçamento</p>
+                    <p className={`${styles.NavItem} ${styles.active}`}>
+                      Orçamento
+                    </p>
                     <div className={styles.NavItemBar}></div>
                   </div>
                 </Link>
@@ -142,7 +144,6 @@ export default function ViewOrderBudget() {
 
             <div className={styles.OrderData}>
               <div className={styles.OrderAll}>
-
                 <div className={styles.OrderRes}>
                   <p className={styles.ResTitle}>Resumo do orçamento</p>
 
@@ -156,21 +157,27 @@ export default function ViewOrderBudget() {
                   <div>
                     <p className={styles.ResName}>Impressão</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.impressao} - {userData?.tipoImpressao}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.impressao} - {userData?.tipoImpressao}
+                      </p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Perfil</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.codigoPerfil} - {userData?.espessuraPerfil}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.codigoPerfil} - {userData?.espessuraPerfil}
+                      </p>
                     </div>
                   </div>
 
                   <div>
                     <p className={styles.ResName}>Vidro</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.vidro} - {userData?.espessuraVidro}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.vidro} - {userData?.espessuraVidro}
+                      </p>
                     </div>
                   </div>
 
@@ -185,10 +192,14 @@ export default function ViewOrderBudget() {
                     <p className={styles.ResName}>Paspatur</p>
                     <div>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{userData?.paspatur} - {userData?.codigoPaspatur}</p>
+                        <p className={styles.ResValue}>
+                          {userData?.paspatur} - {userData?.codigoPaspatur}
+                        </p>
                       </div>
 
-                      <p className={styles.ResValue}>{userData?.dimensoesPaspatur}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.dimensoesPaspatur}
+                      </p>
                     </div>
                   </div>
 
@@ -209,7 +220,9 @@ export default function ViewOrderBudget() {
                   <div>
                     <p className={styles.ResName}>Instalação</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{userData?.instalacao} - {userData?.valorInstalacao}</p>
+                      <p className={styles.ResValue}>
+                        {userData?.instalacao} - {userData?.valorInstalacao}
+                      </p>
                     </div>
                   </div>
 
@@ -219,7 +232,6 @@ export default function ViewOrderBudget() {
                       <p className={styles.ResValue}>{userData?.tipoEntrega}</p>
                     </div>
                   </div>
-
                 </div>
 
                 <div className={styles.OrderRes}>
@@ -249,7 +261,11 @@ export default function ViewOrderBudget() {
                   <div className={styles.OrderNotes}>
                     <p className={styles.ResName}>Observação</p>
                     <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour</p>
+                      <p className={styles.ResValue}>
+                        There are many variations of passages of Lorem Ipsum
+                        available, but the majority have suffered alteration in
+                        some form, by injected humour
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -273,17 +289,16 @@ export default function ViewOrderBudget() {
                   <p className={styles.PdfText}>GERAR PDF</p>
                 </div>
               </div>
-
             </div>
           </div>
 
           <div className={styles.Copyright}>
-            <p className={styles.Copy}>© Total Maxx 2023, todos os direitos reservados</p>
+            <p className={styles.Copy}>
+              © Total Maxx 2023, todos os direitos reservados
+            </p>
           </div>
-
         </div>
-
-      </div >
+      </div>
     </>
-  )
+  );
 }

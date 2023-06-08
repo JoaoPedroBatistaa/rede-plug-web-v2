@@ -262,7 +262,7 @@ export default function Table({
                     X
                   </div>
                   <div className={styles.containerOptionsMore}>
-                    <Link href="/ViewBudgetData">Vizualizar</Link>
+                    <Link href="/ViewOrderData">Vizualizar</Link>
 
                     {/* <button>Editar</button>
                     <button className={styles.buttonGren}>

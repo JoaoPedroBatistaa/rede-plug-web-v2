@@ -73,6 +73,19 @@
   .HeaderTextContainer {
     width: 100%;
     display: flex;
-    margin-top: 20px;
+    margin-top: 10px;
+
+    p {
+      text-align: start;
+    }
+  }
+  .HeaderTextTitle {
+    margin-left: 45px;
+    width: 50%;
+    text-align: center;
+  }
+  #HeaderIcon {
+    display: none;
+    width: 1290192811px;
   }
 }

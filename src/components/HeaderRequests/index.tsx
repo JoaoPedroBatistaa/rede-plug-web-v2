@@ -24,7 +24,7 @@ export default function HeaderRequests() {
           <div className={styles.menuSamduba}>
             {" "}
             <img
-              src="./menuSamduba.png"
+              src="./menuSamduba.svg"
               height={20}
               width={26}
               alt=""
@@ -52,6 +52,7 @@ export default function HeaderRequests() {
               className={styles.HeaderIcon}
               height={20}
               width={20}
+              id={styles.HeaderIcon}
             />
           </div>
         </div>

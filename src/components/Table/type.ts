@@ -1,5 +1,5 @@
 export interface ITableBudgets {
-    searchValue: string;
-    orderValue: string;
-    filterValue: string;
+  searchValue: string;
+  orderValue: string;
+  filterValue: string;
 }

@@ -74,7 +74,7 @@ export default function Requests() {
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
                   >
-                    <img src="./Filter.png"></img>{" "}
+                    <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
                   <SearchInputList
