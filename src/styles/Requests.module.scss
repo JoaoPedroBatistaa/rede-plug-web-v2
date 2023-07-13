@@ -20,6 +20,8 @@
   border-radius: 8px;
   padding: 15px 20px;
   flex-direction: column;
+
+  margin-bottom: 2rem;
 }
 
 .ListMenu {
@@ -66,6 +68,16 @@
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
+  line-height: 20px;
+  color: #404049;
+  margin-left: 8px;
+}
+
+.ProductName {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
   line-height: 20px;
   color: #404049;
   margin-left: 8px;
@@ -649,7 +661,7 @@
   color: #404049;
 }
 
-.listFilter div > input[type="radio"]:checked {
+.listFilter div>input[type="radio"]:checked {
   accent-color: red;
 }
 
@@ -687,6 +699,7 @@
   .ListMenuFilter {
     width: 40px;
     height: 35px;
+
     img {
       width: 15px;
       height: 15px;
