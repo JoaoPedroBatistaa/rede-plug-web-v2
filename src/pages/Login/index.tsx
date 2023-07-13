@@ -3,10 +3,12 @@ import styles from "../../styles/Login.module.scss";
 import Link from "next/link";
 
 import { collection, db, getDoc, doc } from "../../../firebase";
+import UserContext from '../../../UserContext';
 import { GetServerSidePropsContext } from "next";
 import { getDocs } from "firebase/firestore";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import React from "react";
 
 interface Login {
   id: string;
@@ -15,11 +17,18 @@ interface Login {
   Senha: string;
 }
 
+interface UserContextType {
+  user: Login| null;
+  setUser: React.Dispatch<React.SetStateAction<Login | null>>;
+}
+
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [teste, setTeste] = useState<Login[]>([]);
+  const { setUser } = useContext(UserContext);
 
   const router = useRouter();
 
@@ -50,6 +59,7 @@ export default function Login() {
     );
 
     if (user) {
+      setUser(user);
       router.push("/Home");
     } else {
       setError("Email ou senha incorretos");

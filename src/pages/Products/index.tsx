@@ -67,6 +67,281 @@ export default function Products() {
         <div className={styles.OrderContainer}>
           <HeaderProducts></HeaderProducts>
           <div className={styles.MainContainer}>
+
+          <div className={styles.ListContainer}>
+              <div className={styles.ListMenu}>
+                <div className={styles.ListMenu}>
+                  {/* <div
+                    className={styles.ListMenuFilter}
+                    onClick={handleOpenFilter}
+                  >
+                    <img src="./Filter.svg"></img>{" "}
+                    <span className={styles.ListMenuFilterText}>Filtros</span>
+                  </div>
+                  <SearchInputList
+                    handleSearchChange={(e) => handleSearchChange(e)}
+                  ></SearchInputList> */}
+
+                  <p className={styles.ProductName}>Foam</p>
+                </div>
+                <div className={styles.ListMenuRight}>
+                  <Link href="/ProductFoam">
+                    <button className={styles.ListMenuButton}>
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Novo Produto
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+              <div
+                className={`${openFilter
+                  ? styles.containerFilter
+                  : styles.containerFilterClose
+                  }`}
+              >
+                <div className={styles.listFilter}>
+                  <h2>ORDENAR POR:</h2>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="nomeCrescente"
+                      name="ordenarPor"
+                      value="nomeCrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="nomeDecrescente"
+                      name="ordenarPor"
+                      value="nomeDecrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="maiorValor"
+                      name="ordenarPor"
+                      value="maiorValor"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="maiorValor">Maior Valor</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="dataCadastro"
+                      name="ordenarPor"
+                      value="dataCadastro"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="dataVencimento"
+                      name="ordenarPor"
+                      value="dataVencimento"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="dataVencimento">Data de vencimento</label>
+                  </div>
+                  <span className={styles.sublinado}></span>
+                  <h2>SITUAÇÃO</h2>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="todos"
+                      name="situacao"
+                      value="todos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="todos">Todos</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="ativos"
+                      name="situacao"
+                      value="ativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="ativos">Ativos</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="inativos"
+                      name="situacao"
+                      value="inativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="inativos">Inativos</label>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.MarginTop}></div>
+              {/* <GridComponent/> */}
+              <Table
+                searchValue={searchValue}
+                orderValue={orderValue}
+                filterValue={filterValue}
+              />
+            </div>
+
+            <div className={styles.ListContainer}>
+              <div className={styles.ListMenu}>
+                <div className={styles.ListMenu}>
+                  {/* <div
+                    className={styles.ListMenuFilter}
+                    onClick={handleOpenFilter}
+                  >
+                    <img src="./Filter.svg"></img>{" "}
+                    <span className={styles.ListMenuFilterText}>Filtros</span>
+                  </div>
+                  <SearchInputList
+                    handleSearchChange={(e) => handleSearchChange(e)}
+                  ></SearchInputList> */}
+
+                  <p className={styles.ProductName}>Impressão</p>
+                </div>
+                <div className={styles.ListMenuRight}>
+                  <Link href="/ProductImpressao">
+                    <button className={styles.ListMenuButton}>
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Novo Produto
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+              <div
+                className={`${openFilter
+                  ? styles.containerFilter
+                  : styles.containerFilterClose
+                  }`}
+              >
+                <div className={styles.listFilter}>
+                  <h2>ORDENAR POR:</h2>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="nomeCrescente"
+                      name="ordenarPor"
+                      value="nomeCrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="nomeDecrescente"
+                      name="ordenarPor"
+                      value="nomeDecrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="maiorValor"
+                      name="ordenarPor"
+                      value="maiorValor"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="maiorValor">Maior Valor</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="dataCadastro"
+                      name="ordenarPor"
+                      value="dataCadastro"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="dataVencimento"
+                      name="ordenarPor"
+                      value="dataVencimento"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="dataVencimento">Data de vencimento</label>
+                  </div>
+                  <span className={styles.sublinado}></span>
+                  <h2>SITUAÇÃO</h2>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="todos"
+                      name="situacao"
+                      value="todos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="todos">Todos</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="ativos"
+                      name="situacao"
+                      value="ativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="ativos">Ativos</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="inativos"
+                      name="situacao"
+                      value="inativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="inativos">Inativos</label>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.MarginTop}></div>
+              {/* <GridComponent/> */}
+              <Table
+                searchValue={searchValue}
+                orderValue={orderValue}
+                filterValue={filterValue}
+              />
+            </div>
+            
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
@@ -84,7 +359,144 @@ export default function Products() {
                   <p className={styles.ProductName}>Paspatur</p>
                 </div>
                 <div className={styles.ListMenuRight}>
-                  <Link href="/BudgetSize">
+                  <Link href="/ProductPaspatur">
+                    <button className={styles.ListMenuButton}>
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Novo Produto
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+              <div
+                className={`${openFilter
+                  ? styles.containerFilter
+                  : styles.containerFilterClose
+                  }`}
+              >
+                <div className={styles.listFilter}>
+                  <h2>ORDENAR POR:</h2>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="nomeCrescente"
+                      name="ordenarPor"
+                      value="nomeCrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="nomeDecrescente"
+                      name="ordenarPor"
+                      value="nomeDecrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="maiorValor"
+                      name="ordenarPor"
+                      value="maiorValor"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="maiorValor">Maior Valor</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="dataCadastro"
+                      name="ordenarPor"
+                      value="dataCadastro"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="dataVencimento"
+                      name="ordenarPor"
+                      value="dataVencimento"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="dataVencimento">Data de vencimento</label>
+                  </div>
+                  <span className={styles.sublinado}></span>
+                  <h2>SITUAÇÃO</h2>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="todos"
+                      name="situacao"
+                      value="todos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="todos">Todos</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="ativos"
+                      name="situacao"
+                      value="ativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="ativos">Ativos</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="inativos"
+                      name="situacao"
+                      value="inativos"
+                      onChange={handleFilterValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="inativos">Inativos</label>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.MarginTop}></div>
+              {/* <GridComponent/> */}
+              <Table
+                searchValue={searchValue}
+                orderValue={orderValue}
+                filterValue={filterValue}
+              />
+            </div>
+
+            <div className={styles.ListContainer}>
+              <div className={styles.ListMenu}>
+                <div className={styles.ListMenu}>
+                  {/* <div
+                    className={styles.ListMenuFilter}
+                    onClick={handleOpenFilter}
+                  >
+                    <img src="./Filter.svg"></img>{" "}
+                    <span className={styles.ListMenuFilterText}>Filtros</span>
+                  </div>
+                  <SearchInputList
+                    handleSearchChange={(e) => handleSearchChange(e)}
+                  ></SearchInputList> */}
+
+                  <p className={styles.ProductName}>Perfil</p>
+                </div>
+                <div className={styles.ListMenuRight}>
+                  <Link href="/ProductPerfil">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
                         {" "}
@@ -219,10 +631,10 @@ export default function Products() {
                     handleSearchChange={(e) => handleSearchChange(e)}
                   ></SearchInputList> */}
 
-                  <p className={styles.ProductName}>Proximo nome</p>
+                  <p className={styles.ProductName}>Vidro</p>
                 </div>
                 <div className={styles.ListMenuRight}>
-                  <Link href="/BudgetSize">
+                  <Link href="/ProductVidro">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
                         {" "}
