@@ -20,6 +20,9 @@ export default function Home() {
     setSelectedOption(event.target.value);
   };
 
+  let userId = localStorage.getItem('userId');
+  console.log("ID do usuário:", userId);
+
   return (
     <>
       <Head>
