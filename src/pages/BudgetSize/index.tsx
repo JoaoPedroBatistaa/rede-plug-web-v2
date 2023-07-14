@@ -40,6 +40,8 @@ export default function BudgetSize() {
     toast.error("Informe os dados necessarios");
   }
 
+  const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
@@ -70,7 +72,7 @@ export default function BudgetSize() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>{`R$ ${preco}`}</p>
+                <p className={styles.Value}>R${precoAnterior.toFixed(2)}</p>
               </div>
 
               <button

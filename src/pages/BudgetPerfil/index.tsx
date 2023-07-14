@@ -94,6 +94,10 @@ export default function BudgetPerfil() {
 
       const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
       setPreco(valorMetro + perda + lucro);
+
+      const novo = precoAnterior + valorMetro + perda + lucro
+
+      localStorage.setItem("preco", JSON.stringify(novo));
     }
   };
 

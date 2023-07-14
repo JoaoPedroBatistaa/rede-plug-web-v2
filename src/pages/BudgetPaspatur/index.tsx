@@ -72,19 +72,19 @@ export default function BudgetPaspatur() {
 
   //...
 
-  const handleSelectChangeCodigoPaspatur = (
-    event: ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSelectedOptionCodigoPaspatur(event.target.value);
-    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
-    if (selectedProduto) {
-      console.log(`Descrição: ${selectedProduto.descricao}`);
-      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
-      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
-      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
-      console.log(`Fabricante: ${selectedProduto.fabricante}`);
-    }
-  };
+  // const handleSelectChangeCodigoPaspatur = (
+  //   event: ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   setSelectedOptionCodigoPaspatur(event.target.value);
+  //   const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
+  //   if (selectedProduto) {
+  //     console.log(`Descrição: ${selectedProduto.descricao}`);
+  //     console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
+  //     console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
+  //     console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
+  //     console.log(`Fabricante: ${selectedProduto.fabricante}`);
+  //   }
+  // };
 
 
 
@@ -143,6 +143,42 @@ export default function BudgetPaspatur() {
     }, 100);
   };
 
+  const [preco, setPreco] = useState(0);
+
+  const handleSelectChangeCodigoPaspatur = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSelectedOptionCodigoPaspatur(event.target.value);
+    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
+    if (selectedProduto) {
+      console.log(`Descrição: ${selectedProduto.descricao}`);
+      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
+      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
+      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
+      console.log(`Fabricante: ${selectedProduto.fabricante}`);
+
+      const dimensoesPaspatur = localStorage.getItem("dimensoesPaspatur") || "0x0x0x0";
+      const [alturaSuperior, larguraEsquerda, alturaInferior, larguraDireita] = dimensoesPaspatur.split('x').map(Number);
+
+      const altura = alturaSuperior || alturaInferior;
+      const largura = larguraDireita || larguraEsquerda;
+
+      const valorMetro = ((altura * largura) / 100) * selectedProduto.valorMetro;
+      const perda = (valorMetro / 100) * selectedProduto.valorPerda;
+      const lucro = (valorMetro + perda) * (selectedProduto.margemLucro / 100)
+
+      const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+      setPreco(valorMetro + perda + lucro + precoAnterior);
+
+      const novo = precoAnterior + valorMetro + perda + lucro
+      localStorage.setItem("preco", JSON.stringify(novo));
+
+    }
+  };
+
+  const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+
+
   return (
     <>
       <Head>
@@ -164,7 +200,7 @@ export default function BudgetPaspatur() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R$996,00</p>
+                <p className={styles.Value}>R${precoAnterior.toFixed(2)}</p>
               </div>
 
               <button
