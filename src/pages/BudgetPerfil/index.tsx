@@ -67,7 +67,7 @@ export default function BudgetPerfil() {
     const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
     setPreco(preco + precoAnterior);
 
-}, []);
+  }, []);
 
   useEffect(() => {
     if (selectedOption) {
@@ -86,10 +86,14 @@ export default function BudgetPerfil() {
       console.log(`Fabricante: ${selectedProduto.fabricante}`);
 
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
-    const [altura, largura] = tamanho.split('x').map(Number);
+      const [altura, largura] = tamanho.split('x').map(Number);
 
-    const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
-    setPreco((3.5 * Number(selectedProduto.codigo) * altura * largura) + precoAnterior);
+      const valorMetro = ((altura * largura) / 100) * selectedProduto.valorMetro;
+      const perda = (valorMetro / 100) * selectedProduto.valorPerda;
+      const lucro = valorMetro + perda * (selectedProduto.margemLucro / 100)
+
+      const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+      setPreco(valorMetro + perda + lucro);
     }
   };
 
