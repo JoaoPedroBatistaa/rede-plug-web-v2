@@ -29,6 +29,7 @@ interface Foam {
 
 export default function BudgetPerfil() {
   const router = useRouter();
+  
   const [produtos, setProdutos] = useState<Foam[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
   const [espessura, setEspessura] = useState("");

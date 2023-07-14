@@ -11,15 +11,56 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
+import { db } from "../../../firebase";
+import { collection, getDocs } from "firebase/firestore";
+
+interface Foam {
+  id: string;
+
+  codigo: string;
+  descricao: string;
+  margemLucro: number;
+  valorMetro: number;
+  valorPerda: number;
+
+}
+
 export default function BudgetFoam() {
   const router = useRouter();
 
+  const [produtos, setProdutos] = useState<Foam[]>([]);
+  const [selectedOption, setSelectedOption] = useState("");
   const [selectedOptionFoam, setSelectedOptionFoam] = useState("opcao1");
   const [selectedOptionCodigoFoam, setSelectedOptionCodigoFoam] =
     useState("opcao1");
   const [selectedOptionMdf, setSelectedOptionMdf] = useState("opcao1");
   const [selectedOptionCodigoMdf, setSelectedOptionCodigoMdf] =
     useState("opcao1");
+
+    const userId = localStorage.getItem('userId');
+
+    useEffect(() => {
+      const fetchData = async () => {
+        const dbCollection = collection(db, `Login/${userId}/Foam`);
+        const budgetSnapshot = await getDocs(dbCollection);
+        const budgetList = budgetSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            descricao: data.descricao,
+            codigo: data.codigo,
+            margemLucro: data.margemLucro,
+            valorMetro: data.valorMetro,
+            valorPerda: data.valorPerda,
+            fabricante: data.fabricante,
+            largura: data.largura,
+          };
+        });
+        setProdutos(budgetList);
+      };
+      fetchData();
+    }, []);
+  
 
   useEffect(() => {
     localStorage.setItem("foam", selectedOptionFoam);
@@ -32,6 +73,16 @@ export default function BudgetFoam() {
     selectedOptionMdf,
     selectedOptionCodigoMdf,
   ]);
+
+  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOption(event.target.value);
+    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
+    if (selectedProduto) {
+      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
+      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
+      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
+    }
+  };
 
   const handleSelectChangeFoam = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOptionFoam(event.target.value);
@@ -125,29 +176,16 @@ export default function BudgetFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
               <select
-                id="codigoFoam"
+                id="codigo"
                 className={styles.SelectField}
-                value={selectedOptionCodigoFoam}
-                onChange={handleSelectChangeCodigoFoam}
+                value={selectedOption}
+                onChange={handleSelectChange}
               >
-                <option
-                  value="55022"
-                  selected={selectedOptionCodigoFoam === "55022"}
-                >
-                  55022
-                </option>
-                <option
-                  value="55023"
-                  selected={selectedOptionCodigoFoam === "55023"}
-                >
-                  55023
-                </option>
-                <option
-                  value="55024"
-                  selected={selectedOptionCodigoFoam === "55024"}
-                >
-                  55024
-                </option>
+                {produtos.map(produto => (
+                  <option key={produto.codigo} value={produto.codigo}>
+                    {produto.codigo}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
