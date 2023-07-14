@@ -74,6 +74,8 @@ export default function BudgetFoam() {
     selectedOptionCodigoMdf,
   ]);
 
+  const [preco, setPreco] = useState(0);
+
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
     const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
@@ -81,8 +83,25 @@ export default function BudgetFoam() {
       console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
       console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
       console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
+
+
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const [altura, largura] = tamanho.split('x').map(Number);
+
+      const valorMetro = ((altura * largura) / 100) * selectedProduto.valorMetro;
+      const perda = (valorMetro / 100) * selectedProduto.valorPerda;
+      const lucro = valorMetro + perda * (selectedProduto.margemLucro / 100)
+
+      const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+      setPreco(valorMetro + perda + lucro);
+
+      const novo = precoAnterior + valorMetro + perda + lucro
+
+      localStorage.setItem("preco", JSON.stringify(novo));
     }
   };
+
+  const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
 
   const handleSelectChangeFoam = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOptionFoam(event.target.value);
@@ -134,7 +153,7 @@ export default function BudgetFoam() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R$942,00</p>
+                <p className={styles.Value}>R${precoAnterior.toFixed(2)}</p>
               </div>
 
               <button
