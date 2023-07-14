@@ -10,6 +10,11 @@ import HeaderProducts from "@/components/HeaderProducts";
 import SearchInput from "@/components/InputSearch";
 import SearchInputList from "@/components/InputSearchList";
 import GridComponent from "@/components/GridRequests";
+import TableFoam from "@/components/TableFoam";
+import TableImpressao from "@/components/TableImpressao";
+import TablePaspatur from "@/components/TablePaspatur";
+import TablePerfil from "@/components/TablePerfil";
+import TableVidro from "@/components/TableVidro";
 import Table from "@/components/Table";
 
 export default function Products() {
@@ -25,18 +30,6 @@ export default function Products() {
 
   const [orderValue, setOrderValue] = useState<string>("");
   const [filterValue, setFilterValue] = useState<string>("");
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  };
-  console.log(searchValue);
-
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
-  };
-  const handleOpenFilter = () => {
-    setOpenFilter(!openFilter);
-  };
 
   const handleOrderValueChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -198,7 +191,7 @@ export default function Products() {
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table
+              <TableFoam
                 searchValue={searchValue}
                 orderValue={orderValue}
                 filterValue={filterValue}
@@ -335,7 +328,7 @@ export default function Products() {
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table
+              <TableImpressao
                 searchValue={searchValue}
                 orderValue={orderValue}
                 filterValue={filterValue}
@@ -472,7 +465,7 @@ export default function Products() {
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table
+              <TablePaspatur
                 searchValue={searchValue}
                 orderValue={orderValue}
                 filterValue={filterValue}
@@ -609,7 +602,7 @@ export default function Products() {
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table
+              <TablePerfil
                 searchValue={searchValue}
                 orderValue={orderValue}
                 filterValue={filterValue}
@@ -747,7 +740,7 @@ export default function Products() {
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table
+              <TableVidro
                 searchValue={searchValue}
                 orderValue={orderValue}
                 filterValue={filterValue}

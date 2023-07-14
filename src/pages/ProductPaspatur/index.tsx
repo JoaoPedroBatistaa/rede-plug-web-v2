@@ -25,6 +25,8 @@ export default function ProductPaspatur() {
   const handleButtonFinish = async (event: any) => {
     event.preventDefault();
 
+    let userId = localStorage.getItem('userId');
+
     const paspatur = {
       codigo,
       descricao,
@@ -35,7 +37,7 @@ export default function ProductPaspatur() {
 
     try {
       // Substitua 'id_do_login' pelo id do login onde você quer adicionar o paspatur
-      await addPaspaturToLogin(paspatur, '7Td7y9iffho4gBZljJ14');
+      await addPaspaturToLogin(paspatur, userId);
       toast.success('Produto Cadastrado!');
     } catch (e) {
       toast.error('Erro ao cadastrar produto.');

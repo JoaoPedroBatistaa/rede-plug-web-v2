@@ -27,6 +27,8 @@ export default function ProductImpressao() {
   const handleButtonFinish = async (event: any) => {
     event.preventDefault();
 
+    let userId = localStorage.getItem('userId');
+
     const impressao = {
       codigo,
       descricao,
@@ -37,7 +39,7 @@ export default function ProductImpressao() {
 
     try {
       // Substitua 'id_do_login' pelo id do login onde você quer adicionar o paspatur
-      await addImpressaoToLogin(impressao, '7Td7y9iffho4gBZljJ14');
+      await addImpressaoToLogin(impressao, userId);
       toast.success('Produto Cadastrado!');
     } catch (e) {
       toast.error('Erro ao cadastrar produto.');
