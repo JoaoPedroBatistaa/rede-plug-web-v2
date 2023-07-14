@@ -10,6 +10,24 @@ import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
+
+import { getDocs } from "firebase/firestore";
+import { collection, db, getDoc, doc } from "../../../firebase";
+import { deleteDoc } from "firebase/firestore";
+
+interface Foam {
+  id: string;
+
+  codigo: string;
+  descricao: string;
+  margemLucro: number;
+  valorMetro: number;
+  valorPerda: number;
+  fabricante: string;
+  largura: number;
+
+}
+
 export default function BudgetPaspatur() {
   const router = useRouter();
   const { openMenu, setOpenMenu } = useMenu();
@@ -21,6 +39,54 @@ export default function BudgetPaspatur() {
   const [larguraEsquerda, setLarguraEsquerda] = useState("");
   const [larguraInferior, setLarguraInferior] = useState("");
   const [larguraDireita, setLarguraDireita] = useState("");
+
+  const [produtos, setProdutos] = useState<Foam[]>([]);
+  const userId = localStorage.getItem('userId');
+
+  // Fetch produtos do banco de dados
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Paspatur`);
+      console.log('Fetching from: ', dbCollection);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const budget: Foam = {
+          id: doc.id,
+          descricao: data.descricao,
+          codigo: data.codigo,
+          margemLucro: data.margemLucro,
+          valorMetro: data.valorMetro,
+          valorPerda: data.valorPerda,
+          fabricante: data.fabricante,
+          largura: data.largura,
+        };
+        console.log('Fetched data:', budget);
+        return budget;
+      });
+      setProdutos(budgetList);
+      console.log('Set data: ', budgetList);
+    };
+    fetchData();
+  }, []);
+
+  //...
+
+  const handleSelectChangeCodigoPaspatur = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSelectedOptionCodigoPaspatur(event.target.value);
+    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
+    if (selectedProduto) {
+      console.log(`Descrição: ${selectedProduto.descricao}`);
+      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
+      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
+      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
+      console.log(`Fabricante: ${selectedProduto.fabricante}`);
+    }
+  };
+
+
 
   useEffect(() => {
     localStorage.setItem("paspatur", selectedOptionPaspatur);
@@ -44,11 +110,11 @@ export default function BudgetPaspatur() {
     setSelectedOptionPaspatur(event.target.value);
   };
 
-  const handleSelectChangeCodigoPaspatur = (
-    event: ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSelectedOptionCodigoPaspatur(event.target.value);
-  };
+  // const handleSelectChangeCodigoPaspatur = (
+  //   event: ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   setSelectedOptionCodigoPaspatur(event.target.value);
+  // };
 
   const handleInputChangeSuperior = (event: ChangeEvent<HTMLInputElement>) => {
     setLarguraSuperior(event.target.value);
@@ -145,24 +211,15 @@ export default function BudgetPaspatur() {
                 value={selectedOptionCodigoPaspatur}
                 onChange={handleSelectChangeCodigoPaspatur}
               >
-                <option
-                  value="55022"
-                  selected={selectedOptionCodigoPaspatur === "55022"}
-                >
-                  55022
-                </option>
-                <option
-                  value="55023"
-                  selected={selectedOptionCodigoPaspatur === "55023"}
-                >
-                  55023
-                </option>
-                <option
-                  value="55024"
-                  selected={selectedOptionCodigoPaspatur === "55024"}
-                >
-                  55024
-                </option>
+                {produtos.map((produto) => (
+                  <option
+                    key={produto.codigo}
+                    value={produto.codigo}
+                    selected={selectedOptionCodigoPaspatur === produto.codigo}
+                  >
+                    {produto.codigo}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
