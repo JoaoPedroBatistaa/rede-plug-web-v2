@@ -36,7 +36,9 @@ export default function BudgetPerfil() {
   const { openMenu, setOpenMenu } = useMenu();
   const [preco, setPreco] = useState(0);
 
-  localStorage.setItem("preco", JSON.stringify(0));
+  if (typeof window !== "undefined") {
+    localStorage.setItem("preco", JSON.stringify(0));
+  }
 
 
   let userId: string | null;
@@ -77,8 +79,10 @@ export default function BudgetPerfil() {
 
   useEffect(() => {
     if (selectedOption) {
-      localStorage.setItem("codigoPerfil", selectedOption);
-      localStorage.setItem("espessuraPerfil", espessura);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("codigoPerfil", selectedOption);
+        localStorage.setItem("espessuraPerfil", espessura);
+      }
     }
   }, [selectedOption, espessura]);
 
@@ -112,7 +116,9 @@ export default function BudgetPerfil() {
   };
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    toast.error("Informe se o pedido incluirá vidro");
+    if (typeof window !== "undefined") {
+      toast.error("Informe se o pedido incluirá vidro");
+    }
   }
 
   const handleOpenMenuDiv = () => {

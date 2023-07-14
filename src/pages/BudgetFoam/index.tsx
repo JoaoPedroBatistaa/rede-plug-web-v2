@@ -37,30 +37,33 @@ export default function BudgetFoam() {
   const [selectedOptionCodigoMdf, setSelectedOptionCodigoMdf] =
     useState("opcao1");
 
-    const userId = localStorage.getItem('userId');
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
 
-    useEffect(() => {
-      const fetchData = async () => {
-        const dbCollection = collection(db, `Login/${userId}/Foam`);
-        const budgetSnapshot = await getDocs(dbCollection);
-        const budgetList = budgetSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            descricao: data.descricao,
-            codigo: data.codigo,
-            margemLucro: data.margemLucro,
-            valorMetro: data.valorMetro,
-            valorPerda: data.valorPerda,
-            fabricante: data.fabricante,
-            largura: data.largura,
-          };
-        });
-        setProdutos(budgetList);
-      };
-      fetchData();
-    }, []);
-  
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Foam`);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          descricao: data.descricao,
+          codigo: data.codigo,
+          margemLucro: data.margemLucro,
+          valorMetro: data.valorMetro,
+          valorPerda: data.valorPerda,
+          fabricante: data.fabricante,
+          largura: data.largura,
+        };
+      });
+      setProdutos(budgetList);
+    };
+    fetchData();
+  }, []);
+
 
   useEffect(() => {
     localStorage.setItem("foam", selectedOptionFoam);
@@ -101,7 +104,7 @@ export default function BudgetFoam() {
     }
   };
 
-  const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+  // const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
 
   const handleSelectChangeFoam = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOptionFoam(event.target.value);
@@ -153,7 +156,7 @@ export default function BudgetFoam() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R${precoAnterior.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco.toFixed(2)}</p>
               </div>
 
               <button

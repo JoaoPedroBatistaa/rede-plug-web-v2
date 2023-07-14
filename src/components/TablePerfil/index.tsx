@@ -37,7 +37,10 @@ export default function TablePerfil({
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); // I
-  const userId = localStorage.getItem('userId');
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -149,11 +152,10 @@ export default function TablePerfil({
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${
-                    openMenus[item.id]
+                  className={`${openMenus[item.id]
                       ? styles.containerMore
                       : styles.containerMoreClose
-                  }`}
+                    }`}
                 >
                   <div
                     className={styles.containerX}
@@ -256,11 +258,10 @@ export default function TablePerfil({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${
-                  pageNumber === currentPage
+                className={`${pageNumber === currentPage
                     ? styles.RodapePaginacaoContadorDestaque
                     : styles.RodapePaginacaoContadorSemBorda
-                }`}
+                  }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}
