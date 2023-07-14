@@ -20,7 +20,10 @@ export default function Home() {
     setSelectedOption(event.target.value);
   };
 
-  let userId = localStorage.getItem('userId');
+  let userId;
+  if (typeof window !== 'undefined') {
+    userId = localStorage.getItem('userId');
+  }
   console.log("ID do usuário:", userId);
 
   return (

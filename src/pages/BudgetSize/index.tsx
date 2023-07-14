@@ -20,8 +20,10 @@ export default function BudgetSize() {
 
   // Ao alterar os valores de altura ou largura, salva no localStorage
   useEffect(() => {
-    const value = `${altura}x${largura}`;
-    localStorage.setItem("Tamanho", value);
+    if (typeof window !== 'undefined') {
+      const value = `${altura}x${largura}`;
+      window.localStorage.setItem("Tamanho", value);
+    }
   }, [altura, largura]);
 
   const handleAlturaChange = (event: {
@@ -36,11 +38,12 @@ export default function BudgetSize() {
     setLargura(event.target.value);
   };
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    localStorage.setItem("preco", JSON.stringify(preco));
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem("preco", JSON.stringify(preco));
+    }
     toast.error("Informe os dados necessarios");
   }
 
-  const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
 
   const { openMenu, setOpenMenu } = useMenu();
 
@@ -49,6 +52,8 @@ export default function BudgetSize() {
       setOpenMenu(false);
     }, 100);
   };
+
+
   return (
     <>
       <Head>
@@ -72,7 +77,7 @@ export default function BudgetSize() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R${precoAnterior.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco.toFixed(2)}</p>
               </div>
 
               <button

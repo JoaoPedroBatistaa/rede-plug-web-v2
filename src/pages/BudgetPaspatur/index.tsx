@@ -41,7 +41,13 @@ export default function BudgetPaspatur() {
   const [larguraDireita, setLarguraDireita] = useState("");
 
   const [produtos, setProdutos] = useState<Foam[]>([]);
-  const userId = localStorage.getItem('userId');
+
+
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
+
 
   // Fetch produtos do banco de dados
   useEffect(() => {
@@ -176,7 +182,6 @@ export default function BudgetPaspatur() {
     }
   };
 
-  const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
 
 
   return (
@@ -200,7 +205,7 @@ export default function BudgetPaspatur() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R${precoAnterior.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco.toFixed(2)}</p>
               </div>
 
               <button

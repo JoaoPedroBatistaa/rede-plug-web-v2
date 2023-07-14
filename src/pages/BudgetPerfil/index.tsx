@@ -37,7 +37,11 @@ export default function BudgetPerfil() {
   const [preco, setPreco] = useState(0);
 
 
-  const userId = localStorage.getItem('userId');
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
+
 
 
   useEffect(() => {
