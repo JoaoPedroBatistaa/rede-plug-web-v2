@@ -29,11 +29,13 @@ interface Foam {
 
 export default function BudgetPerfil() {
   const router = useRouter();
-  
+
   const [produtos, setProdutos] = useState<Foam[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
   const [espessura, setEspessura] = useState("");
   const { openMenu, setOpenMenu } = useMenu();
+  const [preco, setPreco] = useState(0);
+
 
   const userId = localStorage.getItem('userId');
 
@@ -61,6 +63,13 @@ export default function BudgetPerfil() {
   }, []);
 
   useEffect(() => {
+
+    const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+    setPreco(preco + precoAnterior);
+
+}, []);
+
+  useEffect(() => {
     if (selectedOption) {
       localStorage.setItem("codigoPerfil", selectedOption);
       localStorage.setItem("espessuraPerfil", espessura);
@@ -75,6 +84,12 @@ export default function BudgetPerfil() {
       console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
       console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
       console.log(`Fabricante: ${selectedProduto.fabricante}`);
+
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+    const [altura, largura] = tamanho.split('x').map(Number);
+
+    const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
+    setPreco((3.5 * Number(selectedProduto.codigo) * altura * largura) + precoAnterior);
     }
   };
 
@@ -113,7 +128,7 @@ export default function BudgetPerfil() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R$650,00</p>
+                <p className={styles.Value}>R${preco.toFixed(2)}</p>
               </div>
 
               <button

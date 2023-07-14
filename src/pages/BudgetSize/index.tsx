@@ -16,6 +16,7 @@ export default function BudgetSize() {
 
   const [altura, setAltura] = useState("");
   const [largura, setLargura] = useState("");
+  const preco = 0;
 
   // Ao alterar os valores de altura ou largura, salva no localStorage
   useEffect(() => {
@@ -35,7 +36,8 @@ export default function BudgetSize() {
     setLargura(event.target.value);
   };
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    toast.error("Informe qual perfil será utilizado");
+    localStorage.setItem("preco", JSON.stringify(preco));
+    toast.error("Informe os dados necessarios");
   }
 
   const { openMenu, setOpenMenu } = useMenu();
@@ -68,7 +70,7 @@ export default function BudgetSize() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R$450,00</p>
+                <p className={styles.Value}>{`R$ ${preco}`}</p>
               </div>
 
               <button

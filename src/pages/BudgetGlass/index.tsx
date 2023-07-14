@@ -125,6 +125,7 @@ export default function BudgetGlass() {
               </select>
             </div>
 
+            {selectedOptionVidro === "SIM" && (
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espessura do Vidro</p>
               <select
@@ -153,6 +154,7 @@ export default function BudgetGlass() {
                 </option>
               </select>
             </div>
+            )}
           </div>
 
           <div className={styles.InputContainer}>
@@ -173,6 +175,7 @@ export default function BudgetGlass() {
               </select>
             </div>
 
+            {selectedOptionEspelho === "SIM" && (
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espessura do Espelho</p>
               <select
@@ -201,6 +204,7 @@ export default function BudgetGlass() {
                 </option>
               </select>
             </div>
+            )}
           </div>
 
           <div className={styles.Copyright}>
