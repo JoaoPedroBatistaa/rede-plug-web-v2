@@ -36,6 +36,8 @@ export default function BudgetPerfil() {
   const { openMenu, setOpenMenu } = useMenu();
   const [preco, setPreco] = useState(0);
 
+  localStorage.setItem("preco", JSON.stringify(0));
+
 
   const userId = localStorage.getItem('userId');
 
