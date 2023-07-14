@@ -1,7 +1,6 @@
 import Head from "next/head";
 import styles from "../../styles/BudgetPerfil.module.scss";
 import { useRouter } from "next/router";
-
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -11,28 +10,81 @@ import "react-toastify/dist/ReactToastify.css";
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
 
+import { getDocs } from "firebase/firestore";
+import { collection, db, getDoc, doc } from "../../../firebase";
+import { deleteDoc } from "firebase/firestore";
+
+interface Foam {
+  id: string;
+
+  codigo: string;
+  descricao: string;
+  margemLucro: number;
+  valorMetro: number;
+  valorPerda: number;
+  fabricante: string;
+  largura: number;
+
+}
+
 export default function BudgetPerfil() {
   const router = useRouter();
-
-  const [selectedOption, setSelectedOption] = useState("opcao1");
+  const [produtos, setProdutos] = useState<Foam[]>([]);
+  const [selectedOption, setSelectedOption] = useState("");
   const [espessura, setEspessura] = useState("");
   const { openMenu, setOpenMenu } = useMenu();
-  // Salva as informações no localStorage sempre que são alteradas
+
+  const userId = localStorage.getItem('userId');
+
+
   useEffect(() => {
-    localStorage.setItem("codigoPerfil", selectedOption);
-    localStorage.setItem("espessuraPerfil", espessura);
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Perfil`);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          descricao: data.descricao,
+          codigo: data.codigo,
+          margemLucro: data.margemLucro,
+          valorMetro: data.valorMetro,
+          valorPerda: data.valorPerda,
+          fabricante: data.fabricante,
+          largura: data.largura,
+        };
+      });
+      setProdutos(budgetList);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedOption) {
+      localStorage.setItem("codigoPerfil", selectedOption);
+      localStorage.setItem("espessuraPerfil", espessura);
+    }
   }, [selectedOption, espessura]);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
+    if (selectedProduto) {
+      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
+      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
+      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
+      console.log(`Fabricante: ${selectedProduto.fabricante}`);
+    }
   };
 
   const handleEspessuraChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEspessura(event.target.value);
   };
+
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    toast.error("Informe se opedido incluirá vidro");
+    toast.error("Informe se o pedido incluirá vidro");
   }
+
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
       setOpenMenu(false);
@@ -90,15 +142,11 @@ export default function BudgetPerfil() {
                 value={selectedOption}
                 onChange={handleSelectChange}
               >
-                <option value="4401" selected={selectedOption === "4401"}>
-                  4401
-                </option>
-                <option value="4402" selected={selectedOption === "4402"}>
-                  4402
-                </option>
-                <option value="4403" selected={selectedOption === "4403"}>
-                  4403
-                </option>
+                {produtos.map(produto => (
+                  <option key={produto.codigo} value={produto.codigo}>
+                    {produto.codigo}
+                  </option>
+                ))}
               </select>
             </div>
 
