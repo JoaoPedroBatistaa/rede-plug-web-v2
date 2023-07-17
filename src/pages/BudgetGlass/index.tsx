@@ -197,7 +197,7 @@ export default function BudgetGlass() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>
-              O pedido inclui vidro / espelho? {preco}
+              O pedido inclui vidro / espelho?
             </p>
 
             <div className={styles.BudgetHeadS}>

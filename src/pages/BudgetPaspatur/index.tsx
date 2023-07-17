@@ -257,7 +257,7 @@ export default function BudgetPaspatur() {
 
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>O pedido inclui paspatur? {preco}</p>
+            <p className={styles.BudgetTitle}>O pedido inclui paspatur?</p>
 
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
