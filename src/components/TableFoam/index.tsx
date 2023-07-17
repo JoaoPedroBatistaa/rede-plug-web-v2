@@ -34,7 +34,7 @@ export default function TableFoam({
   const [teste, setTeste] = useState<Foam[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // I
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   let userId: string | null;
   if (typeof window !== 'undefined') {
     userId = window.localStorage.getItem('userId');
@@ -43,7 +43,6 @@ export default function TableFoam({
   useEffect(() => {
     const fetchData = async () => {
       const dbCollection = collection(db, `Login/${userId}/Foam`);
-      console.log('Fetching from: ', dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -56,16 +55,13 @@ export default function TableFoam({
           valorMetro: data.valorMetro,
           valorPerda: data.valorPerda,
         };
-        console.log('Fetched data:', budget);
         return budget;
       });
       setTeste(budgetList);
       setFilteredData(budgetList);
-      console.log('Set data: ', budgetList);
     };
     fetchData();
   }, []);
-
 
   useEffect(() => {
     if (searchValue !== '') {
@@ -78,6 +74,10 @@ export default function TableFoam({
   }, [searchValue, teste]);
 
   useEffect(() => {
+    console.log("searchValue: ", searchValue);
+    console.log("filterValue: ", filterValue);
+    console.log("teste: ", teste);
+  
     let filtered = teste;
   
     // Filter by search value
@@ -96,14 +96,15 @@ export default function TableFoam({
         case 'valorperda':
           filtered = filtered.sort((a, b) => a.valorPerda - b.valorPerda);
           break;
-        // Add more case statements as needed for other filter values
         default:
           break;
       }
     }
   
+    console.log("Filtered data: ", filtered);
     setFilteredData(filtered);
   }, [searchValue, filterValue, teste]);
+  
 
   const totalItems = teste.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -129,13 +130,11 @@ export default function TableFoam({
       ...prevState,
       [itemId]: !prevState[itemId],
     }));
-    console.log(itemId);
   };
 
   const handleDeleteItem = async (itemId: string) => {
     try {
       await deleteDoc(doc(db, `Login/${userId}/Foam`, itemId));
-      console.log('Deleting item: ', itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
@@ -150,7 +149,7 @@ export default function TableFoam({
       toast.error("Ocorreu um erro ao excluir o orçamento.");
     }
   };
-  // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
+
 
   const { openMenu, setOpenMenu } = useMenu();
 

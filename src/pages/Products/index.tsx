@@ -23,6 +23,21 @@ export default function Products() {
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
+  const [filterStates, setFilterStates] = useState({
+    foam: false,
+    impressao: false,
+    paspatur: false,
+    perfil: false,
+    vidro: false
+  });
+
+  const toggleFilter = (key: keyof typeof filterStates) => {
+    setFilterStates((prevState) => ({
+      ...prevState,
+      [key]: !prevState[key]
+    }));
+  };
+
   const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchValue, setSearchValue] = useState("");
@@ -77,7 +92,7 @@ export default function Products() {
                 <p className={styles.ProductName}>Foam</p>
                   <div
                     className={styles.ListMenuFilter}
-                    onClick={handleOpenFilter}
+                    onClick={() => toggleFilter("foam")}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
@@ -100,7 +115,7 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${openFilter
+                className={`${filterStates.foam
                   ? styles.containerFilter
                   : styles.containerFilterClose
                   }`}
@@ -179,7 +194,7 @@ export default function Products() {
                 <p className={styles.ProductName}>Impressão</p>
                   <div
                     className={styles.ListMenuFilter}
-                    onClick={handleOpenFilter}
+                    onClick={() => toggleFilter("impressao")}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
@@ -201,7 +216,7 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${openFilter
+                className={`${filterStates.impressao
                   ? styles.containerFilter
                   : styles.containerFilterClose
                   }`}
@@ -315,7 +330,7 @@ export default function Products() {
                 <p className={styles.ProductName}>Paspatur</p>
                   <div
                     className={styles.ListMenuFilter}
-                    onClick={handleOpenFilter}
+                    onClick={() => toggleFilter("paspatur")}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
@@ -337,7 +352,7 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${openFilter
+                className={`${filterStates.paspatur
                   ? styles.containerFilter
                   : styles.containerFilterClose
                   }`}
@@ -451,7 +466,7 @@ export default function Products() {
                 <p className={styles.ProductName}>Perfil</p>
                   <div
                     className={styles.ListMenuFilter}
-                    onClick={handleOpenFilter}
+                    onClick={() => toggleFilter("perfil")}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
@@ -473,7 +488,7 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${openFilter
+                className={`${filterStates.perfil
                   ? styles.containerFilter
                   : styles.containerFilterClose
                   }`}
@@ -588,7 +603,7 @@ export default function Products() {
                 <p className={styles.ProductName}>Vidro</p>
                   <div
                     className={styles.ListMenuFilter}
-                    onClick={handleOpenFilter}
+                    onClick={() => toggleFilter("vidro")}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
@@ -610,7 +625,7 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${openFilter
+                className={`${filterStates.vidro
                   ? styles.containerFilter
                   : styles.containerFilterClose
                   }`}
