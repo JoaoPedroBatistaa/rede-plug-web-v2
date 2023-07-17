@@ -147,8 +147,8 @@ export default function TableFoam({
               <td className={styles.tdDisabled}>
                 <div
                   className={`${openMenus[item.id]
-                      ? styles.containerMore
-                      : styles.containerMoreClose
+                    ? styles.containerMore
+                    : styles.containerMoreClose
                     }`}
                 >
                   <div
@@ -247,8 +247,8 @@ export default function TableFoam({
               <div
                 key={pageNumber}
                 className={`${pageNumber === currentPage
-                    ? styles.RodapePaginacaoContadorDestaque
-                    : styles.RodapePaginacaoContadorSemBorda
+                  ? styles.RodapePaginacaoContadorDestaque
+                  : styles.RodapePaginacaoContadorSemBorda
                   }`}
                 onClick={() => handlePageChange(pageNumber)}
               >

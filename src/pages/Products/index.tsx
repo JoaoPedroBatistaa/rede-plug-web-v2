@@ -61,7 +61,7 @@ export default function Products() {
           <HeaderProducts></HeaderProducts>
           <div className={styles.MainContainer}>
 
-          <div className={styles.ListContainer}>
+            <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   {/* <div
@@ -334,7 +334,7 @@ export default function Products() {
                 filterValue={filterValue}
               />
             </div>
-            
+
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
