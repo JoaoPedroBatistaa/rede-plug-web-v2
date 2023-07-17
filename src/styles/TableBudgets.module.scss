@@ -1,0 +1,349 @@
+.tableContianer {
+  width: 100%;
+  height: auto;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  height: auto;
+  border-collapse: collapse;
+}
+
+.table thead {
+  width: 100%;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableHeader {
+  height: 100%;
+  background-color: #f6f7fa;
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 15px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #404049;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 3px;
+  margin: 0 auto;
+
+  th {
+    width: 17%;
+    padding: 8px;
+    border: 0px solid #ddd;
+    height: 45px;
+    display: flex;
+    align-items: center;
+  }
+
+  .thNone {
+    width: 25px;
+    margin-right: 14px;
+  }
+}
+
+.table .budgetItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+
+  td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    height: 60px;
+    color: #404049;
+    font-family: "Outfit";
+    font-style: normal;
+    text-align: start;
+    align-items: center;
+    margin: 6px auto;
+    width: 10px;
+  }
+
+  .td {
+    width: 16%;
+  }
+}
+
+.table tbody {
+  width: 100%;
+}
+
+.RodapeContainer {
+  display: flex;
+  flex: 1;
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 400;
+  color: #404049;
+  justify-items: center;
+  align-items: center;
+  margin-top: 140px;
+  margin-bottom: 5px;
+}
+
+.RodapeContinaerLeft {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.RodapeContinaerRight {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.RodapePaginacaoIcone {
+  transform: scale(0.2);
+}
+
+.RodapePaginacaoContador {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 35px;
+  border-radius: 5px;
+  border: 1px solid rgba(143, 142, 145, 0.4);
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.RodapePaginacaoContadorSemBorda {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 35px;
+  border: none;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.RodapePaginacaoContadorDestaque {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 35px;
+  border: none;
+  border-radius: 5px;
+  margin-right: 8px;
+  background-color: #d0d4dd;
+  color: #7c0000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.SelectMax {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 600;
+  height: 34px;
+  background-color: #fff;
+  color: #404049;
+  border-radius: 5px;
+  margin-left: 11px;
+  margin-right: 11px;
+  border: 1px solid rgba(143, 142, 145, 0.5);
+}
+
+.badge {
+  color: #4a4aff;
+  background-color: #dee2ed;
+  padding: 5px 10px;
+  font-weight: bold;
+  border-radius: 50px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.badgeInativo {
+  color: #f92c38;
+  background-color: rgba(249, 44, 56, 0.24);
+  padding: 5px 10px;
+  font-weight: bold;
+  border-radius: 50px;
+}
+
+.marginRight8 {
+  margin-right: 8px;
+}
+
+.MarginRight {
+  cursor: pointer;
+}
+
+.dataCadastro {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #404049;
+  height: 30px;
+
+  p {
+    margin-top: 10px;
+  }
+}
+
+.diasUteis {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #404049;
+}
+
+.containerMoreClose {
+  display: none;
+}
+
+.containerMore {
+  z-index: 988;
+  position: relative;
+  width: 220px;
+  height: 80px;
+  display: flex;
+}
+
+.containerX {
+  z-index: 999;
+  width: 25px;
+  height: 20px;
+  border-radius: 100%;
+  color: #8b83ba;
+  text-align: center;
+  font-size: 12px;
+  background: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid #d9d5d5;
+}
+
+.containerOptionsMore {
+  margin-top: 10px;
+  margin-left: 10px;
+  width: 85%;
+  height: 90px;
+  position: absolute;
+  background: #ffffff;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  flex-direction: column;
+  gap: 2px;
+
+  a {
+    margin-top: 13px;
+    background-color: transparent;
+    border: none;
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 23px;
+    padding: 5px 0px 5px 7px;
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+
+  button {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 25px;
+    padding: 5px 0px 5px 7px;
+
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+
+  .buttonGren {
+    color: #007f00;
+  }
+
+  .buttonRed {
+    color: #d30000;
+  }
+}
+
+@media (max-width: 768px) {
+  .tableContianer {
+    height: 100vh;
+  }
+
+  .RodapeContainer {
+    display: none !important;
+  }
+
+  #tdNone {
+    display: none;
+  }
+
+  .tableHeader {
+    justify-content: center;
+
+    th {
+      width: 40%;
+      font-size: 7px;
+    }
+
+    .thNone {
+      width: 10px;
+    }
+  }
+
+  .table .budgetItem {
+    width: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .td {
+      width: 30%;
+      font-size: 10px;
+    }
+
+    .diasUteis {
+      font-size: 8px;
+    }
+  }
+}

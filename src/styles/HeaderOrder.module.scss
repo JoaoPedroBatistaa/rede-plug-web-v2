@@ -1,0 +1,30 @@
+.HeaderContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #7c0000;
+  height: 4rem;
+  width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.Close {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.NewBudget {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: medium;
+  font-family: "Outfit", sans-serif;
+}
+
+@media (max-width: 430px) {
+  .HeaderContainer {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}

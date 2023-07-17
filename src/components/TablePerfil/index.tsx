@@ -22,10 +22,12 @@ interface Foam {
   margemLucro: number;
   valorMetro: number;
   valorPerda: number;
+  fabricante: string;
+  largura: number;
 
 }
 
-export default function TableFoam({
+export default function TablePerfil({
   searchValue,
   orderValue,
   filterValue,
@@ -42,7 +44,7 @@ export default function TableFoam({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Foam`);
+      const dbCollection = collection(db, `Login/${userId}/Perfil`);
       console.log('Fetching from: ', dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
@@ -55,18 +57,18 @@ export default function TableFoam({
           margemLucro: data.margemLucro,
           valorMetro: data.valorMetro,
           valorPerda: data.valorPerda,
+          fabricante: data.fabricante,
+          largura: data.largura,
         };
         console.log('Fetched data:', budget);
         return budget;
       });
       setTeste(budgetList);
       setFilteredData(budgetList);
-      console.log('Set data: ', budgetList)
-
+      console.log('Set data: ', budgetList);
     };
     fetchData();
   }, []);
-
 
 
   const totalItems = teste.length; // Total de resultados
@@ -104,7 +106,7 @@ export default function TableFoam({
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Pedido excluído com sucesso!", {
+      toast.success("Produto excluído com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,
@@ -123,33 +125,6 @@ export default function TableFoam({
     console.log(openMenu);
   };
 
-
-  useEffect(() => {
-    const filterData = () => {
-      const filteredItems = teste.filter(
-        (item) =>
-          item.descricao?.toLowerCase().includes(searchValue.toLowerCase()) ||
-          item.codigo?.toLowerCase().includes(searchValue.toLowerCase())
-      );
-
-      setFilteredData(filteredItems);
-
-    };
-    filterData();
-  }, [searchValue, teste]);
-
-
-
-
-
-
-  const [openFilter, setOpenFilter] = useState(false);
-
-
-
-
-
-
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -160,12 +135,14 @@ export default function TableFoam({
             <th>Margem de Lucro</th>
             <th>Valor do Metro</th>
             <th>Valor da Perda</th>
+            <th>Largura</th>
+            <th>Fabricante</th>
             <th>Descrição</th>
           </tr>
         </thead>
 
         <tbody>
-          {filteredData.map((item, index) => (
+          {currentData.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}
@@ -176,8 +153,8 @@ export default function TableFoam({
               <td className={styles.tdDisabled}>
                 <div
                   className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
+                      ? styles.containerMore
+                      : styles.containerMoreClose
                     }`}
                 >
                   <div
@@ -221,6 +198,12 @@ export default function TableFoam({
               </td>
               <td className={styles.td}>
                 <b>{item.valorPerda}%</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.largura}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.fabricante}</b>
               </td>
               <td className={styles.td}>
                 <b>{item.descricao}</b>
@@ -276,8 +259,8 @@ export default function TableFoam({
               <div
                 key={pageNumber}
                 className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
                   }`}
                 onClick={() => handlePageChange(pageNumber)}
               >

@@ -1,0 +1,114 @@
+.sideMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: #faf8f6;
+  width: 15rem;
+  height: 60rem;
+}
+
+.Steps {
+  margin-top: 41px;
+  margin-left: 16px;
+  margin-bottom: 16px;
+  color: rgb(0, 0, 0);
+  font-size: 14px;
+  font-family: "DM Sans", sans-serif;
+}
+
+.Click {
+  margin-left: 16px;
+  margin-bottom: 1rem;
+  font-size: 12px;
+  font-family: "DM Sans", sans-serif;
+  color: black;
+}
+
+.MenuNavigate {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  cursor: pointer;
+
+  &.active {
+    .NavigateItem {
+      color: #0bb07b;
+    }
+
+    .Pointer {
+      background-color: #0bb07b;
+      border: solid 3px #0bb07b;
+    }
+  }
+}
+
+.NavigateItem {
+  font-size: 16px;
+  font-weight: medium;
+  font-family: "Outfit", sans-serif;
+  color: #7c0000;
+}
+
+.Pointer {
+  background-color: #ffffff;
+  width: 10px;
+  height: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  border: solid 3px #7c0000;
+}
+
+@media (max-width: 768px) {
+  .sideMenu {
+    display: none;
+  }
+}
+
+.sideMenuClose {
+  z-index: 999;
+  display: flex;
+  position: relative;
+}
+
+.closeMenu {
+  display: none;
+}
+
+@media (max-width: 430px) {
+  .sideMenu {
+    z-index: 999;
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 100%;
+    z-index: 9999;
+    transition: transform 0.5s ease-in-out;
+    transform: translateX(0%);
+    box-shadow: 0 0 300px rgba(0, 0, 0);
+  }
+
+  .sideMenuClose {
+    transform: translateX(-160%);
+  }
+
+  .closeMenu {
+    display: block;
+    margin-left: 1rem;
+    margin-right: -1rem;
+    margin-top: 1rem;
+    margin-bottom: -1rem;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.displayFlex {
+  display: grid;
+  grid-template-columns: 60% 40%;
+}

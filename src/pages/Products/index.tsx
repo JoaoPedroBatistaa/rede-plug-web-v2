@@ -9,7 +9,7 @@ import HeaderHome from "@/components/HeaderHome";
 import HeaderProducts from "@/components/HeaderProducts";
 import SearchInput from "@/components/InputSearch";
 import SearchInputList from "@/components/InputSearchList";
-import SearchInputListProducts from "@/components/InputSearchListProducts";
+import SearchInputListProducts from "@/components/InputSearchList";
 import GridComponent from "@/components/GridRequests";
 import TableFoam from "@/components/TableFoam";
 import TableImpressao from "@/components/TableImpressao";
@@ -74,7 +74,7 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                <p className={styles.ProductName}>Foam</p>
+                  <p className={styles.ProductName}>Foam</p>
                   <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
@@ -84,9 +84,9 @@ export default function Products() {
                   </div>
                   <SearchInputListProducts
                     handleSearchChange={(e) => handleSearchChange(e)}
-                  ></SearchInputListProducts> 
+                  ></SearchInputListProducts>
                 </div>
-                
+
                 <div className={styles.ListMenuRight}>
                   <Link href="/ProductFoam">
                     <button className={styles.ListMenuButton}>
@@ -176,7 +176,7 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                <p className={styles.ProductName}>Impressão</p>
+                  <p className={styles.ProductName}>Impressão</p>
                   <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
@@ -312,7 +312,7 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                <p className={styles.ProductName}>Paspatur</p>
+                  <p className={styles.ProductName}>Paspatur</p>
                   <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
@@ -448,7 +448,7 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                <p className={styles.ProductName}>Perfil</p>
+                  <p className={styles.ProductName}>Perfil</p>
                   <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
@@ -585,7 +585,7 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                <p className={styles.ProductName}>Vidro</p>
+                  <p className={styles.ProductName}>Vidro</p>
                   <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
