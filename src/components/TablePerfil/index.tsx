@@ -124,7 +124,19 @@ export default function TablePerfil({
     setOpenMenu(false);
     console.log(openMenu);
   };
+  useEffect(() => {
+    const filterData = () => {
+      const filteredItems = teste.filter(
+        (item) =>
+          item.descricao?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item.codigo?.toLowerCase().includes(searchValue.toLowerCase())
+      );
 
+      setFilteredData(filteredItems);
+
+    };
+    filterData();
+  }, [searchValue, teste]);
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -142,7 +154,7 @@ export default function TablePerfil({
         </thead>
 
         <tbody>
-          {currentData.map((item, index) => (
+          {filteredData.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}
@@ -153,8 +165,8 @@ export default function TablePerfil({
               <td className={styles.tdDisabled}>
                 <div
                   className={`${openMenus[item.id]
-                      ? styles.containerMore
-                      : styles.containerMoreClose
+                    ? styles.containerMore
+                    : styles.containerMoreClose
                     }`}
                 >
                   <div
@@ -259,8 +271,8 @@ export default function TablePerfil({
               <div
                 key={pageNumber}
                 className={`${pageNumber === currentPage
-                    ? styles.RodapePaginacaoContadorDestaque
-                    : styles.RodapePaginacaoContadorSemBorda
+                  ? styles.RodapePaginacaoContadorDestaque
+                  : styles.RodapePaginacaoContadorSemBorda
                   }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
