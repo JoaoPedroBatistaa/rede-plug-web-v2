@@ -16,6 +16,23 @@ import classnames from "classnames";
 export default function BudgetFinish() {
   const router = useRouter();
 
+  const [precoTotal, setPrecoTotal] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+      if (typeof window !== "undefined") {
+        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+        const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorVidro = Number(localStorage.getItem("valorVidro"));
+        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro)
+      }
+    }, 2000); // Tempo do intervalo em milissegundos
+
+    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
+  }, []);
+
   let nomeCompleto: string | null;
   let Telefone: string | null;
   let email: string | null;
@@ -42,6 +59,9 @@ export default function BudgetFinish() {
   let espessuraPerfil: string | null;
   let Tamanho: string | null;
   let tipoPessoa: string | null;
+  let valorTotal: string | null;
+
+  valorTotal = precoTotal.toString();
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto");
@@ -126,6 +146,7 @@ export default function BudgetFinish() {
         cep,
         complemento,
         tipoPessoa,
+        valorTotal,
       });
       toast.success("Pedido enviado!");
       setTimeout(() => {
@@ -234,12 +255,16 @@ export default function BudgetFinish() {
       );
     }
   };
+
+
   const { openMenu, setOpenMenu } = useMenu();
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
       setOpenMenu(false);
     }, 100);
   };
+
+
 
   return (
     <>

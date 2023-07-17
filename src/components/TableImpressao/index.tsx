@@ -66,6 +66,46 @@ export default function TableImpressao({
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (searchValue !== '') {
+      const lowerCaseSearchValue = searchValue.toLowerCase();
+      const newData = teste.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
+      setFilteredData(newData);
+    } else {
+      setFilteredData(teste);
+    }
+  }, [searchValue, teste]);
+
+  useEffect(() => {
+    let sortedData = [...teste];
+
+    // Ordenação
+    if (orderValue !== "") {
+      switch (orderValue) {
+        case "codigoCrescente":
+          sortedData.sort((a, b) => (a.codigo.toUpperCase() < b.codigo.toUpperCase()) ? -1 : 1);
+          break;
+        case "codigoDescrescente":
+          sortedData.sort((a, b) => (a.codigo.toUpperCase() > b.codigo.toUpperCase()) ? -1 : 1);
+          break;
+        case "maiorValorMetro":
+          sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
+          break;
+        case "maiorValorPerda":
+          sortedData.sort((a, b) => b.valorPerda - a.valorPerda);
+          break;
+        case "maiorLucro":
+          sortedData.sort((a, b) => b.margemLucro - a.margemLucro);
+          break;
+        default:
+          break;
+        
+      }
+    }
+
+    setFilteredData(sortedData);
+  }, [orderValue, filterValue, teste]);
+
 
   const totalItems = teste.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);
