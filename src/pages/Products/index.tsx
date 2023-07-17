@@ -9,6 +9,7 @@ import HeaderHome from "@/components/HeaderHome";
 import HeaderProducts from "@/components/HeaderProducts";
 import SearchInput from "@/components/InputSearch";
 import SearchInputList from "@/components/InputSearchList";
+import SearchInputListProducts from "@/components/InputSearchListProducts";
 import GridComponent from "@/components/GridRequests";
 import TableFoam from "@/components/TableFoam";
 import TableImpressao from "@/components/TableImpressao";
@@ -30,6 +31,15 @@ export default function Products() {
 
   const [orderValue, setOrderValue] = useState<string>("");
   const [filterValue, setFilterValue] = useState<string>("");
+
+  const handleOpenFilter = () => {
+    setOpenFilter(!openFilter);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
+  console.log(searchValue);
 
   const handleOrderValueChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -64,19 +74,19 @@ export default function Products() {
           <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  {/* <div
+                <p className={styles.ProductName}>Foam</p>
+                  <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList
+                  <SearchInputListProducts
                     handleSearchChange={(e) => handleSearchChange(e)}
-                  ></SearchInputList> */}
-
-                  <p className={styles.ProductName}>Foam</p>
+                  ></SearchInputListProducts> 
                 </div>
+                
                 <div className={styles.ListMenuRight}>
                   <Link href="/ProductFoam">
                     <button className={styles.ListMenuButton}>
@@ -106,7 +116,7 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                    <label htmlFor="nomeCrescente">Codigo crescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -117,7 +127,7 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                    <label htmlFor="nomeDecrescente">Codigo decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -128,7 +138,7 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValor">Maior Valor</label>
+                    <label htmlFor="maiorValor">Maior Lucro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -139,53 +149,18 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                    <label htmlFor="dataCadastro">Valor Metro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataVencimento"
+                      id="valorPerda"
                       name="ordenarPor"
                       value="dataVencimento"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataVencimento">Data de vencimento</label>
-                  </div>
-                  <span className={styles.sublinado}></span>
-                  <h2>SITUAÇÃO</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="todos"
-                      name="situacao"
-                      value="todos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="todos">Todos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="ativos"
-                      name="situacao"
-                      value="ativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="ativos">Ativos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="inativos"
-                      name="situacao"
-                      value="inativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="inativos">Inativos</label>
+                    <label htmlFor="dataVencimento">Valor da Perda</label>
                   </div>
                 </div>
               </div>
@@ -201,18 +176,17 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  {/* <div
+                <p className={styles.ProductName}>Impressão</p>
+                  <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList
+                  <SearchInputListProducts
                     handleSearchChange={(e) => handleSearchChange(e)}
-                  ></SearchInputList> */}
-
-                  <p className={styles.ProductName}>Impressão</p>
+                  ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href="/ProductImpressao">
@@ -338,18 +312,17 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  {/* <div
+                <p className={styles.ProductName}>Paspatur</p>
+                  <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList
+                  <SearchInputListProducts
                     handleSearchChange={(e) => handleSearchChange(e)}
-                  ></SearchInputList> */}
-
-                  <p className={styles.ProductName}>Paspatur</p>
+                  ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href="/ProductPaspatur">
@@ -475,18 +448,17 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  {/* <div
+                <p className={styles.ProductName}>Perfil</p>
+                  <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList
+                  <SearchInputListProducts
                     handleSearchChange={(e) => handleSearchChange(e)}
-                  ></SearchInputList> */}
-
-                  <p className={styles.ProductName}>Perfil</p>
+                  ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href="/ProductPerfil">
@@ -613,18 +585,17 @@ export default function Products() {
             <div className={styles.ListContainer}>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  {/* <div
+                <p className={styles.ProductName}>Vidro</p>
+                  <div
                     className={styles.ListMenuFilter}
                     onClick={handleOpenFilter}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList
+                  <SearchInputListProducts
                     handleSearchChange={(e) => handleSearchChange(e)}
-                  ></SearchInputList> */}
-
-                  <p className={styles.ProductName}>Vidro</p>
+                  ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href="/ProductVidro">

@@ -62,6 +62,8 @@ export default function Table({
     };
     fetchData();
   }, []);
+
+  
   useEffect(() => {
     const filterData = () => {
       const filteredItems = teste.filter(

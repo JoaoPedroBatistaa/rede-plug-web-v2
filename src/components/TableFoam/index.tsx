@@ -67,6 +67,44 @@ export default function TableFoam({
   }, []);
 
 
+  useEffect(() => {
+    if (searchValue !== '') {
+      const lowerCaseSearchValue = searchValue.toLowerCase();
+      const newData = teste.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
+      setFilteredData(newData);
+    } else {
+      setFilteredData(teste);
+    }
+  }, [searchValue, teste]);
+
+  useEffect(() => {
+    let filtered = teste;
+  
+    // Filter by search value
+    if (searchValue !== '') {
+      const lowerCaseSearchValue = searchValue.toLowerCase();
+      filtered = filtered.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
+    }
+  
+    // Filter by filter value
+    if (filterValue !== '') {
+      const lowerCaseFilterValue = filterValue.toLowerCase();
+      switch (lowerCaseFilterValue) {
+        case 'valormetro':
+          filtered = filtered.sort((a, b) => a.valorMetro - b.valorMetro);
+          break;
+        case 'valorperda':
+          filtered = filtered.sort((a, b) => a.valorPerda - b.valorPerda);
+          break;
+        // Add more case statements as needed for other filter values
+        default:
+          break;
+      }
+    }
+  
+    setFilteredData(filtered);
+  }, [searchValue, filterValue, teste]);
+
   const totalItems = teste.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 

@@ -4,14 +4,14 @@ import styles from "../../styles/InputSearchList.module.scss";
 import { useState } from "react";
 import { IInputSearchList } from "./type";
 
-const SearchInputList = ({ handleSearchChange }: IInputSearchList) => {
+const SearchInputListProducts = ({ handleSearchChange }: IInputSearchList) => {
   return (
     <div className={styles.searchContainer}>
       <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
       <input
         type="text"
         className={styles.searchInput}
-        placeholder="Busque por Clientes..."
+        placeholder="Busque por Codigo de Produto..."
         onChange={handleSearchChange}
         //  value={searchValue}
       />
@@ -19,4 +19,4 @@ const SearchInputList = ({ handleSearchChange }: IInputSearchList) => {
   );
 };
 
-export default SearchInputList;
+export default SearchInputListProducts;
