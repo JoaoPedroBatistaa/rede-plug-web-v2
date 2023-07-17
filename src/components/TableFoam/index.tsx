@@ -75,32 +75,34 @@ export default function TableFoam({
   }, [searchValue, teste]);
 
   useEffect(() => {
-    let filtered = teste;
+    let sortedData = [...teste];
 
-    // Filter by search value
-    if (searchValue !== '') {
-      const lowerCaseSearchValue = searchValue.toLowerCase();
-      filtered = filtered.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
-    }
-
-    // Filter by filter value
-    if (filterValue !== '') {
-      const lowerCaseFilterValue = filterValue.toLowerCase();
-      switch (lowerCaseFilterValue) {
-        case 'valormetro':
-          filtered = filtered.sort((a, b) => a.valorMetro - b.valorMetro);
+    // Ordenação
+    if (orderValue !== "") {
+      switch (orderValue) {
+        case "codigoCrescente":
+          sortedData.sort((a, b) => (a.codigo.toUpperCase() < b.codigo.toUpperCase()) ? -1 : 1);
           break;
-        case 'valorperda':
-          filtered = filtered.sort((a, b) => a.valorPerda - b.valorPerda);
+        case "codigoDescrescente":
+          sortedData.sort((a, b) => (a.codigo.toUpperCase() > b.codigo.toUpperCase()) ? -1 : 1);
           break;
-        // Add more case statements as needed for other filter values
+        case "maiorValorMetro":
+          sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
+          break;
+        case "maiorValorPerda":
+          sortedData.sort((a, b) => b.valorPerda - a.valorPerda);
+          break;
+        case "maiorLucro":
+          sortedData.sort((a, b) => b.margemLucro - a.margemLucro);
+          break;
         default:
           break;
+        
       }
     }
 
-    setFilteredData(filtered);
-  }, [searchValue, filterValue, teste]);
+    setFilteredData(sortedData);
+  }, [orderValue, filterValue, teste]);
 
   const totalItems = teste.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);

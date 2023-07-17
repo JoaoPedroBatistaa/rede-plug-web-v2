@@ -9,7 +9,7 @@ import HeaderHome from "@/components/HeaderHome";
 import HeaderProducts from "@/components/HeaderProducts";
 import SearchInput from "@/components/InputSearch";
 import SearchInputList from "@/components/InputSearchList";
-import SearchInputListProducts from "@/components/InputSearchList";
+import SearchInputListProducts from "@/components/InputSearchListProducts";
 import GridComponent from "@/components/GridRequests";
 import TableFoam from "@/components/TableFoam";
 import TableImpressao from "@/components/TableImpressao";
@@ -125,57 +125,57 @@ export default function Products() {
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeCrescente"
+                      id="codigoCrescente"
                       name="ordenarPor"
-                      value="nomeCrescente"
+                      value="codigoCrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeCrescente">Codigo crescente</label>
+                    <label htmlFor="codigoCrescente">Codigo crescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeDecrescente"
+                      id="codigoDescrescente"
                       name="ordenarPor"
-                      value="nomeDecrescente"
+                      value="codigoDescrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeDecrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="maiorValor"
+                      id="maiorLucro"
                       name="ordenarPor"
-                      value="maiorValor"
+                      value="maiorLucro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValor">Maior Lucro</label>
+                    <label htmlFor="maiorLucro">Maior % Lucro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataCadastro"
+                      id="maiorValorMetro"
                       name="ordenarPor"
-                      value="dataCadastro"
+                      value="maiorValorMetro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataCadastro">Valor Metro</label>
+                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="valorPerda"
+                      id="maiorValorPerda"
                       name="ordenarPor"
-                      value="dataVencimento"
+                      value="maiorValorPerda"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataVencimento">Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
                   </div>
                 </div>
               </div>
@@ -226,92 +226,57 @@ export default function Products() {
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeCrescente"
+                      id="codigoCrescente"
                       name="ordenarPor"
-                      value="nomeCrescente"
+                      value="codigoCrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                    <label htmlFor="codigoCrescente">Codigo crescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeDecrescente"
+                      id="codigoDescrescente"
                       name="ordenarPor"
-                      value="nomeDecrescente"
+                      value="codigoDescrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="maiorValor"
+                      id="maiorLucro"
                       name="ordenarPor"
-                      value="maiorValor"
+                      value="maiorLucro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValor">Maior Valor</label>
+                    <label htmlFor="maiorLucro">Maior % Lucro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataCadastro"
+                      id="maiorValorMetro"
                       name="ordenarPor"
-                      value="dataCadastro"
+                      value="maiorValorMetro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataVencimento"
+                      id="maiorValorPerda"
                       name="ordenarPor"
-                      value="dataVencimento"
+                      value="maiorValorPerda"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataVencimento">Data de vencimento</label>
-                  </div>
-                  <span className={styles.sublinado}></span>
-                  <h2>SITUAÇÃO</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="todos"
-                      name="situacao"
-                      value="todos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="todos">Todos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="ativos"
-                      name="situacao"
-                      value="ativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="ativos">Ativos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="inativos"
-                      name="situacao"
-                      value="inativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="inativos">Inativos</label>
+                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
                   </div>
                 </div>
               </div>
@@ -362,92 +327,57 @@ export default function Products() {
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeCrescente"
+                      id="codigoCrescente"
                       name="ordenarPor"
-                      value="nomeCrescente"
+                      value="codigoCrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                    <label htmlFor="codigoCrescente">Codigo crescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeDecrescente"
+                      id="codigoDescrescente"
                       name="ordenarPor"
-                      value="nomeDecrescente"
+                      value="codigoDescrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="maiorValor"
+                      id="maiorLucro"
                       name="ordenarPor"
-                      value="maiorValor"
+                      value="maiorLucro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValor">Maior Valor</label>
+                    <label htmlFor="maiorLucro">Maior % Lucro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataCadastro"
+                      id="maiorValorMetro"
                       name="ordenarPor"
-                      value="dataCadastro"
+                      value="maiorValorMetro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataVencimento"
+                      id="maiorValorPerda"
                       name="ordenarPor"
-                      value="dataVencimento"
+                      value="maiorValorPerda"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataVencimento">Data de vencimento</label>
-                  </div>
-                  <span className={styles.sublinado}></span>
-                  <h2>SITUAÇÃO</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="todos"
-                      name="situacao"
-                      value="todos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="todos">Todos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="ativos"
-                      name="situacao"
-                      value="ativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="ativos">Ativos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="inativos"
-                      name="situacao"
-                      value="inativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="inativos">Inativos</label>
+                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
                   </div>
                 </div>
               </div>
@@ -498,92 +428,68 @@ export default function Products() {
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeCrescente"
+                      id="codigoCrescente"
                       name="ordenarPor"
-                      value="nomeCrescente"
+                      value="codigoCrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                    <label htmlFor="codigoCrescente">Codigo crescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeDecrescente"
+                      id="codigoDescrescente"
                       name="ordenarPor"
-                      value="nomeDecrescente"
+                      value="codigoDescrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="maiorValor"
+                      id="maiorLucro"
                       name="ordenarPor"
-                      value="maiorValor"
+                      value="maiorLucro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValor">Maior Valor</label>
+                    <label htmlFor="maiorLucro">Maior % Lucro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataCadastro"
+                      id="maiorValorMetro"
                       name="ordenarPor"
-                      value="dataCadastro"
+                      value="maiorValorMetro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataVencimento"
+                      id="maiorValorPerda"
                       name="ordenarPor"
-                      value="dataVencimento"
+                      value="maiorValorPerda"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataVencimento">Data de vencimento</label>
-                  </div>
-                  <span className={styles.sublinado}></span>
-                  <h2>SITUAÇÃO</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="todos"
-                      name="situacao"
-                      value="todos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="todos">Todos</label>
+                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="ativos"
-                      name="situacao"
-                      value="ativos"
-                      onChange={handleFilterValueChange}
+                      id="maiorLargura"
+                      name="ordenarPor"
+                      value="maiorLargura"
+                      onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="ativos">Ativos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="inativos"
-                      name="situacao"
-                      value="inativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="inativos">Inativos</label>
+                    <label htmlFor="maiorLargura">Maior Largura</label>
                   </div>
                 </div>
               </div>
@@ -635,92 +541,57 @@ export default function Products() {
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeCrescente"
+                      id="codigoCrescente"
                       name="ordenarPor"
-                      value="nomeCrescente"
+                      value="codigoCrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                    <label htmlFor="codigoCrescente">Codigo crescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeDecrescente"
+                      id="codigoDescrescente"
                       name="ordenarPor"
-                      value="nomeDecrescente"
+                      value="codigoDescrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="maiorValor"
+                      id="maiorLucro"
                       name="ordenarPor"
-                      value="maiorValor"
+                      value="maiorLucro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValor">Maior Valor</label>
+                    <label htmlFor="maiorLucro">Maior % Lucro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataCadastro"
+                      id="maiorValorMetro"
                       name="ordenarPor"
-                      value="dataCadastro"
+                      value="maiorValorMetro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataVencimento"
+                      id="maiorValorPerda"
                       name="ordenarPor"
-                      value="dataVencimento"
+                      value="maiorValorPerda"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataVencimento">Data de vencimento</label>
-                  </div>
-                  <span className={styles.sublinado}></span>
-                  <h2>SITUAÇÃO</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="todos"
-                      name="situacao"
-                      value="todos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="todos">Todos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="ativos"
-                      name="situacao"
-                      value="ativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="ativos">Ativos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="inativos"
-                      name="situacao"
-                      value="inativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="inativos">Inativos</label>
+                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
                   </div>
                 </div>
               </div>
