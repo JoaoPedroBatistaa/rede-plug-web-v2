@@ -32,9 +32,9 @@ export default function BudgetPaspatur() {
   const router = useRouter();
   const { openMenu, setOpenMenu } = useMenu();
   const [selectedOptionPaspatur, setSelectedOptionPaspatur] =
-    useState("opcao1");
+    useState("");
   const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] =
-    useState("opcao1");
+    useState("");
   const [larguraSuperior, setLarguraSuperior] = useState("");
   const [larguraEsquerda, setLarguraEsquerda] = useState("");
   const [larguraInferior, setLarguraInferior] = useState("");
@@ -149,40 +149,97 @@ export default function BudgetPaspatur() {
     }, 100);
   };
 
-  const [preco, setPreco] = useState(0);
 
   const handleSelectChangeCodigoPaspatur = (
     event: ChangeEvent<HTMLSelectElement>
   ) => {
     setSelectedOptionCodigoPaspatur(event.target.value);
-    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
-    if (selectedProduto) {
-      console.log(`Descrição: ${selectedProduto.descricao}`);
-      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
-      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
-      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
-      console.log(`Fabricante: ${selectedProduto.fabricante}`);
-
-      const dimensoesPaspatur = localStorage.getItem("dimensoesPaspatur") || "0x0x0x0";
-      const [alturaSuperior, larguraEsquerda, alturaInferior, larguraDireita] = dimensoesPaspatur.split('x').map(Number);
-
-      const altura = alturaSuperior || alturaInferior;
-      const largura = larguraDireita || larguraEsquerda;
-
-      const valorMetro = ((altura * largura) / 100) * selectedProduto.valorMetro;
-      const perda = (valorMetro / 100) * selectedProduto.valorPerda;
-      const lucro = (valorMetro + perda) * (selectedProduto.margemLucro / 100)
-
-      const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
-      setPreco(valorMetro + perda + lucro + precoAnterior);
-
-      const novo = precoAnterior + valorMetro + perda + lucro
-      localStorage.setItem("preco", JSON.stringify(novo));
-
-    }
   };
 
+  const [preco, setPreco] = useState(0);
+  const [precoPerfil, setPrecoPerfil] = useState(0);
+  const [precoFoam, setPrecoFoam] = useState(0);
+  const [precoVidro, setPrecoVidro] = useState(0);
+  const [precoTotal, setPrecoTotal] = useState(0);
 
+  useEffect(() => {
+    const metroPerfil = localStorage.getItem("metroPerfil")
+    const perdaPerfil = localStorage.getItem("perdaPerfil")
+    const lucroPerfil = localStorage.getItem("lucroPerfil")
+    const perfil = localStorage.getItem("perfil")
+
+    const metroVidro = localStorage.getItem("metroVidro")
+    const perdaVidro = localStorage.getItem("perdaVidro")
+    const lucroVidro = localStorage.getItem("lucroVidro")
+
+    const metroFoam = localStorage.getItem("metroFoam")
+    const perdaFoam = localStorage.getItem("perdaFoam")
+    const lucroFoam = localStorage.getItem("lucroFoam")
+
+
+    if (selectedOptionCodigoPaspatur && selectedOptionPaspatur === "SIM" && larguraDireita || larguraEsquerda || larguraInferior || larguraSuperior) {
+      const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionCodigoPaspatur);
+      if (selectedProduto) {
+        const tamanho = localStorage.getItem("Tamanho") || "0x0";
+        const [altura, largura] = tamanho.split('x').map(Number);
+
+        // VALOR PASPATUR
+        const valor = (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * selectedProduto.valorMetro;
+        const perda = (valor / 100) * selectedProduto.valorPerda;
+        const lucro = valor + perda * (selectedProduto.margemLucro / 100)
+
+        console.log(larguraSuperior);
+
+
+        setPreco(valor + perda + lucro);
+        localStorage.setItem("valorPaspatur", preco.toString());
+
+        // VALOR PERFIL NOVO
+        const valorP = Number(metroPerfil) && perfil !== null ? ((((altura + Number(larguraSuperior) + Number(larguraInferior)) * 2) + ((largura + Number(larguraDireita) + Number(larguraEsquerda)) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
+        const perdaP = Number(perdaPerfil) !== null ? (valorP / 100) * Number(perdaPerfil) : 0;
+        const lucroP = Number(lucroPerfil) !== null ? valorP + perda * (Number(lucroPerfil) / 100) : 0;
+
+        setPrecoPerfil(valorP + perdaP + lucroP);
+        localStorage.setItem("valorPerfil", precoPerfil.toString());
+
+        // VALOR VIDRO NOVO
+        const valorV = Number(metroPerfil) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroVidro) : 0;
+        const perdaV = Number(perdaVidro) !== null ? (valorV / 100) * Number(perdaVidro) : 0;
+        const lucroV = Number(lucroVidro) !== null ? valorV + perda * (Number(lucroVidro) / 100) : 0;
+
+        setPrecoVidro(valorV + perdaV + lucroV);
+        localStorage.setItem("valorVidro", precoPerfil.toString());
+
+        // VALOR FOAM NOVO
+        const valorF = Number(metroFoam) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroFoam) : 0;
+        const perdaF = Number(perdaFoam) !== null ? (valorF / 100) * Number(perdaFoam) : 0;
+        const lucroF = Number(lucroFoam) !== null ? valorF + perda * (Number(lucroFoam) / 100) : 0;
+
+        console.log(precoPerfil, '   ', precoVidro, "   ", precoFoam)
+        setPrecoFoam(valorF + perdaF + lucroF);
+        localStorage.setItem("valorFoam", precoPerfil.toString());
+
+        setPrecoTotal(preco + precoPerfil + precoFoam + precoVidro);
+      }
+    }
+  }, [selectedOptionCodigoPaspatur, selectedOptionPaspatur, larguraDireita, larguraEsquerda, larguraInferior, larguraInferior, produtos]);
+
+
+
+  useEffect(() => {
+    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+      if (typeof window !== "undefined") {
+        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+        const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorVidro = Number(localStorage.getItem("valorVidro"));
+        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro)
+      }
+    }, 2000); // Tempo do intervalo em milissegundos
+
+    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
+  }, []);
 
   return (
     <>
@@ -200,12 +257,12 @@ export default function BudgetPaspatur() {
 
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>O pedido inclui paspatur?</p>
+            <p className={styles.BudgetTitle}>O pedido inclui paspatur? {preco}</p>
 
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
               </div>
 
               <button
@@ -235,6 +292,9 @@ export default function BudgetPaspatur() {
                 value={selectedOptionPaspatur}
                 onChange={handleSelectChangePaspatur}
               >
+                <option value="" disabled selected>
+                  Inclui paspatur?
+                </option>
                 <option value="SIM" selected={selectedOptionPaspatur === "SIM"}>
                   SIM
                 </option>
@@ -252,6 +312,9 @@ export default function BudgetPaspatur() {
                 value={selectedOptionCodigoPaspatur}
                 onChange={handleSelectChangeCodigoPaspatur}
               >
+                <option value="" disabled selected>
+                  Selecione um código
+                </option>
                 {produtos.map((produto) => (
                   <option
                     key={produto.codigo}

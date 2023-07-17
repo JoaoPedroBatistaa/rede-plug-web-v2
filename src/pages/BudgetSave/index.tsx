@@ -149,6 +149,9 @@ export default function BudgetSave() {
     }, 100);
   };
 
+  const [precoTotal, setPrecoTotal] = useState(0);
+
+
   return (
     <>
       <Head>
