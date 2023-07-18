@@ -298,7 +298,7 @@ export default function Products() {
                   </div>
                   <button 
                   className={styles.AumentoPorcent}
-                  onClick={handleIncrease}
+                  onClick={() => handleIncrease("Impressao")}
                   >
                       <span className={styles.maisNoneMobile}>
                         {" "}
@@ -417,7 +417,7 @@ export default function Products() {
                   </div>
                   <button 
                   className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Foam")}
+                  onClick={() => handleIncrease("Paspatur")}
                   >
                       <span className={styles.maisNoneMobile}>
                         {" "}
@@ -536,7 +536,7 @@ export default function Products() {
                   </div>
                   <button 
                   className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Foam")}
+                  onClick={() => handleIncrease("Perfil")}
                   >
                       <span className={styles.maisNoneMobile}>
                         {" "}
@@ -667,7 +667,7 @@ export default function Products() {
                   </div>
                   <button 
                   className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Foam")}
+                  onClick={() => handleIncrease("Vidro")}
                   >
                       <span className={styles.maisNoneMobile}>
                         {" "}
