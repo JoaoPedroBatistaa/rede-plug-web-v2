@@ -17,7 +17,7 @@ import TablePaspatur from "@/components/TablePaspatur";
 import TablePerfil from "@/components/TablePerfil";
 import TableVidro from "@/components/TableVidro";
 import Table from "@/components/Table";
-import { collection, query, onSnapshot, getFirestore, updateDoc, getDocs } from 'firebase/firestore';
+import { collection, query, getDocs, getFirestore, updateDoc, writeBatch } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -91,10 +91,8 @@ export default function Products() {
     setFilterValue(event.target.value);
   };
 
-  const handleIncreaseChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setIncreaseValue(event.target.value);
+  const handleIncreaseChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIncreaseValue(e.target.value);
   };
 
   let userId: string | null;
@@ -102,33 +100,38 @@ export default function Products() {
     userId = window.localStorage.getItem('userId');
   }
 
-  const handleIncrease = async () => {
+  const handleIncrease = async (product: any) => {
     const increasePercentage = parseFloat(increaseValue) / 100;
     const db = getFirestore();
-    const q = query(collection(db, `Login/${userId}/Foam`)); 
+    const userId = window.localStorage.getItem('userId');
 
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      const docRef = doc.ref;
-      const oldData = doc.data();
-      if (oldData.valorMetro) {
-        const newValue = parseFloat(oldData.valorMetro) + parseFloat(oldData.valorMetro) * increasePercentage;
-        updateDoc(docRef, { valorMetro: newValue })
-          .then(() => {
-            console.log("Documento atualizado");
-            toast.success("Preços atualizados com sucesso!"); // or do something else on success
-          })
-          .catch((error) => {
-            console.error("Erro ao atualizar Documento: ", error);
-            toast.error("Erro ao atualizar os preços dos produtos."); // or handle the error
-          });
-      }
-    });
+    const collectionPath = `Login/${userId}/${product}`;
+
+    try {
+      const q = query(collection(db, collectionPath));
+      const querySnapshot = await getDocs(q);
+
+      const batch = writeBatch(db); // Correção: usar db.batch() em vez de getFirestore().batch()
+
+      querySnapshot.forEach((doc) => {
+        const docRef = doc.ref;
+        const oldData = doc.data();
+        if (oldData.valorMetro) {
+          const newValue = parseFloat(oldData.valorMetro) + parseFloat(oldData.valorMetro) * increasePercentage;
+          batch.update(docRef, { valorMetro: newValue });
+        }
+      });
+
+      await batch.commit();
+      console.log(`Preços do produto ${product} atualizados`);
+      toast.success(`Preços do produto ${product} atualizados com sucesso!`);
+
+      window.location.reload();
+    } catch (error) {
+      console.error(`Erro ao atualizar os preços do produto ${product}: `, error);
+      toast.error(`Erro ao atualizar os preços do produto ${product}.`);
+    }
   };
-
-
-
-
 
   return (
     <>
@@ -176,7 +179,7 @@ export default function Products() {
                   </div>
                   <button 
                   className={styles.AumentoPorcent}
-                  onClick={handleIncrease}
+                  onClick={() => handleIncrease("Foam")}
                   >
                       <span className={styles.maisNoneMobile}>
                         {" "}
@@ -285,6 +288,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={handleIncrease}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductImpressao">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -386,6 +407,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={() => handleIncrease("Foam")}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductPaspatur">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -487,6 +526,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={() => handleIncrease("Foam")}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductPerfil">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -600,6 +657,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={() => handleIncrease("Foam")}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductVidro">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
