@@ -177,6 +177,8 @@ export default function BudgetPaspatur() {
   const [precoPerfil, setPrecoPerfil] = useState(0);
   const [precoFoam, setPrecoFoam] = useState(0);
   const [precoVidro, setPrecoVidro] = useState(0);
+  const [precoImpressao, setPrecoImpressao] = useState(0);
+  const [precoColagem, setPrecoColagem] = useState(0);
   const [precoTotal, setPrecoTotal] = useState(0);
 
   useEffect(() => {
@@ -193,6 +195,14 @@ export default function BudgetPaspatur() {
     const perdaFoam = localStorage.getItem("perdaFoam")
     const lucroFoam = localStorage.getItem("lucroFoam")
 
+    const metroColagem = localStorage.getItem("metroColagem")
+    const perdaColagem = localStorage.getItem("perdaColagem")
+    const lucroColagem = localStorage.getItem("lucroColagem")
+
+    const metroImpressao = localStorage.getItem("metroImpressao")
+    const perdaImpressao = localStorage.getItem("perdaImpressao")
+    const lucroImpressao = localStorage.getItem("lucroImpressao")
+
 
     if (selectedOptionCodigoPaspatur && selectedOptionPaspatur === "SIM" && larguraDireita || larguraEsquerda || larguraInferior || larguraSuperior) {
       const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionCodigoPaspatur);
@@ -203,40 +213,65 @@ export default function BudgetPaspatur() {
         // VALOR PASPATUR
         const valor = (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * selectedProduto.valorMetro;
         const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = valor + perda * (selectedProduto.margemLucro / 100)
-
-        console.log(larguraSuperior);
-
-
-        setPreco(valor + perda + lucro);
-        localStorage.setItem("valorPaspatur", preco.toString());
+        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
         // VALOR PERFIL NOVO
         const valorP = Number(metroPerfil) && perfil !== null ? ((((altura + Number(larguraSuperior) + Number(larguraInferior)) * 2) + ((largura + Number(larguraDireita) + Number(larguraEsquerda)) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
         const perdaP = Number(perdaPerfil) !== null ? (valorP / 100) * Number(perdaPerfil) : 0;
-        const lucroP = Number(lucroPerfil) !== null ? valorP + perda * (Number(lucroPerfil) / 100) : 0;
+        const lucroP = Number(lucroPerfil) !== null ? ((valorP + perdaP) * Number(lucroPerfil) / 100) : 0;
 
         setPrecoPerfil(valorP + perdaP + lucroP);
-        localStorage.setItem("valorPerfil", precoPerfil.toString());
 
         // VALOR VIDRO NOVO
         const valorV = Number(metroPerfil) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroVidro) : 0;
         const perdaV = Number(perdaVidro) !== null ? (valorV / 100) * Number(perdaVidro) : 0;
-        const lucroV = Number(lucroVidro) !== null ? valorV + perda * (Number(lucroVidro) / 100) : 0;
+        const lucroV = Number(lucroVidro) !== null ? ((valorP + perdaV) * Number(lucroVidro) / 100) : 0;
 
         setPrecoVidro(valorV + perdaV + lucroV);
-        localStorage.setItem("valorVidro", precoPerfil.toString());
 
         // VALOR FOAM NOVO
         const valorF = Number(metroFoam) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroFoam) : 0;
         const perdaF = Number(perdaFoam) !== null ? (valorF / 100) * Number(perdaFoam) : 0;
-        const lucroF = Number(lucroFoam) !== null ? valorF + perda * (Number(lucroFoam) / 100) : 0;
+        const lucroF = Number(lucroFoam) !== null ? ((valorF + perdaF) * Number(lucroFoam) / 100) : 0;
 
         console.log(precoPerfil, '   ', precoVidro, "   ", precoFoam)
         setPrecoFoam(valorF + perdaF + lucroF);
-        localStorage.setItem("valorFoam", precoPerfil.toString());
 
-        setPrecoTotal(preco + precoPerfil + precoFoam + precoVidro);
+        // VALOR IMPRESSAO NOVO
+        const valorI = Number(metroImpressao) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroImpressao) : 0;
+        const perdaI = Number(perdaImpressao) !== null ? (valorF / 100) * Number(perdaImpressao) : 0;
+        const lucroI = Number(lucroImpressao) !== null ? ((valorI + perdaI) * Number(lucroImpressao) / 100) : 0;
+
+        console.log(precoPerfil, '   ', precoVidro, "   ", precoFoam)
+        setPrecoImpressao(valorI + perdaI + lucroI);
+
+        // VALOR COLAGEM NOVO
+        const valorC = Number(metroColagem) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroColagem) : 0;
+        const perdaC = Number(perdaColagem) !== null ? (valorF / 100) * Number(perdaColagem) : 0;
+        const lucroC = Number(lucroColagem) !== null ? ((valorC + perdaC) * Number(lucroColagem) / 100) : 0;
+
+        console.log(precoPerfil, '   ', precoVidro, "   ", precoFoam)
+        setPrecoColagem(valorC + perdaC + lucroC);
+
+
+        setPreco(prevPreco => {
+          const novoPreco = valor + perda + lucro;
+          localStorage.setItem("valorPaspatur", novoPreco.toString());
+          localStorage.setItem("metroPaspatur", selectedProduto.valorMetro.toString())
+          localStorage.setItem("perdaPaspatur", selectedProduto.valorPerda.toString())
+          localStorage.setItem("lucroPaspatur", selectedProduto.margemLucro.toString())
+
+          localStorage.setItem("valorFoam", precoFoam.toString());
+          localStorage.setItem("valorVidro", precoVidro.toString());
+          localStorage.setItem("valorPerfil", precoPerfil.toString());
+          localStorage.setItem("valorImpressao", precoImpressao.toString());
+          localStorage.setItem("valorColagem", precoColagem.toString());
+
+
+
+          return novoPreco;
+        });
+
       }
     }
   }, [selectedOptionCodigoPaspatur, selectedOptionPaspatur, larguraDireita, larguraEsquerda, larguraInferior, larguraInferior, produtos]);

@@ -35,7 +35,7 @@ export default function BudgetPrint() {
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [selectedOptionPrint, setSelectedOptionPrint] = useState("");
   const [selectedOptionPrintType, setSelectedOptionPrintType] =
-    useState("opcao1");
+    useState("");
 
   useEffect(() => {
     localStorage.setItem("impressao", selectedOptionPrint);
