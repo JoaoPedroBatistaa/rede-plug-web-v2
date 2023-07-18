@@ -44,6 +44,10 @@ export default function Products() {
   const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchValue, setSearchValue] = useState("");
+  const [searchValue1, setSearchValue1] = useState("");
+  const [searchValue2, setSearchValue2] = useState("");
+  const [searchValue3, setSearchValue3] = useState("");
+  const [searchValue4, setSearchValue4] = useState("");
 
   const [valueRadio, setValueRadio] = useState("");
 
@@ -59,6 +63,20 @@ export default function Products() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
+  const handleSearchChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue1(e.target.value);
+  };
+  const handleSearchChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue2(e.target.value);
+  };
+  const handleSearchChange3 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue3(e.target.value);
+  };
+  const handleSearchChange4 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue4(e.target.value);
+  };
+
+
   console.log(searchValue);
 
   const handleOrderValueChange = (
@@ -263,7 +281,7 @@ export default function Products() {
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
                   <SearchInputListProducts
-                    handleSearchChange={(e) => handleSearchChange(e)}
+                    handleSearchChange={(e) => handleSearchChange1(e)}
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
@@ -346,7 +364,7 @@ export default function Products() {
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
               <TableImpressao
-                searchValue={searchValue}
+                searchValue={searchValue1}
                 orderValue={orderValue}
                 filterValue={filterValue}
               />
@@ -364,7 +382,7 @@ export default function Products() {
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
                   <SearchInputListProducts
-                    handleSearchChange={(e) => handleSearchChange(e)}
+                    handleSearchChange={(e) => handleSearchChange2(e)}
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
@@ -447,7 +465,7 @@ export default function Products() {
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
               <TablePaspatur
-                searchValue={searchValue}
+                searchValue={searchValue2}
                 orderValue={orderValue}
                 filterValue={filterValue}
               />
@@ -465,7 +483,7 @@ export default function Products() {
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
                   <SearchInputListProducts
-                    handleSearchChange={(e) => handleSearchChange(e)}
+                    handleSearchChange={(e) => handleSearchChange3(e)}
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
@@ -559,7 +577,7 @@ export default function Products() {
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
               <TablePerfil
-                searchValue={searchValue}
+                searchValue={searchValue3}
                 orderValue={orderValue}
                 filterValue={filterValue}
               />
@@ -578,7 +596,7 @@ export default function Products() {
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
                   <SearchInputListProducts
-                    handleSearchChange={(e) => handleSearchChange(e)}
+                    handleSearchChange={(e) => handleSearchChange4(e)}
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
@@ -661,7 +679,7 @@ export default function Products() {
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
               <TableVidro
-                searchValue={searchValue}
+                searchValue={searchValue4}
                 orderValue={orderValue}
                 filterValue={filterValue}
               />

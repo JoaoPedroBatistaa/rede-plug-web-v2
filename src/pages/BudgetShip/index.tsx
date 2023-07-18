@@ -75,10 +75,26 @@ export default function BudgetShip() {
   }, []);
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    toast.success("Finalizando Orçamento!");
-    setTimeout(() => {
-      window.location.href = "/BudgetSave";
-    }, 500);
+
+    if (typeof window !== 'undefined') {
+      const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+      const valorFoam = Number(localStorage.getItem("valorFoam"));
+      const valorVidro = Number(localStorage.getItem("valorVidro"));
+      const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+
+      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
+
+        window.localStorage.setItem("preco", JSON.stringify(precoTotal));
+
+        toast.success("Finalizando Orçamento!");
+        setTimeout(() => {
+          window.location.href = "/BudgetSave";
+        }, 500);
+      } else {
+        toast.error("Informe os dados necessarios");
+      }
+    }
   }
 
   const handleOpenMenuDiv = () => {
@@ -86,6 +102,26 @@ export default function BudgetShip() {
       setOpenMenu(false);
     }, 100);
   };
+
+  const [precoTotal, setPrecoTotal] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+      if (typeof window !== "undefined") {
+        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+        const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorVidro = Number(localStorage.getItem("valorVidro"));
+        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
+        const valorColagem = Number(localStorage.getItem("valorColagem"));
+
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+      }
+    }, 200); // Tempo do intervalo em milissegundos
+
+    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
+  }, []);
+
   return (
     <>
       <Head>
@@ -109,7 +145,7 @@ export default function BudgetShip() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R$1306,00</p>
+                <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
               </div>
 
               <button

@@ -49,6 +49,17 @@ export default function Requests() {
   ) => {
     setFilterValue(event.target.value);
   };
+
+  const limparLocalStorage = () => {
+    const itensParaManter = ['userId', 'ally-supports-cache'];
+    const todasAsChaves = Object.keys(localStorage);
+    todasAsChaves.forEach(chave => {
+      if (!itensParaManter.includes(chave)) {
+        localStorage.removeItem(chave);
+      }
+    });
+  };
+
   return (
     <>
       <Head>
@@ -83,7 +94,7 @@ export default function Requests() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href="/BudgetSize">
-                    <button className={styles.ListMenuButton}>
+                    <button className={styles.ListMenuButton} onClick={limparLocalStorage}>
                       <span className={styles.maisNoneMobile}>
                         {" "}
                         Novo Pedido
@@ -94,11 +105,10 @@ export default function Requests() {
                 </div>
               </div>
               <div
-                className={`${
-                  openFilter
-                    ? styles.containerFilter
-                    : styles.containerFilterClose
-                }`}
+                className={`${openFilter
+                  ? styles.containerFilter
+                  : styles.containerFilterClose
+                  }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>

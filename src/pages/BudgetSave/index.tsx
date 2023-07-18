@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import Link from "next/link";
 import MaskedInput from "react-input-mask";
 
@@ -24,6 +24,25 @@ export default function BudgetSave() {
     const { id, value } = event.target;
     localStorage.setItem(id, value);
   };
+
+  const [precoTotal, setPrecoTotal] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+      if (typeof window !== "undefined") {
+        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+        const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorVidro = Number(localStorage.getItem("valorVidro"));
+        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
+        const valorColagem = Number(localStorage.getItem("valorColagem"));
+
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+      }
+    }, 200); // Tempo do intervalo em milissegundos
+
+    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
+  }, []);
 
   let nomeCompleto: string | null;
   let Telefone: string | null;
@@ -51,6 +70,11 @@ export default function BudgetSave() {
   let espessuraPerfil: string | null;
   let Tamanho: string | null;
   let tipoPessoa: string | null;
+  let valorTotal: string | null;
+
+  valorTotal = precoTotal.toString();
+  console.log("valor total --> ", valorTotal)
+
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto");
@@ -97,7 +121,8 @@ export default function BudgetSave() {
   const Entrega = formatarData(EntregaInicial);
 
   const Ativo = true;
-  const valorTotal = "99,99";
+
+
 
   const handleSaveBudget = async () => {
     try {
@@ -148,6 +173,8 @@ export default function BudgetSave() {
       setOpenMenu(false);
     }, 100);
   };
+
+
 
   return (
     <>

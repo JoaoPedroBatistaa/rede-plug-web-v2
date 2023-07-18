@@ -3,7 +3,7 @@ import styles from "../../styles/BudgetPerfil.module.scss";
 import { useRouter } from "next/router";
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, SetStateAction, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,19 +34,12 @@ export default function BudgetPerfil() {
   const [selectedOption, setSelectedOption] = useState("");
   const [espessura, setEspessura] = useState("");
   const { openMenu, setOpenMenu } = useMenu();
-  const [preco, setPreco] = useState(0);
-
-  if (typeof window !== "undefined") {
-    localStorage.setItem("preco", JSON.stringify(0));
-  }
-
+  const [precoTotal, setPrecoTotal] = useState(0);
 
   let userId: string | null;
   if (typeof window !== 'undefined') {
     userId = window.localStorage.getItem('userId');
   }
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,11 +63,54 @@ export default function BudgetPerfil() {
     fetchData();
   }, []);
 
+
+  const [preco, setPreco] = useState(0);
+
   useEffect(() => {
+    if (selectedOption) {
+      const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
+      if (selectedProduto) {
+        const tamanho = localStorage.getItem("Tamanho") || "0x0";
+        const [altura, largura] = tamanho.split('x').map(Number);
 
-    const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
-    setPreco(preco + precoAnterior);
+        const valor = (((((altura * 2) + (largura * 2)) + (selectedProduto.largura * 4))) / 100) * selectedProduto.valorMetro;
+        const perda = (valor / 100) * selectedProduto.valorPerda;
+        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
+
+
+        setPreco(prevPreco => {
+          const novoPreco = valor + perda + lucro;
+          localStorage.setItem("valorPerfil", novoPreco.toString());
+          localStorage.setItem("metroPerfil", selectedProduto.valorMetro.toString())
+          localStorage.setItem("perdaPerfil", selectedProduto.valorPerda.toString())
+          localStorage.setItem("lucroPerfil", selectedProduto.margemLucro.toString())
+          localStorage.setItem("larguraPerfil", selectedProduto.largura.toString())
+          localStorage.setItem("perfil", espessura.toString())
+          return novoPreco;
+        });
+
+        // setPrecoTotal(preco + valorFoam + valorVidro);
+
+      }
+    }
+  }, [selectedOption, espessura, produtos]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+      if (typeof window !== "undefined") {
+        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+        const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorVidro = Number(localStorage.getItem("valorVidro"));
+        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
+        const valorColagem = Number(localStorage.getItem("valorColagem"));
+
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+      }
+    }, 200); // Tempo do intervalo em milissegundos
+
+    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
 
   useEffect(() => {
@@ -88,27 +124,6 @@ export default function BudgetPerfil() {
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
-    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
-    if (selectedProduto) {
-      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
-      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
-      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
-      console.log(`Fabricante: ${selectedProduto.fabricante}`);
-
-      const tamanho = localStorage.getItem("Tamanho") || "0x0";
-      const [altura, largura] = tamanho.split('x').map(Number);
-
-      const valorMetro = ((altura * largura) / 100) * selectedProduto.valorMetro;
-      const perda = (valorMetro / 100) * selectedProduto.valorPerda;
-      const lucro = valorMetro + perda * (selectedProduto.margemLucro / 100)
-
-      const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
-      setPreco(valorMetro + perda + lucro);
-
-      const novo = precoAnterior + valorMetro + perda + lucro
-
-      localStorage.setItem("preco", JSON.stringify(novo));
-    }
   };
 
   const handleEspessuraChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -116,8 +131,25 @@ export default function BudgetPerfil() {
   };
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    if (typeof window !== "undefined") {
-      toast.error("Informe se o pedido incluirá vidro");
+
+    if (typeof window !== 'undefined') {
+      const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+      const valorFoam = Number(localStorage.getItem("valorFoam"));
+      const valorVidro = Number(localStorage.getItem("valorVidro"));
+      const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+
+      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
+
+        window.localStorage.setItem("preco", JSON.stringify(precoTotal));
+
+        toast.success("Finalizando Orçamento!");
+        setTimeout(() => {
+          window.location.href = "/BudgetSave";
+        }, 500);
+      } else {
+        toast.error("Informe os dados necessarios");
+      }
     }
   }
 
@@ -148,7 +180,7 @@ export default function BudgetPerfil() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
               </div>
 
               <button
@@ -178,6 +210,9 @@ export default function BudgetPerfil() {
                 value={selectedOption}
                 onChange={handleSelectChange}
               >
+                <option value="" disabled selected>
+                  Selecione um código
+                </option>
                 {produtos.map(produto => (
                   <option key={produto.codigo} value={produto.codigo}>
                     {produto.codigo}
@@ -186,8 +221,8 @@ export default function BudgetPerfil() {
               </select>
             </div>
 
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espessura do perfil</p>
+            {/* <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Largura do perfil</p>
               <input
                 id="espessura"
                 type="text"
@@ -196,7 +231,7 @@ export default function BudgetPerfil() {
                 value={espessura}
                 onChange={handleEspessuraChange}
               />
-            </div>
+            </div> */}
           </div>
 
           <p className={styles.Preview}>PREVIEW</p>

@@ -30,7 +30,7 @@ export default function BudgetFoam() {
 
   const [produtos, setProdutos] = useState<Foam[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
-  const [selectedOptionFoam, setSelectedOptionFoam] = useState("opcao1");
+  const [selectedOptionFoam, setSelectedOptionFoam] = useState("");
   const [selectedOptionCodigoFoam, setSelectedOptionCodigoFoam] =
     useState("opcao1");
   const [selectedOptionMdf, setSelectedOptionMdf] = useState("opcao1");
@@ -81,28 +81,76 @@ export default function BudgetFoam() {
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
-    const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
-    if (selectedProduto) {
-      console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
-      console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
-      console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
-
-
-      const tamanho = localStorage.getItem("Tamanho") || "0x0";
-      const [altura, largura] = tamanho.split('x').map(Number);
-
-      const valorMetro = ((altura * largura) / 100) * selectedProduto.valorMetro;
-      const perda = (valorMetro / 100) * selectedProduto.valorPerda;
-      const lucro = valorMetro + perda * (selectedProduto.margemLucro / 100)
-
-      const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
-      setPreco(valorMetro + perda + lucro);
-
-      const novo = precoAnterior + valorMetro + perda + lucro
-
-      localStorage.setItem("preco", JSON.stringify(novo));
-    }
   };
+
+  // const [valorVidro, setValorVidro] = useState(0);
+  // const [valorPerfil, setValorPerfil] = useState(0);
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+  //     const valorFoam = Number(localStorage.getItem("valorFoam"));
+  //     const valorVidro = Number(localStorage.getItem("valorVidro"));
+  //     const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+
+  //     setValorVidro(valorVidro);
+  //     setValorPerfil(valorPerfil);
+
+  //     setPrecoTotal(valorPerfil + valorFoam + valorVidro)
+  //   }
+  // }, []);
+
+
+  useEffect(() => {
+    if (selectedOption && selectedOptionFoam === "SIM") {
+      const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
+      if (selectedProduto) {
+        const tamanho = localStorage.getItem("Tamanho") || "0x0";
+        const [altura, largura] = tamanho.split('x').map(Number);
+
+        const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
+        const perda = (valor / 100) * selectedProduto.valorPerda;
+        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
+
+
+
+
+        // setPreco(valor + perda + lucro);
+        // setPrecoTotal(preco + valorVidro + valorPerfil)
+
+        setPreco(prevPreco => {
+          const novoPreco = valor + perda + lucro;
+          localStorage.setItem("valorFoam", preco.toString());
+          localStorage.setItem("metroFoam", selectedProduto.valorMetro.toString())
+          localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
+          localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
+
+          return novoPreco;
+        });
+      }
+    }
+  }, [selectedOption, selectedOptionCodigoFoam, produtos]);
+
+  const [precoTotal, setPrecoTotal] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+      if (typeof window !== "undefined") {
+        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+        const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorVidro = Number(localStorage.getItem("valorVidro"));
+        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
+        const valorColagem = Number(localStorage.getItem("valorColagem"));
+
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+      }
+    }, 200); // Tempo do intervalo em milissegundos
+
+    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
+  }, []);
+
+
 
   // const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
 
@@ -116,18 +164,38 @@ export default function BudgetFoam() {
     setSelectedOptionCodigoFoam(event.target.value);
   };
 
-  const handleSelectChangeMdf = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOptionMdf(event.target.value);
-  };
+  // const handleSelectChangeMdf = (event: ChangeEvent<HTMLSelectElement>) => {
+  //   setSelectedOptionMdf(event.target.value);
+  // };
 
-  const handleSelectChangeCodigoMdf = (
-    event: ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSelectedOptionCodigoMdf(event.target.value);
-  };
+  // const handleSelectChangeCodigoMdf = (
+  //   event: ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   setSelectedOptionCodigoMdf(event.target.value);
+  // };
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    toast.error("Informe se paspatur será utilizado no pedido");
+
+    if (typeof window !== 'undefined') {
+      const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+      const valorFoam = Number(localStorage.getItem("valorFoam"));
+      const valorVidro = Number(localStorage.getItem("valorVidro"));
+      const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+
+      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
+
+        window.localStorage.setItem("preco", JSON.stringify(precoTotal));
+
+        toast.success("Finalizando Orçamento!");
+        setTimeout(() => {
+          window.location.href = "/BudgetSave";
+        }, 500);
+      } else {
+        toast.error("Informe os dados necessarios");
+      }
+    }
   }
+
   const { openMenu, setOpenMenu } = useMenu();
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
@@ -156,7 +224,7 @@ export default function BudgetFoam() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
               </div>
 
               <button
@@ -186,6 +254,9 @@ export default function BudgetFoam() {
                 value={selectedOptionFoam}
                 onChange={handleSelectChangeFoam}
               >
+                <option value="" disabled selected>
+                  Inclui Foam?
+                </option>
                 <option value="SIM" selected={selectedOptionFoam === "SIM"}>
                   SIM
                 </option>
@@ -195,24 +266,29 @@ export default function BudgetFoam() {
               </select>
             </div>
 
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Código</p>
-              <select
-                id="codigo"
-                className={styles.SelectField}
-                value={selectedOption}
-                onChange={handleSelectChange}
-              >
-                {produtos.map(produto => (
-                  <option key={produto.codigo} value={produto.codigo}>
-                    {produto.codigo}
+            {selectedOptionFoam === "SIM" && (
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Código</p>
+                <select
+                  id="codigo"
+                  className={styles.SelectField}
+                  value={selectedOption}
+                  onChange={handleSelectChange}
+                >
+                  <option value="" disabled selected>
+                    Selecione um código
                   </option>
-                ))}
-              </select>
-            </div>
+                  {produtos.map(produto => (
+                    <option key={produto.codigo} value={produto.codigo}>
+                      {produto.codigo}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
-          <div className={styles.InputContainer}>
+          {/* <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>MDF</p>
               <select
@@ -258,7 +334,7 @@ export default function BudgetFoam() {
                 </option>
               </select>
             </div>
-          </div>
+          </div> */}
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>
