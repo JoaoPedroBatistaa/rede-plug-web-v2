@@ -203,6 +203,11 @@ export default function TableImpressao({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
+                    <button className={styles.buttonBlack}>
+                    <Link href={{ pathname: `/ProductImpressaoEdit`, query: { id: item.id } }}>
+                        Editar
+                    </Link>
+                    </button>
                     <button
                       className={styles.buttonRed}
                       onClick={() => handleDeleteItem(item.id)}

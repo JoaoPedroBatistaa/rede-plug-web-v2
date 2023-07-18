@@ -211,6 +211,9 @@ export default function TablePerfil({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
+                    <Link href={{ pathname: `/ProductPerfilEdit`, query: { id: item.id } }}>
+                        Editar
+                    </Link>
                     <button
                       className={styles.buttonRed}
                       onClick={() => handleDeleteItem(item.id)}

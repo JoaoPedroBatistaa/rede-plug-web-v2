@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "../../styles/Table.module.scss";
+import styles from "../../styles/TableProducts.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
@@ -224,6 +224,11 @@ export default function TableFoam({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
+                    <button className={styles.buttonBlack}>
+                    <Link href={{ pathname: `/ProductFoamEdit`, query: { id: item.id } }}>
+                        Editar
+                    </Link>
+                    </button>
                     <button
                       className={styles.buttonRed}
                       onClick={() => handleDeleteItem(item.id)}

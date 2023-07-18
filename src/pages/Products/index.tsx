@@ -3,7 +3,7 @@ import styles from "../../styles/Requests.module.scss";
 import { useRouter } from "next/router";
 
 import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import Link from "next/link";
 import HeaderHome from "@/components/HeaderHome";
 import HeaderProducts from "@/components/HeaderProducts";
@@ -17,6 +17,9 @@ import TablePaspatur from "@/components/TablePaspatur";
 import TablePerfil from "@/components/TablePerfil";
 import TableVidro from "@/components/TableVidro";
 import Table from "@/components/Table";
+import { collection, query, onSnapshot, getFirestore, updateDoc, getDocs } from 'firebase/firestore';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Products() {
   const router = useRouter();
@@ -47,6 +50,8 @@ export default function Products() {
   const [orderValue, setOrderValue] = useState<string>("");
   const [filterValue, setFilterValue] = useState<string>("");
 
+  const [increaseValue, setIncreaseValue] = useState<string>("");
+
   const handleOpenFilter = () => {
     setOpenFilter(!openFilter);
   };
@@ -67,6 +72,46 @@ export default function Products() {
   ) => {
     setFilterValue(event.target.value);
   };
+
+  const handleIncreaseChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setIncreaseValue(event.target.value);
+  };
+
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
+
+  const handleIncrease = async () => {
+    const increasePercentage = parseFloat(increaseValue) / 100;
+    const db = getFirestore();
+    const q = query(collection(db, `Login/${userId}/Foam`)); 
+
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      const docRef = doc.ref;
+      const oldData = doc.data();
+      if (oldData.valorMetro) {
+        const newValue = parseFloat(oldData.valorMetro) + parseFloat(oldData.valorMetro) * increasePercentage;
+        updateDoc(docRef, { valorMetro: newValue })
+          .then(() => {
+            console.log("Documento atualizado");
+            toast.success("Preços atualizados com sucesso!"); // or do something else on success
+          })
+          .catch((error) => {
+            console.error("Erro ao atualizar Documento: ", error);
+            toast.error("Erro ao atualizar os preços dos produtos."); // or handle the error
+          });
+      }
+    });
+  };
+
+
+
+
+
   return (
     <>
       <Head>
@@ -103,6 +148,24 @@ export default function Products() {
                 </div>
 
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={handleIncrease}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductFoam">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>

@@ -203,6 +203,9 @@ export default function TablePaspatur({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
+                    <Link href={{ pathname: `/ProductPaspaturEdit`, query: { id: item.id } }}>
+                        Editar
+                    </Link>
                     <button
                       className={styles.buttonRed}
                       onClick={() => handleDeleteItem(item.id)}
