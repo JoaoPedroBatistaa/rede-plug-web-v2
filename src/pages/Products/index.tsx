@@ -16,6 +16,7 @@ import TableImpressao from "@/components/TableImpressao";
 import TablePaspatur from "@/components/TablePaspatur";
 import TablePerfil from "@/components/TablePerfil";
 import TableVidro from "@/components/TableVidro";
+import TableColagem from "@/components/TableColagem";
 import Table from "@/components/Table";
 
 export default function Products() {
@@ -617,6 +618,109 @@ export default function Products() {
               {/* <GridComponent/> */}
               <TableVidro
                 searchValue={searchValue4}
+                orderValue={orderValue}
+                filterValue={filterValue}
+              />
+
+            </div>
+
+            <div className={styles.ListContainer}>
+              <div className={styles.ListMenu}>
+                <div className={styles.ListMenu}>
+                  <p className={styles.ProductName}>Colagem</p>
+                  <div
+                    className={styles.ListMenuFilter}
+                    onClick={() => toggleFilter("foam")}
+                  >
+                    <img src="./Filter.svg"></img>{" "}
+                    <span className={styles.ListMenuFilterText}>Filtros</span>
+                  </div>
+                  <SearchInputListProducts
+                    handleSearchChange={(e) => handleSearchChange(e)}
+                  ></SearchInputListProducts>
+                </div>
+
+                <div className={styles.ListMenuRight}>
+                  <Link href="/ProductColagem">
+                    <button className={styles.ListMenuButton}>
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Novo Produto
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+              <div
+                className={`${filterStates.foam
+                  ? styles.containerFilter
+                  : styles.containerFilterClose
+                  }`}
+              >
+                <div className={styles.listFilter}>
+                  <h2>ORDENAR POR:</h2>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="codigoCrescente"
+                      name="ordenarPor"
+                      value="codigoCrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="codigoCrescente">Codigo crescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="codigoDescrescente"
+                      name="ordenarPor"
+                      value="codigoDescrescente"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="maiorLucro"
+                      name="ordenarPor"
+                      value="maiorLucro"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="maiorLucro">Maior % Lucro</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="maiorValorMetro"
+                      name="ordenarPor"
+                      value="maiorValorMetro"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                  </div>
+                  <div className={styles.filterItem}>
+                    <input
+                      type="radio"
+                      id="maiorValorPerda"
+                      name="ordenarPor"
+                      value="maiorValorPerda"
+                      onChange={handleOrderValueChange}
+                      className={styles.filterItem}
+                    />
+                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.MarginTop}></div>
+              {/* <GridComponent/> */}
+              <TableColagem
+                searchValue={searchValue}
                 orderValue={orderValue}
                 filterValue={filterValue}
               />
