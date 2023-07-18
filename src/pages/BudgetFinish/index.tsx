@@ -25,10 +25,12 @@ export default function BudgetFinish() {
         const valorFoam = Number(localStorage.getItem("valorFoam"));
         const valorVidro = Number(localStorage.getItem("valorVidro"));
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
+        const valorColagem = Number(localStorage.getItem("valorColagem"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
       }
-    }, 2000); // Tempo do intervalo em milissegundos
+    }, 200); // Tempo do intervalo em milissegundos
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
@@ -156,6 +158,8 @@ export default function BudgetFinish() {
       console.error("Erro ao adicionar documento: ", e);
     }
   };
+
+  console.log("total -->", valorTotal);
 
   const formatarData = (data: Date) => {
     const dia = data.getDate();

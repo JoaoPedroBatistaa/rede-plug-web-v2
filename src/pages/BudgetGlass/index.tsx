@@ -77,8 +77,29 @@ export default function BudgetGlass() {
   // };
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    toast.error("Informe qual foam será utilizado no pedido");
+
+    if (typeof window !== 'undefined') {
+      const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+      const valorFoam = Number(localStorage.getItem("valorFoam"));
+      const valorVidro = Number(localStorage.getItem("valorVidro"));
+      const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+
+      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
+
+        window.localStorage.setItem("preco", JSON.stringify(precoTotal));
+
+        toast.success("Finalizando Orçamento!");
+        setTimeout(() => {
+          window.location.href = "/BudgetSave";
+        }, 500);
+      } else {
+        toast.error("Informe os dados necessarios");
+      }
+    }
   }
+
+
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
       setOpenMenu(false);
@@ -139,20 +160,7 @@ export default function BudgetGlass() {
   //   }
   // }, []);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
-      if (typeof window !== "undefined") {
-        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
-        const valorFoam = Number(localStorage.getItem("valorFoam"));
-        const valorVidro = Number(localStorage.getItem("valorVidro"));
-        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro)
-      }
-    }, 2000); // Tempo do intervalo em milissegundos
-
-    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
-  }, []);
 
 
   useEffect(() => {
@@ -164,21 +172,40 @@ export default function BudgetGlass() {
 
         const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
         const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = valor + perda * (selectedProduto.margemLucro / 100)
-
-        localStorage.setItem("metroVidro", selectedProduto.valorMetro.toString())
-        localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
-        localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
+        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
 
-        setPreco(valor + perda + lucro);
-        // setPrecoTotal(preco + valorPerfil + valorFoam)
-        localStorage.setItem("valorVidro", preco.toString());
+
+
+        setPreco(prevPreco => {
+          const novoPreco = valor + perda + lucro;
+          localStorage.setItem("valorVidro", novoPreco.toString());
+          localStorage.setItem("metroVidro", selectedProduto.valorMetro.toString())
+          localStorage.setItem("perdaVidro", selectedProduto.valorPerda.toString())
+          localStorage.setItem("lucroVidro", selectedProduto.margemLucro.toString())
+          return novoPreco;
+        });
+
       }
     }
   }, [selectedOption, vidro, produtos]);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+      if (typeof window !== "undefined") {
+        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+        const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorVidro = Number(localStorage.getItem("valorVidro"));
+        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
+        const valorColagem = Number(localStorage.getItem("valorColagem"));
 
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+      }
+    }, 200); // Tempo do intervalo em milissegundos
+
+    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
+  }, []);
 
   return (
     <>

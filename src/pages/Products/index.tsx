@@ -3,7 +3,7 @@ import styles from "../../styles/Requests.module.scss";
 import { useRouter } from "next/router";
 
 import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import Link from "next/link";
 import HeaderHome from "@/components/HeaderHome";
 import HeaderProducts from "@/components/HeaderProducts";
@@ -18,6 +18,9 @@ import TablePerfil from "@/components/TablePerfil";
 import TableVidro from "@/components/TableVidro";
 import TableColagem from "@/components/TableColagem";
 import Table from "@/components/Table";
+import { collection, query, getDocs, getFirestore, updateDoc, writeBatch } from 'firebase/firestore';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Products() {
   const router = useRouter();
@@ -51,6 +54,8 @@ export default function Products() {
 
   const [orderValue, setOrderValue] = useState<string>("");
   const [filterValue, setFilterValue] = useState<string>("");
+
+  const [increaseValue, setIncreaseValue] = useState<string>("");
 
   const handleOpenFilter = () => {
     setOpenFilter(!openFilter);
@@ -86,6 +91,49 @@ export default function Products() {
   ) => {
     setFilterValue(event.target.value);
   };
+
+  const handleIncreaseChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIncreaseValue(e.target.value);
+  };
+
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
+
+  const handleIncrease = async (product: any) => {
+    const increasePercentage = parseFloat(increaseValue) / 100;
+    const db = getFirestore();
+    const userId = window.localStorage.getItem('userId');
+
+    const collectionPath = `Login/${userId}/${product}`;
+
+    try {
+      const q = query(collection(db, collectionPath));
+      const querySnapshot = await getDocs(q);
+
+      const batch = writeBatch(db); // Correção: usar db.batch() em vez de getFirestore().batch()
+
+      querySnapshot.forEach((doc) => {
+        const docRef = doc.ref;
+        const oldData = doc.data();
+        if (oldData.valorMetro) {
+          const newValue = parseFloat(oldData.valorMetro) + parseFloat(oldData.valorMetro) * increasePercentage;
+          batch.update(docRef, { valorMetro: newValue });
+        }
+      });
+
+      await batch.commit();
+      console.log(`Preços do produto ${product} atualizados`);
+      toast.success(`Preços do produto ${product} atualizados com sucesso!`);
+
+      window.location.reload();
+    } catch (error) {
+      console.error(`Erro ao atualizar os preços do produto ${product}: `, error);
+      toast.error(`Erro ao atualizar os preços do produto ${product}.`);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -122,6 +170,24 @@ export default function Products() {
                 </div>
 
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={() => handleIncrease("Foam")}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductFoam">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -223,6 +289,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={handleIncrease}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductImpressao">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -324,6 +408,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={() => handleIncrease("Foam")}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductPaspatur">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -425,6 +527,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={() => handleIncrease("Foam")}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductPerfil">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -538,6 +658,24 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
+                <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="%"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button 
+                  className={styles.AumentoPorcent}
+                  onClick={() => handleIncrease("Foam")}
+                  >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        Aumentar
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
                   <Link href="/ProductVidro">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>

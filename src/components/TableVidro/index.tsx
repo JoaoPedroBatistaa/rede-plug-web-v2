@@ -218,6 +218,9 @@ export default function TableVidro({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
+                    <Link href={{ pathname: `/ProductVidroEdit`, query: { id: item.id } }}>
+                        Editar
+                    </Link>
                     <button
                       className={styles.buttonRed}
                       onClick={() => handleDeleteItem(item.id)}
@@ -244,7 +247,7 @@ export default function TableVidro({
                 <b>{item.margemLucro}%</b>
               </td>
               <td className={styles.td}>
-                <b>{item.valorMetro}</b>
+                <b>{typeof item.valorMetro === 'number' ? item.valorMetro.toFixed(2) : item.valorMetro}</b>
               </td>
               <td className={styles.td}>
                 <b>{item.valorPerda}%</b>

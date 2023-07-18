@@ -138,11 +138,28 @@ export default function BudgetPaspatur() {
     setLarguraDireita(event.target.value);
   };
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-    toast.success("Finalizando Orçamento!");
-    setTimeout(() => {
-      window.location.href = "/BudgetSave";
-    }, 500);
+
+    if (typeof window !== 'undefined') {
+      const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+      const valorFoam = Number(localStorage.getItem("valorFoam"));
+      const valorVidro = Number(localStorage.getItem("valorVidro"));
+      const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+
+      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
+
+        window.localStorage.setItem("preco", JSON.stringify(precoTotal));
+
+        toast.success("Finalizando Orçamento!");
+        setTimeout(() => {
+          window.location.href = "/BudgetSave";
+        }, 500);
+      } else {
+        toast.error("Informe os dados necessarios");
+      }
+    }
   }
+
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
       setOpenMenu(false);
@@ -233,10 +250,12 @@ export default function BudgetPaspatur() {
         const valorFoam = Number(localStorage.getItem("valorFoam"));
         const valorVidro = Number(localStorage.getItem("valorVidro"));
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
+        const valorColagem = Number(localStorage.getItem("valorColagem"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
       }
-    }, 2000); // Tempo do intervalo em milissegundos
+    }, 200); // Tempo do intervalo em milissegundos
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
@@ -262,7 +281,7 @@ export default function BudgetPaspatur() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
-                <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco.toFixed(2)}</p>
               </div>
 
               <button

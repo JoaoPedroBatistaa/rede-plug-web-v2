@@ -41,6 +41,32 @@
   align-items: center;
 }
 
+.searchContainer {
+  display: flex;
+  background-color: #bababa;
+  padding: 24px 16px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  height: 48px;
+  width: 70px;
+  margin-right: 20px;
+}
+
+.InputEdit {
+  background-color: transparent;
+  font-family: "Outfit";
+  color: white;
+  border: none;
+  outline: none;
+  fill: white;
+  &::placeholder {
+    color: white;
+  }
+  width: 100%;
+  font-size: 16px;
+}
+
 .ListMenuButton {
   background: #0bb07b;
   border-radius: 6px;
@@ -49,6 +75,17 @@
   border: 0;
   text-transform: uppercase;
   cursor: pointer;
+}
+
+.AumentoPorcent {
+  background: #0bb07b;
+  border-radius: 6px;
+  height: 39px;
+  width: 135px;
+  border: 0;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-right: 30px;
 }
 
 .ListMenuFilter {

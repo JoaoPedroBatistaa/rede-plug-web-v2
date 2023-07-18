@@ -43,12 +43,37 @@ const db = getFirestore();
 const auth = getAuth(firebase);
 const storage = getStorage(firebase);
 
+async function getFoamById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Foam`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No foam found with id: ${id}`);
+  }
+}
+
 async function addFoamToLogin(foam: any, loginId: any) {
   try {
     await addDoc(collection(db, `Login/${loginId}/Foam`), foam);
     console.log("Foam adicionado com sucesso!");
   } catch (e) {
     console.error("Erro ao adicionar Foam: ", e);
+  }
+}
+
+async function updateFoamInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Foam`, id);
+  await updateDoc(foamDoc, foam);
+}
+
+async function getImpressaoById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Impressao`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No foam found with id: ${id}`);
   }
 }
 
@@ -61,6 +86,21 @@ async function addImpressaoToLogin(impressao: any, loginId: any) {
   }
 }
 
+async function updateImpressaoInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Impressao`, id);
+  await updateDoc(foamDoc, foam);
+}
+
+async function getPaspaturById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Paspatur`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No foam found with id: ${id}`);
+  }
+}
+
 async function addPaspaturToLogin(paspatur: any, loginId: any) {
   try {
     await addDoc(collection(db, `Login/${loginId}/Paspatur`), paspatur);
@@ -70,12 +110,42 @@ async function addPaspaturToLogin(paspatur: any, loginId: any) {
   }
 }
 
+async function updatePaspaturInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Paspatur`, id);
+  await updateDoc(foamDoc, foam);
+}
+
+async function getPerfilById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Perfil`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No foam found with id: ${id}`);
+  }
+}
+
 async function addPerfilToLogin(perfil: any, loginId: any) {
   try {
     await addDoc(collection(db, `Login/${loginId}/Perfil`), perfil);
     console.log("Perfil adicionado com sucesso!");
   } catch (e) {
     console.error("Erro ao adicionar Perfil: ", e);
+  }
+}
+
+async function updatePerfilInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Perfil`, id);
+  await updateDoc(foamDoc, foam);
+}
+
+async function getVidroById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Vidro`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No foam found with id: ${id}`);
   }
 }
 
@@ -94,6 +164,11 @@ async function addColagemToLogin(colagem: any, loginId: any) {
   } catch (e) {
     console.error("Erro ao adicionar Colagem: ", e);
   }
+}
+
+async function updateVidroInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Vidro`, id);
+  await updateDoc(foamDoc, foam);
 }
 
 export {
@@ -117,5 +192,4 @@ export {
   uploadBytesResumable,
   query,
   where,
-  addColagemToLogin,
 };
