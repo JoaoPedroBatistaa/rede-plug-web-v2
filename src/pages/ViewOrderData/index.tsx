@@ -16,6 +16,7 @@ type UserDataType = {
   Telefone: string;
   tipoPessoa: string;
   cpf: string;
+  valorTotal: string;
 };
 
 export default function ViewOrderData() {
@@ -122,7 +123,7 @@ export default function ViewOrderData() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$1350,00</p>
+                <p className={styles.OrderValue}>R$ {userData?.valorTotal}</p>
               </div>
             </div>
 

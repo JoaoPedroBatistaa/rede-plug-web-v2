@@ -185,7 +185,7 @@ export default function BudgetPaspatur() {
     const metroPerfil = localStorage.getItem("metroPerfil")
     const perdaPerfil = localStorage.getItem("perdaPerfil")
     const lucroPerfil = localStorage.getItem("lucroPerfil")
-    const perfil = localStorage.getItem("perfil")
+    const perfil = localStorage.getItem("larguraPerfil")
 
     const metroVidro = localStorage.getItem("metroVidro")
     const perdaVidro = localStorage.getItem("perdaVidro")
@@ -210,8 +210,10 @@ export default function BudgetPaspatur() {
         const tamanho = localStorage.getItem("Tamanho") || "0x0";
         const [altura, largura] = tamanho.split('x').map(Number);
 
+        const novoTamanho = `(altura + (Number(larguraInferior) * 2))x(largura + (Number(larguraDireita) * 2))`;
+
         // VALOR PASPATUR
-        const valor = (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * selectedProduto.valorMetro;
+        const valor = (((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * selectedProduto.valorMetro;
         const perda = (valor / 100) * selectedProduto.valorPerda;
         const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
@@ -267,6 +269,8 @@ export default function BudgetPaspatur() {
           localStorage.setItem("valorImpressao", precoImpressao.toString());
           localStorage.setItem("valorColagem", precoColagem.toString());
 
+          localStorage.setItem("Tamanho", novoTamanho)
+
 
 
           return novoPreco;
@@ -315,8 +319,13 @@ export default function BudgetPaspatur() {
 
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
-                <p className={styles.ValueLabel}>Valor total</p>
+                <p className={styles.ValueLabel}>Valor do paspatur</p>
                 <p className={styles.Value}>R${preco.toFixed(2)}</p>
+              </div>
+
+              <div className={styles.TotalValue}>
+                <p className={styles.ValueLabel}>Valor total</p>
+                <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
               </div>
 
               <button
