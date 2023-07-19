@@ -9,6 +9,7 @@ import {
   getDoc,
   where,
   query,
+  updateDoc,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -192,4 +193,5 @@ export {
   uploadBytesResumable,
   query,
   where,
+  addColagemToLogin,
 };
