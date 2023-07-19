@@ -28,6 +28,7 @@ type UserDataType = {
   formaPagamento: string;
   observacao: string;
   dataCadastro: string;
+  valorTotal: string;
 };
 
 export default function ViewOrderBudget() {
@@ -136,7 +137,7 @@ export default function ViewOrderBudget() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$1350,00</p>
+                <p className={styles.OrderValue}>R$ {userData?.valorTotal}</p>
               </div>
             </div>
 
@@ -273,7 +274,7 @@ export default function ViewOrderBudget() {
                 <div className={styles.OrderRes}>
                   <p className={styles.ResTitle}>Valor total</p>
                   <div>
-                    <p className={styles.ResTotal}>R$1.350,00</p>
+                    <p className={styles.ResTotal}>R$ {userData?.valorTotal}</p>
                   </div>
                 </div>
               </div>

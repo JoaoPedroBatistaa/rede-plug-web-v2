@@ -17,6 +17,7 @@ type UserDataType = {
   bairro: string;
   cidade: string;
   estado: string;
+  valorTotal: string;
 };
 
 export default function ViewOrderShip() {
@@ -102,7 +103,7 @@ export default function ViewOrderShip() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$1350,00</p>
+                <p className={styles.OrderValue}>R$ {userData?.valorTotal}</p>
               </div>
             </div>
 

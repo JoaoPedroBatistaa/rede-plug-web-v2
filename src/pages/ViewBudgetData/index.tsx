@@ -13,6 +13,7 @@ type UserDataType = {
   nomeCompleto: string;
   Telefone: string;
   email: string;
+  valorTotal: string;
 };
 
 export default function ViewBudgetData() {
@@ -94,7 +95,7 @@ export default function ViewBudgetData() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$1350,00</p>
+                <p className={styles.OrderValue}>R$ {userData?.valorTotal}</p>
               </div>
             </div>
 

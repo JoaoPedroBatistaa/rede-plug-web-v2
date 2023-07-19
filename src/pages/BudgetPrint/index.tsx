@@ -35,7 +35,7 @@ export default function BudgetPrint() {
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [selectedOptionPrint, setSelectedOptionPrint] = useState("");
   const [selectedOptionPrintType, setSelectedOptionPrintType] =
-    useState("opcao1");
+    useState("");
 
   useEffect(() => {
     localStorage.setItem("impressao", selectedOptionPrint);
@@ -215,6 +215,10 @@ export default function BudgetPrint() {
             </p>
 
             <div className={styles.BudgetHeadS}>
+              <div className={styles.TotalValue}>
+                <p className={styles.ValueLabel}>Valor da Impressão</p>
+                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+              </div>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
                 <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>

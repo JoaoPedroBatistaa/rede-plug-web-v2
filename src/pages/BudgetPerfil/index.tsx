@@ -179,6 +179,10 @@ export default function BudgetPerfil() {
 
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
+                <p className={styles.ValueLabel}>Valor do perfil</p>
+                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+              </div>
+              <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
                 <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
               </div>
