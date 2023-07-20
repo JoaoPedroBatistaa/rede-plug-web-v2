@@ -14,6 +14,8 @@ export default function Home() {
   return (
     <>
       <Head>
+        <link rel="icon" href="/fav.png" />
+
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
         `}</style>

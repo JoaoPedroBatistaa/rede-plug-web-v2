@@ -20,10 +20,30 @@ import classnames from "classnames";
 export default function BudgetSave() {
   const router = useRouter();
 
+  const [nomeCompleto, setNomeCompleto] = useState("");
+  const [Telefone, setTelefone] = useState("");
+  const [email, setEmail] = useState("");
+  const [obs, setObs] = useState("");
+
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
-    localStorage.setItem(id, value);
+    if (id === "nomeCompleto") {
+      setNomeCompleto(value);
+    } else if (id === "Telefone") {
+      setTelefone(value);
+    } else if (id === "email") {
+      setEmail(value);
+    }
   };
+
+  const handleTextAreaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const { id, value } = event.target;
+    if (id === "obs") {
+      setObs(value);
+    }
+  };
+
 
   const [precoTotal, setPrecoTotal] = useState(0);
 
@@ -44,9 +64,7 @@ export default function BudgetSave() {
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
 
-  let nomeCompleto: string | null;
-  let Telefone: string | null;
-  let email: string | null;
+
   let instalacao: string | null;
   let valorInstalacao: string | null;
   let tipoEntrega: string | null;
@@ -72,14 +90,14 @@ export default function BudgetSave() {
   let tipoPessoa: string | null;
   let valorTotal: string | null;
 
+
+
+
   valorTotal = precoTotal.toString();
   console.log("valor total --> ", valorTotal)
 
 
   if (typeof window !== "undefined") {
-    nomeCompleto = localStorage.getItem("nomeCompleto");
-    Telefone = localStorage.getItem("Telefone");
-    email = localStorage.getItem("email");
     instalacao = localStorage.getItem("instalacao");
     valorInstalacao = localStorage.getItem("valorInstalacao");
     tipoEntrega = localStorage.getItem("tipoEntrega");
@@ -103,6 +121,7 @@ export default function BudgetSave() {
     espessuraPerfil = localStorage.getItem("espessuraPerfil");
     Tamanho = localStorage.getItem("Tamanho");
     tipoPessoa = localStorage.getItem("tipoPessoa");
+
   }
 
   const formatarData = (data: Date) => {
@@ -156,6 +175,7 @@ export default function BudgetSave() {
         Entrega,
         Ativo,
         valorTotal,
+        obs
       });
 
       toast.success("Salvo com sucesso!");
@@ -167,6 +187,7 @@ export default function BudgetSave() {
       console.error("Erro ao adicionar documento: ", e);
     }
   };
+
   const { openMenu, setOpenMenu } = useMenu();
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
@@ -229,6 +250,18 @@ export default function BudgetSave() {
                 className={styles.FieldSave}
                 placeholder=""
                 onChange={handleInputChange}
+              />
+            </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Observações</p>
+              <textarea
+                id="obs"
+                className={styles.FieldSave}
+                placeholder=""
+                onChange={handleTextAreaChange}
               />
             </div>
           </div>

@@ -95,7 +95,7 @@ export default function ViewBudgetData() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$ {userData?.valorTotal}</p>
+                <p className={styles.OrderValue}>R$ {parseFloat(userData?.valorTotal || '0').toFixed(2)}</p>
               </div>
             </div>
 

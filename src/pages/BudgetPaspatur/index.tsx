@@ -210,49 +210,57 @@ export default function BudgetPaspatur() {
         const tamanho = localStorage.getItem("Tamanho") || "0x0";
         const [altura, largura] = tamanho.split('x').map(Number);
 
-        const novoTamanho = `(altura + (Number(larguraInferior) * 2))x(largura + (Number(larguraDireita) * 2))`;
+
+
+        const novaAltura = altura + (Number(larguraInferior) * 2);
+
+        const novaLargura = largura + (Number(larguraDireita) * 2);
+
+        const novoTamanho = `${novaAltura}x${novaLargura}`;
+
+        console.log("larguraInferior:", larguraInferior);
+        console.log("larguraDireita:", larguraDireita);
+        console.log("novaAltura:", novaAltura);
+        console.log("novaLargura:", novaLargura);
 
         // VALOR PASPATUR
-        const valor = (((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * selectedProduto.valorMetro;
+        const valor = (((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2)) / 100)) * selectedProduto.valorMetro;
         const perda = (valor / 100) * selectedProduto.valorPerda;
         const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
         // VALOR PERFIL NOVO
-        const valorP = Number(metroPerfil) && perfil !== null ? ((((altura + Number(larguraSuperior) + Number(larguraInferior)) * 2) + ((largura + Number(larguraDireita) + Number(larguraEsquerda)) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
+        const valorP = Number(metroPerfil) && perfil !== null ? ((altura + (Number(larguraInferior) * 2)) + ((largura + (Number(larguraEsquerda) * 2) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
         const perdaP = Number(perdaPerfil) !== null ? (valorP / 100) * Number(perdaPerfil) : 0;
         const lucroP = Number(lucroPerfil) !== null ? ((valorP + perdaP) * Number(lucroPerfil) / 100) : 0;
 
         setPrecoPerfil(valorP + perdaP + lucroP);
 
         // VALOR VIDRO NOVO
-        const valorV = Number(metroPerfil) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroVidro) : 0;
+        const valorV = Number(metroPerfil) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroVidro) : 0;
         const perdaV = Number(perdaVidro) !== null ? (valorV / 100) * Number(perdaVidro) : 0;
         const lucroV = Number(lucroVidro) !== null ? ((valorP + perdaV) * Number(lucroVidro) / 100) : 0;
 
         setPrecoVidro(valorV + perdaV + lucroV);
 
         // VALOR FOAM NOVO
-        const valorF = Number(metroFoam) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroFoam) : 0;
+        const valorF = Number(metroFoam) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroFoam) : 0;
         const perdaF = Number(perdaFoam) !== null ? (valorF / 100) * Number(perdaFoam) : 0;
         const lucroF = Number(lucroFoam) !== null ? ((valorF + perdaF) * Number(lucroFoam) / 100) : 0;
 
-        console.log(precoPerfil, '   ', precoVidro, "   ", precoFoam)
         setPrecoFoam(valorF + perdaF + lucroF);
 
         // VALOR IMPRESSAO NOVO
-        const valorI = Number(metroImpressao) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroImpressao) : 0;
+        const valorI = Number(metroImpressao) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroImpressao) : 0;
         const perdaI = Number(perdaImpressao) !== null ? (valorF / 100) * Number(perdaImpressao) : 0;
         const lucroI = Number(lucroImpressao) !== null ? ((valorI + perdaI) * Number(lucroImpressao) / 100) : 0;
 
-        console.log(precoPerfil, '   ', precoVidro, "   ", precoFoam)
         setPrecoImpressao(valorI + perdaI + lucroI);
 
         // VALOR COLAGEM NOVO
-        const valorC = Number(metroColagem) !== null ? (((altura + Number(larguraSuperior) + Number(larguraInferior)) / 100) * ((largura + Number(larguraDireita) + Number(larguraEsquerda)) / 100)) * Number(metroColagem) : 0;
+        const valorC = Number(metroColagem) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroColagem) : 0;
         const perdaC = Number(perdaColagem) !== null ? (valorF / 100) * Number(perdaColagem) : 0;
         const lucroC = Number(lucroColagem) !== null ? ((valorC + perdaC) * Number(lucroColagem) / 100) : 0;
 
-        console.log(precoPerfil, '   ', precoVidro, "   ", precoFoam)
         setPrecoColagem(valorC + perdaC + lucroC);
 
 
@@ -392,7 +400,7 @@ export default function BudgetPaspatur() {
           </div>
 
           <div className={styles.PreviewContainer}>
-            <div className={styles.InputFieldPreview}>
+            {/* <div className={styles.InputFieldPreview}>
               <p className={styles.FieldLabel}>Espessura superior</p>
               <input
                 id="larguraSuperior"
@@ -402,7 +410,7 @@ export default function BudgetPaspatur() {
                 value={larguraSuperior}
                 onChange={handleInputChangeSuperior}
               />
-            </div>
+            </div> */}
 
             <div className={styles.PreviewImgContainer}>
               <div className={styles.InputFieldPreview}>
@@ -419,7 +427,7 @@ export default function BudgetPaspatur() {
 
               <img src="./molduraSize.png" className={styles.PreviewImg} />
 
-              <div className={styles.InputFieldPreview}>
+              {/* <div className={styles.InputFieldPreview}>
                 <p className={styles.FieldLabel}>Espessura direita</p>
                 <input
                   id="larguraDireita"
@@ -429,7 +437,7 @@ export default function BudgetPaspatur() {
                   value={larguraDireita}
                   onChange={handleInputChangeDireita}
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className={styles.InputFieldPreview}>

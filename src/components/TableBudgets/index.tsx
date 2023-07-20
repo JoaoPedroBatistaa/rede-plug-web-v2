@@ -339,7 +339,8 @@ export default function TableBudgets({
                 <span className={styles.diasUteis}>{item.nomeCompleto}</span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
-                {item.valorTotal}
+                R$ {parseFloat(item.valorTotal || '0').toFixed(2)}
+
                 <br />
                 <span className={styles.diasUteis}>À Vista</span>
               </td>

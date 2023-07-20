@@ -63,7 +63,7 @@ export default function Table({
     fetchData();
   }, []);
 
-  
+
   useEffect(() => {
     const filterData = () => {
       const filteredItems = teste.filter(
@@ -246,16 +246,15 @@ export default function Table({
               className={styles.budgetItem}
               key={item.id}
               onClick={() => {
-                localStorage.setItem("selectedBudgetId", item.id);
+                localStorage.setItem("selectedId", item.id);
               }}
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${
-                    openMenus[item.id]
-                      ? styles.containerMore
-                      : styles.containerMoreClose
-                  }`}
+                  className={`${openMenus[item.id]
+                    ? styles.containerMore
+                    : styles.containerMoreClose
+                    }`}
                 >
                   <div
                     className={styles.containerX}
@@ -339,7 +338,7 @@ export default function Table({
                 <span className={styles.diasUteis}>{item.nomeCompleto}</span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
-                {item.valorTotal}
+                R$ {parseFloat(item.valorTotal || '0').toFixed(2)}
                 <br />
                 <span className={styles.diasUteis}>À Vista</span>
               </td>
@@ -393,11 +392,10 @@ export default function Table({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${
-                  pageNumber === currentPage
-                    ? styles.RodapePaginacaoContadorDestaque
-                    : styles.RodapePaginacaoContadorSemBorda
-                }`}
+                className={`${pageNumber === currentPage
+                  ? styles.RodapePaginacaoContadorDestaque
+                  : styles.RodapePaginacaoContadorSemBorda
+                  }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

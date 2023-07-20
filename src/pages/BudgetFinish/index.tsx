@@ -62,6 +62,8 @@ export default function BudgetFinish() {
   let Tamanho: string | null;
   let tipoPessoa: string | null;
   let valorTotal: string | null;
+  let obs: string | null;
+
 
   valorTotal = precoTotal.toString();
 
@@ -92,6 +94,8 @@ export default function BudgetFinish() {
     espessuraPerfil = localStorage.getItem("espessuraPerfil");
     Tamanho = localStorage.getItem("Tamanho");
     tipoPessoa = localStorage.getItem("tipoPessoa");
+    obs = localStorage.getItem("obs");
+
   }
 
   const handleSaveOrder = async () => {
@@ -149,6 +153,7 @@ export default function BudgetFinish() {
         complemento,
         tipoPessoa,
         valorTotal,
+        obs
       });
       toast.success("Pedido enviado!");
       setTimeout(() => {

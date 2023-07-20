@@ -29,13 +29,12 @@ import {
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDDbh8a1sqS6yy3CapjeyPfMNyBlWUNpYE",
-  authDomain: "total-maxx.firebaseapp.com",
-  projectId: "total-maxx",
-  storageBucket: "total-maxx.appspot.com",
-  messagingSenderId: "901726096412",
-  appId: "1:901726096412:web:092243e06a05823611a3d9",
-  measurementId: "G-9RT0JY9DP3",
+  apiKey: "AIzaSyCMnLVFKZSLI44XpQ-Lvxsxduo-VnJrR5Y",
+  authDomain: "totalmaxsystem.firebaseapp.com",
+  projectId: "totalmaxsystem",
+  storageBucket: "totalmaxsystem.appspot.com",
+  messagingSenderId: "206758787932",
+  appId: "1:206758787932:web:ff99633176f561bd981f99"
 };
 
 // Initialize Firebase
@@ -194,4 +193,14 @@ export {
   query,
   where,
   addColagemToLogin,
+  getFoamById,
+  updateFoamInLogin,
+  getImpressaoById,
+  updateImpressaoInLogin,
+  getPaspaturById,
+  updatePaspaturInLogin,
+  getPerfilById,
+  updatePerfilInLogin,
+  getVidroById,
+  updateVidroInLogin
 };

@@ -32,7 +32,7 @@ export default function BudgetFoam() {
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedOptionFoam, setSelectedOptionFoam] = useState("");
   const [selectedOptionCodigoFoam, setSelectedOptionCodigoFoam] =
-    useState("opcao1");
+    useState("");
   const [selectedOptionMdf, setSelectedOptionMdf] = useState("opcao1");
   const [selectedOptionCodigoMdf, setSelectedOptionCodigoMdf] =
     useState("opcao1");
@@ -83,23 +83,6 @@ export default function BudgetFoam() {
     setSelectedOption(event.target.value);
   };
 
-  // const [valorVidro, setValorVidro] = useState(0);
-  // const [valorPerfil, setValorPerfil] = useState(0);
-
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const valorPerfil = Number(localStorage.getItem("valorPerfil"));
-  //     const valorFoam = Number(localStorage.getItem("valorFoam"));
-  //     const valorVidro = Number(localStorage.getItem("valorVidro"));
-  //     const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
-
-  //     setValorVidro(valorVidro);
-  //     setValorPerfil(valorPerfil);
-
-  //     setPrecoTotal(valorPerfil + valorFoam + valorVidro)
-  //   }
-  // }, []);
-
 
   useEffect(() => {
     if (selectedOption && selectedOptionFoam === "SIM") {
@@ -114,13 +97,9 @@ export default function BudgetFoam() {
 
 
 
-
-        // setPreco(valor + perda + lucro);
-        // setPrecoTotal(preco + valorVidro + valorPerfil)
-
         setPreco(prevPreco => {
           const novoPreco = valor + perda + lucro;
-          localStorage.setItem("valorFoam", preco.toString());
+          localStorage.setItem("valorFoam", novoPreco.toString());
           localStorage.setItem("metroFoam", selectedProduto.valorMetro.toString())
           localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
           localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
@@ -129,7 +108,7 @@ export default function BudgetFoam() {
         });
       }
     }
-  }, [selectedOption, selectedOptionCodigoFoam, produtos]);
+  }, [selectedOption, produtos]);
 
   const [precoTotal, setPrecoTotal] = useState(0);
 

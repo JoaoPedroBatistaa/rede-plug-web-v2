@@ -29,6 +29,7 @@ type UserDataType = {
   observacao: string;
   dataCadastro: string;
   valorTotal: string;
+  obs: string;
 };
 
 export default function ViewOrderBudget() {
@@ -137,7 +138,7 @@ export default function ViewOrderBudget() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$ {userData?.valorTotal}</p>
+                <p className={styles.OrderValue}>R$ {parseFloat(userData?.valorTotal || '0').toFixed(2)}</p>
               </div>
             </div>
 
@@ -263,9 +264,7 @@ export default function ViewOrderBudget() {
                     <p className={styles.ResName}>Observação</p>
                     <div className={styles.OrderResValue}>
                       <p className={styles.ResValue}>
-                        There are many variations of passages of Lorem Ipsum
-                        available, but the majority have suffered alteration in
-                        some form, by injected humour
+                        {userData?.obs}
                       </p>
                     </div>
                   </div>
@@ -274,7 +273,7 @@ export default function ViewOrderBudget() {
                 <div className={styles.OrderRes}>
                   <p className={styles.ResTitle}>Valor total</p>
                   <div>
-                    <p className={styles.ResTotal}>R$ {userData?.valorTotal}</p>
+                    <p className={styles.ResTotal}>R$ {parseFloat(userData?.valorTotal || '0').toFixed(2)}</p>
                   </div>
                 </div>
               </div>
