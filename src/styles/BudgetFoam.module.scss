@@ -42,6 +42,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+
 }
 
 .Value {
@@ -219,6 +221,19 @@
 }
 
 @media (max-width: 430px) {
+  .TotalValue {
+    margin-right: -0.5rem;
+  }
+
+  .ValueLabel {
+    font-size: 12px;
+  }
+
+  .Value {
+    font-size: 16px;
+    color: #000000;
+  }
+
   .FinishButton {
     width: 3rem;
     border-radius: 1.5rem;
@@ -237,9 +252,8 @@
   .Container {
     height: 950px;
   }
-  .Value {
-    font-size: 20px;
-  }
+
+
 
   .InputContainer {
     flex-direction: column;

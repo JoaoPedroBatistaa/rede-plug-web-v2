@@ -42,6 +42,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
 }
 
 .Value {
@@ -259,7 +260,16 @@
     height: 950px;
   }
 
+  .TotalValue {
+    margin-right: -1.5rem;
+  }
+
+  .ValueLabel {
+    font-size: 12px;
+  }
+
   .Value {
-    font-size: 20px;
+    font-size: 16px;
+    color: #000000;
   }
 }

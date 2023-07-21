@@ -15,6 +15,7 @@ export default function Home() {
     <>
       <Head>
         <link rel="icon" href="/fav.png" />
+        <title>Total Maxx System</title>
 
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');

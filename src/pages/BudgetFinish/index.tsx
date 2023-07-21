@@ -17,6 +17,8 @@ export default function BudgetFinish() {
   const router = useRouter();
 
   const [precoTotal, setPrecoTotal] = useState(0);
+  const [numero, setNumero] = useState("");
+  const [estado, setEstado] = useState("");
 
   useEffect(() => {
     const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
@@ -181,7 +183,7 @@ export default function BudgetFinish() {
   const dataCadastro = formatarData(dataCadastroInicial);
   const Entrega = formatarData(EntregaInicial);
 
-  const [selectedOption, setSelectedOption] = useState("opcao1");
+  const [selectedOption, setSelectedOption] = useState("");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
@@ -190,9 +192,7 @@ export default function BudgetFinish() {
 
   const [cpf, setCpf] = useState("");
   const [endereco, setEndereco] = useState("");
-  const [numero, setNumero] = useState("");
   const [cep, setCep] = useState("");
-  const [estado, setEstado] = useState("");
   const [complemento, setComplemento] = useState("");
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
@@ -306,6 +306,9 @@ export default function BudgetFinish() {
                     value={selectedOption}
                     onChange={handleSelectChange}
                   >
+                    <option value="" disabled selected>
+                      Defina o tipo de pessoa
+                    </option>
                     <option
                       value="FÍSICA"
                       selected={selectedOption === "FÍSICA"}
@@ -438,7 +441,6 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={bairro}
-                    disabled
                   />
                 </div>
 
@@ -451,7 +453,6 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={cidade}
-                    disabled
                   />
                 </div>
               </div>
@@ -466,7 +467,6 @@ export default function BudgetFinish() {
                     placeholder=""
                     onChange={handleInputChange}
                     value={estado}
-                    disabled
                   />
                 </div>
               </div>

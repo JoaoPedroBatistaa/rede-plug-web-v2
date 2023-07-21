@@ -13,6 +13,7 @@ import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
 
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 interface Budget {
   id: string;
@@ -226,6 +227,9 @@ export default function TableBudgets({
     console.log(openMenu);
   };
 
+  const router = useRouter();
+
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -248,6 +252,7 @@ export default function TableBudgets({
               key={item.id}
               onClick={() => {
                 localStorage.setItem("selectedBudgetId", item.id);
+                router.push('/ViewBudgetData');
               }}
             >
               <td className={styles.tdDisabled}>

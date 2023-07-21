@@ -60,9 +60,11 @@
   border: none;
   outline: none;
   fill: white;
+
   &::placeholder {
     color: white;
   }
+
   width: 100%;
   font-size: 16px;
 }
@@ -712,6 +714,12 @@
 }
 
 @media (max-width: 768px) {
+  .Container {
+    height: 100%;
+    padding-bottom: 18rem;
+  }
+
+
   .ListMenuFilterText {
     display: none !important;
   }
@@ -746,5 +754,31 @@
 }
 
 .filterItem {
+
+
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .searchContainer {
+    width: 200px;
+    height: 40px;
+
+
+  }
+
+  .searchInput {
+    outline: none;
+
+    &::placeholder {
+      color: #404049;
+    }
+
+    font-size: 10px;
+  }
+
+  .ProductName {
+    font-size: 16px;
+
+  }
 }

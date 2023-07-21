@@ -631,6 +631,8 @@
 
   .Value {
     font-size: 20px;
+    color: #000000;
+
   }
 
   .InputContainer {
@@ -749,10 +751,12 @@
   .BudgetHead {
     margin-top: 0;
   }
+
   .OrderData {
     background-image: none;
   }
 }
+
 @media (max-width: 767px) {
   .BudgetHeadO {
     display: none;

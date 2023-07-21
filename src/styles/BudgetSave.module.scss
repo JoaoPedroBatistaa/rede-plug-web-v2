@@ -291,6 +291,19 @@
 }
 
 @media (max-width: 430px) {
+  .TotalValue {
+    margin-right: -1.5rem;
+  }
+
+  .ValueLabel {
+    font-size: 12px;
+  }
+
+  .Value {
+    font-size: 16px;
+    color: #000000;
+  }
+
   .FinishButton {
     width: 3rem;
     border-radius: 1.5rem;
@@ -311,6 +324,8 @@
 
   .Value {
     font-size: 20px;
+    color: #000000;
+
   }
 
   .InputContainer {

@@ -13,6 +13,7 @@ import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
 
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 interface Order {
   id: string;
@@ -37,6 +38,9 @@ export default function Table({
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); // I
+
+  const router = useRouter();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -247,6 +251,8 @@ export default function Table({
               key={item.id}
               onClick={() => {
                 localStorage.setItem("selectedId", item.id);
+                router.push('/ViewOrderData');
+
               }}
             >
               <td className={styles.tdDisabled}>
