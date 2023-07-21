@@ -154,6 +154,30 @@ export default function Products() {
           <div className={styles.MainContainer}>
 
             <div className={styles.ListContainer}>
+              <div className={styles.topMenuMobile}>
+                <p className={styles.ProductNameMobile}>Foam</p>
+
+                <div className={styles.porcentContainerMobile}>
+                  <div >
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="Aumento em %"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button
+                    className={styles.AumentoPorcent}
+                    onClick={() => handleIncrease("Foam")}
+                  >
+                    <span className={styles.maisNoneMobile}>
+                      {" "}
+                      +
+                    </span>
+                    <span className={styles.maisNone}> +</span>
+                  </button>
+                </div>
+              </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Foam</p>
@@ -170,24 +194,26 @@ export default function Products() {
                 </div>
 
                 <div className={styles.ListMenuRight}>
-                <div className={styles.searchContainer}>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="%"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
-                  <button 
-                  className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Foam")}
-                  >
+                  <div className={styles.porcentContainer}>
+                    <div >
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                    <button
+                      className={styles.AumentoPorcent}
+                      onClick={() => handleIncrease("Foam")}
+                    >
                       <span className={styles.maisNoneMobile}>
                         {" "}
-                        Aumentar
+                        +
                       </span>
                       <span className={styles.maisNone}> +</span>
                     </button>
+                  </div>
                   <Link href="/ProductFoam">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -274,6 +300,30 @@ export default function Products() {
             </div>
 
             <div className={styles.ListContainer}>
+              <div className={styles.topMenuMobile}>
+                <p className={styles.ProductNameMobile}>Impressao</p>
+
+                <div className={styles.porcentContainerMobile}>
+                  <div >
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="Aumento em %"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button
+                    className={styles.AumentoPorcent}
+                    onClick={() => handleIncrease("Impressao")}
+                  >
+                    <span className={styles.maisNoneMobile}>
+                      {" "}
+                      +
+                    </span>
+                    <span className={styles.maisNone}> +</span>
+                  </button>
+                </div>
+              </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Impressão</p>
@@ -289,24 +339,26 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
-                <div className={styles.searchContainer}>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="%"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
-                  <button 
-                  className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Impressao")}
-                  >
+                  <div className={styles.porcentContainer}>
+                    <div >
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                    <button
+                      className={styles.AumentoPorcent}
+                      onClick={() => handleIncrease("Impressao")}
+                    >
                       <span className={styles.maisNoneMobile}>
                         {" "}
-                        Aumentar
+                        +
                       </span>
                       <span className={styles.maisNone}> +</span>
                     </button>
+                  </div>
                   <Link href="/ProductImpressao">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -393,6 +445,30 @@ export default function Products() {
             </div>
 
             <div className={styles.ListContainer}>
+              <div className={styles.topMenuMobile}>
+                <p className={styles.ProductNameMobile}>Paspatur</p>
+
+                <div className={styles.porcentContainerMobile}>
+                  <div >
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="Aumento em %"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button
+                    className={styles.AumentoPorcent}
+                    onClick={() => handleIncrease("Paspatur")}
+                  >
+                    <span className={styles.maisNoneMobile}>
+                      {" "}
+                      +
+                    </span>
+                    <span className={styles.maisNone}> +</span>
+                  </button>
+                </div>
+              </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Paspatur</p>
@@ -408,24 +484,26 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
-                <div className={styles.searchContainer}>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="%"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
-                  <button 
-                  className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Paspatur")}
-                  >
+                  <div className={styles.porcentContainer}>
+                    <div >
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                    <button
+                      className={styles.AumentoPorcent}
+                      onClick={() => handleIncrease("Paspatur")}
+                    >
                       <span className={styles.maisNoneMobile}>
                         {" "}
-                        Aumentar
+                        +
                       </span>
                       <span className={styles.maisNone}> +</span>
                     </button>
+                  </div>
                   <Link href="/ProductPaspatur">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -512,6 +590,30 @@ export default function Products() {
             </div>
 
             <div className={styles.ListContainer}>
+              <div className={styles.topMenuMobile}>
+                <p className={styles.ProductNameMobile}>Perfil</p>
+
+                <div className={styles.porcentContainerMobile}>
+                  <div >
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="Aumento em %"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button
+                    className={styles.AumentoPorcent}
+                    onClick={() => handleIncrease("Perfil")}
+                  >
+                    <span className={styles.maisNoneMobile}>
+                      {" "}
+                      +
+                    </span>
+                    <span className={styles.maisNone}> +</span>
+                  </button>
+                </div>
+              </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Perfil</p>
@@ -527,24 +629,26 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
-                <div className={styles.searchContainer}>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="%"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
-                  <button 
-                  className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Perfil")}
-                  >
+                  <div className={styles.porcentContainer}>
+                    <div >
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                    <button
+                      className={styles.AumentoPorcent}
+                      onClick={() => handleIncrease("Perfil")}
+                    >
                       <span className={styles.maisNoneMobile}>
                         {" "}
-                        Aumentar
+                        +
                       </span>
                       <span className={styles.maisNone}> +</span>
                     </button>
+                  </div>
                   <Link href="/ProductPerfil">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -643,6 +747,30 @@ export default function Products() {
 
             {/* NOME PRODUTO */}
             <div className={styles.ListContainer}>
+              <div className={styles.topMenuMobile}>
+                <p className={styles.ProductNameMobile}>Vidro</p>
+
+                <div className={styles.porcentContainerMobile}>
+                  <div >
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="Aumento em %"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button
+                    className={styles.AumentoPorcent}
+                    onClick={() => handleIncrease("Vidro")}
+                  >
+                    <span className={styles.maisNoneMobile}>
+                      {" "}
+                      +
+                    </span>
+                    <span className={styles.maisNone}> +</span>
+                  </button>
+                </div>
+              </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Vidro</p>
@@ -658,24 +786,26 @@ export default function Products() {
                   ></SearchInputListProducts>
                 </div>
                 <div className={styles.ListMenuRight}>
-                <div className={styles.searchContainer}>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="%"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
-                  <button 
-                  className={styles.AumentoPorcent}
-                  onClick={() => handleIncrease("Vidro")}
-                  >
+                  <div className={styles.porcentContainer}>
+                    <div >
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                    <button
+                      className={styles.AumentoPorcent}
+                      onClick={() => handleIncrease("Vidro")}
+                    >
                       <span className={styles.maisNoneMobile}>
                         {" "}
-                        Aumentar
+                        +
                       </span>
                       <span className={styles.maisNone}> +</span>
                     </button>
+                  </div>
                   <Link href="/ProductVidro">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
@@ -763,6 +893,30 @@ export default function Products() {
             </div>
 
             <div className={styles.ListContainer}>
+              <div className={styles.topMenuMobile}>
+                <p className={styles.ProductNameMobile}>Colagem</p>
+
+                <div className={styles.porcentContainerMobile}>
+                  <div >
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="Aumento em %"
+                      onChange={handleIncreaseChange}
+                    />
+                  </div>
+                  <button
+                    className={styles.AumentoPorcent}
+                    onClick={() => handleIncrease("Colagem")}
+                  >
+                    <span className={styles.maisNoneMobile}>
+                      {" "}
+                      +
+                    </span>
+                    <span className={styles.maisNone}> +</span>
+                  </button>
+                </div>
+              </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Colagem</p>
@@ -779,6 +933,26 @@ export default function Products() {
                 </div>
 
                 <div className={styles.ListMenuRight}>
+                  <div className={styles.porcentContainer}>
+                    <div >
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                    <button
+                      className={styles.AumentoPorcent}
+                      onClick={() => handleIncrease("Perfil")}
+                    >
+                      <span className={styles.maisNoneMobile}>
+                        {" "}
+                        +
+                      </span>
+                      <span className={styles.maisNone}> +</span>
+                    </button>
+                  </div>
                   <Link href="/ProductColagem">
                     <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>

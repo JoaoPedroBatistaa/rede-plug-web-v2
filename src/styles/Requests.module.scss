@@ -54,15 +54,20 @@
 }
 
 .InputEdit {
-  background-color: transparent;
+  background-color: #fff;
   font-family: "Outfit";
-  color: white;
+  color: rgb(0, 0, 0);
   border: none;
   outline: none;
   fill: white;
+  padding-top: 6px;
+  padding-bottom: 6px;
+
+  border-radius: 6px;
 
   &::placeholder {
-    color: white;
+    color: rgb(151, 151, 151);
+    padding-left: 6px;
   }
 
   width: 100%;
@@ -77,17 +82,40 @@
   border: 0;
   text-transform: uppercase;
   cursor: pointer;
+
+  margin-left: 32px;
 }
 
 .AumentoPorcent {
   background: #0bb07b;
   border-radius: 6px;
-  height: 39px;
-  width: 135px;
+  height: 32px;
+  width: 32px;
   border: 0;
   text-transform: uppercase;
   cursor: pointer;
-  margin-right: 30px;
+
+  margin-left: 8px;
+
+}
+
+.porcentContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  justify-content: center;
+
+  background-color: #F6F7FA;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 8px;
+  padding-top: 8px;
+  border-radius: 6px;
+}
+
+.porcentContainerMobile {
+  display: none;
 }
 
 .ListMenuFilter {
@@ -732,6 +760,8 @@
     display: flex;
 
     font-size: 18px;
+    align-items: center;
+    justify-content: center;
   }
 
   .ListMenuButton {
@@ -740,6 +770,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    margin-left: 0px;
   }
 
   .ListMenuFilter {
@@ -759,11 +791,73 @@
   cursor: pointer;
 }
 
+.topProduct {
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 1.5rem;
+}
+
+@media (max-width: 2560px) {}
+
+.ProductNameMobile {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .searchContainer {
     width: 200px;
     height: 40px;
+  }
 
+  .ProductName {
+    display: none;
+  }
+
+  .porcentContainer {
+    display: none;
+  }
+
+  .porcentContainerMobile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    justify-content: center;
+
+    background-color: #F6F7FA;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 8px;
+    padding-top: 8px;
+    border-radius: 6px;
+  }
+
+  .InputEdit {}
+
+  .topMenuMobile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    margin-bottom: 1rem;
+  }
+
+  .ProductNameMobile {
+    display: block;
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 20px;
+    color: #404049;
+    margin-left: 8px;
+    margin-right: 16px;
 
   }
 

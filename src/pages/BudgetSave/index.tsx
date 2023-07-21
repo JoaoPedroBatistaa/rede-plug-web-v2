@@ -259,7 +259,7 @@ export default function BudgetSave() {
               <p className={styles.FieldLabel}>Observações</p>
               <textarea
                 id="obs"
-                className={styles.FieldSave}
+                className={styles.FieldObs}
                 placeholder=""
                 onChange={handleTextAreaChange}
               />
