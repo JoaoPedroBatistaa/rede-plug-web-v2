@@ -7,6 +7,7 @@ import BudgetSize from './BudgetSize';
 import ViewOrderData from './ViewOrderData';
 import ViewBudgetData from './ViewBudgetData';
 import ViewOrderBudget from './ViewOrderBudget';
+import BudgetDecision from './BudgetDecision';
 
 import App from './_app';
 
