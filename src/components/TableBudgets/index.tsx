@@ -334,9 +334,9 @@ export default function TableBudgets({
                 </span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
-                {item.Entrega}
+                Confira no orçamento
                 <br />
-                <span className={styles.diasUteis}>15 dias Utéis</span>
+                <span className={styles.diasUteis}></span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
                 {item.dataCadastro}

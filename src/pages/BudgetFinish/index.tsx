@@ -16,105 +16,78 @@ import classnames from "classnames";
 export default function BudgetFinish() {
   const router = useRouter();
 
-  const [precoTotal, setPrecoTotal] = useState(0);
   const [numero, setNumero] = useState("");
   const [estado, setEstado] = useState("");
 
-  useEffect(() => {
-    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
-      if (typeof window !== "undefined") {
-        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
-        const valorFoam = Number(localStorage.getItem("valorFoam"));
-        const valorVidro = Number(localStorage.getItem("valorVidro"));
-        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
-        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
-        const valorColagem = Number(localStorage.getItem("valorColagem"));
-
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
-      }
-    }, 200); // Tempo do intervalo em milissegundos
-
-    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
-  }, []);
 
   let nomeCompleto: string | null;
   let Telefone: string | null;
   let email: string | null;
-  let instalacao: string | null;
-  let valorInstalacao: string | null;
-  let tipoEntrega: string | null;
-  let valorEntrega: string | null;
-  let impressao: string | null;
-  let tipoImpressao: string | null;
-  let fileInput: string | null;
-  let collage: string | null;
-  let paspatur: string | null;
-  let codigoPaspatur: string | null;
-  let dimensoesPaspatur: string | null;
-  let foam: string | null;
-  let codigoFoam: string | null;
-  let mdf: string | null;
-  let codigoMdf: string | null;
-  let vidro: string | null;
-  let espessuraVidro: string | null;
-  let espelho: string | null;
-  let espessuraEspelho: string | null;
-  let codigoPerfil: string | null;
-  let espessuraPerfil: string | null;
-  let Tamanho: string | null;
   let tipoPessoa: string | null;
   let valorTotal: string | null;
-  let obs: string | null;
 
-
-  valorTotal = precoTotal.toString();
+  if (typeof window !== "undefined") {
+    valorTotal = localStorage.getItem("grandTotal");
+  }
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto");
     Telefone = localStorage.getItem("Telefone");
     email = localStorage.getItem("email");
-    instalacao = localStorage.getItem("instalacao");
-    valorInstalacao = localStorage.getItem("valorInstalacao");
-    tipoEntrega = localStorage.getItem("tipoEntrega");
-    valorEntrega = localStorage.getItem("valorEntrega");
-    impressao = localStorage.getItem("impressao");
-    tipoImpressao = localStorage.getItem("tipoImpressao");
-    fileInput = localStorage.getItem("fileInput");
-    collage = localStorage.getItem("collage");
-    paspatur = localStorage.getItem("paspatur");
-    codigoPaspatur = localStorage.getItem("codigoPaspatur");
-    dimensoesPaspatur = localStorage.getItem("dimensoesPaspatur");
-    foam = localStorage.getItem("foam");
-    codigoFoam = localStorage.getItem("codigoFoam");
-    mdf = localStorage.getItem("mdf");
-    codigoMdf = localStorage.getItem("codigoMdf");
-    vidro = localStorage.getItem("vidro");
-    espessuraVidro = localStorage.getItem("espessuraVidro");
-    espelho = localStorage.getItem("espelho");
-    espessuraEspelho = localStorage.getItem("espessuraEspelho");
-    codigoPerfil = localStorage.getItem("codigoPerfil");
-    espessuraPerfil = localStorage.getItem("espessuraPerfil");
-    Tamanho = localStorage.getItem("Tamanho");
-    tipoPessoa = localStorage.getItem("tipoPessoa");
-    obs = localStorage.getItem("obs");
-
+    tipoPessoa = localStorage.getItem("tipoPessoa")
   }
 
-  const handleSaveOrder = async () => {
-    if (
-      !nomeCompleto ||
-      !Telefone ||
-      !email ||
-      !cpf ||
-      !endereco ||
-      !cidade ||
-      !bairro ||
-      !cep
-    ) {
-      // Se algum campo estiver vazio, exiba uma mensagem para preencher todos os dados
+  const [budgets, setBudgets] = useState<any[]>([]);
 
-      console.log(cep);
-      toast.error("Por favor, preencha todos os campos.");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const localBudgets = localStorage.getItem('budgets');
+      if (localBudgets) {
+        const budgetsObject = JSON.parse(localBudgets);
+        const budgetsArray = Object.values(budgetsObject);
+        setBudgets(budgetsArray);
+      }
+    }
+  }, []);
+
+  const handleSaveOrder = async () => {
+    if (!nomeCompleto) {
+      toast.error("Por favor, preencha o campo Nome Completo.");
+      return;
+    }
+
+    if (!Telefone) {
+      toast.error("Por favor, preencha o campo Telefone.");
+      return;
+    }
+
+    if (!email) {
+      toast.error("Por favor, preencha o campo Email.");
+      return;
+    }
+
+    if (!cpf) {
+      toast.error("Por favor, preencha o campo CPF.");
+      return;
+    }
+
+    if (!endereco) {
+      toast.error("Por favor, preencha o campo Endereço.");
+      return;
+    }
+
+    if (!cidade) {
+      toast.error("Por favor, preencha o campo Cidade.");
+      return;
+    }
+
+    if (!bairro) {
+      toast.error("Por favor, preencha o campo Bairro.");
+      return;
+    }
+
+    if (!cep) {
+      toast.error("Por favor, preencha o campo CEP.");
       return;
     }
 
@@ -123,28 +96,6 @@ export default function BudgetFinish() {
         nomeCompleto,
         Telefone,
         email,
-        instalacao,
-        valorInstalacao,
-        tipoEntrega,
-        valorEntrega,
-        impressao,
-        tipoImpressao,
-        fileInput,
-        collage,
-        paspatur,
-        codigoPaspatur,
-        dimensoesPaspatur,
-        foam,
-        codigoFoam,
-        mdf,
-        codigoMdf,
-        vidro,
-        espessuraVidro,
-        espelho,
-        espessuraEspelho,
-        codigoPerfil,
-        espessuraPerfil,
-        Tamanho,
         dataCadastro,
         Entrega,
         cpf,
@@ -155,7 +106,7 @@ export default function BudgetFinish() {
         complemento,
         tipoPessoa,
         valorTotal,
-        obs
+        budgets
       });
       toast.success("Pedido enviado!");
       setTimeout(() => {
@@ -166,7 +117,6 @@ export default function BudgetFinish() {
     }
   };
 
-  console.log("total -->", valorTotal);
 
   const formatarData = (data: Date) => {
     const dia = data.getDate();

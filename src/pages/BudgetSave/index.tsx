@@ -23,105 +23,25 @@ export default function BudgetSave() {
   const [nomeCompleto, setNomeCompleto] = useState("");
   const [Telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
-  const [obs, setObs] = useState("");
-
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
     if (id === "nomeCompleto") {
       setNomeCompleto(value);
+      localStorage.setItem("nomeCompleto", nomeCompleto);
     } else if (id === "Telefone") {
       setTelefone(value);
+      localStorage.setItem("Telefone", Telefone);
     } else if (id === "email") {
       setEmail(value);
+      localStorage.setItem("email", email);
     }
   };
 
-  const handleTextAreaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    const { id, value } = event.target;
-    if (id === "obs") {
-      setObs(value);
-    }
-  };
-
-
-  const [precoTotal, setPrecoTotal] = useState(0);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
-      if (typeof window !== "undefined") {
-        const valorPerfil = Number(localStorage.getItem("valorPerfil"));
-        const valorFoam = Number(localStorage.getItem("valorFoam"));
-        const valorVidro = Number(localStorage.getItem("valorVidro"));
-        const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
-        const valorImpressao = Number(localStorage.getItem("valorImpressao"));
-        const valorColagem = Number(localStorage.getItem("valorColagem"));
-
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
-      }
-    }, 200); // Tempo do intervalo em milissegundos
-
-    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
-  }, []);
-
-
-  let instalacao: string | null;
-  let valorInstalacao: string | null;
-  let tipoEntrega: string | null;
-  let valorEntrega: string | null;
-  let impressao: string | null;
-  let tipoImpressao: string | null;
-  let fileInput: string | null;
-  let collage: string | null;
-  let paspatur: string | null;
-  let codigoPaspatur: string | null;
-  let dimensoesPaspatur: string | null;
-  let foam: string | null;
-  let codigoFoam: string | null;
-  let mdf: string | null;
-  let codigoMdf: string | null;
-  let vidro: string | null;
-  let espessuraVidro: string | null;
-  let espelho: string | null;
-  let espessuraEspelho: string | null;
-  let codigoPerfil: string | null;
-  let espessuraPerfil: string | null;
-  let Tamanho: string | null;
-  let tipoPessoa: string | null;
   let valorTotal: string | null;
 
-
-
-
-  valorTotal = precoTotal.toString();
-  console.log("valor total --> ", valorTotal)
-
-
   if (typeof window !== "undefined") {
-    instalacao = localStorage.getItem("instalacao");
-    valorInstalacao = localStorage.getItem("valorInstalacao");
-    tipoEntrega = localStorage.getItem("tipoEntrega");
-    valorEntrega = localStorage.getItem("valorEntrega");
-    impressao = localStorage.getItem("impressao");
-    tipoImpressao = localStorage.getItem("tipoImpressao");
-    fileInput = localStorage.getItem("fileInput");
-    collage = localStorage.getItem("collage");
-    paspatur = localStorage.getItem("paspatur");
-    codigoPaspatur = localStorage.getItem("codigoPaspatur");
-    dimensoesPaspatur = localStorage.getItem("dimensoesPaspatur");
-    foam = localStorage.getItem("foam");
-    codigoFoam = localStorage.getItem("codigoFoam");
-    mdf = localStorage.getItem("mdf");
-    codigoMdf = localStorage.getItem("codigoMdf");
-    vidro = localStorage.getItem("vidro");
-    espessuraVidro = localStorage.getItem("espessuraVidro");
-    espelho = localStorage.getItem("espelho");
-    espessuraEspelho = localStorage.getItem("espessuraEspelho");
-    codigoPerfil = localStorage.getItem("codigoPerfil");
-    espessuraPerfil = localStorage.getItem("espessuraPerfil");
-    Tamanho = localStorage.getItem("Tamanho");
-    tipoPessoa = localStorage.getItem("tipoPessoa");
-
+    valorTotal = localStorage.getItem("grandTotal");
   }
 
   const formatarData = (data: Date) => {
@@ -141,6 +61,19 @@ export default function BudgetSave() {
 
   const Ativo = true;
 
+  const [budgets, setBudgets] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const localBudgets = localStorage.getItem('budgets');
+      if (localBudgets) {
+        const budgetsObject = JSON.parse(localBudgets);
+        const budgetsArray = Object.values(budgetsObject);
+        setBudgets(budgetsArray);
+      }
+    }
+  }, []);
+
 
 
   const handleSaveBudget = async () => {
@@ -149,33 +82,9 @@ export default function BudgetSave() {
         nomeCompleto,
         Telefone,
         email,
-        instalacao,
-        valorInstalacao,
-        tipoEntrega,
-        valorEntrega,
-        impressao,
-        tipoImpressao,
-        fileInput,
-        collage,
-        paspatur,
-        codigoPaspatur,
-        dimensoesPaspatur,
-        foam,
-        codigoFoam,
-        mdf,
-        codigoMdf,
-        vidro,
-        espessuraVidro,
-        espelho,
-        espessuraEspelho,
-        codigoPerfil,
-        espessuraPerfil,
-        Tamanho,
         dataCadastro,
-        Entrega,
-        Ativo,
-        valorTotal,
-        obs
+        budgets,
+        valorTotal
       });
 
       toast.success("Salvo com sucesso!");
@@ -250,18 +159,6 @@ export default function BudgetSave() {
                 className={styles.FieldSave}
                 placeholder=""
                 onChange={handleInputChange}
-              />
-            </div>
-          </div>
-
-          <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Observações</p>
-              <textarea
-                id="obs"
-                className={styles.FieldObs}
-                placeholder=""
-                onChange={handleTextAreaChange}
               />
             </div>
           </div>

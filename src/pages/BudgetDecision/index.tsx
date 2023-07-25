@@ -2,6 +2,8 @@ import Head from "next/head";
 import styles from "../../styles/BudgetDecision.module.scss";
 import { useRouter } from "next/router";
 
+import { toast } from 'react-toastify';
+
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuHome from "@/components/SideMenuHome";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -37,13 +39,9 @@ export default function BudgetDecision() {
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
-  const [selectedOption, setSelectedOption] = useState("");
+  const [formaPagamento, setFormaPagamento] = useState("");
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
-
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
-  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -74,7 +72,34 @@ export default function BudgetDecision() {
     fetchData();
   }, [selectedBudgetId]);
 
+
+  const [valorPerfil, setValorPerfil] = useState("");
+  const [valorFoam, setValorFoam] = useState("");
+  const [valorVidro, setValorVidro] = useState("");
+  const [valorPaspatur, setValorPaspatur] = useState("");
+  const [valorImpressao, setValorImpressao] = useState("");
+  const [valorColagem, setValorColagem] = useState("");
   const [precoTotal, setPrecoTotal] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (typeof window !== "undefined") {
+        setValorPerfil(localStorage.getItem("valorPerfil") || '');
+        setValorFoam(localStorage.getItem("valorFoam") || '');
+        setValorVidro(localStorage.getItem("valorVidro") || '');
+        setValorPaspatur(localStorage.getItem("valorPaspatur") || '');
+        setValorImpressao(localStorage.getItem("valorImpressao") || '');
+        setValorColagem(localStorage.getItem("valorColagem") || '');
+
+        const total = Number(valorPaspatur) + Number(valorPerfil) + Number(valorFoam) + Number(valorVidro) + Number(valorImpressao);
+
+        if (!isNaN(total)) {
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
@@ -92,6 +117,9 @@ export default function BudgetDecision() {
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
+
+
+
 
   let nomeCompleto: string = '';
   let Telefone: string = '';
@@ -155,6 +183,196 @@ export default function BudgetDecision() {
     obs = localStorage.getItem("obs") || '';
   }
 
+  const [maoDeObraExtra, setMaoDeObraExtra] = useState("");
+  const [dataVencimento, setDataVencimento] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+
+  // Atualizando o valor do estado e salvando no localStorage ao mudar o select
+  const handleSelectChange = (e: any) => {
+    setFormaPagamento(e.target.value);
+    localStorage.setItem('formaPagamento', e.target.value);
+  };
+
+  // Criando um useEffect para monitorar a mudança dos estados
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const localFormaPagamento = localStorage.getItem("formaPagamento");
+      const localMaoDeObraExtra = localStorage.getItem("maoDeObraExtra");
+      const localDataVencimento = localStorage.getItem("dataVencimento");
+      const localObservacoes = localStorage.getItem("observacoes");
+
+      if (localFormaPagamento) setFormaPagamento(localFormaPagamento);
+      if (localMaoDeObraExtra) setMaoDeObraExtra(localMaoDeObraExtra);
+      if (localDataVencimento) setDataVencimento(localDataVencimento);
+      if (localObservacoes) setObservacoes(localObservacoes);
+    }
+  }, []);
+
+  function formatDate(date: any) {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + 1); // Aqui nós adicionamos 1 ao dia atual.
+    const dia = newDate.getDate().toString().padStart(2, '0');
+    const mes = (newDate.getMonth() + 1).toString().padStart(2, '0'); //+1 pois no getMonth Janeiro começa com zero.
+    const ano = newDate.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  }
+
+
+  // SALVAR ORÇAMENTO COMO OBJETO
+
+  const [budgetId, setBudgetId] = useState<number>(0);
+
+  function saveBudget(id: string, budgetData: any) {
+    const existingBudgets = JSON.parse(localStorage.getItem('budgets') || '{}');
+    existingBudgets[id] = budgetData;
+    localStorage.setItem('budgets', JSON.stringify(existingBudgets));
+  }
+
+  const handleSaveMoreBudget = () => {
+    let newBudgetId = budgetId;
+
+    const localBudgetId = localStorage.getItem('budgetId');
+    if (localBudgetId) {
+      newBudgetId = Number(localBudgetId) + 1;
+      localStorage.setItem('budgetId', newBudgetId.toString());
+    } else {
+      newBudgetId += 1;
+      localStorage.setItem('budgetId', newBudgetId.toString());
+    }
+
+    const budgetData = {
+      instalacao,
+      valorInstalacao,
+      tipoEntrega,
+      valorEntrega,
+      impressao,
+      tipoImpressao,
+      fileInput,
+      collage,
+      paspatur,
+      codigoPaspatur,
+      dimensoesPaspatur,
+      foam,
+      codigoFoam,
+      mdf,
+      codigoMdf,
+      vidro,
+      espessuraVidro,
+      espelho,
+      espessuraEspelho,
+      codigoPerfil,
+      espessuraPerfil,
+      Tamanho,
+      valorTotal,
+      maoDeObraExtra,
+      dataVencimento,
+      observacoes,
+      formaPagamento // forma de pagamento
+    };
+
+    if (!formaPagamento || formaPagamento === "") {
+      toast.error("Por favor, defina a forma de pagamento");
+      return; // Termina a execução da função
+    }
+
+    if (!dataVencimento || dataVencimento === "") {
+      toast.error("Por favor, defina a data de vencimento");
+      return; // Termina a execução da função
+    }
+
+    saveBudget(newBudgetId.toString(), budgetData);
+
+    const itensParaManter = ['userId', 'ally-supports-cache', 'budgets', 'budgetId'];
+    const todasAsChaves = Object.keys(localStorage);
+    todasAsChaves.forEach(chave => {
+      if (!itensParaManter.includes(chave)) {
+        localStorage.removeItem(chave);
+      }
+    });
+
+    router.push('/BudgetSize');
+  };
+
+  const handleSaveBudget = () => {
+    let newBudgetId = budgetId;
+
+    const localBudgetId = localStorage.getItem('budgetId');
+    if (localBudgetId) {
+      newBudgetId = Number(localBudgetId) + 1;
+      localStorage.setItem('budgetId', newBudgetId.toString());
+    } else {
+      newBudgetId += 1;
+      localStorage.setItem('budgetId', newBudgetId.toString());
+    }
+
+    const budgetData = {
+      instalacao,
+      valorInstalacao,
+      tipoEntrega,
+      valorEntrega,
+      impressao,
+      tipoImpressao,
+      fileInput,
+      collage,
+      paspatur,
+      codigoPaspatur,
+      dimensoesPaspatur,
+      foam,
+      codigoFoam,
+      mdf,
+      codigoMdf,
+      vidro,
+      espessuraVidro,
+      espelho,
+      espessuraEspelho,
+      codigoPerfil,
+      espessuraPerfil,
+      Tamanho,
+      valorTotal,
+      maoDeObraExtra,
+      dataVencimento,
+      observacoes,
+      formaPagamento // forma de pagamento
+    };
+
+    if (!formaPagamento || formaPagamento === "") {
+      toast.error("Por favor, defina a forma de pagamento");
+      return; // Termina a execução da função
+    }
+
+    if (!dataVencimento || dataVencimento === "") {
+      toast.error("Por favor, defina a data de vencimento");
+      return; // Termina a execução da função
+    }
+
+    saveBudget(newBudgetId.toString(), budgetData);
+
+    router.push('/BudgetSave');
+  };
+
+  const [savedBudgets, setSavedBudgets] = useState<any[]>([]);
+
+
+  useEffect(() => {
+    const localBudgets = localStorage.getItem('budgets');
+    if (localBudgets) {
+      const budgetsObject = JSON.parse(localBudgets);
+      const budgetsArray: any[] = Object.values(budgetsObject);
+      setSavedBudgets(budgetsArray);
+    }
+  }, []);
+
+  const totalSavedBudgets = savedBudgets ? savedBudgets.reduce((sum, budget) => {
+    return sum + parseFloat(budget.valorTotal || '0');
+  }, 0) : 0;
+
+  const grandTotal = totalSavedBudgets + parseFloat(valorTotal || '0');
+  if (typeof window !== "undefined") {
+    localStorage.setItem("grandTotal", grandTotal);
+  }
+
+
+
   return (
     <>
       <Head>
@@ -184,81 +402,82 @@ export default function BudgetDecision() {
                 </Link>
               </div>
 
-              {/* <div className={styles.BudgetHeadO}>
-                <p className={styles.Title}>Valor total:</p>
-              </div> */}
+              <div className={styles.BudgetHeadO}>
+                <p className={styles.SubTitle}>Valor total: R$ {parseFloat(grandTotal || '0').toFixed(2)}</p>
+              </div>
             </div>
 
             <div className={styles.linhaOrder}></div>
 
             <div className={styles.OrderData}>
-              <div className={styles.OrderAll}>
-                <div className={styles.OrderRes}>
-                  <p className={styles.ResTitle}>Resumo do orçamento</p>
+              <div className={styles.Budgets}>
+                <div className={styles.OrderAll}>
+                  <div className={styles.OrderRes}>
+                    <p className={styles.ResTitle}>ORÇAMENTO ATUAL:</p>
 
-                  <div>
-                    <p className={styles.ResName}>Tamanho</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{Tamanho}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className={styles.ResName}>Impressão</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>
-                        {impressao} - {tipoImpressao}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className={styles.ResName}>Perfil</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>
-                        {codigoPerfil} - {espessuraPerfil}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className={styles.ResName}>Vidro</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>
-                        {vidro} - {espessuraVidro}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className={styles.ResName}>Foam</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{foam}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className={styles.ResName}>Paspatur</p>
                     <div>
+                      <p className={styles.ResName}>Tamanho</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>{Tamanho}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className={styles.ResName}>Impressão</p>
                       <div className={styles.OrderResValue}>
                         <p className={styles.ResValue}>
-                          {paspatur} - {codigoPaspatur}
+                          {impressao} - R$ {parseFloat(valorImpressao || '0').toFixed(2)}
                         </p>
                       </div>
-
-                      <p className={styles.ResValue}>
-                        {dimensoesPaspatur}
-                      </p>
                     </div>
-                  </div>
 
-                  <div>
-                    <p className={styles.ResName}>Colagem</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{collage}</p>
+                    <div>
+                      <p className={styles.ResName}>Perfil</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>
+                          {codigoPerfil} - R$ {parseFloat(valorPerfil || '0').toFixed(2)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  {/* 
+
+                    <div>
+                      <p className={styles.ResName}>Vidro</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>
+                          {vidro} - R$ {parseFloat(valorVidro || '0').toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className={styles.ResName}>Foam</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>{foam} - R$ {parseFloat(valorFoam || '0').toFixed(2)}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className={styles.ResName}>Paspatur</p>
+                      <div>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>
+                            {paspatur} - R$ {parseFloat(valorPaspatur || '0').toFixed(2)}
+                          </p>
+                        </div>
+
+                        <p className={styles.ResValue}>
+                          {dimensoesPaspatur}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className={styles.ResName}>Colagem</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>R$ {parseFloat(valorColagem || '0').toFixed(2)}</p>
+                      </div>
+                    </div>
+                    {/* 
                   <div>
                     <p className={styles.ResName}>Impressão</p>
                     <div className={styles.OrderResValue}>
@@ -266,63 +485,191 @@ export default function BudgetDecision() {
                     </div>
                   </div> */}
 
-                  <div>
-                    <p className={styles.ResName}>Instalação</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>
-                        {instalacao} - {valorInstalacao}
-                      </p>
+                    <div>
+                      <p className={styles.ResName}>Instalação</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>
+                          {instalacao} - {valorInstalacao}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className={styles.ResName}>Entrega</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>{tipoEntrega}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <p className={styles.ResName}>Entrega</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>{tipoEntrega}</p>
+                  <div className={styles.OrderRes}>
+                    <p className={styles.ResTitle}>Pagamentos e prazos</p>
+
+                    <div>
+                      <p className={styles.ResName}>Mão de obra externa</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>{maoDeObraExtra}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className={styles.ResName}>Forma de pagamento</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>{formaPagamento}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className={styles.ResName}>Prazo para entrega</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>{formatDate(dataVencimento)}</p>
+                      </div>
+                    </div>
+
+                    <div className={styles.OrderNotes}>
+                      <p className={styles.ResName}>Observação</p>
+                      <div className={styles.OrderResValue}>
+                        <p className={styles.ResValue}>
+                          {observacoes}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.OrderRes}>
+                    <p className={styles.ResTitle}>Valor total</p>
+                    <div>
+                      <p className={styles.ResTotal}>R$ {parseFloat(valorTotal || '0').toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className={styles.OrderRes}>
-                  <p className={styles.ResTitle}>Pagamentos e prazos</p>
+                {savedBudgets.map((budget, index) => (
+                  <div key={index} className={styles.OrderAll}>
+                    <div className={styles.OrderRes}>
+                      <p className={styles.ResTitle}>ORÇAMENTO {index + 1}</p>
 
-                  <div>
-                    <p className={styles.ResName}>Mão de obra externa</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}></p>
+                      <div>
+                        <p className={styles.ResName}>Tamanho</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{budget.Tamanho}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Impressão</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>
+                            {budget.impressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Perfil</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>
+                            {budget.codigoPerfil} - R$ {parseFloat(budget.valorPerfil || '0').toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Vidro</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>
+                            {budget.vidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Foam</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{budget.foam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Paspatur</p>
+                        <div>
+                          <div className={styles.OrderResValue}>
+                            <p className={styles.ResValue}>
+                              {budget.paspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
+                            </p>
+                          </div>
+                          <p className={styles.ResValue}>
+                            {budget.dimensoesPaspatur}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Colagem</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Instalação</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>
+                            {budget.instalacao} - {budget.valorInstalacao}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Entrega</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{budget.tipoEntrega}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.OrderRes}>
+                      <p className={styles.ResTitle}>Pagamentos e prazos</p>
+
+                      <div>
+                        <p className={styles.ResName}>Mão de obra externa</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{budget.maoDeObraExtra}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Forma de pagamento</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{budget.formaPagamento}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Prazo para entrega</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{formatDate(budget.dataVencimento)}</p>
+                        </div>
+                      </div>
+
+                      <div className={styles.OrderNotes}>
+                        <p className={styles.ResName}>Observação</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>
+                            {budget.observacoes}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.OrderRes}>
+                      <p className={styles.ResTitle}>Valor total</p>
+                      <div>
+                        <p className={styles.ResTotal}>R$ {parseFloat(budget.valorTotal || '0').toFixed(2)}</p>
+                      </div>
                     </div>
                   </div>
-
-                  <div>
-                    <p className={styles.ResName}>Forma de pagamento</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}></p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className={styles.ResName}>Prazo para entrega</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}></p>
-                    </div>
-                  </div>
-
-                  <div className={styles.OrderNotes}>
-                    <p className={styles.ResName}>Observação</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>
-                        {obs}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.OrderRes}>
-                  <p className={styles.ResTitle}>Valor total</p>
-                  <div>
-                    <p className={styles.ResTotal}>R$ {parseFloat(valorTotal || '0').toFixed(2)}</p>
-                  </div>
-                </div>
+                ))}
               </div>
 
               <div className={styles.CtaOne}>
@@ -331,7 +678,7 @@ export default function BudgetDecision() {
                     <p className={styles.FieldLabel}>Forma de pagamento</p>
                     <select
                       className={styles.SelectFieldPersonDes}
-                      value={selectedOption}
+                      value={formaPagamento}
                       onChange={handleSelectChange}
                     >
                       <option value="" disabled selected>
@@ -339,13 +686,13 @@ export default function BudgetDecision() {
                       </option>
                       <option
                         value="A VISTA"
-                        selected={selectedOption === "FÍSICA"}
+                        selected={formaPagamento === "A VISTA"}
                       >
                         A VISTA
                       </option>
                       <option
                         value="A PRAZO"
-                        selected={selectedOption === "JURÍDICA"}
+                        selected={formaPagamento === "A PRAZO"}
                       >
                         A PRAZO
                       </option>
@@ -360,6 +707,11 @@ export default function BudgetDecision() {
                       type="text"
                       className={styles.FieldSaveDes}
                       placeholder=""
+                      value={maoDeObraExtra}
+                      onChange={(e) => {
+                        setMaoDeObraExtra(e.target.value);
+                        localStorage.setItem('maoDeObraExtra', e.target.value);
+                      }}
                     />
                   </div>
                 </div>
@@ -371,6 +723,11 @@ export default function BudgetDecision() {
                       type="date"
                       className={styles.FieldSaveDes}
                       placeholder=""
+                      value={dataVencimento}
+                      onChange={(e) => {
+                        setDataVencimento(e.target.value);
+                        localStorage.setItem('dataVencimento', e.target.value);
+                      }}
                     />
                   </div>
                 </div>
@@ -382,21 +739,31 @@ export default function BudgetDecision() {
                       id="obs"
                       className={styles.FieldObs}
                       placeholder=""
+                      value={observacoes}
+                      onChange={(e) => {
+                        setObservacoes(e.target.value);
+                        localStorage.setItem('observacoes', e.target.value);
+                      }}
                     />
                   </div>
                 </div>
               </div>
 
               <div className={styles.Cta}>
-                <div className={styles.WhatsButton}>
+                {/* <Link href="/BudgetSave"> */}
+                <div className={styles.WhatsButton} onClick={handleSaveBudget}>
                   <img className={styles.WhatsImg} src="./Save.png" alt="" />
                   <p className={styles.WhatsText}>SALVAR ORÇAMENTO</p>
                 </div>
+                {/* </Link> */}
 
-                <div className={styles.PdfButton}>
+
+                {/* <Link href="/BudgetSize"> */}
+                <div className={styles.PdfButton} onClick={handleSaveMoreBudget}>
                   <img className={styles.WhatsImg} src="./MoreBud.png" alt="" />
                   <p className={styles.PdfText}>ORÇAR MAIS UM PRODUTO</p>
                 </div>
+                {/* </Link> */}
               </div>
             </div>
           </div>

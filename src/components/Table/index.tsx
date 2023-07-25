@@ -334,9 +334,9 @@ export default function Table({
                 </span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
-                {item.Entrega}
+                Confira no pedido
                 <br />
-                <span className={styles.diasUteis}>15 dias Utéis</span>
+                <span className={styles.diasUteis}></span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
                 {item.dataCadastro}
@@ -346,7 +346,7 @@ export default function Table({
               <td className={styles.td} id={styles.tdNone}>
                 R$ {parseFloat(item.valorTotal || '0').toFixed(2)}
                 <br />
-                <span className={styles.diasUteis}>À Vista</span>
+                <span className={styles.diasUteis}></span>
               </td>
             </tr>
           ))}
