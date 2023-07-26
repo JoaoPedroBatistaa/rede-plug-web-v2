@@ -702,7 +702,7 @@
 
   .BudgetTitle {
     font-size: 26px;
-    max-width: 14rem;
+    max-width: 12rem;
   }
 
   .Copyright {
@@ -798,6 +798,7 @@
   }
 
   .WhatsButton {
+    width: 92.5%;
     flex-direction: row;
     margin-top: 3rem;
     margin-left: 0;
@@ -826,6 +827,13 @@
     padding-top: 2.5rem;
     padding-bottom: 2.5rem;
     gap: 1rem;
+    width: 92.5%;
+
+  }
+
+  .Budgets {
+    width: 100%;
+    margin-bottom: 2rem;
   }
 
   .PdfText {

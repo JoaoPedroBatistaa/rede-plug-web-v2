@@ -167,7 +167,7 @@ export default function BudgetFoam() {
 
         toast.success("Finalizando Orçamento!");
         setTimeout(() => {
-          window.location.href = "/BudgetSave";
+          window.location.href = "/BudgetDecision";
         }, 500);
       } else {
         toast.error("Informe os dados necessarios");

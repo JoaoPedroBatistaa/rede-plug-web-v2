@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
 
+import { useRouter } from "next/router";
+
 export default function HeaderBudget() {
   const { openMenu, setOpenMenu } = useMenu();
 
@@ -11,6 +13,18 @@ export default function HeaderBudget() {
     setOpenMenu(!openMenu);
     console.log(openMenu);
   };
+
+  const router = useRouter();
+
+  const handleCloseBudget = () => {
+    const resposta = window.confirm("Ao sair você perderá este orçamento, deseja continuar?");
+
+    if (resposta) {
+      router.push("/Budgets");
+    }
+  }
+
+
   return (
     <>
       <Head>
@@ -32,9 +46,8 @@ export default function HeaderBudget() {
           />
         </div>
         <p className={styles.NewBudget}>NOVO ORÇAMENTO</p>
-        <Link href="/Budgets">
-          <img src="./close.png" className={styles.Close} />
-        </Link>
+        <img src="./close.png" className={styles.Close} onClick={handleCloseBudget} />
+
       </div>
     </>
   );
