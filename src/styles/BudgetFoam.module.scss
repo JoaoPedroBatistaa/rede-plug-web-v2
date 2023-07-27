@@ -229,6 +229,10 @@
 @media (max-width: 430px) {
   .TotalValue {
     margin-right: -0.5rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.5rem;
   }
 
   .ValueLabel {
@@ -248,8 +252,9 @@
   }
 
   .BudgetTitle {
-    font-size: 20px;
+    font-size: 16px;
     max-width: 12rem;
+
   }
 
   .Copyright {
