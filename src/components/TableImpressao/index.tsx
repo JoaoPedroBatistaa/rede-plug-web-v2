@@ -99,7 +99,7 @@ export default function TableImpressao({
           break;
         default:
           break;
-        
+
       }
     }
 
@@ -136,7 +136,7 @@ export default function TableImpressao({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Foam`, itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Impressao`, itemId));
       console.log('Deleting item: ', itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
@@ -218,9 +218,9 @@ export default function TableImpressao({
                       Efetivar orçamento
                     </button> */}
                     <button className={styles.buttonBlack}>
-                    <Link href={{ pathname: `/ProductImpressaoEdit`, query: { id: item.id } }}>
+                      <Link href={{ pathname: `/ProductImpressaoEdit`, query: { id: item.id } }}>
                         Editar
-                    </Link>
+                      </Link>
                     </button>
                     <button
                       className={styles.buttonRed}

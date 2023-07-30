@@ -100,7 +100,7 @@ export default function TableVidro({
           break;
         default:
           break;
-        
+
       }
     }
 
@@ -137,7 +137,7 @@ export default function TableVidro({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Foam`, itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Vidro`, itemId));
       console.log('Deleting item: ', itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
@@ -219,7 +219,7 @@ export default function TableVidro({
                       Efetivar orçamento
                     </button> */}
                     <Link href={{ pathname: `/ProductVidroEdit`, query: { id: item.id } }}>
-                        Editar
+                      Editar
                     </Link>
                     <button
                       className={styles.buttonRed}

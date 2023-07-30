@@ -101,12 +101,12 @@ export default function TablePerfil({
         case "maiorLucro":
           sortedData.sort((a, b) => b.margemLucro - a.margemLucro);
           break;
-          case "maiorLargura":
+        case "maiorLargura":
           sortedData.sort((a, b) => b.largura - a.largura);
           break;
         default:
           break;
-        
+
       }
     }
 
@@ -143,7 +143,7 @@ export default function TablePerfil({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Foam`, itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Perfil`, itemId));
       console.log('Deleting item: ', itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
@@ -224,7 +224,7 @@ export default function TablePerfil({
                       Efetivar orçamento
                     </button> */}
                     <Link href={{ pathname: `/ProductPerfilEdit`, query: { id: item.id } }}>
-                        Editar
+                      Editar
                     </Link>
                     <button
                       className={styles.buttonRed}

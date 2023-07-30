@@ -47,7 +47,7 @@ export default function ProductPaspatur() {
     } catch (e) {
       toast.error('Erro ao atualizar produto.');
     }
-    
+
     setTimeout(() => {
       router.push("/Products");
     }, 500);
@@ -167,7 +167,7 @@ export default function ProductPaspatur() {
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Largura do Vidro</p>
+              <p className={styles.FieldLabel}>Largura do Perfil</p>
               <input
                 id="largura"
                 type="number"
@@ -181,14 +181,14 @@ export default function ProductPaspatur() {
           </div>
 
           <div className={styles.InputContainer}>
-          
-          <div className={styles.InputField}>
+
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Descrição</p>
-              <textarea className={styles.Field} 
-              id="descricao" 
-              name="" 
-              value={perfil?.descricao || ''}
-              onChange={handleChange}
+              <textarea className={styles.Field}
+                id="descricao"
+                name=""
+                value={perfil?.descricao || ''}
+                onChange={handleChange}
               >
               </textarea>
             </div>

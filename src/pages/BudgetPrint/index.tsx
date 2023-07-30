@@ -277,7 +277,7 @@ export default function BudgetPrint() {
                   </option>
                   {produtos.map(produto => (
                     <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo}
+                      {produto.codigo} - {produto.descricao}
                     </option>
                   ))}
                 </select>

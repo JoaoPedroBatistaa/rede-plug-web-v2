@@ -99,7 +99,7 @@ export default function TablePaspatur({
           break;
         default:
           break;
-        
+
       }
     }
 
@@ -136,7 +136,7 @@ export default function TablePaspatur({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Foam`, itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Paspatur`, itemId));
       console.log('Deleting item: ', itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
@@ -216,7 +216,7 @@ export default function TablePaspatur({
                       Efetivar orçamento
                     </button> */}
                     <Link href={{ pathname: `/ProductPaspaturEdit`, query: { id: item.id } }}>
-                        Editar
+                      Editar
                     </Link>
                     <button
                       className={styles.buttonRed}

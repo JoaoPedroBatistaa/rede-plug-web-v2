@@ -270,16 +270,6 @@ export default function BudgetDecision() {
       formaPagamento // forma de pagamento
     };
 
-    if (!formaPagamento || formaPagamento === "") {
-      toast.error("Por favor, defina a forma de pagamento");
-      return; // Termina a execução da função
-    }
-
-    if (!dataVencimento || dataVencimento === "") {
-      toast.error("Por favor, defina a data de vencimento");
-      return; // Termina a execução da função
-    }
-
     saveBudget(newBudgetId.toString(), budgetData);
 
     const itensParaManter = ['userId', 'ally-supports-cache', 'budgets', 'budgetId'];
@@ -718,7 +708,7 @@ export default function BudgetDecision() {
 
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Data de vencimento</p>
+                    <p className={styles.FieldLabel}>Data de entrega</p>
                     <input
                       type="date"
                       className={styles.FieldSaveDes}

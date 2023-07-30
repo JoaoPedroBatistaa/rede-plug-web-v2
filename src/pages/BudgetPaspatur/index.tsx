@@ -392,7 +392,7 @@ export default function BudgetPaspatur() {
                     value={produto.codigo}
                     selected={selectedOptionCodigoPaspatur === produto.codigo}
                   >
-                    {produto.codigo}
+                    {produto.codigo} - {produto.descricao}
                   </option>
                 ))}
               </select>

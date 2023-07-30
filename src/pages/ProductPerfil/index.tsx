@@ -46,11 +46,11 @@ export default function ProductPaspatur() {
     } catch (e) {
       toast.error('Erro ao cadastrar produto.');
     }
-    
+
     setTimeout(() => {
       router.push("/Products");
     }, 500);
-};
+  };
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
       setOpenMenu(false);
@@ -149,12 +149,12 @@ export default function ProductPaspatur() {
                 className={styles.Field}
                 placeholder=""
                 onChange={e => setValorPerda(e.target.value)}
-                
+
               />
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Largura do Vidro</p>
+              <p className={styles.FieldLabel}>Largura do Perfil</p>
               <input
                 id="largura"
                 type="number"
@@ -167,13 +167,13 @@ export default function ProductPaspatur() {
           </div>
 
           <div className={styles.InputContainer}>
-          
-          <div className={styles.InputField}>
+
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Descrição</p>
-              <textarea className={styles.Field} 
-              id="descricao" 
-              name="" 
-              onChange={e => setDescricao(e.target.value)}
+              <textarea className={styles.Field}
+                id="descricao"
+                name=""
+                onChange={e => setDescricao(e.target.value)}
               >
               </textarea>
             </div>

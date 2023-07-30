@@ -97,7 +97,7 @@ export default function TableFoam({
           break;
         default:
           break;
-        
+
       }
     }
 
@@ -225,9 +225,9 @@ export default function TableFoam({
                       Efetivar orçamento
                     </button> */}
                     <button className={styles.buttonBlack}>
-                    <Link href={{ pathname: `/ProductFoamEdit`, query: { id: item.id } }}>
+                      <Link href={{ pathname: `/ProductFoamEdit`, query: { id: item.id } }}>
                         Editar
-                    </Link>
+                      </Link>
                     </button>
                     <button
                       className={styles.buttonRed}

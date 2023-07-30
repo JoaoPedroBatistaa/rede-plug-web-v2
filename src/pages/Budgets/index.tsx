@@ -94,7 +94,7 @@ export default function Budgets() {
                     <button className={styles.ListMenuButton} onClick={limparLocalStorage}>
                       <span className={styles.maisNoneMobile}>
                         {" "}
-                        Novo Pedido
+                        Novo Orçamento
                       </span>
                       <span className={styles.maisNone}> +</span>
                     </button>

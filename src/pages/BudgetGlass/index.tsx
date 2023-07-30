@@ -290,7 +290,7 @@ export default function BudgetGlass() {
                   </option>
                   {produtos.map(produto => (
                     <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo}
+                      {produto.codigo} - {produto.descricao}
                     </option>
                   ))}
                 </select>

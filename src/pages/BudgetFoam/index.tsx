@@ -263,7 +263,7 @@ export default function BudgetFoam() {
                   </option>
                   {produtos.map(produto => (
                     <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo}
+                      {produto.codigo} - {produto.descricao}
                     </option>
                   ))}
                 </select>

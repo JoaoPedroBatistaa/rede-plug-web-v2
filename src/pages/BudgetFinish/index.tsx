@@ -250,14 +250,14 @@ export default function BudgetFinish() {
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Tipo de pessoa</p>
+                  <p className={styles.FieldLabel}>Pessoa física/jurídica</p>
                   <select
                     className={styles.SelectFieldPerson}
                     value={selectedOption}
                     onChange={handleSelectChange}
                   >
                     <option value="" disabled selected>
-                      Defina o tipo de pessoa
+                      Defina: física/jurídica
                     </option>
                     <option
                       value="FÍSICA"
