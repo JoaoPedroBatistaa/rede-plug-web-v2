@@ -31,7 +31,7 @@ export default function HeaderBudget() {
             onClick={handleOpenMenu}
           />
         </div>
-        <p className={styles.NewBudget}>NOVO PASPATUR</p>
+        <p className={styles.NewBudget}>NOVO PRODUTO</p>
         <Link href="/Products">
           <img src="./close.png" className={styles.Close} />
         </Link>

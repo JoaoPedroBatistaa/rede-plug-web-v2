@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 export default function BudgetFinish() {
   const router = useRouter();
@@ -66,11 +67,6 @@ export default function BudgetFinish() {
       return;
     }
 
-    if (!cpf) {
-      toast.error("Por favor, preencha o campo CPF.");
-      return;
-    }
-
     if (!endereco) {
       toast.error("Por favor, preencha o campo Endereço.");
       return;
@@ -92,30 +88,53 @@ export default function BudgetFinish() {
     }
 
     try {
-      await addDoc(collection(db, "Orders"), {
-        nomeCompleto,
-        Telefone,
-        email,
-        dataCadastro,
-        Entrega,
-        cpf,
-        endereco,
-        cidade,
-        bairro,
-        cep,
-        complemento,
-        tipoPessoa,
-        valorTotal,
-        budgets
-      });
-      toast.success("Pedido enviado!");
-      setTimeout(() => {
-        window.location.href = "/Home";
-      }, 500);
+      // Recuperar o documento "NumeroDoOrçamento" na coleção "Budgets"
+      const numeroDoOrcamentoRef = doc(db, "Orders", "NumeroDoPedido");
+      const numeroDoOrcamentoSnap = await getDoc(numeroDoOrcamentoRef);
+
+      if (numeroDoOrcamentoSnap.exists()) {
+        // Recuperar o valor atual do campo "numero"
+        const numeroAtual = numeroDoOrcamentoSnap.data().numero;
+
+        // Incrementar o valor atual para obter o "NumeroPedido" para o novo orçamento
+        const NumeroPedido = Number(numeroAtual) + 1;
+
+        // Adicionar o novo orçamento
+        await addDoc(collection(db, "Orders"), {
+          nomeCompleto,
+          Telefone,
+          email,
+          dataCadastro,
+          Entrega,
+          cpf,
+          endereco,
+          cidade,
+          bairro,
+          cep,
+          complemento,
+          tipoPessoa,
+          valorTotal,
+          budgets,
+          NumeroPedido  // Aqui está o novo campo
+        });
+
+        // Incrementar o valor do campo "numero" no documento "NumeroDoOrçamento"
+        await updateDoc(numeroDoOrcamentoRef, {
+          numero: NumeroPedido
+        });
+
+        toast.success("Pedido enviado!");
+        setTimeout(() => {
+          window.location.href = "/Home";
+        }, 500);
+      } else {
+        console.error("Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'");
+      }
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }
   };
+
 
 
   const formatarData = (data: Date) => {
@@ -147,6 +166,28 @@ export default function BudgetFinish() {
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
 
+
+
+  const handleInputChange = () => {
+    const CPF = (document.getElementById('CPF') as HTMLInputElement).value;
+    const Endereco = (document.getElementById('Endereco') as HTMLInputElement).value;
+    const Numero = (document.getElementById('Numero') as HTMLInputElement).value;
+    const CEP = (document.getElementById('CEP') as HTMLInputElement).value;
+    const estado = (document.getElementById('estado') as HTMLInputElement).value;
+    const Complemento = (document.getElementById('Complemento') as HTMLInputElement).value;
+    const Bairro = (document.getElementById('Bairro') as HTMLInputElement).value;
+    const Cidade = (document.getElementById('Cidade') as HTMLInputElement).value;
+
+    setCpf(CPF);
+    setEndereco(Endereco);
+    setNumero(Numero);
+    setCep(CEP);
+    setEstado(estado);
+    setComplemento(Complemento);
+    setBairro(Bairro);
+    setCidade(Cidade);
+  };
+
   useEffect(() => {
     localStorage.setItem("cpf", cpf);
     localStorage.setItem("endereco", endereco);
@@ -158,37 +199,7 @@ export default function BudgetFinish() {
     localStorage.setItem("cidade", cidade);
   }, [cpf, endereco, numero, cep, estado, complemento, bairro, cidade]);
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    switch (event.target.id) {
-      case "CPF":
-        setCpf(event.target.value);
-        break;
-      case "Endereco":
-        setEndereco(event.target.value);
-        break;
-      case "Numero":
-        setNumero(event.target.value);
-        console.log(numero);
 
-        break;
-      case "CEP":
-        setCep(event.target.value);
-        break;
-      case "estado":
-        setEstado(event.target.value);
-        break;
-      case "Complemento":
-        setComplemento(event.target.value);
-        console.log(complemento);
-        break;
-      case "Bairro":
-        setBairro(event.target.value);
-        break;
-      case "Cidade":
-        setCidade(event.target.value);
-        break;
-    }
-  };
   const checkCep = (event: any) => {
     const cep = event.target.value.replace(/\D/g, "");
     console.log(cep);
@@ -242,6 +253,16 @@ export default function BudgetFinish() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Efetivar Pedido</p>
+
+            <div className={styles.ButtonsFinish}>
+              <Link href="BudgetSave">
+                <button className={styles.CancelButton}>Cancelar</button>
+              </Link>
+
+              <button className={styles.SaveButton} onClick={handleSaveOrder}>
+                Efetivar pedido
+              </button>
+            </div>
           </div>
 
           <div className={styles.BudgetData}>
@@ -288,10 +309,10 @@ export default function BudgetFinish() {
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>CPF</p>
+                  <p className={styles.FieldLabel}>{selectedOption === 'FÍSICA' ? 'CPF' : 'CNPJ'}</p>
                   <MaskedInput
-                    mask="999.999.999-99"
-                    id="CPF"
+                    mask={selectedOption === 'FÍSICA' ? "999.999.999-99" : "99.999.999/9999-99"}
+                    id={selectedOption === 'FÍSICA' ? "CPF" : "CNPJ"}
                     type="text"
                     className={styles.FieldSave}
                     placeholder=""
@@ -299,6 +320,7 @@ export default function BudgetFinish() {
                   />
                 </div>
               </div>
+
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
@@ -483,15 +505,7 @@ export default function BudgetFinish() {
 
           <div className={styles.linhaSave}></div>
 
-          <div className={styles.ButtonsFinish}>
-            <Link href="BudgetSave">
-              <button className={styles.CancelButton}>Cancelar</button>
-            </Link>
 
-            <button className={styles.SaveButton} onClick={handleSaveOrder}>
-              Efetivar pedido
-            </button>
-          </div>
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

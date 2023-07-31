@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "../../styles/TableBudgets.module.scss";
+import styles from "../../styles/Table.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
@@ -13,165 +13,107 @@ import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
 
 import { toast } from "react-toastify";
-import { useRouter } from "next/router";
 
-interface Budget {
+interface Foam {
   id: string;
-  NumeroPedido: string;
-  Telefone: string;
-  nomeCompleto: string;
-  Ativo: boolean;
-  Entrega: string;
-  dataCadastro: string;
-  formaPagamento: string;
-  valorTotal: string;
+
+  codigo: string;
+  descricao: string;
+  margemLucro: number;
+  valorMetro: number;
+  valorPerda: number;
+
 }
 
-export default function TableBudgets({
+export default function TableImpressao({
   searchValue,
   orderValue,
   filterValue,
 }: ITableBudgets) {
-  const [filteredData, setFilteredData] = useState<Budget[]>([]);
-  const [teste, setTeste] = useState<Budget[]>([]);
+  const [filteredData, setFilteredData] = useState<Foam[]>([]);
+  const [teste, setTeste] = useState<Foam[]>([]);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Itens exibidos por página
+  const [itemsPerPage, setItemsPerPage] = useState(10); // I
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, "Budget");
+      const dbCollection = collection(db, `Login/${userId}/Instalacao`);
+      console.log('Fetching from: ', dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
-      const budgetList = budgetSnapshot.docs
-        .filter((doc) => doc.id !== "NumeroDoOrçamento")  // Adicione esta linha
-        .map((doc) => {
-          const data = doc.data();
-          const budget: Budget = {
-            id: doc.id,
-            NumeroPedido: data.NumeroPedido,
-            Telefone: data.Telefone,
-            nomeCompleto: data.nomeCompleto,
-            Ativo: data.Ativo,
-            Entrega: data.Entrega,
-            dataCadastro: data.dataCadastro,
-            formaPagamento: data.formaPagamento,
-            valorTotal: data.valorTotal,
-          };
-          return budget;
-        });
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const budget: Foam = {
+          id: doc.id,
+
+          descricao: data.descricao,
+          codigo: data.codigo,
+          margemLucro: data.margemLucro,
+          valorMetro: data.valorMetro,
+          valorPerda: data.valorPerda,
+        };
+        console.log('Fetched data:', budget);
+        return budget;
+      });
       setTeste(budgetList);
       setFilteredData(budgetList);
+      console.log('Set data: ', budgetList);
     };
     fetchData();
   }, []);
 
-
   useEffect(() => {
-    const filterData = () => {
-      const filteredItems = teste.filter(
-        (item) =>
-          item.nomeCompleto
-            ?.toLowerCase()
-            .includes(searchValue.toLowerCase()) ||
-          item.dataCadastro?.toLowerCase().includes(searchValue.toLowerCase())
-      );
-      setFilteredData(filteredItems);
-    };
-    filterData();
+    if (searchValue !== '') {
+      const lowerCaseSearchValue = searchValue.toLowerCase();
+      const newData = teste.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
+      setFilteredData(newData);
+    } else {
+      setFilteredData(teste);
+    }
   }, [searchValue, teste]);
 
   useEffect(() => {
     let sortedData = [...teste];
 
-    // Filtragem
-    if (filterValue !== "") {
-      if (filterValue === "ativos") {
-        sortedData = sortedData.filter((item) => item.Ativo === true);
-      } else if (filterValue === "inativos") {
-        sortedData = sortedData.filter(
-          (item) => item.Ativo === undefined || item.Ativo === false
-        );
-      }
-    }
-
     // Ordenação
     if (orderValue !== "") {
       switch (orderValue) {
-        case "nomeCrescente":
-          sortedData.sort((a, b) => {
-            const nomeA = a.nomeCompleto.toUpperCase();
-            const nomeB = b.nomeCompleto.toUpperCase();
-            if (nomeA < nomeB) {
-              return -1;
-            }
-            if (nomeA > nomeB) {
-              return 1;
-            }
-            return 0;
-          });
+        case "codigoCrescente":
+          sortedData.sort((a, b) => (a.codigo.toUpperCase() < b.codigo.toUpperCase()) ? -1 : 1);
           break;
-        case "nomeDecrescente":
-          sortedData.sort((a, b) => {
-            const nomeA = a.nomeCompleto.toUpperCase();
-            const nomeB = b.nomeCompleto.toUpperCase();
-            if (nomeA > nomeB) {
-              return -1;
-            }
-            if (nomeA < nomeB) {
-              return 1;
-            }
-            return 0;
-          });
+        case "codigoDescrescente":
+          sortedData.sort((a, b) => (a.codigo.toUpperCase() > b.codigo.toUpperCase()) ? -1 : 1);
           break;
-        case "maiorValor":
-          sortedData = [...sortedData]; // Cria uma cópia da array original
-          sortedData.sort(
-            (a, b) => parseFloat(b.valorTotal) - parseFloat(a.valorTotal)
-          );
+        case "maiorValorMetro":
+          sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
           break;
-        case "dataCadastro":
-          sortedData.sort((a, b) => {
-            const dataA = new Date(a.dataCadastro);
-            const dataB = new Date(b.dataCadastro);
-            if (dataA < dataB) {
-              return -1;
-            }
-            if (dataA > dataB) {
-              return 1;
-            }
-            return 0;
-          });
+        case "maiorValorPerda":
+          sortedData.sort((a, b) => b.valorPerda - a.valorPerda);
           break;
-        case "dataVencimento":
-          sortedData.sort((a, b) => {
-            const dataA = new Date(a.Entrega);
-            const dataB = new Date(b.Entrega);
-            if (dataA < dataB) {
-              return -1;
-            }
-            if (dataA > dataB) {
-              return 1;
-            }
-            return 0;
-          });
+        case "maiorLucro":
+          sortedData.sort((a, b) => b.margemLucro - a.margemLucro);
           break;
-        // Adicione mais casos para outras opções de ordenação
+        default:
+          break;
+
       }
     }
 
     setFilteredData(sortedData);
   }, [orderValue, filterValue, teste]);
 
-  // ...
 
-  const totalItems = filteredData.length; // Total de resultados
+  const totalItems = teste.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = filteredData.slice(startIndex, endIndex);
+  const currentData = teste.slice(startIndex, endIndex);
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
-
-  const [openFilter, setOpenFilter] = useState(false);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -183,7 +125,6 @@ export default function TableBudgets({
     setItemsPerPage(Number(event.target.value));
     setCurrentPage(1);
   };
-
   const handleClickImg = (event: any, itemId: any) => {
     event.stopPropagation();
     setOpenMenus((prevState) => ({
@@ -195,46 +136,44 @@ export default function TableBudgets({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, "Budget", itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Instalacao`, itemId));
+      console.log('Deleting item: ', itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Orçamento excluído com sucesso!", {
+      toast.success("Pedido excluído com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,
         },
       });
-      router.push("/Budgets");
     } catch (error) {
       toast.error("Ocorreu um erro ao excluir o orçamento.");
-      router.push("/Budgets");
-
     }
   };
   // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
-  const sortDataByDate = () => {
-    const sortedData = [...filteredData].sort((a, b) => {
-      return (
-        new Date(b.dataCadastro).getTime() - new Date(a.dataCadastro).getTime()
-      );
-    });
-    setFilteredData(sortedData);
-  };
-
-  useEffect(() => {
-    sortDataByDate();
-  }, []);
 
   const { openMenu, setOpenMenu } = useMenu();
+
   const handleOpenMenuDiv = () => {
     setOpenMenu(false);
     console.log(openMenu);
   };
 
-  const router = useRouter();
+  useEffect(() => {
+    const filterData = () => {
+      const filteredItems = teste.filter(
+        (item) =>
+          item.descricao?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item.codigo?.toLowerCase().includes(searchValue.toLowerCase())
+      );
 
+      setFilteredData(filteredItems);
+
+    };
+    filterData();
+  }, [searchValue, teste]);
 
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
@@ -242,23 +181,21 @@ export default function TableBudgets({
         <thead>
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
-            <th>Nº Orçamento</th>
-            <th>CLIENTE</th>
-            <th>SITUAÇÃO</th>
-            <th id={styles.tdNone}>PRAZO DE ENTREGA </th>
-            <th id={styles.tdNone}>DATA DE CADASTRO</th>
-            <th id={styles.tdNone}>VALOR TOTAL</th>
+            <th>Nº Produto</th>
+            <th>Margem de Lucro</th>
+            <th>Valor do Metro</th>
+            <th>Valor da Perda</th>
+            <th>Descrição</th>
           </tr>
         </thead>
 
         <tbody>
-          {currentData.map((item, index) => (
+          {filteredData.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}
               onClick={() => {
                 localStorage.setItem("selectedBudgetId", item.id);
-                router.push('/ViewBudgetData');
               }}
             >
               <td className={styles.tdDisabled}>
@@ -275,12 +212,16 @@ export default function TableBudgets({
                     X
                   </div>
                   <div className={styles.containerOptionsMore}>
-                    <Link href="/ViewBudgetData">Vizualizar</Link>
 
                     {/* <button>Editar</button>
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
+                    <button className={styles.buttonBlack}>
+                      <Link href={{ pathname: `/ProductInstalacaoEdit`, query: { id: item.id } }}>
+                        Editar
+                      </Link>
+                    </button>
                     <button
                       className={styles.buttonRed}
                       onClick={() => handleDeleteItem(item.id)}
@@ -301,59 +242,19 @@ export default function TableBudgets({
               </td>
 
               <td className={styles.td}>
-                <b>#{item.NumeroPedido}</b>
+                <b>#{item.codigo}</b>
               </td>
               <td className={styles.td}>
-                <b>{item.nomeCompleto}</b>
-                <br />
-                <span className={styles.diasUteis}> {item.Telefone}</span>
+                <b>{item.margemLucro}%</b>
               </td>
               <td className={styles.td}>
-                <span
-                  className={
-                    item.Ativo == true ? styles.badge : styles.badgeInativo
-                  }
-                >
-                  {item.Ativo ? (
-                    <img
-                      src="./circleBlue.png"
-                      width={6}
-                      height={6}
-                      className={styles.marginRight8}
-                    />
-                  ) : (
-                    <img
-                      src="./circleRed.png"
-                      width={6}
-                      height={6}
-                      className={styles.marginRight8}
-                    />
-                  )}
-                  {item.Ativo ? "Ativo" : "Inativo"}
-                </span>
-                <br />
-                <span className={styles.dataCadastro}>
-                  <p id={styles.tdNone}>
-                    {" "}
-                    Data de cadastro:{item.dataCadastro}
-                  </p>
-                </span>
+                <b>{typeof item.valorMetro === 'number' ? item.valorMetro.toFixed(2) : item.valorMetro}</b>
               </td>
-              <td className={styles.td} id={styles.tdNone}>
-                Confira no orçamento
-                <br />
-                <span className={styles.diasUteis}></span>
+              <td className={styles.td}>
+                <b>{item.valorPerda}%</b>
               </td>
-              <td className={styles.td} id={styles.tdNone}>
-                {item.dataCadastro}
-                <br />
-                <span className={styles.diasUteis}>{item.nomeCompleto}</span>
-              </td>
-              <td className={styles.td} id={styles.tdNone}>
-                R$ {parseFloat(item.valorTotal || '0').toFixed(2)}
-
-                <br />
-                <span className={styles.diasUteis}>À Vista</span>
+              <td className={styles.td}>
+                <b>{item.descricao}</b>
               </td>
             </tr>
           ))}

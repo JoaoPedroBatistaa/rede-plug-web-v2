@@ -11,6 +11,23 @@ import "react-toastify/dist/ReactToastify.css";
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
 
+import { getDocs } from "firebase/firestore";
+import { collection, db, getDoc, doc } from "../../../firebase";
+import { deleteDoc } from "firebase/firestore";
+
+interface Foam {
+  id: string;
+
+  codigo: string;
+  descricao: string;
+  margemLucro: number;
+  valorMetro: number;
+  valorPerda: number;
+  fabricante: string;
+  largura: number;
+
+}
+
 export default function BudgetShip() {
   const router = useRouter();
   const { openMenu, setOpenMenu } = useMenu();
@@ -24,6 +41,68 @@ export default function BudgetShip() {
       window.localStorage.setItem("instalacao", event.target.value);
     }
   };
+
+  let userId: string | null;
+  if (typeof window !== 'undefined') {
+    userId = window.localStorage.getItem('userId');
+  }
+
+  const [produtos, setProdutos] = useState<Foam[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Instalacao`);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          descricao: data.descricao,
+          codigo: data.codigo,
+          margemLucro: data.margemLucro,
+          valorMetro: data.valorMetro,
+          valorPerda: data.valorPerda,
+          fabricante: data.fabricante,
+          largura: data.largura,
+        };
+      });
+      setProdutos(budgetList);
+      console.log(budgetList);
+    };
+    fetchData();
+  }, []);
+
+  const [preco, setPreco] = useState(() => {
+
+    const valorInstalacao = localStorage.getItem("valorInstalacao");
+    return valorInstalacao ? Number(valorInstalacao) : 0;
+
+  });
+
+
+
+  const [selectedOption, setSelectedOption] = useState(() => {
+    if (typeof window !== "undefined") {
+      const codigoInstalacao = localStorage.getItem("codigoInstalacao");
+      return codigoInstalacao ? codigoInstalacao : '';
+    }
+  });
+
+
+  useEffect(() => {
+    if (selectedOption) {
+      const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
+      if (selectedProduto) {
+        setPreco(prevPreco => {
+          const novoPreco = selectedProduto.valorMetro;
+          localStorage.setItem("valorInstalacao", novoPreco.toString());
+          return novoPreco;
+        });
+
+        // setPrecoTotal(preco + valorFoam + valorVidro);
+
+      }
+    }
+  }, [selectedOption, produtos]);
 
   const handleSelectChangeDelivery = (
     event: ChangeEvent<HTMLSelectElement>
@@ -114,13 +193,19 @@ export default function BudgetShip() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
+
+  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOption(event.target.value);
+    localStorage.setItem("codigoInstalacao", event.target.value);
+  };
 
   return (
     <>
@@ -144,6 +229,10 @@ export default function BudgetShip() {
 
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
+                <p className={styles.ValueLabel}>Valor da instalação</p>
+                <p className={styles.Value}>R${preco}</p>
+              </div>
+              <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
                 <p className={styles.Value}>R${precoTotal.toFixed(2)}</p>
               </div>
@@ -166,7 +255,7 @@ export default function BudgetShip() {
             Informe abaixo se o pedido necessita de instalação ou frete
           </p>
 
-          <div className={styles.InputContainer}>
+          {/* <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Necessita de instalação? *</p>
               <select
@@ -190,38 +279,34 @@ export default function BudgetShip() {
                 R$245,30
               </p>
             </div>
-          </div>
+          </div> */}
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Tipo de entrega</p>
               <select
-                id="Entrega"
+                id="codigo"
                 className={styles.SelectField}
-                value={selectedOptionDelivery}
-                onChange={handleSelectChangeDelivery}
+                value={selectedOption}
+                onChange={handleSelectChange}
               >
-                <option
-                  value="SEDEX"
-                  selected={selectedOptionDelivery === "SEDEX"}
-                >
-                  SEDEX
+                <option value="" disabled selected>
+                  Selecione um código
                 </option>
-                <option
-                  value="TRANSPORTADORA"
-                  selected={selectedOptionDelivery === "TRANSPORTADORA"}
-                >
-                  TRANSPORTADORA
-                </option>
+                {produtos.map(produto => (
+                  <option key={produto.codigo} value={produto.codigo}>
+                    {produto.codigo} - {produto.descricao}
+                  </option>
+                ))}
               </select>
             </div>
-
+            {/* 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Valor da entrega</p>
               <p id="valorEntrega" className={styles.FixedValue}>
                 R$245,30
               </p>
-            </div>
+            </div> */}
           </div>
 
           <div className={styles.Copyright}>

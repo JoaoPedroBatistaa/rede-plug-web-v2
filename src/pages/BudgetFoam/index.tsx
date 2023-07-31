@@ -29,13 +29,19 @@ export default function BudgetFoam() {
   const router = useRouter();
 
   const [produtos, setProdutos] = useState<Foam[]>([]);
-  const [selectedOption, setSelectedOption] = useState("");
+
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const codigoFoam = localStorage.getItem("codigoFoam");
+    return codigoFoam ? codigoFoam : '';
+  });
+
+
   const [selectedOptionFoam, setSelectedOptionFoam] = useState("");
   const [selectedOptionCodigoFoam, setSelectedOptionCodigoFoam] =
     useState("");
-  const [selectedOptionMdf, setSelectedOptionMdf] = useState("opcao1");
+  const [selectedOptionMdf, setSelectedOptionMdf] = useState("");
   const [selectedOptionCodigoMdf, setSelectedOptionCodigoMdf] =
-    useState("opcao1");
+    useState("");
 
   let userId: string | null;
   if (typeof window !== 'undefined') {
@@ -67,7 +73,6 @@ export default function BudgetFoam() {
 
   useEffect(() => {
     localStorage.setItem("foam", selectedOptionFoam);
-    localStorage.setItem("codigoFoam", selectedOptionCodigoFoam);
     localStorage.setItem("mdf", selectedOptionMdf);
     localStorage.setItem("codigoMdf", selectedOptionCodigoMdf);
   }, [
@@ -77,37 +82,42 @@ export default function BudgetFoam() {
     selectedOptionCodigoMdf,
   ]);
 
-  const [preco, setPreco] = useState(0);
+  const [preco, setPreco] = useState(() => {
+    const valorFoam = localStorage.getItem("valorFoam");
+    return valorFoam ? Number(valorFoam) : 0;
+  });
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+    localStorage.setItem("codigoFoam", event.target.value);
   };
 
 
+
   useEffect(() => {
-    if (selectedOption && selectedOptionFoam === "SIM") {
-      const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
-      if (selectedProduto) {
-        const tamanho = localStorage.getItem("Tamanho") || "0x0";
-        const [altura, largura] = tamanho.split('x').map(Number);
+    // if (selectedOption && selectedOptionFoam === "SIM") {
+    const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
+    if (selectedProduto) {
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const [altura, largura] = tamanho.split('x').map(Number);
 
-        const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
-        const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
+      const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
+      const perda = (valor / 100) * selectedProduto.valorPerda;
+      const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
 
 
-        setPreco(prevPreco => {
-          const novoPreco = valor + perda + lucro;
-          localStorage.setItem("valorFoam", novoPreco.toString());
-          localStorage.setItem("metroFoam", selectedProduto.valorMetro.toString())
-          localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
-          localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
+      setPreco(prevPreco => {
+        const novoPreco = valor + perda + lucro;
+        localStorage.setItem("valorFoam", novoPreco.toString());
+        localStorage.setItem("metroFoam", selectedProduto.valorMetro.toString())
+        localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
+        localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
 
-          return novoPreco;
-        });
-      }
+        return novoPreco;
+      });
     }
+    // }
   }, [selectedOption, produtos]);
 
   const [precoTotal, setPrecoTotal] = useState(0);
@@ -121,8 +131,9 @@ export default function BudgetFoam() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -229,7 +240,7 @@ export default function BudgetFoam() {
           </p>
 
           <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
+            {/* <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Foam</p>
               <select
                 id="Foam"
@@ -247,28 +258,28 @@ export default function BudgetFoam() {
                   NÃO
                 </option>
               </select>
-            </div>
+            </div> */}
 
-            {selectedOptionFoam === "SIM" && (
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Código</p>
-                <select
-                  id="codigo"
-                  className={styles.SelectField}
-                  value={selectedOption}
-                  onChange={handleSelectChange}
-                >
-                  <option value="" disabled selected>
-                    Selecione um código
+            {/* {selectedOptionFoam === "SIM" && ( */}
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Código</p>
+              <select
+                id="codigo"
+                className={styles.SelectField}
+                value={selectedOption}
+                onChange={handleSelectChange}
+              >
+                <option value="" disabled selected>
+                  Selecione um código
+                </option>
+                {produtos.map(produto => (
+                  <option key={produto.codigo} value={produto.codigo}>
+                    {produto.codigo} - {produto.descricao}
                   </option>
-                  {produtos.map(produto => (
-                    <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo} - {produto.descricao}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+                ))}
+              </select>
+            </div>
+            {/* )} */}
           </div>
 
           {/* <div className={styles.InputContainer}>

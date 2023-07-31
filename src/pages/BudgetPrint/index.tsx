@@ -34,8 +34,11 @@ export default function BudgetPrint() {
 
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [selectedOptionPrint, setSelectedOptionPrint] = useState("");
-  const [selectedOptionPrintType, setSelectedOptionPrintType] =
-    useState("");
+
+  const [selectedOptionPrintType, setSelectedOptionPrintType] = useState(() => {
+    const codigoImpressao = localStorage.getItem("codigoImpressao");
+    return codigoImpressao ? codigoImpressao : '';
+  });
 
   useEffect(() => {
     localStorage.setItem("impressao", selectedOptionPrint);
@@ -49,10 +52,9 @@ export default function BudgetPrint() {
     localStorage.setItem("tipoImpressao", selectedOptionPrintType);
   }, [selectedOptionPrintType]);
 
-  const handleSelectChangePrintType = (
-    event: ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleSelectChangePrintType = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOptionPrintType(event.target.value);
+    localStorage.setItem("codigoImpressao", event.target.value);
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -113,9 +115,12 @@ export default function BudgetPrint() {
   };
 
 
+  const [preco, setPreco] = useState(() => {
+    const valorImpressao = localStorage.getItem("valorImpressao");
+    return valorImpressao ? Number(valorImpressao) : 0;
+  });
 
   const [precoTotal, setPrecoTotal] = useState(0);
-  const [preco, setPreco] = useState(0);
   const [produtos, setProdutos] = useState<Foam[]>([]);
 
   let userId: string | null;
@@ -152,27 +157,27 @@ export default function BudgetPrint() {
   };
 
   useEffect(() => {
-    if (selectedOptionPrintType && selectedOptionPrint === "SIM") {
-      const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionPrintType);
-      if (selectedProduto) {
-        const tamanho = localStorage.getItem("Tamanho") || "0x0";
-        const [altura, largura] = tamanho.split('x').map(Number);
+    // if (selectedOptionPrintType && selectedOptionPrint === "SIM") {
+    const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionPrintType);
+    if (selectedProduto) {
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const [altura, largura] = tamanho.split('x').map(Number);
 
-        const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
-        const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
+      const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
+      const perda = (valor / 100) * selectedProduto.valorPerda;
+      const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
-        setPreco(prevPreco => {
-          const novoPreco = valor + perda + lucro;
-          localStorage.setItem("valorImpressao", novoPreco.toString());
-          localStorage.setItem("metroImpressao", selectedProduto.valorMetro.toString())
-          localStorage.setItem("perdaImpressao", selectedProduto.valorPerda.toString())
-          localStorage.setItem("lucroImpressao", selectedProduto.margemLucro.toString())
-          return novoPreco;
-        });
+      setPreco(prevPreco => {
+        const novoPreco = valor + perda + lucro;
+        localStorage.setItem("valorImpressao", novoPreco.toString());
+        localStorage.setItem("metroImpressao", selectedProduto.valorMetro.toString())
+        localStorage.setItem("perdaImpressao", selectedProduto.valorPerda.toString())
+        localStorage.setItem("lucroImpressao", selectedProduto.margemLucro.toString())
+        return novoPreco;
+      });
 
-      }
     }
+    // }
   }, [selectedOptionPrintType, produtos]);
 
 
@@ -186,8 +191,9 @@ export default function BudgetPrint() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -243,7 +249,7 @@ export default function BudgetPrint() {
           </p>
 
           <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
+            {/* <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Impressão</p>
               <select
                 id="impressao"
@@ -261,28 +267,28 @@ export default function BudgetPrint() {
                   NÃO
                 </option>
               </select>
+            </div> */}
+
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Tipo de impressão</p>
+              <select
+                id="tipoImpressao"
+                className={styles.SelectField}
+                value={selectedOptionPrintType}
+                onChange={handleSelectChangePrintType}
+              >
+                <option value="" disabled selected>
+                  Selecione um código
+                </option>
+                {produtos.map(produto => (
+                  <option key={produto.codigo} value={produto.codigo}>
+                    {produto.codigo} - {produto.descricao}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {selectedOptionPrint === "SIM" && (
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Tipo de impressão</p>
-                <select
-                  id="tipoImpressao"
-                  className={styles.SelectField}
-                  value={selectedOptionPrintType}
-                  onChange={handleSelectChangePrintType}
-                >
-                  <option value="" disabled selected>
-                    Selecione um código
-                  </option>
-                  {produtos.map(produto => (
-                    <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo} - {produto.descricao}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
           </div>
 
           <p className={styles.Preview}>Envio do arquivo de impressão</p>

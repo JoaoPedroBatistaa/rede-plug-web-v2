@@ -45,27 +45,30 @@ export default function Table({
   useEffect(() => {
     const fetchData = async () => {
       const dbCollection = collection(db, "Orders");
-      const budgetSnapshot = await getDocs(dbCollection);
-      const budgetList = budgetSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        const budget: Order = {
-          id: doc.id,
-          NumeroPedido: data.NumeroPedido,
-          Telefone: data.Telefone,
-          nomeCompleto: data.nomeCompleto,
-          Ativo: data.Ativo,
-          Entrega: data.Entrega,
-          dataCadastro: data.dataCadastro,
-          formaPagamento: data.formaPagamento,
-          valorTotal: data.valorTotal,
-        };
-        return budget;
-      });
-      setTeste(budgetList);
-      console.log(budgetList);
+      const orderSnapshot = await getDocs(dbCollection);
+      const orderList = orderSnapshot.docs
+        .filter((doc) => doc.id !== "NumeroDoPedido")  // Adicione esta linha
+        .map((doc) => {
+          const data = doc.data();
+          const order: Order = {
+            id: doc.id,
+            NumeroPedido: data.NumeroPedido,
+            Telefone: data.Telefone,
+            nomeCompleto: data.nomeCompleto,
+            Ativo: data.Ativo,
+            Entrega: data.Entrega,
+            dataCadastro: data.dataCadastro,
+            formaPagamento: data.formaPagamento,
+            valorTotal: data.valorTotal,
+          };
+          return order;
+        });
+      setTeste(orderList);
+      console.log(orderList);
     };
     fetchData();
   }, []);
+
 
 
   useEffect(() => {
@@ -205,8 +208,11 @@ export default function Table({
           fontWeight: 600,
         },
       });
+      router.push("/Requests");
     } catch (error) {
       toast.error("Ocorreu um erro ao excluir o orçamento.");
+      router.push("/Requests");
+
     }
   };
   // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente

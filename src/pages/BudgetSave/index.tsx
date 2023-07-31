@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { useMenu } from "../../components/Context/context";
 import classnames from "classnames";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 export default function BudgetSave() {
   const router = useRouter();
@@ -24,19 +25,23 @@ export default function BudgetSave() {
   const [Telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = event.target;
-    if (id === "nomeCompleto") {
-      setNomeCompleto(value);
-      localStorage.setItem("nomeCompleto", nomeCompleto);
-    } else if (id === "Telefone") {
-      setTelefone(value);
-      localStorage.setItem("Telefone", Telefone);
-    } else if (id === "email") {
-      setEmail(value);
-      localStorage.setItem("email", email);
-    }
+  const handleInputChange = () => {
+    const nomeCompleto = (document.getElementById('nomeCompleto') as HTMLInputElement).value;
+    const Telefone = (document.getElementById('Telefone') as HTMLInputElement).value;
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+
+    setNomeCompleto(nomeCompleto);
+    localStorage.setItem("nomeCompleto", nomeCompleto);
+
+    setTelefone(Telefone);
+    localStorage.setItem("Telefone", Telefone);
+
+    setEmail(email);
+    localStorage.setItem("email", email);
   };
+
+
+
 
   let valorTotal: string | null;
 
@@ -78,24 +83,46 @@ export default function BudgetSave() {
 
   const handleSaveBudget = async () => {
     try {
-      await addDoc(collection(db, "Budget"), {
-        nomeCompleto,
-        Telefone,
-        email,
-        dataCadastro,
-        budgets,
-        valorTotal
-      });
+      // Recuperar o documento "NumeroDoOrçamento" na coleção "Budgets"
+      const numeroDoOrcamentoRef = doc(db, "Budget", "NumeroDoOrçamento");
+      const numeroDoOrcamentoSnap = await getDoc(numeroDoOrcamentoRef);
 
-      toast.success("Salvo com sucesso!");
+      if (numeroDoOrcamentoSnap.exists()) {
+        // Recuperar o valor atual do campo "numero"
+        const numeroAtual = numeroDoOrcamentoSnap.data().numero;
 
-      setTimeout(() => {
-        window.location.href = "/BudgetFinish";
-      }, 500);
+        // Incrementar o valor atual para obter o "NumeroPedido" para o novo orçamento
+        const NumeroPedido = Number(numeroAtual) + 1;
+
+        // Adicionar o novo orçamento
+        await addDoc(collection(db, "Budget"), {
+          nomeCompleto,
+          Telefone,
+          email,
+          dataCadastro,
+          budgets,
+          valorTotal,
+          NumeroPedido,  // Aqui está o novo campo
+        });
+
+        // Incrementar o valor do campo "numero" no documento "NumeroDoOrcamento"
+        await updateDoc(numeroDoOrcamentoRef, {
+          numero: NumeroPedido
+        });
+
+        toast.success("Salvo com sucesso!");
+
+        setTimeout(() => {
+          window.location.href = "/BudgetFinish";
+        }, 500);
+      } else {
+        console.error("Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'");
+      }
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }
   };
+
 
   const { openMenu, setOpenMenu } = useMenu();
   const handleOpenMenuDiv = () => {

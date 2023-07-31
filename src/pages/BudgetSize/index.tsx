@@ -14,15 +14,58 @@ import classnames from "classnames";
 export default function BudgetSize() {
   const router = useRouter();
 
-  const [altura, setAltura] = useState("");
-  const [largura, setLargura] = useState("");
+  const [altura, setAltura] = useState(() => {
+    if (typeof window !== "undefined") {
+      let tamanho;
+      if (localStorage.getItem("novoTamanho")) {
+        tamanho = localStorage.getItem("novoTamanho");
+      } else {
+        tamanho = localStorage.getItem("Tamanho");
+      }
+      if (tamanho) {
+        const [altura,] = tamanho.split('x').map(Number);
+        return altura.toString();
+      }
+    }
+    return "";
+  });
+
+  const [largura, setLargura] = useState(() => {
+    if (typeof window !== "undefined") {
+      let tamanho;
+      if (localStorage.getItem("novoTamanho")) {
+        tamanho = localStorage.getItem("novoTamanho");
+      } else {
+        tamanho = localStorage.getItem("Tamanho");
+      }
+      if (tamanho) {
+        const [, largura] = tamanho.split('x').map(Number);
+        return largura.toString();
+      }
+    }
+    return "";
+  });
+
 
   const updateLocalStorage = (novaAltura: SetStateAction<string>, novaLargura: SetStateAction<string>) => {
-    const value = `${novaAltura}x${novaLargura}`;
+    let alturaFormatada = '';
+    let larguraFormatada = '';
+
+    if (typeof novaAltura === 'string') {
+      alturaFormatada = novaAltura.replace(',', '.');
+    }
+
+    if (typeof novaLargura === 'string') {
+      larguraFormatada = novaLargura.replace(',', '.');
+    }
+
+    const value = `${alturaFormatada}x${larguraFormatada}`;
     if (typeof window !== 'undefined') {
       window.localStorage.setItem("Tamanho", value);
     }
   }
+
+
 
   const handleAlturaChange = (event: {
     target: { value: SetStateAction<string> };
@@ -47,6 +90,7 @@ export default function BudgetSize() {
       const valorVidro = Number(localStorage.getItem("valorVidro"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const [altura, largura] = tamanho.split('x').map(Number);
 
       if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
 
@@ -83,13 +127,19 @@ export default function BudgetSize() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
+
+  if (typeof window !== "undefined") {
+    const tamanho = localStorage.getItem("Tamanho") || "0x0";
+    const [altura, largura] = tamanho.split('x').map(Number);
+  }
 
 
   return (

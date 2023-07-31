@@ -71,8 +71,13 @@ export default function BudgetCollage() {
     }, 100);
   };
 
+  const [preco, setPreco] = useState(() => {
+    const valorColagem = localStorage.getItem("valorColagem");
+    return valorColagem ? Number(valorColagem) : 0;
+  });
+
+
   const [precoTotal, setPrecoTotal] = useState(0);
-  const [preco, setPreco] = useState(0);
   const [produtos, setProdutos] = useState<Foam[]>([]);
 
   let userId: string | null;
@@ -102,34 +107,38 @@ export default function BudgetCollage() {
     fetchData();
   }, []);
 
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const codigoColagem = localStorage.getItem("codigoColagem");
+    return codigoColagem ? codigoColagem : '';
+  });
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+    localStorage.setItem("codigoColagem", event.target.value);
   };
 
   useEffect(() => {
-    if (selectedOption && selectedOptionCollage === "SIM") {
-      const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
-      if (selectedProduto) {
-        const tamanho = localStorage.getItem("Tamanho") || "0x0";
-        const [altura, largura] = tamanho.split('x').map(Number);
+    // if (selectedOption && selectedOptionCollage === "SIM") {
+    const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
+    if (selectedProduto) {
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const [altura, largura] = tamanho.split('x').map(Number);
 
-        const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
-        const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
+      const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
+      const perda = (valor / 100) * selectedProduto.valorPerda;
+      const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
-        setPreco(prevPreco => {
-          const novoPreco = valor + perda + lucro;
-          localStorage.setItem("valorColagem", novoPreco.toString());
-          localStorage.setItem("metroColagem", selectedProduto.valorMetro.toString())
-          localStorage.setItem("perdaColagem", selectedProduto.valorPerda.toString())
-          localStorage.setItem("lucroColagem", selectedProduto.margemLucro.toString())
-          return novoPreco;
-        });
+      setPreco(prevPreco => {
+        const novoPreco = valor + perda + lucro;
+        localStorage.setItem("valorColagem", novoPreco.toString());
+        localStorage.setItem("metroColagem", selectedProduto.valorMetro.toString())
+        localStorage.setItem("perdaColagem", selectedProduto.valorPerda.toString())
+        localStorage.setItem("lucroColagem", selectedProduto.margemLucro.toString())
+        return novoPreco;
+      });
 
-      }
     }
+    // }
   }, [selectedOption, produtos]);
 
 
@@ -143,8 +152,9 @@ export default function BudgetCollage() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -198,7 +208,7 @@ export default function BudgetCollage() {
           </p>
 
           <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
+            {/* <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Colagem</p>
               <select
                 id="collage"
@@ -216,28 +226,28 @@ export default function BudgetCollage() {
                   NÃO
                 </option>
               </select>
+            </div> */}
+
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Selecione o código</p>
+              <select
+                id="tipoImpressao"
+                className={styles.SelectField}
+                value={selectedOption}
+                onChange={handleSelectChange}
+              >
+                <option value="" disabled selected>
+                  Selecione um código
+                </option>
+                {produtos.map(produto => (
+                  <option key={produto.codigo} value={produto.codigo}>
+                    {produto.codigo} - {produto.descricao}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {selectedOptionCollage === "SIM" && (
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Tipo de impressão</p>
-                <select
-                  id="tipoImpressao"
-                  className={styles.SelectField}
-                  value={selectedOption}
-                  onChange={handleSelectChange}
-                >
-                  <option value="" disabled selected>
-                    Selecione um código
-                  </option>
-                  {produtos.map(produto => (
-                    <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo} - {produto.descricao}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
           </div>
 
           <div className={styles.Copyright}>

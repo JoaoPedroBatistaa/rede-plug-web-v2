@@ -31,7 +31,14 @@ export default function BudgetPerfil() {
   const router = useRouter();
 
   const [produtos, setProdutos] = useState<Foam[]>([]);
-  const [selectedOption, setSelectedOption] = useState("");
+
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const codigoPerfil = localStorage.getItem("codigoPerfil");
+    return codigoPerfil ? codigoPerfil : '';
+  });
+
+
+
   const [espessura, setEspessura] = useState("");
   const { openMenu, setOpenMenu } = useMenu();
   const [precoTotal, setPrecoTotal] = useState(0);
@@ -64,7 +71,11 @@ export default function BudgetPerfil() {
   }, []);
 
 
-  const [preco, setPreco] = useState(0);
+  const [preco, setPreco] = useState(() => {
+    const valorPerfil = localStorage.getItem("valorPerfil");
+    return valorPerfil ? Number(valorPerfil) : 0;
+  });
+
 
   useEffect(() => {
     if (selectedOption) {
@@ -105,8 +116,9 @@ export default function BudgetPerfil() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -116,7 +128,6 @@ export default function BudgetPerfil() {
   useEffect(() => {
     if (selectedOption) {
       if (typeof window !== "undefined") {
-        localStorage.setItem("codigoPerfil", selectedOption);
         localStorage.setItem("espessuraPerfil", espessura);
       }
     }
@@ -124,7 +135,9 @@ export default function BudgetPerfil() {
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+    localStorage.setItem("codigoPerfil", event.target.value);
   };
+
 
   const handleEspessuraChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEspessura(event.target.value);

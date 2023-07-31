@@ -79,6 +79,7 @@ export default function BudgetDecision() {
   const [valorPaspatur, setValorPaspatur] = useState("");
   const [valorImpressao, setValorImpressao] = useState("");
   const [valorColagem, setValorColagem] = useState("");
+  const [valorInstalacao, setValorInstalacao] = useState("");
   const [precoTotal, setPrecoTotal] = useState(0);
 
   useEffect(() => {
@@ -90,8 +91,9 @@ export default function BudgetDecision() {
         setValorPaspatur(localStorage.getItem("valorPaspatur") || '');
         setValorImpressao(localStorage.getItem("valorImpressao") || '');
         setValorColagem(localStorage.getItem("valorColagem") || '');
+        setValorInstalacao(localStorage.getItem("valorInstalacao") || '');
 
-        const total = Number(valorPaspatur) + Number(valorPerfil) + Number(valorFoam) + Number(valorVidro) + Number(valorImpressao);
+        const total = Number(valorPaspatur) + Number(valorPerfil) + Number(valorFoam) + Number(valorVidro) + Number(valorImpressao) + Number(valorInstalacao);
 
         if (!isNaN(total)) {
         }
@@ -125,7 +127,6 @@ export default function BudgetDecision() {
   let Telefone: string = '';
   let email: string = '';
   let instalacao: string = '';
-  let valorInstalacao: string = '';
   let tipoEntrega: string = '';
   let valorEntrega: string = '';
   let impressao: string = '';
@@ -137,6 +138,9 @@ export default function BudgetDecision() {
   let dimensoesPaspatur: string = '';
   let foam: string = '';
   let codigoFoam: string = '';
+  let codigoImpressao: string = '';
+  let codigoVidro: string = '';
+  let codigoColagem: string = '';
   let mdf: string = '';
   let codigoMdf: string = '';
   let vidro: string = '';
@@ -150,15 +154,12 @@ export default function BudgetDecision() {
   let valorTotal: string = '';
   let obs: string = '';
 
-  valorTotal = precoTotal.toString();
-
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto") || '';
     Telefone = localStorage.getItem("Telefone") || '';
     email = localStorage.getItem("email") || '';
     instalacao = localStorage.getItem("instalacao") || '';
-    valorInstalacao = localStorage.getItem("valorInstalacao") || '';
     tipoEntrega = localStorage.getItem("tipoEntrega") || '';
     valorEntrega = localStorage.getItem("valorEntrega") || '';
     impressao = localStorage.getItem("impressao") || '';
@@ -170,6 +171,9 @@ export default function BudgetDecision() {
     dimensoesPaspatur = localStorage.getItem("dimensoesPaspatur") || '';
     foam = localStorage.getItem("foam") || '';
     codigoFoam = localStorage.getItem("codigoFoam") || '';
+    codigoImpressao = localStorage.getItem("codigoImpressao") || '';
+    codigoVidro = localStorage.getItem("codigoVidro") || '';
+    codigoColagem = localStorage.getItem("codigoColagem") || '';
     mdf = localStorage.getItem("mdf") || '';
     codigoMdf = localStorage.getItem("codigoMdf") || '';
     vidro = localStorage.getItem("vidro") || '';
@@ -207,6 +211,9 @@ export default function BudgetDecision() {
       if (localObservacoes) setObservacoes(localObservacoes);
     }
   }, []);
+
+  const novoValorTotal = precoTotal + parseFloat(maoDeObraExtra || '0');
+  valorTotal = novoValorTotal.toString();
 
   function formatDate(date: any) {
     const newDate = new Date(date);
@@ -251,9 +258,12 @@ export default function BudgetDecision() {
       collage,
       paspatur,
       codigoPaspatur,
+      codigoColagem,
+      codigoFoam,
+      codigoImpressao,
+      codigoVidro,
       dimensoesPaspatur,
       foam,
-      codigoFoam,
       mdf,
       codigoMdf,
       vidro,
@@ -306,9 +316,12 @@ export default function BudgetDecision() {
       collage,
       paspatur,
       codigoPaspatur,
+      codigoColagem,
+      codigoFoam,
+      codigoImpressao,
+      codigoVidro,
       dimensoesPaspatur,
       foam,
-      codigoFoam,
       mdf,
       codigoMdf,
       vidro,
@@ -356,7 +369,7 @@ export default function BudgetDecision() {
     return sum + parseFloat(budget.valorTotal || '0');
   }, 0) : 0;
 
-  const grandTotal = totalSavedBudgets + parseFloat(valorTotal || '0');
+  const grandTotal = totalSavedBudgets + parseFloat(valorTotal || '0') + parseFloat(maoDeObraExtra || '0');
   if (typeof window !== "undefined") {
     localStorage.setItem("grandTotal", grandTotal);
   }
@@ -416,7 +429,7 @@ export default function BudgetDecision() {
                       <p className={styles.ResName}>Impressão</p>
                       <div className={styles.OrderResValue}>
                         <p className={styles.ResValue}>
-                          {impressao} - R$ {parseFloat(valorImpressao || '0').toFixed(2)}
+                          {codigoImpressao} - R$ {parseFloat(valorImpressao || '0').toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -434,7 +447,7 @@ export default function BudgetDecision() {
                       <p className={styles.ResName}>Vidro</p>
                       <div className={styles.OrderResValue}>
                         <p className={styles.ResValue}>
-                          {vidro} - R$ {parseFloat(valorVidro || '0').toFixed(2)}
+                          {codigoVidro} - R$ {parseFloat(valorVidro || '0').toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -442,7 +455,7 @@ export default function BudgetDecision() {
                     <div>
                       <p className={styles.ResName}>Foam</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{foam} - R$ {parseFloat(valorFoam || '0').toFixed(2)}</p>
+                        <p className={styles.ResValue}>{codigoFoam} - R$ {parseFloat(valorFoam || '0').toFixed(2)}</p>
                       </div>
                     </div>
 
@@ -451,7 +464,7 @@ export default function BudgetDecision() {
                       <div>
                         <div className={styles.OrderResValue}>
                           <p className={styles.ResValue}>
-                            {paspatur} - R$ {parseFloat(valorPaspatur || '0').toFixed(2)}
+                            {codigoPaspatur} - R$ {parseFloat(valorPaspatur || '0').toFixed(2)}
                           </p>
                         </div>
 
@@ -464,7 +477,7 @@ export default function BudgetDecision() {
                     <div>
                       <p className={styles.ResName}>Colagem</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>R$ {parseFloat(valorColagem || '0').toFixed(2)}</p>
+                        <p className={styles.ResValue}>{codigoColagem} - R$ {parseFloat(valorColagem || '0').toFixed(2)}</p>
                       </div>
                     </div>
                     {/* 
@@ -550,7 +563,7 @@ export default function BudgetDecision() {
                         <p className={styles.ResName}>Impressão</p>
                         <div className={styles.OrderResValue}>
                           <p className={styles.ResValue}>
-                            {budget.impressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
+                            {budget.codigoImpressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -568,7 +581,7 @@ export default function BudgetDecision() {
                         <p className={styles.ResName}>Vidro</p>
                         <div className={styles.OrderResValue}>
                           <p className={styles.ResValue}>
-                            {budget.vidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
+                            {budget.codigoVidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -576,7 +589,7 @@ export default function BudgetDecision() {
                       <div>
                         <p className={styles.ResName}>Foam</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{budget.foam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}</p>
+                          <p className={styles.ResValue}>{budget.codigoFoam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}</p>
                         </div>
                       </div>
 
@@ -585,7 +598,7 @@ export default function BudgetDecision() {
                         <div>
                           <div className={styles.OrderResValue}>
                             <p className={styles.ResValue}>
-                              {budget.paspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
+                              {budget.codigoPaspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
                             </p>
                           </div>
                           <p className={styles.ResValue}>
@@ -597,7 +610,7 @@ export default function BudgetDecision() {
                       <div>
                         <p className={styles.ResName}>Colagem</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}</p>
+                          <p className={styles.ResValue}>{budget.codigoColagem} - R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}</p>
                         </div>
                       </div>
 
@@ -698,11 +711,19 @@ export default function BudgetDecision() {
                       className={styles.FieldSaveDes}
                       placeholder=""
                       value={maoDeObraExtra}
+                      onKeyPress={(e) => {
+                        const char = e.key;
+                        if (!(/[0-9.,]/.test(char))) {
+                          e.preventDefault();
+                        }
+                      }}
                       onChange={(e) => {
                         setMaoDeObraExtra(e.target.value);
                         localStorage.setItem('maoDeObraExtra', e.target.value);
                       }}
                     />
+
+
                   </div>
                 </div>
 

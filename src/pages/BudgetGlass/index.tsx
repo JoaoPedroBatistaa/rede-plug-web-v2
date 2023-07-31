@@ -107,13 +107,18 @@ export default function BudgetGlass() {
   };
 
   const [produtos, setProdutos] = useState<Foam[]>([]);
-  const [preco, setPreco] = useState(0);
   const [precoTotal, setPrecoTotal] = useState(0);
 
   let userId: string | null;
   if (typeof window !== 'undefined') {
     userId = window.localStorage.getItem('userId');
   }
+
+  const [preco, setPreco] = useState(() => {
+    const valorVidro = localStorage.getItem("valorVidro");
+    return valorVidro ? Number(valorVidro) : 0;
+  });
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -137,10 +142,14 @@ export default function BudgetGlass() {
     fetchData();
   }, []);
 
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const codigoVidro = localStorage.getItem("codigoVidro");
+    return codigoVidro ? codigoVidro : '';
+  });
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+    localStorage.setItem("codigoVidro", event.target.value);
   };
 
   // const [valorFoam, setValorFoam] = useState(0);
@@ -164,29 +173,29 @@ export default function BudgetGlass() {
 
 
   useEffect(() => {
-    if (selectedOption && selectedOptionVidro === "SIM") {
-      const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
-      if (selectedProduto) {
-        const tamanho = localStorage.getItem("Tamanho") || "0x0";
-        const [altura, largura] = tamanho.split('x').map(Number);
+    // if (selectedOption && selectedOptionVidro === "SIM") {
+    const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
+    if (selectedProduto) {
+      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const [altura, largura] = tamanho.split('x').map(Number);
 
-        const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
-        const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
-
-
+      const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
+      const perda = (valor / 100) * selectedProduto.valorPerda;
+      const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
 
-        setPreco(prevPreco => {
-          const novoPreco = valor + perda + lucro;
-          localStorage.setItem("valorVidro", novoPreco.toString());
-          localStorage.setItem("metroVidro", selectedProduto.valorMetro.toString())
-          localStorage.setItem("perdaVidro", selectedProduto.valorPerda.toString())
-          localStorage.setItem("lucroVidro", selectedProduto.margemLucro.toString())
-          return novoPreco;
-        });
 
-      }
+
+      setPreco(prevPreco => {
+        const novoPreco = valor + perda + lucro;
+        localStorage.setItem("valorVidro", novoPreco.toString());
+        localStorage.setItem("metroVidro", selectedProduto.valorMetro.toString())
+        localStorage.setItem("perdaVidro", selectedProduto.valorPerda.toString())
+        localStorage.setItem("lucroVidro", selectedProduto.margemLucro.toString())
+        return novoPreco;
+      });
+
+      // }
     }
   }, [selectedOption, vidro, produtos]);
 
@@ -199,8 +208,9 @@ export default function BudgetGlass() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -256,7 +266,7 @@ export default function BudgetGlass() {
           </p>
 
           <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
+            {/* <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Vidro</p>
               <select
                 id="vidro"
@@ -274,28 +284,28 @@ export default function BudgetGlass() {
                   NÃO
                 </option>
               </select>
+            </div> */}
+
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Espessura do Vidro</p>
+              <select
+                id="codigo"
+                className={styles.SelectField}
+                value={selectedOption}
+                onChange={handleSelectChange}
+              >
+                <option value="" disabled selected>
+                  Selecione um código
+                </option>
+                {produtos.map(produto => (
+                  <option key={produto.codigo} value={produto.codigo}>
+                    {produto.codigo} - {produto.descricao}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {selectedOptionVidro === "SIM" && (
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Espessura do Vidro</p>
-                <select
-                  id="codigo"
-                  className={styles.SelectField}
-                  value={selectedOption}
-                  onChange={handleSelectChange}
-                >
-                  <option value="" disabled selected>
-                    Selecione um código
-                  </option>
-                  {produtos.map(produto => (
-                    <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo} - {produto.descricao}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
           </div>
 
           {/* <div className={styles.InputContainer}>

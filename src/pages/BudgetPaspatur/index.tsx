@@ -33,12 +33,11 @@ export default function BudgetPaspatur() {
   const { openMenu, setOpenMenu } = useMenu();
   const [selectedOptionPaspatur, setSelectedOptionPaspatur] =
     useState("");
-  const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] =
-    useState("");
-  const [larguraSuperior, setLarguraSuperior] = useState("");
-  const [larguraEsquerda, setLarguraEsquerda] = useState("");
-  const [larguraInferior, setLarguraInferior] = useState("");
-  const [larguraDireita, setLarguraDireita] = useState("");
+
+  const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] = useState(() => {
+    const codigoPaspatur = localStorage.getItem("codigoPaspatur");
+    return codigoPaspatur ? codigoPaspatur : '';
+  });
 
   const [produtos, setProdutos] = useState<Foam[]>([]);
 
@@ -91,24 +90,52 @@ export default function BudgetPaspatur() {
   //     console.log(`Fabricante: ${selectedProduto.fabricante}`);
   //   }
   // };
+  const [larguraEsquerda, setLarguraEsquerda] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("larguraEsquerda") || "";
+    }
+    return "";
+  });
+
+  const [larguraInferior, setLarguraInferior] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("larguraInferior") || "";
+    }
+    return "";
+  });
+
+  const [larguraSuperior, setLarguraSuperior] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("larguraSuperior") || "";
+    }
+    return "";
+  });
+
+  const [larguraDireita, setLarguraDireita] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("larguraDireita") || "";
+    }
+    return "";
+  });
 
 
 
-  useEffect(() => {
-    localStorage.setItem("paspatur", selectedOptionPaspatur);
-    localStorage.setItem("codigoPaspatur", selectedOptionCodigoPaspatur);
-    localStorage.setItem(
-      "dimensoesPaspatur",
-      `${larguraSuperior}x${larguraEsquerda}x${larguraInferior}x${larguraDireita}`
-    );
-  }, [
-    selectedOptionPaspatur,
-    selectedOptionCodigoPaspatur,
-    larguraSuperior,
-    larguraEsquerda,
-    larguraInferior,
-    larguraDireita,
-  ]);
+
+  // useEffect(() => {
+  //   localStorage.setItem("paspatur", selectedOptionPaspatur);
+  //   localStorage.setItem("codigoPaspatur", selectedOptionCodigoPaspatur);
+  //   localStorage.setItem(
+  //     "dimensoesPaspatur",
+  //     `${larguraSuperior}x${larguraEsquerda}x${larguraInferior}x${larguraDireita}`
+  //   );
+  // }, [
+  //   selectedOptionPaspatur,
+  //   selectedOptionCodigoPaspatur,
+  //   larguraSuperior,
+  //   larguraEsquerda,
+  //   larguraInferior,
+  //   larguraDireita,
+  // ]);
 
   const handleSelectChangePaspatur = (
     event: ChangeEvent<HTMLSelectElement>
@@ -122,21 +149,99 @@ export default function BudgetPaspatur() {
   //   setSelectedOptionCodigoPaspatur(event.target.value);
   // };
 
-  const handleInputChangeSuperior = (event: ChangeEvent<HTMLInputElement>) => {
-    setLarguraSuperior(event.target.value);
-  };
+
+
+
+  const [novaLargura, setNovaLargura] = useState(0);
+  const [novaAltura, setNovaAltura] = useState(0);
+
 
   const handleInputChangeEsquerda = (event: ChangeEvent<HTMLInputElement>) => {
-    setLarguraEsquerda(event.target.value);
+    const inputElement = document.getElementById('larguraEsquerda') as HTMLInputElement;
+    const inputValue = inputElement.value;
+    setLarguraEsquerda(inputValue);
+    localStorage.setItem("larguraEsquerda", inputValue);
+
+    const tamanho = localStorage.getItem("Tamanho") || "0x0";
+    const [altura, largura] = tamanho.split('x').map(Number);
+
+    if (larguraDireita && novaAltura) {
+      setNovaLargura(largura + (Number(inputValue) + Number(larguraDireita)));
+      const novoTamanho = `${novaAltura}x${largura + (Number(inputValue) + Number(larguraDireita))}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    } else {
+      setNovaLargura(largura + (Number(inputValue) * 2));
+      const novoTamanho = `${altura}x${novaLargura}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    }
   };
 
-  const handleInputChangeInferior = (event: ChangeEvent<HTMLInputElement>) => {
-    setLarguraInferior(event.target.value);
+  const handleInputChangeDireita = () => {
+    const inputElement = document.getElementById('larguraDireita') as HTMLInputElement;
+    const inputValue = inputElement.value;
+    setLarguraDireita(inputValue);
+    localStorage.setItem("larguraDireita", inputValue);
+
+    const tamanho = localStorage.getItem("Tamanho") || "0x0";
+    const [altura, largura] = tamanho.split('x').map(Number);
+
+    if (larguraEsquerda && novaAltura) {
+      setNovaLargura(largura + (Number(inputValue) + Number(larguraEsquerda)));
+      const novoTamanho = `${novaAltura}x${largura + (Number(inputValue) + Number(larguraEsquerda))}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    } else {
+      setNovaLargura(largura + (Number(inputValue) * 2));
+      const novoTamanho = `${altura}x${novaLargura}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    }
   };
 
-  const handleInputChangeDireita = (event: ChangeEvent<HTMLInputElement>) => {
-    setLarguraDireita(event.target.value);
+
+
+  const handleInputChangeInferior = () => {
+    const inputElement = document.getElementById('larguraInferior') as HTMLInputElement;
+    const inputValue = inputElement.value;
+    setLarguraInferior(inputValue);
+    localStorage.setItem("larguraInferior", inputValue);
+
+    const tamanho = localStorage.getItem("Tamanho") || "0x0";
+    const [altura, largura] = tamanho.split('x').map(Number);
+
+    if (larguraSuperior && novaLargura) {
+      setNovaAltura(altura + (Number(inputValue) + Number(larguraSuperior)));
+      const novoTamanho = `${altura + (Number(inputValue) + Number(larguraSuperior))}x${novaLargura}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    } else {
+      setNovaAltura(altura + (Number(inputValue) * 2));
+      const novoTamanho = `${novaAltura}x${largura}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    }
+
   };
+
+
+
+
+  const handleInputChangeSuperior = (event: ChangeEvent<HTMLInputElement>) => {
+    const inputElement = document.getElementById('larguraSuperior') as HTMLInputElement;
+    const inputValue = inputElement.value;
+    setLarguraSuperior(inputValue);
+    localStorage.setItem("larguraSuperior", inputValue);
+
+    const tamanho = localStorage.getItem("Tamanho") || "0x0";
+    const [altura, largura] = tamanho.split('x').map(Number);
+
+    if (larguraInferior && novaLargura) {
+      setNovaAltura(altura + (Number(inputValue) + Number(larguraInferior)));
+      const novoTamanho = `${altura + (Number(inputValue) + Number(larguraInferior))}x${novaLargura}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    } else {
+      setNovaAltura(altura + (Number(inputValue) * 2));
+      const novoTamanho = `${novaAltura}x${largura}`;
+      localStorage.setItem("novoTamanho", novoTamanho);
+    }
+  };
+
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
 
     if (typeof window !== 'undefined') {
@@ -167,19 +272,38 @@ export default function BudgetPaspatur() {
   };
 
 
-  const handleSelectChangeCodigoPaspatur = (
-    event: ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleSelectChangeCodigoPaspatur = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOptionCodigoPaspatur(event.target.value);
+    localStorage.setItem("codigoPaspatur", event.target.value);
   };
 
-  const [preco, setPreco] = useState(0);
+
+  const [preco, setPreco] = useState(() => {
+    const valorPaspatur = localStorage.getItem("valorPaspatur");
+    return valorPaspatur ? Number(valorPaspatur) : 0;
+  });
+
+
+
   const [precoPerfil, setPrecoPerfil] = useState(0);
   const [precoFoam, setPrecoFoam] = useState(0);
   const [precoVidro, setPrecoVidro] = useState(0);
   const [precoImpressao, setPrecoImpressao] = useState(0);
   const [precoColagem, setPrecoColagem] = useState(0);
   const [precoTotal, setPrecoTotal] = useState(0);
+
+  // useEffect(() => {
+  //   if (larguraInferior || larguraEsquerda) {
+  //     const tamanho = localStorage.getItem("Tamanho") || "0x0";
+  //     const [altura, largura] = tamanho.split('x').map(Number);
+
+  //     const novaAltura = altura + (Number(larguraInferior) * 2);
+  //     const novaLargura = largura + (Number(larguraEsquerda) * 2);
+  //     const novoTamanho = `${novaAltura}x${novaLargura}`;
+
+  //     localStorage.setItem("Tamanho", novoTamanho);
+  //   }
+  // }, [larguraInferior, larguraEsquerda]);
 
   useEffect(() => {
     const metroPerfil = localStorage.getItem("metroPerfil")
@@ -203,90 +327,89 @@ export default function BudgetPaspatur() {
     const perdaImpressao = localStorage.getItem("perdaImpressao")
     const lucroImpressao = localStorage.getItem("lucroImpressao")
 
+    if (selectedOptionCodigoPaspatur && !localStorage.getItem("novoTamanho") && larguraDireita && larguraEsquerda && larguraInferior && larguraSuperior) {
+      toast.error('Preencha os campos de tamanho do paspatur');
+      setSelectedOptionCodigoPaspatur("");
+    } else {
+      if (larguraDireita || larguraEsquerda || larguraInferior || larguraSuperior) {
+        const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionCodigoPaspatur);
+        if (selectedProduto) {
+          const tamanho = localStorage.getItem("Tamanho") || "0x0";
+          const [altura, largura] = tamanho.split('x').map(Number);
 
-    if (selectedOptionCodigoPaspatur && selectedOptionPaspatur === "SIM" && larguraDireita || larguraEsquerda || larguraInferior || larguraSuperior) {
-      const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionCodigoPaspatur);
-      if (selectedProduto) {
-        const tamanho = localStorage.getItem("Tamanho") || "0x0";
-        const [altura, largura] = tamanho.split('x').map(Number);
+          // BAGUNCEI OS VALORES POR CAUSA DA PERSPECTIVA, A LEGENDA ESTÁ ABAIXO:
 
-
-
-        const novaAltura = altura + (Number(larguraInferior) * 2);
-
-        const novaLargura = largura + (Number(larguraDireita) * 2);
-
-        const novoTamanho = `${novaAltura}x${novaLargura}`;
-
-        console.log("larguraInferior:", larguraInferior);
-        console.log("larguraDireita:", larguraDireita);
-        console.log("novaAltura:", novaAltura);
-        console.log("novaLargura:", novaLargura);
-
-        // VALOR PASPATUR
-        const valor = (((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2)) / 100)) * selectedProduto.valorMetro;
-        const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
-
-        // VALOR PERFIL NOVO
-        const valorP = Number(metroPerfil) && perfil !== null ? ((altura + (Number(larguraInferior) * 2)) + ((largura + (Number(larguraEsquerda) * 2) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
-        const perdaP = Number(perdaPerfil) !== null ? (valorP / 100) * Number(perdaPerfil) : 0;
-        const lucroP = Number(lucroPerfil) !== null ? ((valorP + perdaP) * Number(lucroPerfil) / 100) : 0;
-
-        setPrecoPerfil(valorP + perdaP + lucroP);
-
-        // VALOR VIDRO NOVO
-        const valorV = Number(metroPerfil) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroVidro) : 0;
-        const perdaV = Number(perdaVidro) !== null ? (valorV / 100) * Number(perdaVidro) : 0;
-        const lucroV = Number(lucroVidro) !== null ? ((valorP + perdaV) * Number(lucroVidro) / 100) : 0;
-
-        setPrecoVidro(valorV + perdaV + lucroV);
-
-        // VALOR FOAM NOVO
-        const valorF = Number(metroFoam) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroFoam) : 0;
-        const perdaF = Number(perdaFoam) !== null ? (valorF / 100) * Number(perdaFoam) : 0;
-        const lucroF = Number(lucroFoam) !== null ? ((valorF + perdaF) * Number(lucroFoam) / 100) : 0;
-
-        setPrecoFoam(valorF + perdaF + lucroF);
-
-        // VALOR IMPRESSAO NOVO
-        const valorI = Number(metroImpressao) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroImpressao) : 0;
-        const perdaI = Number(perdaImpressao) !== null ? (valorF / 100) * Number(perdaImpressao) : 0;
-        const lucroI = Number(lucroImpressao) !== null ? ((valorI + perdaI) * Number(lucroImpressao) / 100) : 0;
-
-        setPrecoImpressao(valorI + perdaI + lucroI);
-
-        // VALOR COLAGEM NOVO
-        const valorC = Number(metroColagem) !== null ? ((altura + (Number(larguraInferior) * 2)) / 100) * ((largura + (Number(larguraEsquerda) * 2) / 100)) * Number(metroColagem) : 0;
-        const perdaC = Number(perdaColagem) !== null ? (valorF / 100) * Number(perdaColagem) : 0;
-        const lucroC = Number(lucroColagem) !== null ? ((valorC + perdaC) * Number(lucroColagem) / 100) : 0;
-
-        setPrecoColagem(valorC + perdaC + lucroC);
+          // console.log("larguraDireita:", larguraInferior);
+          // console.log("larguraSuperior:", larguraEsquerda);
 
 
-        setPreco(prevPreco => {
-          const novoPreco = valor + perda + lucro;
-          localStorage.setItem("valorPaspatur", novoPreco.toString());
-          localStorage.setItem("metroPaspatur", selectedProduto.valorMetro.toString())
-          localStorage.setItem("perdaPaspatur", selectedProduto.valorPerda.toString())
-          localStorage.setItem("lucroPaspatur", selectedProduto.margemLucro.toString())
+          // VALOR PASPATUR
+          const valor = (((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) * 2)) / 100)) * selectedProduto.valorMetro;
+          const perda = (valor / 100) * selectedProduto.valorPerda;
+          const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
-          localStorage.setItem("valorFoam", precoFoam.toString());
-          localStorage.setItem("valorVidro", precoVidro.toString());
-          localStorage.setItem("valorPerfil", precoPerfil.toString());
-          localStorage.setItem("valorImpressao", precoImpressao.toString());
-          localStorage.setItem("valorColagem", precoColagem.toString());
+          // VALOR PERFIL NOVO
+          const valorP = Number(metroPerfil) && perfil !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) + ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
+          const perdaP = Number(perdaPerfil) !== null ? (valorP / 100) * Number(perdaPerfil) : 0;
+          const lucroP = Number(lucroPerfil) !== null ? ((valorP + perdaP) * Number(lucroPerfil) / 100) : 0;
 
-          localStorage.setItem("Tamanho", novoTamanho)
+          setPrecoPerfil(valorP + perdaP + lucroP);
+
+          // VALOR VIDRO NOVO
+          const valorV = Number(metroPerfil) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroVidro) : 0;
+          const perdaV = Number(perdaVidro) !== null ? (valorV / 100) * Number(perdaVidro) : 0;
+          const lucroV = Number(lucroVidro) !== null ? ((valorP + perdaV) * Number(lucroVidro) / 100) : 0;
+
+          setPrecoVidro(valorV + perdaV + lucroV);
+
+          // VALOR FOAM NOVO
+          const valorF = Number(metroFoam) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroFoam) : 0;
+          const perdaF = Number(perdaFoam) !== null ? (valorF / 100) * Number(perdaFoam) : 0;
+          const lucroF = Number(lucroFoam) !== null ? ((valorF + perdaF) * Number(lucroFoam) / 100) : 0;
+
+          setPrecoFoam(valorF + perdaF + lucroF);
+
+          // VALOR IMPRESSAO NOVO
+          const valorI = Number(metroImpressao) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroImpressao) : 0;
+          const perdaI = Number(perdaImpressao) !== null ? (valorF / 100) * Number(perdaImpressao) : 0;
+          const lucroI = Number(lucroImpressao) !== null ? ((valorI + perdaI) * Number(lucroImpressao) / 100) : 0;
+
+          setPrecoImpressao(valorI + perdaI + lucroI);
+
+          // VALOR COLAGEM NOVO
+          const valorC = Number(metroColagem) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroColagem) : 0;
+          const perdaC = Number(perdaColagem) !== null ? (valorF / 100) * Number(perdaColagem) : 0;
+          const lucroC = Number(lucroColagem) !== null ? ((valorC + perdaC) * Number(lucroColagem) / 100) : 0;
+
+          setPrecoColagem(valorC + perdaC + lucroC);
+
+
+          setPreco(prevPreco => {
+            const novoPreco = valor + perda + lucro;
+            localStorage.setItem("valorPaspatur", novoPreco.toString());
+            localStorage.setItem("metroPaspatur", selectedProduto.valorMetro.toString())
+            localStorage.setItem("perdaPaspatur", selectedProduto.valorPerda.toString())
+            localStorage.setItem("lucroPaspatur", selectedProduto.margemLucro.toString())
+
+            localStorage.setItem("valorFoam", precoFoam.toString());
+            localStorage.setItem("valorVidro", precoVidro.toString());
+            localStorage.setItem("valorPerfil", precoPerfil.toString());
+            localStorage.setItem("valorImpressao", precoImpressao.toString());
+            localStorage.setItem("valorColagem", precoColagem.toString());
+
+            // localStorage.setItem("Tamanho", novoTamanho)
 
 
 
-          return novoPreco;
-        });
+            return novoPreco;
+          });
 
+        }
       }
     }
-  }, [selectedOptionCodigoPaspatur, selectedOptionPaspatur, larguraDireita, larguraEsquerda, larguraInferior, larguraInferior, produtos]);
+
+
+  }, [selectedOptionCodigoPaspatur]);
 
 
 
@@ -299,8 +422,9 @@ export default function BudgetPaspatur() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -355,7 +479,7 @@ export default function BudgetPaspatur() {
           </p>
 
           <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
+            {/* <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Paspatur</p>
               <select
                 id="paspatur"
@@ -373,7 +497,7 @@ export default function BudgetPaspatur() {
                   NÃO
                 </option>
               </select>
-            </div>
+            </div> */}
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
@@ -400,8 +524,8 @@ export default function BudgetPaspatur() {
           </div>
 
           <div className={styles.PreviewContainer}>
-            {/* <div className={styles.InputFieldPreview}>
-              <p className={styles.FieldLabel}>Espessura superior</p>
+            <div className={styles.InputFieldPreview}>
+              <p className={styles.FieldLabel}>Espessura esquerda</p>
               <input
                 id="larguraSuperior"
                 type="text"
@@ -410,11 +534,11 @@ export default function BudgetPaspatur() {
                 value={larguraSuperior}
                 onChange={handleInputChangeSuperior}
               />
-            </div> */}
+            </div>
 
             <div className={styles.PreviewImgContainer}>
               <div className={styles.InputFieldPreview}>
-                <p className={styles.FieldLabel}>Espessura esquerda</p>
+                <p className={styles.FieldLabel}>Largura superior</p>
                 <input
                   id="larguraEsquerda"
                   type="text"
@@ -427,7 +551,7 @@ export default function BudgetPaspatur() {
 
               <img src="./molduraSize.png" className={styles.PreviewImg} />
 
-              {/* <div className={styles.InputFieldPreview}>
+              <div className={styles.InputFieldPreview}>
                 <p className={styles.FieldLabel}>Espessura direita</p>
                 <input
                   id="larguraDireita"
@@ -437,11 +561,11 @@ export default function BudgetPaspatur() {
                   value={larguraDireita}
                   onChange={handleInputChangeDireita}
                 />
-              </div> */}
+              </div>
             </div>
 
             <div className={styles.InputFieldPreview}>
-              <p className={styles.FieldLabel}>Espessura inferior</p>
+              <p className={styles.FieldLabel}>Largura direita</p>
               <input
                 id="larguraInferior"
                 type="text"

@@ -67,6 +67,30 @@ async function updateFoamInLogin(foam: any, id: string, loginId: string) {
   await updateDoc(foamDoc, foam);
 }
 
+async function getInstalacaoById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Instalacao`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No instalaiton found with id: ${id}`);
+  }
+}
+
+async function addInstalacaoToLogin(foam: any, loginId: any) {
+  try {
+    await addDoc(collection(db, `Login/${loginId}/Instalacao`), foam);
+    console.log("Instalação adicionada com sucesso!");
+  } catch (e) {
+    console.error("Erro ao adicionar Instalação: ", e);
+  }
+}
+
+async function updateInstalacaoInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Instalacao`, id);
+  await updateDoc(foamDoc, foam);
+}
+
 async function getImpressaoById(id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Impressao`, id);
   const foamSnap = await getDoc(foamDoc);
@@ -90,6 +114,31 @@ async function updateImpressaoInLogin(foam: any, id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Impressao`, id);
   await updateDoc(foamDoc, foam);
 }
+
+async function getColagemById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Colagem`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No foam found with id: ${id}`);
+  }
+}
+
+async function updateColagemInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Colagem`, id);
+  await updateDoc(foamDoc, foam);
+}
+
+async function addColagemToLogin(colagem: any, loginId: any) {
+  try {
+    await addDoc(collection(db, `Login/${loginId}/Colagem`), colagem);
+    console.log("Colagem adicionado com sucesso!");
+  } catch (e) {
+    console.error("Erro ao adicionar Colagem: ", e);
+  }
+}
+
 
 async function getPaspaturById(id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Paspatur`, id);
@@ -157,14 +206,6 @@ async function addVidroToLogin(vidro: any, loginId: any) {
     console.error("Erro ao adicionar Vidro: ", e);
   }
 }
-async function addColagemToLogin(colagem: any, loginId: any) {
-  try {
-    await addDoc(collection(db, `Login/${loginId}/Colagem`), colagem);
-    console.log("Colagem adicionado com sucesso!");
-  } catch (e) {
-    console.error("Erro ao adicionar Colagem: ", e);
-  }
-}
 
 async function updateVidroInLogin(foam: any, id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Vidro`, id);
@@ -202,5 +243,10 @@ export {
   getPerfilById,
   updatePerfilInLogin,
   getVidroById,
-  updateVidroInLogin
+  updateVidroInLogin,
+  addInstalacaoToLogin,
+  getInstalacaoById,
+  updateInstalacaoInLogin,
+  getColagemById,
+  updateColagemInLogin
 };

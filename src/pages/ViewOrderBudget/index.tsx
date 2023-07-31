@@ -21,6 +21,10 @@ type BudgetType = {
   foam: string;
   paspatur: string;
   codigoPaspatur: string;
+  codigoImpressao: string;
+  codigoFoam: string;
+  codigoVidro: string;
+  codigoColagem: string;
   dimensoesPaspatur: string;
   collage: string;
   instalacao: string;
@@ -189,7 +193,7 @@ export default function ViewOrderBudget() {
                         <p className={styles.ResName}>Impressão</p>
                         <div className={styles.OrderResValue}>
                           <p className={styles.ResValue}>
-                            {budget.impressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
+                            {budget.codigoImpressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -207,7 +211,7 @@ export default function ViewOrderBudget() {
                         <p className={styles.ResName}>Vidro</p>
                         <div className={styles.OrderResValue}>
                           <p className={styles.ResValue}>
-                            {budget.vidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
+                            {budget.codigoVidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -215,7 +219,7 @@ export default function ViewOrderBudget() {
                       <div>
                         <p className={styles.ResName}>Foam</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{budget.foam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}</p>
+                          <p className={styles.ResValue}>{budget.codigoFoam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}</p>
                         </div>
                       </div>
 
@@ -224,7 +228,7 @@ export default function ViewOrderBudget() {
                         <div>
                           <div className={styles.OrderResValue}>
                             <p className={styles.ResValue}>
-                              {budget.paspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
+                              {budget.codigoPaspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
                             </p>
                           </div>
                           <p className={styles.ResValue}>
@@ -236,7 +240,7 @@ export default function ViewOrderBudget() {
                       <div>
                         <p className={styles.ResName}>Colagem</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}</p>
+                          <p className={styles.ResValue}>{budget.codigoColagem} - R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}</p>
                         </div>
                       </div>
 
