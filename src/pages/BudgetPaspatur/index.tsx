@@ -573,7 +573,7 @@ export default function BudgetPaspatur() {
 
           <div className={styles.PreviewContainer}>
             <div className={styles.InputFieldPreview}>
-              <p className={styles.FieldLabel}>Espessura esquerda</p>
+              <p className={styles.FieldLabel}>Largura esquerda</p>
               <input
                 id="larguraSuperior"
                 type="text"
@@ -600,7 +600,7 @@ export default function BudgetPaspatur() {
               <img src="./molduraSize.png" className={styles.PreviewImg} />
 
               <div className={styles.InputFieldPreview}>
-                <p className={styles.FieldLabel}>Espessura direita</p>
+                <p className={styles.FieldLabel}>Largura direita</p>
                 <input
                   id="larguraDireita"
                   type="text"
