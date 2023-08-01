@@ -155,7 +155,9 @@ export default function BudgetFinish() {
   const [selectedOption, setSelectedOption] = useState("");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
+    const selectElement = document.getElementById(event.target.id) as HTMLSelectElement;
+    const selectedOption = selectElement.value;
+    setSelectedOption(selectedOption);
     localStorage.setItem("tipoPessoa", selectedOption);
   };
 
@@ -273,6 +275,7 @@ export default function BudgetFinish() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Pessoa física/jurídica</p>
                   <select
+                    id="tipoPessoaSelect"
                     className={styles.SelectFieldPerson}
                     value={selectedOption}
                     onChange={handleSelectChange}
@@ -312,7 +315,7 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>{selectedOption === 'FÍSICA' ? 'CPF' : 'CNPJ'}</p>
                   <MaskedInput
                     mask={selectedOption === 'FÍSICA' ? "999.999.999-99" : "99.999.999/9999-99"}
-                    id={selectedOption === 'FÍSICA' ? "CPF" : "CNPJ"}
+                    id="CPF"
                     type="text"
                     className={styles.FieldSave}
                     placeholder=""
@@ -443,7 +446,7 @@ export default function BudgetFinish() {
                 </div>
               </div>
 
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Tipo de entrega</p>
                   <select
@@ -470,9 +473,9 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>Valor da entrega</p>
                   <p className={styles.FixedValue}>R$245,30</p>
                 </div>
-              </div>
+              </div> */}
 
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Necessita de instalação?</p>
                   <select
@@ -499,7 +502,7 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>Valor da instalação</p>
                   <p className={styles.FixedValue}>R$125,30</p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

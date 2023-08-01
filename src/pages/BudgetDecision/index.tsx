@@ -32,6 +32,13 @@ type UserDataType = {
   dataCadastro: string;
   valorTotal: string;
   obs: string;
+
+  valorPerfil: string
+  valorVidro: string
+  valorFoam: string
+  valorColagem: string
+  valorImpressao: string
+  valorPaspatur: string
 };
 
 export default function BudgetDecision() {
@@ -249,7 +256,6 @@ export default function BudgetDecision() {
 
     const budgetData = {
       instalacao,
-      valorInstalacao,
       tipoEntrega,
       valorEntrega,
       impressao,
@@ -277,7 +283,15 @@ export default function BudgetDecision() {
       maoDeObraExtra,
       dataVencimento,
       observacoes,
-      formaPagamento // forma de pagamento
+      formaPagamento,
+
+      valorPerfil,
+      valorColagem,
+      valorFoam,
+      valorImpressao,
+      valorPaspatur,
+      valorInstalacao,
+      valorVidro
     };
 
     saveBudget(newBudgetId.toString(), budgetData);
@@ -307,7 +321,6 @@ export default function BudgetDecision() {
 
     const budgetData = {
       instalacao,
-      valorInstalacao,
       tipoEntrega,
       valorEntrega,
       impressao,
@@ -335,7 +348,15 @@ export default function BudgetDecision() {
       maoDeObraExtra,
       dataVencimento,
       observacoes,
-      formaPagamento // forma de pagamento
+      formaPagamento,
+
+      valorPerfil,
+      valorColagem,
+      valorFoam,
+      valorImpressao,
+      valorPaspatur,
+      valorInstalacao,
+      valorVidro
     };
 
     if (!formaPagamento || formaPagamento === "") {
