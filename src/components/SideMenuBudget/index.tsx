@@ -90,16 +90,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           </div>
         </Link>
 
-        <Link href="/BudgetPaspatur">
-          <div
-            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetPaspatur" ? styles.active : ""
-              }`}
-            onClick={handleOpenMenuDiv}
-          >
-            <img src="./check.png" className={styles.Pointer}></img>
-            <p className={styles.NavigateItem}>Paspatur</p>
-          </div>
-        </Link>
+
 
         <Link href="BudgetCollage">
           <div
@@ -120,6 +111,17 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           >
             <img src="./check.png" className={styles.Pointer}></img>
             <p className={styles.NavigateItem}>Impressão</p>
+          </div>
+        </Link>
+
+        <Link href="/BudgetPaspatur">
+          <div
+            className={`${styles.MenuNavigate} ${activeRoute === "/BudgetPaspatur" ? styles.active : ""
+              }`}
+            onClick={handleOpenMenuDiv}
+          >
+            <img src="./check.png" className={styles.Pointer}></img>
+            <p className={styles.NavigateItem}>Paspatur</p>
           </div>
         </Link>
 

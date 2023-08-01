@@ -195,7 +195,9 @@ export default function Table({
     console.log(itemId);
   };
 
-  const handleDeleteItem = async (itemId: string) => {
+  const handleDeleteItem = async (itemId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
     try {
       await deleteDoc(doc(db, "Orders", itemId));
 
@@ -203,6 +205,7 @@ export default function Table({
       setFilteredData(updatedData);
 
       toast.success("Pedido excluído com sucesso!", {
+        autoClose: 2000,
         style: {
           fontSize: "12px",
           fontWeight: 600,
@@ -211,7 +214,6 @@ export default function Table({
       router.push("/Requests");
     } catch (error) {
       toast.error("Ocorreu um erro ao excluir o orçamento.");
-      router.push("/Requests");
 
     }
   };
@@ -283,7 +285,7 @@ export default function Table({
                     </button> */}
                     <button
                       className={styles.buttonRed}
-                      onClick={() => handleDeleteItem(item.id)}
+                      onClick={(event) => handleDeleteItem(item.id, event)}
                     >
                       Deletar
                     </button>

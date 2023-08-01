@@ -152,31 +152,32 @@ export default function BudgetPaspatur() {
   //   setSelectedOptionCodigoPaspatur(event.target.value);
   // };
 
-
-
-
-  const [novaLargura, setNovaLargura] = useState(0);
-  const [novaAltura, setNovaAltura] = useState(0);
-
-
   const handleInputChangeEsquerda = (event: ChangeEvent<HTMLInputElement>) => {
     const inputElement = document.getElementById('larguraEsquerda') as HTMLInputElement;
     const inputValue = inputElement.value;
 
+    const tamanho = localStorage.getItem("Tamanho") || "0x0";
+    const [altura, largura] = tamanho.split('x').map(Number);
 
     setLarguraEsquerda(inputValue);
     localStorage.setItem("larguraEsquerda", inputValue);
 
-    const tamanho = localStorage.getItem("Tamanho") || "0x0";
-    const [altura, largura] = tamanho.split('x').map(Number);
+    if (!larguraEsquerda && !larguraSuperior && !larguraDireita && !larguraInferior) {
+      setTimeout(() => {
+        setLarguraSuperior(localStorage.getItem("larguraEsquerda") || '');
+        localStorage.setItem("larguraSuperior", localStorage.getItem("larguraEsquerda") || '');
 
-    if (larguraDireita && novaAltura) {
-      setNovaLargura(largura + (Number(inputValue) + Number(larguraDireita)));
-      const novoTamanho = `${novaAltura}x${largura + (Number(inputValue) + Number(larguraDireita))}`;
-      localStorage.setItem("novoTamanho", novoTamanho);
-    } else {
-      setNovaLargura(largura + (Number(inputValue) * 2));
-      const novoTamanho = `${altura}x${novaLargura}`;
+        setLarguraDireita(localStorage.getItem("larguraEsquerda") || '');
+        localStorage.setItem("larguraDireita", localStorage.getItem("larguraEsquerda") || '');
+
+        setLarguraInferior(localStorage.getItem("larguraEsquerda") || '');
+        localStorage.setItem("larguraInferior", localStorage.getItem("larguraEsquerda") || '');
+
+        let novoTamanho = `${altura + Number(localStorage.getItem("larguraEsquerda")) + Number(localStorage.getItem("larguraEsquerda"))}x${largura + (Number(localStorage.getItem("larguraEsquerda")) + Number(localStorage.getItem("larguraEsquerda")))}`;
+        localStorage.setItem("novoTamanho", novoTamanho);
+      }, 1000);
+    } else if (larguraDireita && larguraInferior && larguraSuperior) {
+      let novoTamanho = `${altura + Number(localStorage.getItem("larguraSuperior")) + Number(localStorage.getItem("larguraInferior"))}x${largura + (Number(localStorage.getItem("larguraEsquerda")) + Number(localStorage.getItem("larguraDireita")))}`;
       localStorage.setItem("novoTamanho", novoTamanho);
     }
   };
@@ -191,13 +192,22 @@ export default function BudgetPaspatur() {
     const tamanho = localStorage.getItem("Tamanho") || "0x0";
     const [altura, largura] = tamanho.split('x').map(Number);
 
-    if (larguraEsquerda && novaAltura) {
-      setNovaLargura(largura + (Number(inputValue) + Number(larguraEsquerda)));
-      const novoTamanho = `${novaAltura}x${largura + (Number(inputValue) + Number(larguraEsquerda))}`;
-      localStorage.setItem("novoTamanho", novoTamanho);
-    } else {
-      setNovaLargura(largura + (Number(inputValue) * 2));
-      const novoTamanho = `${altura}x${novaLargura}`;
+    if (!larguraEsquerda && !larguraSuperior && !larguraDireita && !larguraInferior) {
+      setTimeout(() => {
+        setLarguraSuperior(localStorage.getItem("larguraDireita") || '');
+        localStorage.setItem("larguraSuperior", localStorage.getItem("larguraDireita") || '');
+
+        setLarguraEsquerda(localStorage.getItem("larguraDireita") || '');
+        localStorage.setItem("larguraEsquerda", localStorage.getItem("larguraDireita") || '');
+
+        setLarguraInferior(localStorage.getItem("larguraDireita") || '');
+        localStorage.setItem("larguraInferior", localStorage.getItem("larguraDireita") || '');
+
+        let novoTamanho = `${altura + Number(localStorage.getItem("larguraDireita")) + Number(localStorage.getItem("larguraDireita"))}x${largura + (Number(localStorage.getItem("larguraDireita")) + Number(localStorage.getItem("larguraDireita")))}`;
+        localStorage.setItem("novoTamanho", novoTamanho);
+      }, 1000);
+    } else if (larguraEsquerda && larguraInferior && larguraSuperior) {
+      let novoTamanho = `${altura + Number(localStorage.getItem("larguraSuperior")) + Number(localStorage.getItem("larguraInferior"))}x${largura + (Number(localStorage.getItem("larguraEsquerda")) + Number(localStorage.getItem("larguraDireita")))}`;
       localStorage.setItem("novoTamanho", novoTamanho);
     }
   };
@@ -215,13 +225,22 @@ export default function BudgetPaspatur() {
     const tamanho = localStorage.getItem("Tamanho") || "0x0";
     const [altura, largura] = tamanho.split('x').map(Number);
 
-    if (larguraSuperior && novaLargura) {
-      setNovaAltura(altura + (Number(inputValue) + Number(larguraSuperior)));
-      const novoTamanho = `${altura + (Number(inputValue) + Number(larguraSuperior))}x${novaLargura}`;
-      localStorage.setItem("novoTamanho", novoTamanho);
-    } else {
-      setNovaAltura(altura + (Number(inputValue) * 2));
-      const novoTamanho = `${novaAltura}x${largura}`;
+    if (!larguraEsquerda && !larguraSuperior && !larguraDireita && !larguraInferior) {
+      setTimeout(() => {
+        setLarguraSuperior(localStorage.getItem("larguraInferior") || '');
+        localStorage.setItem("larguraSuperior", localStorage.getItem("larguraInferior") || '');
+
+        setLarguraEsquerda(localStorage.getItem("larguraInferior") || '');
+        localStorage.setItem("larguraEsquerda", localStorage.getItem("larguraInferior") || '');
+
+        setLarguraDireita(localStorage.getItem("larguraInferior") || '');
+        localStorage.setItem("larguraDireita", localStorage.getItem("larguraInferior") || '');
+
+        let novoTamanho = `${altura + Number(localStorage.getItem("larguraInferior")) + Number(localStorage.getItem("larguraInferior"))}x${largura + (Number(localStorage.getItem("larguraInferior")) + Number(localStorage.getItem("larguraInferior")))}`;
+        localStorage.setItem("novoTamanho", novoTamanho);
+      }, 1000);
+    } else if (larguraEsquerda && larguraDireita && larguraSuperior) {
+      let novoTamanho = `${altura + Number(localStorage.getItem("larguraSuperior")) + Number(localStorage.getItem("larguraInferior"))}x${largura + (Number(localStorage.getItem("larguraEsquerda")) + Number(localStorage.getItem("larguraDireita")))}`;
       localStorage.setItem("novoTamanho", novoTamanho);
     }
 
@@ -241,27 +260,24 @@ export default function BudgetPaspatur() {
     const tamanho = localStorage.getItem("Tamanho") || "0x0";
     const [altura, largura] = tamanho.split('x').map(Number);
 
-    if (larguraInferior && novaLargura) {
-      setNovaAltura(altura + (Number(inputValue) + Number(larguraInferior)));
-      const novoTamanho = `${altura + (Number(inputValue) + Number(larguraInferior))}x${novaLargura}`;
-      localStorage.setItem("novoTamanho", novoTamanho);
-    } else {
-      setNovaAltura(altura + (Number(inputValue) * 2));
-      const novoTamanho = `${novaAltura}x${largura}`;
+    if (!larguraEsquerda && !larguraSuperior && !larguraDireita && !larguraInferior) {
+      setTimeout(() => {
+        setLarguraInferior(localStorage.getItem("larguraSuperior") || '');
+        localStorage.setItem("larguraInferior", localStorage.getItem("larguraSuperior") || '');
+
+        setLarguraEsquerda(localStorage.getItem("larguraSuperior") || '');
+        localStorage.setItem("larguraEsquerda", localStorage.getItem("larguraSuperior") || '');
+
+        setLarguraDireita(localStorage.getItem("larguraSuperior") || '');
+        localStorage.setItem("larguraDireita", localStorage.getItem("larguraSuperior") || '');
+
+        let novoTamanho = `${altura + Number(localStorage.getItem("larguraSuperior")) + Number(localStorage.getItem("larguraSuperior"))}x${largura + (Number(localStorage.getItem("larguraSuperior")) + Number(localStorage.getItem("larguraSuperior")))}`;
+        localStorage.setItem("novoTamanho", novoTamanho);
+      }, 1000);
+    } else if (larguraEsquerda && larguraDireita && larguraInferior) {
+      let novoTamanho = `${altura + Number(localStorage.getItem("larguraSuperior")) + Number(localStorage.getItem("larguraInferior"))}x${largura + (Number(localStorage.getItem("larguraEsquerda")) + Number(localStorage.getItem("larguraDireita")))}`;
       localStorage.setItem("novoTamanho", novoTamanho);
     }
-  };
-
-  const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    const inputValue = event.target.value;
-    setTimeout(() => {
-      if (!larguraEsquerda && !larguraSuperior && !larguraDireita && !larguraInferior) {
-        setLarguraEsquerda(inputValue);
-        setLarguraSuperior(inputValue);
-        setLarguraDireita(inputValue);
-        setLarguraInferior(inputValue);
-      }
-    }, 2000);
   };
 
 
@@ -376,38 +392,43 @@ export default function BudgetPaspatur() {
           const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
 
           // VALOR PERFIL NOVO
-          const valorP = Number(metroPerfil) && perfil !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) + ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
+          const valorP = Number(metroPerfil) && perfil !== null ? ((((altura + Number(larguraInferior) + Number(larguraSuperior)) * 2) + ((largura + Number(larguraEsquerda) + Number(larguraDireita)) * 2) + (Number(perfil) * 4)) / 100) * Number(metroPerfil) : 0;
           const perdaP = Number(perdaPerfil) !== null ? (valorP / 100) * Number(perdaPerfil) : 0;
           const lucroP = Number(lucroPerfil) !== null ? ((valorP + perdaP) * Number(lucroPerfil) / 100) : 0;
 
+
+          localStorage.setItem("valorPerfil", (valorP + perdaP + lucroP).toString());
           setPrecoPerfil(valorP + perdaP + lucroP);
 
           // VALOR VIDRO NOVO
-          const valorV = Number(metroPerfil) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroVidro) : 0;
+          const valorV = Number(metroPerfil) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita))) / 100) * Number(metroVidro) : 0;
           const perdaV = Number(perdaVidro) !== null ? (valorV / 100) * Number(perdaVidro) : 0;
-          const lucroV = Number(lucroVidro) !== null ? ((valorP + perdaV) * Number(lucroVidro) / 100) : 0;
+          const lucroV = Number(lucroVidro) !== null ? ((valorV + perdaV) * Number(lucroVidro) / 100) : 0;
 
+
+          localStorage.setItem("valorVidro", (valorV + perdaV + lucroV).toString());
           setPrecoVidro(valorV + perdaV + lucroV);
 
           // VALOR FOAM NOVO
-          const valorF = Number(metroFoam) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroFoam) : 0;
+          const valorF = Number(metroFoam) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita))) / 100) * Number(metroFoam) : 0;
           const perdaF = Number(perdaFoam) !== null ? (valorF / 100) * Number(perdaFoam) : 0;
           const lucroF = Number(lucroFoam) !== null ? ((valorF + perdaF) * Number(lucroFoam) / 100) : 0;
-
+          localStorage.setItem("valorFoam", (valorF + perdaF + lucroF).toString());
           setPrecoFoam(valorF + perdaF + lucroF);
 
           // VALOR IMPRESSAO NOVO
-          const valorI = Number(metroImpressao) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroImpressao) : 0;
-          const perdaI = Number(perdaImpressao) !== null ? (valorF / 100) * Number(perdaImpressao) : 0;
+          const valorI = Number(metroImpressao) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita))) / 100) * Number(metroImpressao) : 0;
+          const perdaI = Number(perdaImpressao) !== null ? (valorI / 100) * Number(perdaImpressao) : 0; // Corrigido
           const lucroI = Number(lucroImpressao) !== null ? ((valorI + perdaI) * Number(lucroImpressao) / 100) : 0;
-
+          localStorage.setItem("valorImpressao", (valorI + perdaI + lucroI).toString());
           setPrecoImpressao(valorI + perdaI + lucroI);
 
           // VALOR COLAGEM NOVO
-          const valorC = Number(metroColagem) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita)) / 100)) * Number(metroColagem) : 0;
-          const perdaC = Number(perdaColagem) !== null ? (valorF / 100) * Number(perdaColagem) : 0;
+          const valorC = Number(metroColagem) !== null ? ((altura + (Number(larguraInferior) + Number(larguraSuperior))) / 100) * ((largura + (Number(larguraEsquerda) + Number(larguraDireita))) / 100) * Number(metroColagem) : 0;
+          const perdaC = Number(perdaColagem) !== null ? (valorC / 100) * Number(perdaColagem) : 0; // Corrigido
           const lucroC = Number(lucroColagem) !== null ? ((valorC + perdaC) * Number(lucroColagem) / 100) : 0;
 
+          localStorage.setItem("valorColagem", (valorC + perdaC + lucroC).toString());
           setPrecoColagem(valorC + perdaC + lucroC);
 
 
@@ -418,11 +439,11 @@ export default function BudgetPaspatur() {
             localStorage.setItem("perdaPaspatur", selectedProduto.valorPerda.toString())
             localStorage.setItem("lucroPaspatur", selectedProduto.margemLucro.toString())
 
-            localStorage.setItem("valorFoam", precoFoam.toString());
-            localStorage.setItem("valorVidro", precoVidro.toString());
-            localStorage.setItem("valorPerfil", precoPerfil.toString());
-            localStorage.setItem("valorImpressao", precoImpressao.toString());
-            localStorage.setItem("valorColagem", precoColagem.toString());
+            // localStorage.setItem("valorFoam", precoFoam.toString());
+            // localStorage.setItem("valorVidro", precoVidro.toString());
+            // localStorage.setItem("valorPerfil", precoPerfil.toString());
+            // localStorage.setItem("valorImpressao", precoImpressao.toString());
+            // localStorage.setItem("valorColagem", precoColagem.toString());
 
             // localStorage.setItem("Tamanho", novoTamanho)
 
@@ -560,7 +581,6 @@ export default function BudgetPaspatur() {
                 placeholder=""
                 value={larguraSuperior}
                 onChange={handleInputChangeSuperior}
-                onBlur={handleInputBlur}
               />
             </div>
 
@@ -574,7 +594,6 @@ export default function BudgetPaspatur() {
                   placeholder=""
                   value={larguraEsquerda}
                   onChange={handleInputChangeEsquerda}
-                  onBlur={handleInputBlur}
                 />
               </div>
 
@@ -589,7 +608,6 @@ export default function BudgetPaspatur() {
                   placeholder=""
                   value={larguraDireita}
                   onChange={handleInputChangeDireita}
-                  onBlur={handleInputBlur}
                 />
               </div>
             </div>
@@ -603,7 +621,6 @@ export default function BudgetPaspatur() {
                 placeholder=""
                 value={larguraInferior}
                 onChange={handleInputChangeInferior}
-                onBlur={handleInputBlur}
               />
             </div>
           </div>

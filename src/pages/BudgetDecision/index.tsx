@@ -428,34 +428,34 @@ export default function BudgetDecision() {
                     <div>
                       <p className={styles.ResName}>Impressão</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>
-                          {codigoImpressao} - R$ {parseFloat(valorImpressao || '0').toFixed(2)}
-                        </p>
+                        {
+                          codigoImpressao && valorImpressao &&
+                          <p className={styles.ResValue}>
+                            {codigoImpressao} - R$ {parseFloat(valorImpressao || '0').toFixed(2)}
+                          </p>
+                        }
+
                       </div>
                     </div>
 
                     <div>
                       <p className={styles.ResName}>Perfil</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>
-                          {codigoPerfil} - R$ {parseFloat(valorPerfil || '0').toFixed(2)}
-                        </p>
+                        {codigoPerfil && valorPerfil && <p className={styles.ResValue}>{codigoPerfil} - R$ {parseFloat(valorPerfil || '0').toFixed(2)}</p>}
                       </div>
                     </div>
 
                     <div>
                       <p className={styles.ResName}>Vidro</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>
-                          {codigoVidro} - R$ {parseFloat(valorVidro || '0').toFixed(2)}
-                        </p>
+                        {codigoVidro && valorVidro && <p className={styles.ResValue}>{codigoVidro} - R$ {parseFloat(valorVidro || '0').toFixed(2)}</p>}
                       </div>
                     </div>
 
                     <div>
                       <p className={styles.ResName}>Foam</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{codigoFoam} - R$ {parseFloat(valorFoam || '0').toFixed(2)}</p>
+                        {codigoFoam && valorFoam && <p className={styles.ResValue}>{codigoFoam} - R$ {parseFloat(valorFoam || '0').toFixed(2)}</p>}
                       </div>
                     </div>
 
@@ -463,39 +463,26 @@ export default function BudgetDecision() {
                       <p className={styles.ResName}>Paspatur</p>
                       <div>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>
-                            {codigoPaspatur} - R$ {parseFloat(valorPaspatur || '0').toFixed(2)}
-                          </p>
+                          {codigoPaspatur && valorPaspatur && <p className={styles.ResValue}>{codigoPaspatur} - R$ {parseFloat(valorPaspatur || '0').toFixed(2)}</p>}
                         </div>
-
-                        <p className={styles.ResValue}>
-                          {dimensoesPaspatur}
-                        </p>
+                        {dimensoesPaspatur && <p className={styles.ResValue}>{dimensoesPaspatur}</p>}
                       </div>
                     </div>
 
                     <div>
                       <p className={styles.ResName}>Colagem</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{codigoColagem} - R$ {parseFloat(valorColagem || '0').toFixed(2)}</p>
+                        {codigoColagem && valorColagem && <p className={styles.ResValue}>{codigoColagem} - R$ {parseFloat(valorColagem || '0').toFixed(2)}</p>}
                       </div>
                     </div>
-                    {/* 
-                  <div>
-                    <p className={styles.ResName}>Impressão</p>
-                    <div className={styles.OrderResValue}>
-                      <p className={styles.ResValue}>SIM</p>
-                    </div>
-                  </div> */}
 
                     <div>
                       <p className={styles.ResName}>Instalação</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>
-                          {instalacao} - {valorInstalacao}
-                        </p>
+                        {instalacao && valorInstalacao && <p className={styles.ResValue}>{instalacao} - {valorInstalacao}</p>}
                       </div>
                     </div>
+
 
                     <div>
                       <p className={styles.ResName}>Entrega</p>
@@ -525,7 +512,8 @@ export default function BudgetDecision() {
                     <div>
                       <p className={styles.ResName}>Prazo para entrega</p>
                       <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{formatDate(dataVencimento)}</p>
+                        {dataVencimento && <p className={styles.ResValue}>{formatDate(dataVencimento)}</p>}
+
                       </div>
                     </div>
 
@@ -562,98 +550,101 @@ export default function BudgetDecision() {
                       <div>
                         <p className={styles.ResName}>Impressão</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>
+                          {budget.codigoImpressao && <p className={styles.ResValue}>
                             {budget.codigoImpressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
-                          </p>
+                          </p>}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Perfil</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>
+                          {budget.codigoPerfil && <p className={styles.ResValue}>
                             {budget.codigoPerfil} - R$ {parseFloat(budget.valorPerfil || '0').toFixed(2)}
-                          </p>
+                          </p>}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Vidro</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>
+                          {budget.codigoVidro && <p className={styles.ResValue}>
                             {budget.codigoVidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
-                          </p>
+                          </p>}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Foam</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{budget.codigoFoam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}</p>
+                          {budget.codigoFoam && <p className={styles.ResValue}>
+                            {budget.codigoFoam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}
+                          </p>}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Paspatur</p>
-                        <div>
-                          <div className={styles.OrderResValue}>
-                            <p className={styles.ResValue}>
-                              {budget.codigoPaspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
-                            </p>
-                          </div>
-                          <p className={styles.ResValue}>
-                            {budget.dimensoesPaspatur}
-                          </p>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoPaspatur && <p className={styles.ResValue}>
+                            {budget.codigoPaspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
+                          </p>}
                         </div>
+                        {budget.dimensoesPaspatur && <p className={styles.ResValue}>
+                          {budget.dimensoesPaspatur}
+                        </p>}
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Colagem</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{budget.codigoColagem} - R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}</p>
+                          {budget.codigoColagem && <p className={styles.ResValue}>
+                            {budget.codigoColagem} - R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}
+                          </p>}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Instalação</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>
+                          {budget.instalacao && <p className={styles.ResValue}>
                             {budget.instalacao} - {budget.valorInstalacao}
-                          </p>
+                          </p>}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Entrega</p>
                         <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{budget.tipoEntrega}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.OrderRes}>
-                      <p className={styles.ResTitle}>Pagamentos e prazos</p>
-
-                      <div>
-                        <p className={styles.ResName}>Mão de obra externa</p>
-                        <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{budget.maoDeObraExtra}</p>
+                          {budget.tipoEntrega && <p className={styles.ResValue}>{budget.tipoEntrega}</p>}
                         </div>
                       </div>
 
-                      <div>
-                        <p className={styles.ResName}>Forma de pagamento</p>
-                        <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{budget.formaPagamento}</p>
+                      <div className={styles.OrderRes}>
+                        <p className={styles.ResTitle}>Pagamentos e prazos</p>
+
+                        <div>
+                          <p className={styles.ResName}>Mão de obra externa</p>
+                          <div className={styles.OrderResValue}>
+                            {budget.maoDeObraExtra && <p className={styles.ResValue}>{budget.maoDeObraExtra}</p>}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className={styles.ResName}>Forma de pagamento</p>
+                          <div className={styles.OrderResValue}>
+                            {budget.formaPagamento && <p className={styles.ResValue}>{budget.formaPagamento}</p>}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className={styles.ResName}>Prazo para entrega</p>
+                          <div className={styles.OrderResValue}>
+                            {budget.dataVencimento && <p className={styles.ResValue}>{formatDate(budget.dataVencimento)}</p>}
+                          </div>
                         </div>
                       </div>
 
-                      <div>
-                        <p className={styles.ResName}>Prazo para entrega</p>
-                        <div className={styles.OrderResValue}>
-                          <p className={styles.ResValue}>{formatDate(budget.dataVencimento)}</p>
-                        </div>
-                      </div>
 
                       <div className={styles.OrderNotes}>
                         <p className={styles.ResName}>Observação</p>
