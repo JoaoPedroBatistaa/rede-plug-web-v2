@@ -62,6 +62,9 @@ export default function BudgetSize() {
     const value = `${alturaFormatada}x${larguraFormatada}`;
     if (typeof window !== 'undefined') {
       window.localStorage.setItem("Tamanho", value);
+      if (localStorage.getItem("novoTamanho")) {
+        localStorage.setItem("novoTamanho", value);
+      }
     }
   }
 

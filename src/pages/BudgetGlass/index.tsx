@@ -115,8 +115,11 @@ export default function BudgetGlass() {
   }
 
   const [preco, setPreco] = useState(() => {
-    const valorVidro = localStorage.getItem("valorVidro");
-    return valorVidro ? Number(valorVidro) : 0;
+    if (typeof window !== 'undefined') {
+
+      const valorVidro = localStorage.getItem("valorVidro");
+      return valorVidro ? Number(valorVidro) : 0;
+    }
   });
 
 
@@ -143,8 +146,11 @@ export default function BudgetGlass() {
   }, []);
 
   const [selectedOption, setSelectedOption] = useState(() => {
-    const codigoVidro = localStorage.getItem("codigoVidro");
-    return codigoVidro ? codigoVidro : '';
+    if (typeof window !== 'undefined') {
+
+      const codigoVidro = localStorage.getItem("codigoVidro");
+      return codigoVidro ? codigoVidro : '';
+    }
   });
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -240,7 +246,7 @@ export default function BudgetGlass() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor do Vidro</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco ? preco.toFixed(2) : 0}</p>
               </div>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>

@@ -72,8 +72,11 @@ export default function BudgetCollage() {
   };
 
   const [preco, setPreco] = useState(() => {
-    const valorColagem = localStorage.getItem("valorColagem");
-    return valorColagem ? Number(valorColagem) : 0;
+    if (typeof window !== 'undefined') {
+
+      const valorColagem = localStorage.getItem("valorColagem");
+      return valorColagem ? Number(valorColagem) : 0;
+    }
   });
 
 
@@ -108,8 +111,11 @@ export default function BudgetCollage() {
   }, []);
 
   const [selectedOption, setSelectedOption] = useState(() => {
-    const codigoColagem = localStorage.getItem("codigoColagem");
-    return codigoColagem ? codigoColagem : '';
+    if (typeof window !== 'undefined') {
+
+      const codigoColagem = localStorage.getItem("codigoColagem");
+      return codigoColagem ? codigoColagem : '';
+    }
   });
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -182,7 +188,7 @@ export default function BudgetCollage() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor da Colagem</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco ? preco.toFixed(2) : 0}</p>
               </div>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>

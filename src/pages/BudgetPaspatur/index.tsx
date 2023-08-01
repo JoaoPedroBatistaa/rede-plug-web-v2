@@ -35,8 +35,11 @@ export default function BudgetPaspatur() {
     useState("");
 
   const [selectedOptionCodigoPaspatur, setSelectedOptionCodigoPaspatur] = useState(() => {
-    const codigoPaspatur = localStorage.getItem("codigoPaspatur");
-    return codigoPaspatur ? codigoPaspatur : '';
+    if (typeof window !== 'undefined') {
+
+      const codigoPaspatur = localStorage.getItem("codigoPaspatur");
+      return codigoPaspatur ? codigoPaspatur : '';
+    }
   });
 
   const [produtos, setProdutos] = useState<Foam[]>([]);
@@ -159,6 +162,8 @@ export default function BudgetPaspatur() {
   const handleInputChangeEsquerda = (event: ChangeEvent<HTMLInputElement>) => {
     const inputElement = document.getElementById('larguraEsquerda') as HTMLInputElement;
     const inputValue = inputElement.value;
+
+
     setLarguraEsquerda(inputValue);
     localStorage.setItem("larguraEsquerda", inputValue);
 
@@ -179,6 +184,7 @@ export default function BudgetPaspatur() {
   const handleInputChangeDireita = () => {
     const inputElement = document.getElementById('larguraDireita') as HTMLInputElement;
     const inputValue = inputElement.value;
+
     setLarguraDireita(inputValue);
     localStorage.setItem("larguraDireita", inputValue);
 
@@ -201,6 +207,8 @@ export default function BudgetPaspatur() {
   const handleInputChangeInferior = () => {
     const inputElement = document.getElementById('larguraInferior') as HTMLInputElement;
     const inputValue = inputElement.value;
+
+
     setLarguraInferior(inputValue);
     localStorage.setItem("larguraInferior", inputValue);
 
@@ -225,6 +233,8 @@ export default function BudgetPaspatur() {
   const handleInputChangeSuperior = (event: ChangeEvent<HTMLInputElement>) => {
     const inputElement = document.getElementById('larguraSuperior') as HTMLInputElement;
     const inputValue = inputElement.value;
+
+
     setLarguraSuperior(inputValue);
     localStorage.setItem("larguraSuperior", inputValue);
 
@@ -241,6 +251,20 @@ export default function BudgetPaspatur() {
       localStorage.setItem("novoTamanho", novoTamanho);
     }
   };
+
+  const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value;
+    setTimeout(() => {
+      if (!larguraEsquerda && !larguraSuperior && !larguraDireita && !larguraInferior) {
+        setLarguraEsquerda(inputValue);
+        setLarguraSuperior(inputValue);
+        setLarguraDireita(inputValue);
+        setLarguraInferior(inputValue);
+      }
+    }, 2000);
+  };
+
+
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
 
@@ -279,8 +303,11 @@ export default function BudgetPaspatur() {
 
 
   const [preco, setPreco] = useState(() => {
-    const valorPaspatur = localStorage.getItem("valorPaspatur");
-    return valorPaspatur ? Number(valorPaspatur) : 0;
+    if (typeof window !== 'undefined') {
+
+      const valorPaspatur = localStorage.getItem("valorPaspatur");
+      return valorPaspatur ? Number(valorPaspatur) : 0;
+    }
   });
 
 
@@ -452,7 +479,7 @@ export default function BudgetPaspatur() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor do paspatur</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco ? preco.toFixed(2) : 0}</p>
               </div>
 
               <div className={styles.TotalValue}>
@@ -533,6 +560,7 @@ export default function BudgetPaspatur() {
                 placeholder=""
                 value={larguraSuperior}
                 onChange={handleInputChangeSuperior}
+                onBlur={handleInputBlur}
               />
             </div>
 
@@ -546,6 +574,7 @@ export default function BudgetPaspatur() {
                   placeholder=""
                   value={larguraEsquerda}
                   onChange={handleInputChangeEsquerda}
+                  onBlur={handleInputBlur}
                 />
               </div>
 
@@ -560,6 +589,7 @@ export default function BudgetPaspatur() {
                   placeholder=""
                   value={larguraDireita}
                   onChange={handleInputChangeDireita}
+                  onBlur={handleInputBlur}
                 />
               </div>
             </div>
@@ -573,6 +603,7 @@ export default function BudgetPaspatur() {
                 placeholder=""
                 value={larguraInferior}
                 onChange={handleInputChangeInferior}
+                onBlur={handleInputBlur}
               />
             </div>
           </div>

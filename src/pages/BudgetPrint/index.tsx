@@ -36,8 +36,11 @@ export default function BudgetPrint() {
   const [selectedOptionPrint, setSelectedOptionPrint] = useState("");
 
   const [selectedOptionPrintType, setSelectedOptionPrintType] = useState(() => {
-    const codigoImpressao = localStorage.getItem("codigoImpressao");
-    return codigoImpressao ? codigoImpressao : '';
+    if (typeof window !== 'undefined') {
+
+      const codigoImpressao = localStorage.getItem("codigoImpressao");
+      return codigoImpressao ? codigoImpressao : '';
+    }
   });
 
   useEffect(() => {
@@ -49,8 +52,11 @@ export default function BudgetPrint() {
   };
 
   useEffect(() => {
-    localStorage.setItem("tipoImpressao", selectedOptionPrintType);
+    if (selectedOptionPrintType) {
+      localStorage.setItem("tipoImpressao", selectedOptionPrintType);
+    }
   }, [selectedOptionPrintType]);
+
 
   const handleSelectChangePrintType = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOptionPrintType(event.target.value);
@@ -116,8 +122,11 @@ export default function BudgetPrint() {
 
 
   const [preco, setPreco] = useState(() => {
-    const valorImpressao = localStorage.getItem("valorImpressao");
-    return valorImpressao ? Number(valorImpressao) : 0;
+    if (typeof window !== 'undefined') {
+
+      const valorImpressao = localStorage.getItem("valorImpressao");
+      return valorImpressao ? Number(valorImpressao) : 0;
+    }
   });
 
   const [precoTotal, setPrecoTotal] = useState(0);
@@ -223,7 +232,7 @@ export default function BudgetPrint() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor da Impressão</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco ? preco.toFixed(2) : 0}</p>
               </div>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>

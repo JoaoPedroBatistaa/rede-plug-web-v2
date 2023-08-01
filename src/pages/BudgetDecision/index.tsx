@@ -182,7 +182,7 @@ export default function BudgetDecision() {
     espessuraEspelho = localStorage.getItem("espessuraEspelho") || '';
     codigoPerfil = localStorage.getItem("codigoPerfil") || '';
     espessuraPerfil = localStorage.getItem("espessuraPerfil") || '';
-    Tamanho = localStorage.getItem("Tamanho") || '';
+    Tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || '';
     tipoPessoa = localStorage.getItem("tipoPessoa") || '';
     obs = localStorage.getItem("obs") || '';
   }

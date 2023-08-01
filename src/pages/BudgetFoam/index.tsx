@@ -31,8 +31,11 @@ export default function BudgetFoam() {
   const [produtos, setProdutos] = useState<Foam[]>([]);
 
   const [selectedOption, setSelectedOption] = useState(() => {
-    const codigoFoam = localStorage.getItem("codigoFoam");
-    return codigoFoam ? codigoFoam : '';
+    if (typeof window !== 'undefined') {
+
+      const codigoFoam = localStorage.getItem("codigoFoam");
+      return codigoFoam ? codigoFoam : '';
+    }
   });
 
 
@@ -83,8 +86,11 @@ export default function BudgetFoam() {
   ]);
 
   const [preco, setPreco] = useState(() => {
-    const valorFoam = localStorage.getItem("valorFoam");
-    return valorFoam ? Number(valorFoam) : 0;
+    if (typeof window !== 'undefined') {
+
+      const valorFoam = localStorage.getItem("valorFoam");
+      return valorFoam ? Number(valorFoam) : 0;
+    }
   });
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -214,7 +220,7 @@ export default function BudgetFoam() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor do Foam</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco ? preco.toFixed(2) : 0}</p>
               </div>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>

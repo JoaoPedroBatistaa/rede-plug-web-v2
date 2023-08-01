@@ -33,8 +33,11 @@ export default function BudgetPerfil() {
   const [produtos, setProdutos] = useState<Foam[]>([]);
 
   const [selectedOption, setSelectedOption] = useState(() => {
-    const codigoPerfil = localStorage.getItem("codigoPerfil");
-    return codigoPerfil ? codigoPerfil : '';
+    if (typeof window !== 'undefined') {
+      const codigoPerfil = localStorage.getItem("codigoPerfil");
+      return codigoPerfil ? codigoPerfil : '';
+    }
+
   });
 
 
@@ -72,8 +75,11 @@ export default function BudgetPerfil() {
 
 
   const [preco, setPreco] = useState(() => {
-    const valorPerfil = localStorage.getItem("valorPerfil");
-    return valorPerfil ? Number(valorPerfil) : 0;
+    if (typeof window !== 'undefined') {
+
+      const valorPerfil = localStorage.getItem("valorPerfil");
+      return valorPerfil ? Number(valorPerfil) : 0;
+    }
   });
 
 
@@ -193,7 +199,7 @@ export default function BudgetPerfil() {
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor do perfil</p>
-                <p className={styles.Value}>R${preco.toFixed(2)}</p>
+                <p className={styles.Value}>R${preco ? preco.toFixed(2) : 0}</p>
               </div>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>

@@ -72,9 +72,12 @@ export default function BudgetShip() {
   }, []);
 
   const [preco, setPreco] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const valorInstalacao = localStorage.getItem("valorInstalacao");
+      return valorInstalacao ? Number(valorInstalacao) : 0;
 
-    const valorInstalacao = localStorage.getItem("valorInstalacao");
-    return valorInstalacao ? Number(valorInstalacao) : 0;
+    }
+
 
   });
 
