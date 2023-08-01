@@ -137,7 +137,7 @@ export default function TableFoam({
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Pedido excluído com sucesso!", {
+      toast.success("Foam excluído com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,

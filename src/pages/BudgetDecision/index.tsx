@@ -119,8 +119,9 @@ export default function BudgetDecision() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao)
+        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -390,7 +391,7 @@ export default function BudgetDecision() {
     return sum + parseFloat(budget.valorTotal || '0');
   }, 0) : 0;
 
-  const grandTotal = totalSavedBudgets + parseFloat(valorTotal || '0') + parseFloat(maoDeObraExtra || '0');
+  const grandTotal = totalSavedBudgets + parseFloat(valorTotal || '0');
   if (typeof window !== "undefined") {
     localStorage.setItem("grandTotal", grandTotal);
   }

@@ -143,7 +143,7 @@ export default function TableVidro({
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Pedido excluído com sucesso!", {
+      toast.success("Vidro excluído com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,

@@ -149,7 +149,7 @@ export default function TablePerfil({
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Produto excluído com sucesso!", {
+      toast.success("Perfil excluído com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,
