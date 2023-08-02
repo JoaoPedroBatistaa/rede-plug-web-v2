@@ -518,7 +518,7 @@ export default function BudgetDecision() {
                     <p className={styles.ResTitle}>Pagamentos e prazos</p>
 
                     <div>
-                      <p className={styles.ResName}>Mão de obra externa</p>
+                      <p className={styles.ResName}>Mão de obra </p>
                       <div className={styles.OrderResValue}>
                         <p className={styles.ResValue}>{maoDeObraExtra}</p>
                       </div>
@@ -718,7 +718,7 @@ export default function BudgetDecision() {
 
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Mão de obra extra</p>
+                    <p className={styles.FieldLabel}>Mão de obra</p>
                     <input
                       type="text"
                       className={styles.FieldSaveDes}

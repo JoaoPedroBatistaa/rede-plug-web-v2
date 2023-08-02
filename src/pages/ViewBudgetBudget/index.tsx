@@ -281,7 +281,7 @@ export default function ViewBudgetBudget() {
                         <p className={styles.ResTitle}>Pagamentos e prazos</p>
 
                         <div>
-                          <p className={styles.ResName}>Mão de obra externa</p>
+                          <p className={styles.ResName}>Mão de obra</p>
                           <div className={styles.OrderResValue}>
                             {budget.maoDeObraExtra && <p className={styles.ResValue}>{budget.maoDeObraExtra}</p>}
                           </div>
