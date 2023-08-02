@@ -98,6 +98,7 @@ export default function BudgetShip() {
         setPreco(prevPreco => {
           const novoPreco = selectedProduto.valorMetro;
           localStorage.setItem("valorInstalacao", novoPreco.toString());
+          localStorage.setItem("descricaoInstalacao", selectedProduto.descricao.toString());
           return novoPreco;
         });
 

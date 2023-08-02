@@ -119,6 +119,7 @@ export default function BudgetFoam() {
         localStorage.setItem("metroFoam", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
+        localStorage.setItem("descricaoFoam", selectedProduto.descricao.toString())
 
         return novoPreco;
       });

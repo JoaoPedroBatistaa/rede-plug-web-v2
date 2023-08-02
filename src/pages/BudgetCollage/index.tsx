@@ -140,6 +140,7 @@ export default function BudgetCollage() {
         localStorage.setItem("metroColagem", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaColagem", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroColagem", selectedProduto.margemLucro.toString())
+        localStorage.setItem("descricaoColagem", selectedProduto.descricao.toString())
         return novoPreco;
       });
 

@@ -198,6 +198,7 @@ export default function BudgetGlass() {
         localStorage.setItem("metroVidro", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaVidro", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroVidro", selectedProduto.margemLucro.toString())
+        localStorage.setItem("descricaoVidro", selectedProduto.descricao.toString())
         return novoPreco;
       });
 

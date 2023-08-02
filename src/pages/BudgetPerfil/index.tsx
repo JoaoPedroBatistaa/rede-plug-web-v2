@@ -103,6 +103,7 @@ export default function BudgetPerfil() {
           localStorage.setItem("perdaPerfil", selectedProduto.valorPerda.toString())
           localStorage.setItem("lucroPerfil", selectedProduto.margemLucro.toString())
           localStorage.setItem("larguraPerfil", selectedProduto.largura.toString())
+          localStorage.setItem("descricaoPerfil", selectedProduto.descricao.toString())
           localStorage.setItem("perfil", espessura.toString())
           return novoPreco;
         });

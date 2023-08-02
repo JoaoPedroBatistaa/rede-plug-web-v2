@@ -163,6 +163,14 @@ export default function BudgetDecision() {
   let valorTotal: string = '';
   let obs: string = '';
 
+  let descricaoPerfil: string = '';
+  let descricaoVidro: string = '';
+  let descricaoColagem: string = '';
+  let descricaoImpressao: string = '';
+  let descricaoPaspatur: string = '';
+  let descricaoInstalacao: string = '';
+  let descricaoFoam: string = '';
+
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto") || '';
@@ -194,6 +202,14 @@ export default function BudgetDecision() {
     Tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || '';
     tipoPessoa = localStorage.getItem("tipoPessoa") || '';
     obs = localStorage.getItem("obs") || '';
+
+    descricaoPerfil = localStorage.getItem("descricaoPerfil") || '';
+    descricaoVidro = localStorage.getItem("descricaoVidro") || '';
+    descricaoFoam = localStorage.getItem("descricaoFoam") || '';
+    descricaoColagem = localStorage.getItem("descricaoColagem") || '';
+    descricaoImpressao = localStorage.getItem("descricaoImpressao") || '';
+    descricaoInstalacao = localStorage.getItem("descricaoInstalacao") || '';
+    descricaoPaspatur = localStorage.getItem("descricaoPaspatur") || '';
   }
 
   const [maoDeObraExtra, setMaoDeObraExtra] = useState("");
@@ -293,7 +309,15 @@ export default function BudgetDecision() {
       valorImpressao,
       valorPaspatur,
       valorInstalacao,
-      valorVidro
+      valorVidro,
+
+      descricaoPerfil,
+      descricaoColagem,
+      descricaoFoam,
+      descricaoImpressao,
+      descricaoInstalacao,
+      descricaoPaspatur,
+      descricaoVidro
     };
 
     saveBudget(newBudgetId.toString(), budgetData);
@@ -358,7 +382,15 @@ export default function BudgetDecision() {
       valorImpressao,
       valorPaspatur,
       valorInstalacao,
-      valorVidro
+      valorVidro,
+
+      descricaoPerfil,
+      descricaoColagem,
+      descricaoFoam,
+      descricaoImpressao,
+      descricaoInstalacao,
+      descricaoPaspatur,
+      descricaoVidro
     };
 
     if (!formaPagamento || formaPagamento === "") {
@@ -458,6 +490,17 @@ export default function BudgetDecision() {
                           </p>
                         }
 
+
+                      </div>
+                      <div className={styles.OrderResValue}>
+
+                        {
+                          codigoImpressao && valorImpressao &&
+                          <p className={styles.ResValue}>
+                            {descricaoImpressao}
+                          </p>
+                        }
+
                       </div>
                     </div>
 
@@ -466,12 +509,18 @@ export default function BudgetDecision() {
                       <div className={styles.OrderResValue}>
                         {codigoPerfil && valorPerfil && <p className={styles.ResValue}>{codigoPerfil} - R$ {parseFloat(valorPerfil || '0').toFixed(2)}</p>}
                       </div>
+                      <div className={styles.OrderResValue}>
+                        {codigoPerfil && valorPerfil && <p className={styles.ResValue}>{descricaoPerfil}</p>}
+                      </div>
                     </div>
 
                     <div>
                       <p className={styles.ResName}>Vidro</p>
                       <div className={styles.OrderResValue}>
                         {codigoVidro && valorVidro && <p className={styles.ResValue}>{codigoVidro} - R$ {parseFloat(valorVidro || '0').toFixed(2)}</p>}
+                      </div>
+                      <div className={styles.OrderResValue}>
+                        {codigoVidro && valorVidro && <p className={styles.ResValue}>{descricaoVidro}</p>}
                       </div>
                     </div>
 
@@ -480,6 +529,9 @@ export default function BudgetDecision() {
                       <div className={styles.OrderResValue}>
                         {codigoFoam && valorFoam && <p className={styles.ResValue}>{codigoFoam} - R$ {parseFloat(valorFoam || '0').toFixed(2)}</p>}
                       </div>
+                      <div className={styles.OrderResValue}>
+                        {codigoFoam && valorFoam && <p className={styles.ResValue}>{descricaoFoam}</p>}
+                      </div>
                     </div>
 
                     <div>
@@ -487,6 +539,9 @@ export default function BudgetDecision() {
                       <div>
                         <div className={styles.OrderResValue}>
                           {codigoPaspatur && valorPaspatur && <p className={styles.ResValue}>{codigoPaspatur} - R$ {parseFloat(valorPaspatur || '0').toFixed(2)}</p>}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {codigoPaspatur && valorPaspatur && <p className={styles.ResValue}>{descricaoPaspatur}</p>}
                         </div>
                         {dimensoesPaspatur && <p className={styles.ResValue}>{dimensoesPaspatur}</p>}
                       </div>
@@ -497,12 +552,18 @@ export default function BudgetDecision() {
                       <div className={styles.OrderResValue}>
                         {codigoColagem && valorColagem && <p className={styles.ResValue}>{codigoColagem} - R$ {parseFloat(valorColagem || '0').toFixed(2)}</p>}
                       </div>
+                      <div className={styles.OrderResValue}>
+                        {codigoColagem && valorColagem && <p className={styles.ResValue}>{descricaoColagem}</p>}
+                      </div>
                     </div>
 
                     <div>
                       <p className={styles.ResName}>Instalação</p>
                       <div className={styles.OrderResValue}>
-                        {instalacao && valorInstalacao && <p className={styles.ResValue}>{instalacao} - {valorInstalacao}</p>}
+                        {valorInstalacao && <p className={styles.ResValue}>{valorInstalacao}</p>}
+                      </div>
+                      <div className={styles.OrderResValue}>
+                        {valorInstalacao && <p className={styles.ResValue}>{descricaoInstalacao}</p>}
                       </div>
                     </div>
 
@@ -577,6 +638,11 @@ export default function BudgetDecision() {
                             {budget.codigoImpressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
                           </p>}
                         </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoImpressao && <p className={styles.ResValue}>
+                            {budget.descricaoImpressao}
+                          </p>}
+                        </div>
                       </div>
 
                       <div>
@@ -584,6 +650,11 @@ export default function BudgetDecision() {
                         <div className={styles.OrderResValue}>
                           {budget.codigoPerfil && <p className={styles.ResValue}>
                             {budget.codigoPerfil} - R$ {parseFloat(budget.valorPerfil || '0').toFixed(2)}
+                          </p>}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoPerfil && <p className={styles.ResValue}>
+                            {budget.descricaoPerfil}
                           </p>}
                         </div>
                       </div>
@@ -595,6 +666,11 @@ export default function BudgetDecision() {
                             {budget.codigoVidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
                           </p>}
                         </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoVidro && <p className={styles.ResValue}>
+                            {budget.descricaoVidro}
+                          </p>}
+                        </div>
                       </div>
 
                       <div>
@@ -604,6 +680,11 @@ export default function BudgetDecision() {
                             {budget.codigoFoam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}
                           </p>}
                         </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoFoam && <p className={styles.ResValue}>
+                            {budget.descricaoFoam}
+                          </p>}
+                        </div>
                       </div>
 
                       <div>
@@ -611,6 +692,11 @@ export default function BudgetDecision() {
                         <div className={styles.OrderResValue}>
                           {budget.codigoPaspatur && <p className={styles.ResValue}>
                             {budget.codigoPaspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
+                          </p>}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoPaspatur && <p className={styles.ResValue}>
+                            {budget.descricaoPaspatur}
                           </p>}
                         </div>
                         {budget.dimensoesPaspatur && <p className={styles.ResValue}>
@@ -625,6 +711,11 @@ export default function BudgetDecision() {
                             {budget.codigoColagem} - R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}
                           </p>}
                         </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoColagem && <p className={styles.ResValue}>
+                            {budget.descricaoColagem}
+                          </p>}
+                        </div>
                       </div>
 
                       <div>
@@ -632,6 +723,11 @@ export default function BudgetDecision() {
                         <div className={styles.OrderResValue}>
                           {budget.instalacao && <p className={styles.ResValue}>
                             {budget.instalacao} - {budget.valorInstalacao}
+                          </p>}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.instalacao && <p className={styles.ResValue}>
+                            {budget.descricaoInstalacao}
                           </p>}
                         </div>
                       </div>
@@ -647,7 +743,7 @@ export default function BudgetDecision() {
                         <p className={styles.ResTitle}>Pagamentos e prazos</p>
 
                         <div>
-                          <p className={styles.ResName}>Mão de obra externa</p>
+                          <p className={styles.ResName}>Mão de obra</p>
                           <div className={styles.OrderResValue}>
                             {budget.maoDeObraExtra && <p className={styles.ResValue}>{budget.maoDeObraExtra}</p>}
                           </div>

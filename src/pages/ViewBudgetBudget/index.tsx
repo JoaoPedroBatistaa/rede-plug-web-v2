@@ -10,6 +10,14 @@ import Link from "next/link";
 import { db, doc, getDoc } from "../../../firebase";
 
 type BudgetType = {
+  descricaoImpressao: string;
+  descricaoPerfil: string;
+  descricaoVidro: string;
+  descricaoPaspatur: string;
+  descricaoColagem: string;
+  descricaoFoam: string;
+  descricaoInstalacao: string;
+
   id: string;
   Tamanho: string;
   impressao: string;
@@ -106,20 +114,28 @@ export default function ViewBudgetBudget() {
 
   // ENVIAR POR WHATSAPP
 
-  function formatSingleBudget(budget: { Tamanho: any; codigoImpressao: any; valorImpressao: any; codigoPerfil: any; valorPerfil: any; codigoVidro: any; valorVidro: any; codigoFoam: any; valorFoam: any; codigoPaspatur: any; valorPaspatur: any; codigoColagem: any; valorColagem: any; instalacao: any; valorInstalacao: any; tipoEntrega: any; maoDeObraExtra: any; formaPagamento: any; dataVencimento: any; observacoes: any; valorTotal: any; }, index: number) {
+  function formatSingleBudget(budget: {
+    descricaoInstalacao: any;
+    descricaoColagem: any;
+    descricaoPaspatur: any;
+    descricaoFoam: any;
+    descricaoVidro: any;
+    descricaoPerfil: any;
+    descricaoImpressao: any; Tamanho: any; codigoImpressao: any; valorImpressao: any; codigoPerfil: any; valorPerfil: any; codigoVidro: any; valorVidro: any; codigoFoam: any; valorFoam: any; codigoPaspatur: any; valorPaspatur: any; codigoColagem: any; valorColagem: any; instalacao: any; valorInstalacao: any; tipoEntrega: any; maoDeObraExtra: any; formaPagamento: any; dataVencimento: any; observacoes: any; valorTotal: any; dimensoesPaspatur: any;
+  }, index: number) {
     let message = `Olá Evandro, segue o Orçamento que desejava enviar para o WhatsApp...\n\n`;
 
     message += `ORÇAMENTO ${index + 1}\n`;
     message += `VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
-
     message += `Tamanho: ${budget.Tamanho}\n`;
-    message += budget.codigoImpressao ? `Impressão: ${budget.codigoImpressao} - R$ ${parseFloat(budget.valorImpressao || '0').toFixed(2)}\n` : "";
-    message += budget.codigoPerfil ? `Perfil: ${budget.codigoPerfil} - R$ ${parseFloat(budget.valorPerfil || '0').toFixed(2)}\n` : "";
-    message += budget.codigoVidro ? `Vidro: ${budget.codigoVidro} - R$ ${parseFloat(budget.valorVidro || '0').toFixed(2)}\n` : "";
-    message += budget.codigoFoam ? `Foam: ${budget.codigoFoam} - R$ ${parseFloat(budget.valorFoam || '0').toFixed(2)}\n` : "";
-    message += budget.codigoPaspatur ? `Paspatur: ${budget.codigoPaspatur} - R$ ${parseFloat(budget.valorPaspatur || '0').toFixed(2)}\n` : "";
-    message += budget.codigoColagem ? `Colagem: ${budget.codigoColagem} - R$ ${parseFloat(budget.valorColagem || '0').toFixed(2)}\n` : "";
-    message += budget.instalacao ? `Instalação: ${budget.instalacao} - ${budget.valorInstalacao}\n` : "";
+    message += budget.codigoImpressao ? `Impressão: ${budget.codigoImpressao} - ${budget.descricaoImpressao} - R$ ${parseFloat(budget.valorImpressao || '0').toFixed(2)}\n` : "";
+    message += budget.codigoPerfil ? `Perfil: ${budget.codigoPerfil} - ${budget.descricaoPerfil} - R$ ${parseFloat(budget.valorPerfil || '0').toFixed(2)}\n` : "";
+    message += budget.codigoVidro ? `Vidro: ${budget.codigoVidro} - ${budget.descricaoVidro} - R$ ${parseFloat(budget.valorVidro || '0').toFixed(2)}\n` : "";
+    message += budget.codigoFoam ? `Foam: ${budget.codigoFoam} - ${budget.descricaoFoam} - R$ ${parseFloat(budget.valorFoam || '0').toFixed(2)}\n` : "";
+    message += budget.codigoPaspatur ? `Paspatur: ${budget.codigoPaspatur} - ${budget.descricaoPaspatur} - R$ ${parseFloat(budget.valorPaspatur || '0').toFixed(2)}\n` : "";
+    message += budget.dimensoesPaspatur ? `Dimensões do Paspatur: ${budget.dimensoesPaspatur}` : "";
+    message += budget.codigoColagem ? `Colagem: ${budget.codigoColagem} - ${budget.descricaoColagem} - R$ ${parseFloat(budget.valorColagem || '0').toFixed(2)}\n` : "";
+    message += budget.instalacao ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n` : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
     message += "Pagamentos e prazos\n\n";
@@ -211,6 +227,11 @@ export default function ViewBudgetBudget() {
                             {budget.codigoImpressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
                           </p>}
                         </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoImpressao && <p className={styles.ResValue}>
+                            {budget.descricaoImpressao}
+                          </p>}
+                        </div>
                       </div>
 
                       <div>
@@ -218,6 +239,11 @@ export default function ViewBudgetBudget() {
                         <div className={styles.OrderResValue}>
                           {budget.codigoPerfil && <p className={styles.ResValue}>
                             {budget.codigoPerfil} - R$ {parseFloat(budget.valorPerfil || '0').toFixed(2)}
+                          </p>}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoPerfil && <p className={styles.ResValue}>
+                            {budget.descricaoPerfil}
                           </p>}
                         </div>
                       </div>
@@ -229,6 +255,11 @@ export default function ViewBudgetBudget() {
                             {budget.codigoVidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
                           </p>}
                         </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoVidro && <p className={styles.ResValue}>
+                            {budget.descricaoVidro}
+                          </p>}
+                        </div>
                       </div>
 
                       <div>
@@ -236,6 +267,11 @@ export default function ViewBudgetBudget() {
                         <div className={styles.OrderResValue}>
                           {budget.codigoFoam && <p className={styles.ResValue}>
                             {budget.codigoFoam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}
+                          </p>}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoFoam && <p className={styles.ResValue}>
+                            {budget.descricaoFoam}
                           </p>}
                         </div>
                       </div>
@@ -247,9 +283,14 @@ export default function ViewBudgetBudget() {
                             {budget.codigoPaspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
                           </p>}
                         </div>
-                        {/* {budget.dimensoesPaspatur && <p className={styles.ResValue}>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoPaspatur && <p className={styles.ResValue}>
+                            {budget.descricaoPaspatur}
+                          </p>}
+                        </div>
+                        {budget.dimensoesPaspatur && <p className={styles.ResValue}>
                           {budget.dimensoesPaspatur}
-                        </p>} */}
+                        </p>}
                       </div>
 
                       <div>
@@ -259,6 +300,11 @@ export default function ViewBudgetBudget() {
                             {budget.codigoColagem} - R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}
                           </p>}
                         </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoColagem && <p className={styles.ResValue}>
+                            {budget.descricaoColagem}
+                          </p>}
+                        </div>
                       </div>
 
                       <div>
@@ -266,6 +312,11 @@ export default function ViewBudgetBudget() {
                         <div className={styles.OrderResValue}>
                           {budget.instalacao && <p className={styles.ResValue}>
                             {budget.instalacao} - {budget.valorInstalacao}
+                          </p>}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.instalacao && <p className={styles.ResValue}>
+                            {budget.descricaoInstalacao}
                           </p>}
                         </div>
                       </div>

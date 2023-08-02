@@ -439,6 +439,7 @@ export default function BudgetPaspatur() {
             localStorage.setItem("metroPaspatur", selectedProduto.valorMetro.toString())
             localStorage.setItem("perdaPaspatur", selectedProduto.valorPerda.toString())
             localStorage.setItem("lucroPaspatur", selectedProduto.margemLucro.toString())
+            localStorage.setItem("descricaoPaspatur", selectedProduto.descricao.toString())
 
             localStorage.setItem("dimensoesPaspatur", `${localStorage.getItem("larguraSuperior")} x ${localStorage.getItem("larguraEsquerda")} x ${localStorage.getItem("larguraInferior")} x ${localStorage.getItem("larguraDireita")}`)
             // localStorage.setItem("valorFoam", precoFoam.toString());

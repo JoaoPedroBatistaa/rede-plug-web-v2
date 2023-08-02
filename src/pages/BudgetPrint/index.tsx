@@ -182,6 +182,7 @@ export default function BudgetPrint() {
         localStorage.setItem("metroImpressao", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaImpressao", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroImpressao", selectedProduto.margemLucro.toString())
+        localStorage.setItem("descricaoImpressao", selectedProduto.descricao.toString())
         return novoPreco;
       });
 

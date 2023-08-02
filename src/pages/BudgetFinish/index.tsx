@@ -299,7 +299,7 @@ export default function BudgetFinish() {
                 </div>
               </div>
 
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome completo</p>
                   <input
@@ -308,7 +308,7 @@ export default function BudgetFinish() {
                     placeholder=""
                   />
                 </div>
-              </div>
+              </div> */}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
@@ -325,7 +325,7 @@ export default function BudgetFinish() {
               </div>
 
 
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Telefone</p>
                   <MaskedInput
@@ -337,9 +337,9 @@ export default function BudgetFinish() {
                     onChange={handleInputChange}
                   />
                 </div>
-              </div>
+              </div> */}
 
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Email</p>
                   <input
@@ -348,7 +348,7 @@ export default function BudgetFinish() {
                     placeholder=""
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className={styles.linhaData}></div>
