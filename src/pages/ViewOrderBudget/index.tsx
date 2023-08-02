@@ -57,6 +57,9 @@ type BudgetType = {
 type UserDataType = {
   valorTotal: string;
   budgets: BudgetType;
+  Telefone: string;
+  nomeCompleto: string;
+
 };
 
 
@@ -147,7 +150,7 @@ export default function ViewOrderBudget() {
     descricaoPerfil: any;
     descricaoImpressao: any; Tamanho: any; codigoImpressao: any; valorImpressao: any; codigoPerfil: any; valorPerfil: any; codigoVidro: any; valorVidro: any; codigoFoam: any; valorFoam: any; codigoPaspatur: any; valorPaspatur: any; codigoColagem: any; valorColagem: any; instalacao: any; valorInstalacao: any; tipoEntrega: any; maoDeObraExtra: any; formaPagamento: any; dataVencimento: any; observacoes: any; valorTotal: any; dimensoesPaspatur: any;
   }, index: number) {
-    let message = `Olá Evandro, segue o Pedido que desejava enviar para o WhatsApp...\n\n`;
+    let message = `Olá ${userData?.nomeCompleto}, segue o seu Pedido...\n\n`;
 
     message += `PEDIDO ${index + 1}\n`;
     message += `VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
@@ -184,8 +187,25 @@ export default function ViewOrderBudget() {
     return encodeURIComponent(message);
   }
 
-  const whatsappUrl = `https://api.whatsapp.com/send?phone=5511958284000&text=${formatBudgets(budgets)}`;
+  function formatPhoneNumber(phoneNumber: string | undefined) {
+    const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
+
+    if (match) {
+      return match[1] + match[2] + match[3];
+    }
+
+    return null;
+  }
+
+  const Telefone = userData?.Telefone;
+  console.log(Telefone);
+
+  const formattedPhone = '55' + formatPhoneNumber(Telefone);
+
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${formatBudgets(budgets)}`;
   console.log(whatsappUrl);
+
 
 
 
