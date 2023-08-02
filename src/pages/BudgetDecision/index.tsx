@@ -39,6 +39,7 @@ type UserDataType = {
   valorColagem: string
   valorImpressao: string
   valorPaspatur: string
+
 };
 
 export default function BudgetDecision() {
