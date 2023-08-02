@@ -12,6 +12,28 @@
   width: 100%;
 }
 
+.totalValue {
+  margin-left: -3rem;
+  margin-top: -1.5rem;
+}
+
+.editIcon {
+  height: 32px;
+  width: 32px;
+
+  background-color: #cacaca;
+
+  margin-top: -0.8rem;
+  margin-left: 5.1rem;
+  margin-right: -1rem;
+
+  border-radius: 6px;
+
+  &:hover {
+    background-color: #bdbdbd;
+  }
+}
+
 .OrderDataContainer {
   margin-left: 1.5rem;
   margin-right: 1.5rem;
@@ -717,6 +739,17 @@
   .FinishButton {
     width: 3rem;
     border-radius: 1.5rem;
+  }
+
+  .totalValue {
+    margin: 0;
+  }
+
+  .editIcon {
+    margin-bottom: 1rem;
+    margin-right: 0;
+    margin-left: 0;
+
   }
 
   .BudgetTitle {

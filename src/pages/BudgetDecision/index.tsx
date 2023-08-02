@@ -611,10 +611,18 @@ export default function BudgetDecision() {
                     </div>
                   </div>
 
-                  <div className={styles.OrderRes}>
-                    <p className={styles.ResTitle}>Valor total</p>
-                    <div>
-                      <p className={styles.ResTotal}>R$ {parseFloat(valorTotal || '0').toFixed(2)}</p>
+
+                  <div className={styles.OrderResEdit}>
+                    <Link href="/BudgetSize">
+
+                      <img src="/lapis.png" className={styles.editIcon} alt="" />
+                    </Link>
+
+                    <div className={styles.totalValue}>
+                      <p className={styles.ResTitle}>Valor total</p>
+                      <div>
+                        <p className={styles.ResTotal}>R$ {parseFloat(valorTotal || '0').toFixed(2)}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -886,12 +894,12 @@ export default function BudgetDecision() {
                 </div>
                 {/* </Link> */}
 
-                <Link href="/BudgetSize">
+                {/* <Link href="/BudgetSize">
                   <div className={styles.EditButton}>
-                    {/* <img className={styles.WhatsImg} src="./MoreBud.png" alt="" /> */}
+                    <img className={styles.WhatsImg} src="./MoreBud.png" alt="" />
                     <p className={styles.PdfText}>EDITAR ORÇAMENTO ATUAL</p>
                   </div>
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>
