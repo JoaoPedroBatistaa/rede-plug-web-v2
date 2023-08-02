@@ -490,6 +490,7 @@ export default function BudgetPaspatur() {
     localStorage.removeItem("lucroPaspatur");
     localStorage.removeItem("descricaoPaspatur");
     localStorage.removeItem("dimensoesPaspatur");
+    localStorage.removeItem("codigoPaspatur");
 
     localStorage.removeItem("larguraEsquerda");
     localStorage.removeItem("larguraDireita");

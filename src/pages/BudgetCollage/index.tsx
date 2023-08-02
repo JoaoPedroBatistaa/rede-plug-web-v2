@@ -178,6 +178,7 @@ export default function BudgetCollage() {
     localStorage.removeItem("perdaColagem");
     localStorage.removeItem("lucroColagem");
     localStorage.removeItem("descricaoColagem");
+    localStorage.removeItem("codigoColagem");
 
     // Chama setPreco(0)
     setPreco(0);

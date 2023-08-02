@@ -303,6 +303,8 @@ export default function TableBudgets({
                 />
               </td>
 
+
+
               <td className={styles.td}>
                 <b>#{item.NumeroPedido}</b>
               </td>
@@ -357,6 +359,14 @@ export default function TableBudgets({
 
                 <br />
                 <span className={styles.diasUteis}>À Vista</span>
+              </td>
+              <td>
+                <img
+                  src="./nota.png"
+
+                  className={styles.iconNota}
+                  onClick={(event) => handleClickImg(event, item.id)}
+                />
               </td>
             </tr>
           ))}

@@ -9,6 +9,9 @@ import Link from "next/link";
 
 import { db, doc, getDoc } from "../../../firebase";
 
+import jsPDF from 'jspdf';
+
+
 type BudgetType = {
   descricaoImpressao: string;
   descricaoPerfil: string;
@@ -141,6 +144,62 @@ export default function ViewOrderBudget() {
 
   // ENVIAR POR WHATSAPP
 
+  function createPDF(budgets: any[]) {
+    const doc = new jsPDF();
+    let y = 50;  // posição inicial y
+
+    doc.text(`\n\nNome do cliente: ${userData?.nomeCompleto}\n\nValor total: R$ ${parseFloat(userData?.valorTotal || '0').toFixed(2)}\n\n\n`, 10, 10);
+    budgets.forEach((budget, index) => {
+      let content = formatSingleBudgetPDF(budget, index);
+
+      // Divida o texto em várias linhas se necessário
+      let lines = doc.splitTextToSize(content, 180);
+
+      // Adicione o texto à página
+      doc.text(lines, 10, y);
+
+      // Atualize y para a próxima posição, adicionando a quantidade de linhas multiplicado pela altura da linha
+      y += lines.length * 7;  // ajuste a altura da linha conforme necessário
+    });
+
+    doc.save('budget.pdf');
+  }
+
+  function formatSingleBudgetPDF(budget: {
+    descricaoInstalacao: any;
+    descricaoColagem: any;
+    descricaoPaspatur: any;
+    descricaoFoam: any;
+    descricaoVidro: any;
+    descricaoPerfil: any;
+    descricaoImpressao: any; Tamanho: any; codigoImpressao: any; valorImpressao: any; codigoPerfil: any; valorPerfil: any; codigoVidro: any; valorVidro: any; codigoFoam: any; valorFoam: any; codigoPaspatur: any; valorPaspatur: any; codigoColagem: any; valorColagem: any; instalacao: any; valorInstalacao: any; tipoEntrega: any; maoDeObraExtra: any; formaPagamento: any; dataVencimento: any; observacoes: any; valorTotal: any; dimensoesPaspatur: any;
+  }, index: number) {
+    // let message = `\n\n\nOlá ${userData?.nomeCompleto}, segue o seu Pedido...\n\n\n\n`;
+
+    let message = `PEDIDO ${index + 1}                                                 VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n\n`;
+    // message += `VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
+    message += `Tamanho: ${budget.Tamanho}\n`;
+    message += budget.codigoImpressao ? `Impressão: ${budget.codigoImpressao} - ${budget.descricaoImpressao} - R$ ${parseFloat(budget.valorImpressao || '0').toFixed(2)}\n` : "";
+    message += budget.codigoPerfil ? `Perfil: ${budget.codigoPerfil} - ${budget.descricaoPerfil} - R$ ${parseFloat(budget.valorPerfil || '0').toFixed(2)}\n` : "";
+    message += budget.codigoVidro ? `Vidro: ${budget.codigoVidro} - ${budget.descricaoVidro} - R$ ${parseFloat(budget.valorVidro || '0').toFixed(2)}\n` : "";
+    message += budget.codigoFoam ? `Foam: ${budget.codigoFoam} - ${budget.descricaoFoam} - R$ ${parseFloat(budget.valorFoam || '0').toFixed(2)}\n` : "";
+    message += budget.codigoPaspatur ? `Paspatur: ${budget.codigoPaspatur} - ${budget.descricaoPaspatur} - R$ ${parseFloat(budget.valorPaspatur || '0').toFixed(2)}\n` : "";
+    message += budget.dimensoesPaspatur ? `Dimensões do Paspatur: ${budget.dimensoesPaspatur}` : "";
+    message += budget.codigoColagem ? `Colagem: ${budget.codigoColagem} - ${budget.descricaoColagem} - R$ ${parseFloat(budget.valorColagem || '0').toFixed(2)}\n` : "";
+    message += budget.instalacao ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n` : "";
+    message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
+
+    message += "\n\nPagamentos e prazos\n\n";
+    message += budget.maoDeObraExtra ? `Mão de obra externa: ${budget.maoDeObraExtra}\n` : "";
+    message += budget.formaPagamento ? `Forma de pagamento: ${budget.formaPagamento}\n` : "";
+    message += budget.dataVencimento ? `Prazo para entrega: ${formatDate(budget.dataVencimento)}\n\n` : "";
+
+    message += `Observação: ${budget.observacoes}\n\n`;
+    message += `Valor total: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
+
+    return message;
+  }
+
   function formatSingleBudget(budget: {
     descricaoInstalacao: any;
     descricaoColagem: any;
@@ -165,7 +224,7 @@ export default function ViewOrderBudget() {
     message += budget.instalacao ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n` : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
-    message += "Pagamentos e prazos\n\n";
+    message += "\n\nPagamentos e prazos\n\n";
     message += budget.maoDeObraExtra ? `Mão de obra externa: ${budget.maoDeObraExtra}\n` : "";
     message += budget.formaPagamento ? `Forma de pagamento: ${budget.formaPagamento}\n` : "";
     message += budget.dataVencimento ? `Prazo para entrega: ${formatDate(budget.dataVencimento)}\n\n` : "";
@@ -175,6 +234,7 @@ export default function ViewOrderBudget() {
 
     return message;
   }
+
 
   function formatBudgets(budgets: any[]) {
     let message = "";
@@ -261,7 +321,7 @@ export default function ViewOrderBudget() {
                 {budgets.map((budget, index) => (
                   <div key={index} className={styles.OrderAll}>
                     <div className={styles.OrderRes}>
-                      <p className={styles.ResTitle}>ORÇAMENTO {index + 1}</p>
+                      <p className={styles.ResTitle}>PEDIDO {index + 1}</p>
 
                       <div>
                         <p className={styles.ResName}>Tamanho</p>
@@ -430,7 +490,8 @@ export default function ViewOrderBudget() {
                   <p className={styles.WhatsText}>ENVIAR POR WHATSAPP</p>
                 </div>
 
-                <div className={styles.PdfButton}>
+                <div className={styles.PdfButton} onClick={() => createPDF(budgets)}>
+
                   <img className={styles.WhatsImg} src="./PdfIcon.png" alt="" />
                   <p className={styles.PdfText}>GERAR PDF</p>
                 </div>

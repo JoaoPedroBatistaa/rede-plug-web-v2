@@ -234,6 +234,7 @@ export default function BudgetGlass() {
     localStorage.removeItem("perdaVidro");
     localStorage.removeItem("lucroVidro");
     localStorage.removeItem("descricaoVidro");
+    localStorage.removeItem("codigoVidro");
 
     // Chama setPreco(0)
     setPreco(0);

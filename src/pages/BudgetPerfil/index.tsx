@@ -191,6 +191,7 @@ export default function BudgetPerfil() {
     localStorage.removeItem("lucroPerfil");
     localStorage.removeItem("larguraPerfil");
     localStorage.removeItem("descricaoPerfil");
+    localStorage.removeItem("codigoPerfil");
     localStorage.removeItem("perfil");
 
     // Chama setPreco(0)

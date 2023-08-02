@@ -356,6 +356,15 @@ export default function Table({
                 <br />
                 <span className={styles.diasUteis}></span>
               </td>
+
+              <td>
+                <img
+                  src="./nota.png"
+
+                  className={styles.iconNota}
+                  onClick={(event) => handleClickImg(event, item.id)}
+                />
+              </td>
             </tr>
           ))}
         </tbody>

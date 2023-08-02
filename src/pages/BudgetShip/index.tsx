@@ -215,6 +215,7 @@ export default function BudgetShip() {
     // Limpa os valores do localStorage
     localStorage.removeItem("valorInstalacao");
     localStorage.removeItem("descricaoInstalacao");
+    localStorage.removeItem("codigoInstalacao");
 
     // Chama setPreco(0)
     setPreco(0);

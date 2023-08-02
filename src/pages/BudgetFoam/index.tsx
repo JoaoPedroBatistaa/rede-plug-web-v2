@@ -210,6 +210,7 @@ export default function BudgetFoam() {
     localStorage.removeItem("perdaFoam");
     localStorage.removeItem("lucroFoam");
     localStorage.removeItem("descricaoFoam");
+    localStorage.removeItem("codigoFoam");
 
     // Chama setPreco(0)
     setPreco(0);

@@ -220,6 +220,7 @@ export default function BudgetPrint() {
     localStorage.removeItem("perdaImpressao");
     localStorage.removeItem("lucroImpressao");
     localStorage.removeItem("descricaoImpressao");
+    localStorage.removeItem("codigoImpressao");
 
     // Chama setPreco(0)
     setPreco(0);
