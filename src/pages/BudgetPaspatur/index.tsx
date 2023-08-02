@@ -370,9 +370,10 @@ export default function BudgetPaspatur() {
     const perdaImpressao = localStorage.getItem("perdaImpressao")
     const lucroImpressao = localStorage.getItem("lucroImpressao")
 
-    if (selectedOptionCodigoPaspatur && !localStorage.getItem("novoTamanho") && larguraDireita && larguraEsquerda && larguraInferior && larguraSuperior) {
+    if (selectedOptionCodigoPaspatur && !localStorage.getItem("novoTamanho") || !larguraDireita || !larguraEsquerda || !larguraInferior || !larguraSuperior) {
       toast.error('Preencha os campos de tamanho do paspatur');
       setSelectedOptionCodigoPaspatur("");
+      return;
     } else {
       if (larguraDireita || larguraEsquerda || larguraInferior || larguraSuperior) {
         const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionCodigoPaspatur);
