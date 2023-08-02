@@ -87,8 +87,9 @@ export default function BudgetPerfil() {
     if (selectedOption) {
       const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
       if (selectedProduto) {
-        const tamanho = localStorage.getItem("Tamanho") || "0x0";
+        const tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || "0x0";
         const [altura, largura] = tamanho.split('x').map(Number);
+
 
         const valor = (((((altura * 2) + (largura * 2)) + (selectedProduto.largura * 4))) / 100) * selectedProduto.valorMetro;
         const perda = (valor / 100) * selectedProduto.valorPerda;
@@ -99,6 +100,9 @@ export default function BudgetPerfil() {
         setPreco(prevPreco => {
           const novoPreco = valor + perda + lucro;
           localStorage.setItem("valorPerfil", novoPreco.toString());
+          if (!localStorage.getItem("novoTamanho")) {
+            localStorage.setItem("valorPerfilAntigo", novoPreco.toString());
+          }
           localStorage.setItem("metroPerfil", selectedProduto.valorMetro.toString())
           localStorage.setItem("perdaPerfil", selectedProduto.valorPerda.toString())
           localStorage.setItem("lucroPerfil", selectedProduto.margemLucro.toString())
@@ -179,6 +183,23 @@ export default function BudgetPerfil() {
     }, 100);
   };
 
+  function handleRemoveProduct() {
+    // Limpa os valores do localStorage
+    localStorage.removeItem("valorPerfil");
+    localStorage.removeItem("metroPerfil");
+    localStorage.removeItem("perdaPerfil");
+    localStorage.removeItem("lucroPerfil");
+    localStorage.removeItem("larguraPerfil");
+    localStorage.removeItem("descricaoPerfil");
+    localStorage.removeItem("perfil");
+
+    // Chama setPreco(0)
+    setPreco(0);
+    setSelectedOption("");
+  }
+
+
+
   return (
     <>
       <Head>
@@ -245,17 +266,13 @@ export default function BudgetPerfil() {
               </select>
             </div>
 
-            {/* <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Largura do perfil</p>
-              <input
-                id="espessura"
-                type="text"
-                className={styles.Field}
-                placeholder=""
-                value={espessura}
-                onChange={handleEspessuraChange}
-              />
-            </div> */}
+
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>.</p>
+
+              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
+            </div>
           </div>
 
           <p className={styles.Preview}>PREVIEW</p>

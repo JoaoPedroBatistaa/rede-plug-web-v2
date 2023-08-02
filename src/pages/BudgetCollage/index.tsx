@@ -127,7 +127,7 @@ export default function BudgetCollage() {
     // if (selectedOption && selectedOptionCollage === "SIM") {
     const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
     if (selectedProduto) {
-      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || "0x0";
       const [altura, largura] = tamanho.split('x').map(Number);
 
       const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
@@ -137,6 +137,9 @@ export default function BudgetCollage() {
       setPreco(prevPreco => {
         const novoPreco = valor + perda + lucro;
         localStorage.setItem("valorColagem", novoPreco.toString());
+        if (!localStorage.getItem("novoTamanho")) {
+          localStorage.setItem("valorColagemAntigo", novoPreco.toString());
+        }
         localStorage.setItem("metroColagem", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaColagem", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroColagem", selectedProduto.margemLucro.toString())
@@ -167,6 +170,19 @@ export default function BudgetCollage() {
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
+
+  function handleRemoveProduct() {
+    // Limpa os valores do localStorage
+    localStorage.removeItem("valorColagem");
+    localStorage.removeItem("metroColagem");
+    localStorage.removeItem("perdaColagem");
+    localStorage.removeItem("lucroColagem");
+    localStorage.removeItem("descricaoColagem");
+
+    // Chama setPreco(0)
+    setPreco(0);
+    setSelectedOption("");
+  }
 
   return (
     <>
@@ -253,6 +269,12 @@ export default function BudgetCollage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>.</p>
+
+              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
             </div>
 
           </div>

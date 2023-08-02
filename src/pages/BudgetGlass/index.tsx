@@ -182,7 +182,7 @@ export default function BudgetGlass() {
     // if (selectedOption && selectedOptionVidro === "SIM") {
     const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
     if (selectedProduto) {
-      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || "0x0";
       const [altura, largura] = tamanho.split('x').map(Number);
 
       const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
@@ -195,6 +195,9 @@ export default function BudgetGlass() {
       setPreco(prevPreco => {
         const novoPreco = valor + perda + lucro;
         localStorage.setItem("valorVidro", novoPreco.toString());
+        if (!localStorage.getItem("novoTamanho")) {
+          localStorage.setItem("valorVidroAntigo", novoPreco.toString());
+        }
         localStorage.setItem("metroVidro", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaVidro", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroVidro", selectedProduto.margemLucro.toString())
@@ -223,6 +226,19 @@ export default function BudgetGlass() {
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
+
+  function handleRemoveProduct() {
+    // Limpa os valores do localStorage
+    localStorage.removeItem("valorVidro");
+    localStorage.removeItem("metroVidro");
+    localStorage.removeItem("perdaVidro");
+    localStorage.removeItem("lucroVidro");
+    localStorage.removeItem("descricaoVidro");
+
+    // Chama setPreco(0)
+    setPreco(0);
+    setSelectedOption("");
+  }
 
   return (
     <>
@@ -311,6 +327,12 @@ export default function BudgetGlass() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>.</p>
+
+              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
             </div>
 
           </div>

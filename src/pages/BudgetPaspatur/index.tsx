@@ -482,6 +482,49 @@ export default function BudgetPaspatur() {
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
 
+  function handleRemoveProduct() {
+    // Limpa os valores do localStorage
+    localStorage.removeItem("valorPaspatur");
+    localStorage.removeItem("metroPaspatur");
+    localStorage.removeItem("perdaPaspatur");
+    localStorage.removeItem("lucroPaspatur");
+    localStorage.removeItem("descricaoPaspatur");
+    localStorage.removeItem("dimensoesPaspatur");
+
+    localStorage.removeItem("larguraEsquerda");
+    localStorage.removeItem("larguraDireita");
+    localStorage.removeItem("larguraSuperior");
+    localStorage.removeItem("larguraInferior");
+
+    if (localStorage.getItem("valorPerfil")) {
+      localStorage.setItem("valorPerfil", localStorage.getItem("valorPerfilAntigo") || '')
+    }
+
+    if (localStorage.getItem("valorVidro")) {
+      localStorage.setItem("valorVidro", localStorage.getItem("valorVidroAntigo") || '')
+    }
+
+    if (localStorage.getItem("valorFoam")) {
+      localStorage.setItem("valorFoam", localStorage.getItem("valorFoamAntigo") || '')
+    }
+
+    if (localStorage.getItem("valorColagem")) {
+      localStorage.setItem("valorColagem", localStorage.getItem("valorColagemAntigo") || '')
+    }
+
+    if (localStorage.getItem("valorImpressao")) {
+      localStorage.setItem("valorImpressao", localStorage.getItem("valorImpressaoAntigo") || '')
+    }
+
+    setLarguraDireita("");
+    setLarguraEsquerda("");
+    setLarguraSuperior("");
+    setLarguraInferior("");
+    // Chama setPreco(0)
+    setPreco(0);
+    setSelectedOptionCodigoPaspatur("");
+  }
+
   return (
     <>
       <Head>
@@ -571,6 +614,12 @@ export default function BudgetPaspatur() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>.</p>
+
+              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
             </div>
           </div>
 

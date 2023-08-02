@@ -140,7 +140,7 @@ export default function ViewOrderData() {
                   </div>
 
                   <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>CPF</p>
+                    <p className={styles.FieldLabel}>CPF/CNPJ</p>
                     <p className={styles.FixedData}>{userData?.cpf}</p>
                   </div>
                 </div>

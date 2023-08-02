@@ -104,7 +104,7 @@ export default function BudgetFoam() {
     // if (selectedOption && selectedOptionFoam === "SIM") {
     const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
     if (selectedProduto) {
-      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || "0x0";
       const [altura, largura] = tamanho.split('x').map(Number);
 
       const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
@@ -116,6 +116,9 @@ export default function BudgetFoam() {
       setPreco(prevPreco => {
         const novoPreco = valor + perda + lucro;
         localStorage.setItem("valorFoam", novoPreco.toString());
+        if (!localStorage.getItem("novoTamanho")) {
+          localStorage.setItem("valorFoamAntigo", novoPreco.toString());
+        }
         localStorage.setItem("metroFoam", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
@@ -199,6 +202,19 @@ export default function BudgetFoam() {
       setOpenMenu(false);
     }, 100);
   };
+
+  function handleRemoveProduct() {
+    // Limpa os valores do localStorage
+    localStorage.removeItem("valorFoam");
+    localStorage.removeItem("metroFoam");
+    localStorage.removeItem("perdaFoam");
+    localStorage.removeItem("lucroFoam");
+    localStorage.removeItem("descricaoFoam");
+
+    // Chama setPreco(0)
+    setPreco(0);
+    setSelectedOption("");
+  }
 
   return (
     <>
@@ -285,6 +301,12 @@ export default function BudgetFoam() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>.</p>
+
+              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
             </div>
             {/* )} */}
           </div>

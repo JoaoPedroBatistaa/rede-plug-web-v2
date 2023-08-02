@@ -211,6 +211,16 @@ export default function BudgetShip() {
     localStorage.setItem("codigoInstalacao", event.target.value);
   };
 
+  function handleRemoveProduct() {
+    // Limpa os valores do localStorage
+    localStorage.removeItem("valorInstalacao");
+    localStorage.removeItem("descricaoInstalacao");
+
+    // Chama setPreco(0)
+    setPreco(0);
+    setSelectedOption("");
+  }
+
   return (
     <>
       <Head>
@@ -303,6 +313,12 @@ export default function BudgetShip() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>.</p>
+
+              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
             </div>
             {/* 
             <div className={styles.InputField}>

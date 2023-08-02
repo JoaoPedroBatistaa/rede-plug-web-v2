@@ -169,7 +169,7 @@ export default function BudgetPrint() {
     // if (selectedOptionPrintType && selectedOptionPrint === "SIM") {
     const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionPrintType);
     if (selectedProduto) {
-      const tamanho = localStorage.getItem("Tamanho") || "0x0";
+      const tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || "0x0";
       const [altura, largura] = tamanho.split('x').map(Number);
 
       const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
@@ -179,6 +179,9 @@ export default function BudgetPrint() {
       setPreco(prevPreco => {
         const novoPreco = valor + perda + lucro;
         localStorage.setItem("valorImpressao", novoPreco.toString());
+        if (!localStorage.getItem("novoTamanho")) {
+          localStorage.setItem("valorImpressaoAntigo", novoPreco.toString());
+        }
         localStorage.setItem("metroImpressao", selectedProduto.valorMetro.toString())
         localStorage.setItem("perdaImpressao", selectedProduto.valorPerda.toString())
         localStorage.setItem("lucroImpressao", selectedProduto.margemLucro.toString())
@@ -209,6 +212,19 @@ export default function BudgetPrint() {
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
+
+  function handleRemoveProduct() {
+    // Limpa os valores do localStorage
+    localStorage.removeItem("valorImpressao");
+    localStorage.removeItem("metroImpresssao");
+    localStorage.removeItem("perdaImpressao");
+    localStorage.removeItem("lucroImpressao");
+    localStorage.removeItem("descricaoImpressao");
+
+    // Chama setPreco(0)
+    setPreco(0);
+    setSelectedOptionPrintType("");
+  }
 
   return (
     <>
@@ -297,6 +313,12 @@ export default function BudgetPrint() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>.</p>
+
+              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
             </div>
 
           </div>

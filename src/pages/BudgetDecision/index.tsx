@@ -885,6 +885,13 @@ export default function BudgetDecision() {
                   <p className={styles.PdfText}>ORÇAR MAIS UM PRODUTO</p>
                 </div>
                 {/* </Link> */}
+
+                <Link href="/BudgetSize">
+                  <div className={styles.EditButton}>
+                    {/* <img className={styles.WhatsImg} src="./MoreBud.png" alt="" /> */}
+                    <p className={styles.PdfText}>EDITAR ORÇAMENTO ATUAL</p>
+                  </div>
+                </Link>
               </div>
             </div>
           </div>
