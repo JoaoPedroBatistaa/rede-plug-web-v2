@@ -1,27 +1,28 @@
 import Head from "next/head";
-import styles from "../../styles/Requests.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/Requests.module.scss";
 
-import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useState, useEffect } from "react";
-import Link from "next/link";
-import HeaderHome from "@/components/HeaderHome";
 import HeaderProducts from "@/components/HeaderProducts";
-import SearchInput from "@/components/InputSearch";
-import SearchInputList from "@/components/InputSearchList";
 import SearchInputListProducts from "@/components/InputSearchListProducts";
-import GridComponent from "@/components/GridRequests";
+import SideMenuHome from "@/components/SideMenuHome";
+import TableColagem from "@/components/TableColagem";
 import TableFoam from "@/components/TableFoam";
 import TableImpressao from "@/components/TableImpressao";
 import TableInstalacao from "@/components/TableInstalacao";
 import TablePaspatur from "@/components/TablePaspatur";
 import TablePerfil from "@/components/TablePerfil";
 import TableVidro from "@/components/TableVidro";
-import TableColagem from "@/components/TableColagem";
-import Table from "@/components/Table";
-import { collection, query, getDocs, getFirestore, updateDoc, writeBatch } from 'firebase/firestore';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  query,
+  writeBatch,
+} from "firebase/firestore";
+import Link from "next/link";
+import { ChangeEvent, useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Products() {
   const router = useRouter();
@@ -33,13 +34,13 @@ export default function Products() {
     impressao: false,
     paspatur: false,
     perfil: false,
-    vidro: false
+    vidro: false,
   });
 
   const toggleFilter = (key: keyof typeof filterStates) => {
     setFilterStates((prevState) => ({
       ...prevState,
-      [key]: !prevState[key]
+      [key]: !prevState[key],
     }));
   };
 
@@ -78,7 +79,6 @@ export default function Products() {
     setSearchValue4(e.target.value);
   };
 
-
   console.log(searchValue);
 
   const handleOrderValueChange = (
@@ -98,14 +98,14 @@ export default function Products() {
   };
 
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
 
   const handleIncrease = async (product: any) => {
     const increasePercentage = parseFloat(increaseValue) / 100;
     const db = getFirestore();
-    const userId = window.localStorage.getItem('userId');
+    const userId = window.localStorage.getItem("userId");
 
     const collectionPath = `Login/${userId}/${product}`;
 
@@ -119,7 +119,9 @@ export default function Products() {
         const docRef = doc.ref;
         const oldData = doc.data();
         if (oldData.valorMetro) {
-          const newValue = parseFloat(oldData.valorMetro) + parseFloat(oldData.valorMetro) * increasePercentage;
+          const newValue =
+            parseFloat(oldData.valorMetro) +
+            parseFloat(oldData.valorMetro) * increasePercentage;
           batch.update(docRef, { valorMetro: newValue });
         }
       });
@@ -130,7 +132,10 @@ export default function Products() {
 
       window.location.reload();
     } catch (error) {
-      console.error(`Erro ao atualizar os preços do produto ${product}: `, error);
+      console.error(
+        `Erro ao atualizar os preços do produto ${product}: `,
+        error
+      );
       toast.error(`Erro ao atualizar os preços do produto ${product}.`);
     }
   };
@@ -153,13 +158,12 @@ export default function Products() {
         <div className={styles.OrderContainer}>
           <HeaderProducts></HeaderProducts>
           <div className={styles.MainContainer}>
-
             <div className={styles.ListContainer}>
               <div className={styles.topMenuMobile}>
                 <p className={styles.ProductNameMobile}>Foam</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div >
+                  <div>
                     <input
                       type="text"
                       className={styles.InputEdit}
@@ -171,10 +175,7 @@ export default function Products() {
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Foam")}
                   >
-                    <span className={styles.maisNoneMobile}>
-                      {" "}
-                      +
-                    </span>
+                    <span className={styles.maisNoneMobile}> +</span>
                     <span className={styles.maisNone}> +</span>
                   </button>
                 </div>
@@ -196,7 +197,7 @@ export default function Products() {
 
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div >
+                    <div>
                       <input
                         type="text"
                         className={styles.InputEdit}
@@ -208,10 +209,7 @@ export default function Products() {
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Foam")}
                     >
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        +
-                      </span>
+                      <span className={styles.maisNoneMobile}> +</span>
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
@@ -227,10 +225,11 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${filterStates.foam
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  filterStates.foam
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -254,7 +253,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -276,7 +277,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -287,7 +290,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
                   </div>
                 </div>
               </div>
@@ -305,7 +310,7 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Impressao</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div >
+                  <div>
                     <input
                       type="text"
                       className={styles.InputEdit}
@@ -317,10 +322,7 @@ export default function Products() {
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Impressao")}
                   >
-                    <span className={styles.maisNoneMobile}>
-                      {" "}
-                      +
-                    </span>
+                    <span className={styles.maisNoneMobile}> +</span>
                     <span className={styles.maisNone}> +</span>
                   </button>
                 </div>
@@ -341,7 +343,7 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div >
+                    <div>
                       <input
                         type="text"
                         className={styles.InputEdit}
@@ -353,10 +355,7 @@ export default function Products() {
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Impressao")}
                     >
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        +
-                      </span>
+                      <span className={styles.maisNoneMobile}> +</span>
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
@@ -372,10 +371,11 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${filterStates.impressao
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  filterStates.impressao
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -399,7 +399,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -421,7 +423,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -432,7 +436,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
                   </div>
                 </div>
               </div>
@@ -450,7 +456,7 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Paspatur</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div >
+                  <div>
                     <input
                       type="text"
                       className={styles.InputEdit}
@@ -462,10 +468,7 @@ export default function Products() {
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Paspatur")}
                   >
-                    <span className={styles.maisNoneMobile}>
-                      {" "}
-                      +
-                    </span>
+                    <span className={styles.maisNoneMobile}> +</span>
                     <span className={styles.maisNone}> +</span>
                   </button>
                 </div>
@@ -486,7 +489,7 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div >
+                    <div>
                       <input
                         type="text"
                         className={styles.InputEdit}
@@ -498,10 +501,7 @@ export default function Products() {
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Paspatur")}
                     >
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        +
-                      </span>
+                      <span className={styles.maisNoneMobile}> +</span>
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
@@ -517,10 +517,11 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${filterStates.paspatur
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  filterStates.paspatur
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -544,7 +545,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -566,7 +569,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -577,7 +582,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
                   </div>
                 </div>
               </div>
@@ -595,7 +602,7 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Perfil</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div >
+                  <div>
                     <input
                       type="text"
                       className={styles.InputEdit}
@@ -607,10 +614,7 @@ export default function Products() {
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Perfil")}
                   >
-                    <span className={styles.maisNoneMobile}>
-                      {" "}
-                      +
-                    </span>
+                    <span className={styles.maisNoneMobile}> +</span>
                     <span className={styles.maisNone}> +</span>
                   </button>
                 </div>
@@ -631,7 +635,7 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div >
+                    <div>
                       <input
                         type="text"
                         className={styles.InputEdit}
@@ -643,10 +647,7 @@ export default function Products() {
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Perfil")}
                     >
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        +
-                      </span>
+                      <span className={styles.maisNoneMobile}> +</span>
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
@@ -662,10 +663,11 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${filterStates.perfil
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  filterStates.perfil
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -689,7 +691,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -711,7 +715,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -722,7 +728,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -752,7 +760,7 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Vidro</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div >
+                  <div>
                     <input
                       type="text"
                       className={styles.InputEdit}
@@ -764,10 +772,7 @@ export default function Products() {
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Vidro")}
                   >
-                    <span className={styles.maisNoneMobile}>
-                      {" "}
-                      +
-                    </span>
+                    <span className={styles.maisNoneMobile}> +</span>
                     <span className={styles.maisNone}> +</span>
                   </button>
                 </div>
@@ -788,7 +793,7 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div >
+                    <div>
                       <input
                         type="text"
                         className={styles.InputEdit}
@@ -800,10 +805,7 @@ export default function Products() {
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Vidro")}
                     >
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        +
-                      </span>
+                      <span className={styles.maisNoneMobile}> +</span>
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
@@ -819,10 +821,11 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${filterStates.vidro
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  filterStates.vidro
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -846,7 +849,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -868,7 +873,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -879,7 +886,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
                   </div>
                 </div>
               </div>
@@ -890,7 +899,6 @@ export default function Products() {
                 orderValue={orderValue}
                 filterValue={filterValue}
               />
-
             </div>
 
             <div className={styles.ListContainer}>
@@ -898,7 +906,7 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Colagem</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div >
+                  <div>
                     <input
                       type="text"
                       className={styles.InputEdit}
@@ -910,10 +918,7 @@ export default function Products() {
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Colagem")}
                   >
-                    <span className={styles.maisNoneMobile}>
-                      {" "}
-                      +
-                    </span>
+                    <span className={styles.maisNoneMobile}> +</span>
                     <span className={styles.maisNone}> +</span>
                   </button>
                 </div>
@@ -935,7 +940,7 @@ export default function Products() {
 
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div >
+                    <div>
                       <input
                         type="text"
                         className={styles.InputEdit}
@@ -947,10 +952,7 @@ export default function Products() {
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Perfil")}
                     >
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        +
-                      </span>
+                      <span className={styles.maisNoneMobile}> +</span>
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
@@ -966,10 +968,11 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${filterStates.foam
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  filterStates.foam
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -993,7 +996,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -1015,7 +1020,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -1026,7 +1033,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1041,10 +1050,10 @@ export default function Products() {
 
             <div className={styles.ListContainer}>
               <div className={styles.topMenuMobile}>
-                <p className={styles.ProductNameMobile}>Instalacao</p>
+                <p className={styles.ProductNameMobile}>Instalação</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div >
+                  <div>
                     <input
                       type="text"
                       className={styles.InputEdit}
@@ -1056,17 +1065,14 @@ export default function Products() {
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Instalacao")}
                   >
-                    <span className={styles.maisNoneMobile}>
-                      {" "}
-                      +
-                    </span>
+                    <span className={styles.maisNoneMobile}> +</span>
                     <span className={styles.maisNone}> +</span>
                   </button>
                 </div>
               </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  <p className={styles.ProductName}>Instalacao</p>
+                  <p className={styles.ProductName}>Instalação</p>
                   <div
                     className={styles.ListMenuFilter}
                     onClick={() => toggleFilter("foam")}
@@ -1081,7 +1087,7 @@ export default function Products() {
 
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div >
+                    <div>
                       <input
                         type="text"
                         className={styles.InputEdit}
@@ -1093,10 +1099,7 @@ export default function Products() {
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Instalacao")}
                     >
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        +
-                      </span>
+                      <span className={styles.maisNoneMobile}> +</span>
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
@@ -1112,10 +1115,11 @@ export default function Products() {
                 </div>
               </div>
               <div
-                className={`${filterStates.foam
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  filterStates.foam
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>
@@ -1139,7 +1143,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="codigoDescrescente">Codigo decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -1161,7 +1167,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorMetro">Maior Valor por Metro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
@@ -1172,7 +1180,9 @@ export default function Products() {
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValorPerda">Maior Valor da Perda</label>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
                   </div>
                 </div>
               </div>
