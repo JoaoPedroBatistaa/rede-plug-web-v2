@@ -308,20 +308,14 @@ export default function TableVidro({
               className={styles.RodapePaginacaoIcone}
             />
           </div>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-            (pageNumber) => (
-              <div
-                key={pageNumber}
-                className={`${
-                  pageNumber === currentPage
-                    ? styles.RodapePaginacaoContadorDestaque
-                    : styles.RodapePaginacaoContadorSemBorda
-                }`}
-                onClick={() => handlePageChange(pageNumber)}
-              >
-                {pageNumber}
-              </div>
-            )
+          {currentPage && (
+            <div
+              key={currentPage}
+              className={styles.RodapePaginacaoContadorDestaque}
+              onClick={() => handlePageChange(currentPage)}
+            >
+              {currentPage}
+            </div>
           )}
           <div
             className={styles.RodapePaginacaoContador}
