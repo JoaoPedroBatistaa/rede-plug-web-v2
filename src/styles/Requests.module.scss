@@ -13,6 +13,12 @@
   justify-content: center;
 }
 
+@media (min-width: 1160px) {
+  .ListContainer {
+    max-width: 80vw;
+  }
+}
+
 .ListContainer {
   display: flex;
   background: #ffffff;
@@ -22,8 +28,6 @@
   flex-direction: column;
 
   margin-bottom: 2rem;
-
-  max-width: 80vw;
 }
 
 .ListMenu {
