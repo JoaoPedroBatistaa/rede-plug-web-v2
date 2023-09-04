@@ -22,6 +22,8 @@
   flex-direction: column;
 
   margin-bottom: 2rem;
+
+  max-width: 80vw;
 }
 
 .ListMenu {
@@ -96,7 +98,6 @@
   cursor: pointer;
 
   margin-left: 8px;
-
 }
 
 .porcentContainer {
@@ -106,7 +107,7 @@
 
   justify-content: center;
 
-  background-color: #F6F7FA;
+  background-color: #f6f7fa;
   padding-left: 8px;
   padding-right: 8px;
   padding-bottom: 8px;
@@ -148,7 +149,7 @@
   line-height: 20px;
   color: #404049;
   margin-left: 8px;
-  margin-right: 20px
+  margin-right: 20px;
 }
 
 .CardsMenus {
@@ -729,7 +730,7 @@
   color: #404049;
 }
 
-.listFilter div>input[type="radio"]:checked {
+.listFilter div > input[type="radio"]:checked {
   accent-color: red;
 }
 
@@ -746,7 +747,6 @@
     height: 100%;
     padding-bottom: 18rem;
   }
-
 
   .ListMenuFilterText {
     display: none !important;
@@ -786,8 +786,6 @@
 }
 
 .filterItem {
-
-
   cursor: pointer;
 }
 
@@ -803,7 +801,8 @@
   padding-bottom: 1.5rem;
 }
 
-@media (max-width: 2560px) {}
+@media (max-width: 2560px) {
+}
 
 .ProductNameMobile {
   display: none;
@@ -830,7 +829,7 @@
 
     justify-content: center;
 
-    background-color: #F6F7FA;
+    background-color: #f6f7fa;
     padding-left: 8px;
     padding-right: 8px;
     padding-bottom: 8px;
@@ -838,7 +837,8 @@
     border-radius: 6px;
   }
 
-  .InputEdit {}
+  .InputEdit {
+  }
 
   .topMenuMobile {
     display: flex;
@@ -858,7 +858,6 @@
     color: #404049;
     margin-left: 8px;
     margin-right: 16px;
-
   }
 
   .searchInput {
@@ -873,6 +872,5 @@
 
   .ProductName {
     font-size: 16px;
-
   }
 }

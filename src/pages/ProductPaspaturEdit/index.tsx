@@ -1,43 +1,54 @@
 import Head from "next/head";
-import styles from "../../styles/ProductPaspatur.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/ProductPaspatur.module.scss";
 
 import HeaderNewProduct from "@/components/HeaderNewProduct";
-import SideMenuHome from "@/components/SideMenuBudget";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { getPaspaturById, updatePaspaturInLogin } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import { getPaspaturById, updatePaspaturInLogin } from "../../../firebase"
-import classnames from "classnames";
-
 
 export default function UpdatePaspatur() {
   const router = useRouter();
   const { openMenu, setOpenMenu } = useMenu();
 
-  const id = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
+  const id = Array.isArray(router.query.id)
+    ? router.query.id[0]
+    : router.query.id;
 
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
 
   const [paspatur, setPaspatur] = useState<any | null>(null);
 
   useEffect(() => {
     if (id && userId) {
-      getPaspaturById(id, userId).then(fetchedPaspatur => setPaspatur(fetchedPaspatur));
+      getPaspaturById(id, userId).then((fetchedPaspatur) =>
+        setPaspatur(fetchedPaspatur)
+      );
     } else {
-      toast.error('Erro: ID de usuário não encontrado. Faça o login novamente.');
+      toast.error(
+        "Erro: ID de usuário não encontrado. Faça o login novamente."
+      );
     }
   }, [id]);
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    let newValue = event.target.value;
+
+    // Se o ID for "codigo", substituímos a vírgula por um ponto
+    if (event.target.id === "valorMetro") {
+      newValue = newValue.replace(/,/g, ".");
+    }
+
     setPaspatur({
       ...paspatur,
-      [event.target.id]: event.target.value,
+      [event.target.id]: newValue,
     });
   };
 
@@ -45,17 +56,17 @@ export default function UpdatePaspatur() {
     event.preventDefault();
 
     if (!userId || !id) {
-      toast.error('Erro: ID de usuário ou ID de produto não encontrado.');
+      toast.error("Erro: ID de usuário ou ID de produto não encontrado.");
       return;
     }
-    
+
     try {
       await updatePaspaturInLogin(paspatur, id, userId);
-      toast.success('Produto Atualizado!');
+      toast.success("Produto Atualizado!");
     } catch (e) {
-      toast.error('Erro ao atualizar produto.');
+      toast.error("Erro ao atualizar produto.");
     }
-    
+
     setTimeout(() => {
       router.push("/Products");
     }, 500);
@@ -79,12 +90,10 @@ export default function UpdatePaspatur() {
       <HeaderNewProduct></HeaderNewProduct>
       <ToastContainer />
       <div className={styles.Container} onClick={handleOpenMenuDiv}>
-
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Paspatur</p>
             <div className={styles.BudgetHeadS}>
-
               <button
                 className={styles.FinishButton}
                 onClick={handleButtonFinish}
@@ -110,7 +119,7 @@ export default function UpdatePaspatur() {
                 id="codigo"
                 type="number"
                 className={styles.Field}
-                value={paspatur?.codigo || ''}
+                value={paspatur?.codigo || ""}
                 onChange={handleChange}
               />
             </div>
@@ -121,11 +130,10 @@ export default function UpdatePaspatur() {
                 id="margemLucro"
                 type="number"
                 className={styles.Field}
-                value={paspatur?.margemLucro || ''}
+                value={paspatur?.margemLucro || ""}
                 onChange={handleChange}
               />
             </div>
-
           </div>
 
           <div className={styles.InputContainer}>
@@ -135,7 +143,7 @@ export default function UpdatePaspatur() {
                 id="valorMetro"
                 type="number"
                 className={styles.Field}
-                value={paspatur?.valorMetro || ''}
+                value={paspatur?.valorMetro || ""}
                 onChange={handleChange}
               />
             </div>
@@ -146,21 +154,20 @@ export default function UpdatePaspatur() {
                 id="valorPerda"
                 type="text"
                 className={styles.Field}
-                value={paspatur?.valorPerda || ''}
+                value={paspatur?.valorPerda || ""}
                 onChange={handleChange}
               />
             </div>
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Descrição</p>
-              <textarea className={styles.Field} 
-              id="descricao" 
-              value={paspatur?.descricao || ''}
-              onChange={handleChange}
-              >
-              </textarea>
+              <textarea
+                className={styles.Field}
+                id="descricao"
+                value={paspatur?.descricao || ""}
+                onChange={handleChange}
+              ></textarea>
             </div>
-
           </div>
 
           <div className={styles.Copyright}>

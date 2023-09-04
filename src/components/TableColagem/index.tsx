@@ -1,16 +1,12 @@
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/Table.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { GetServerSidePropsContext } from "next";
-import { getDocs } from "firebase/firestore";
-import { ITableBudgets } from "./type";
-import { deleteDoc } from "firebase/firestore";
+import { deleteDoc, getDocs } from "firebase/firestore";
+import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
+import { ITableBudgets } from "./type";
 
 import { toast } from "react-toastify";
 
@@ -176,7 +172,6 @@ export default function TablePaspatur({
     filterData();
   }, [searchValue, teste]);
 
-
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -192,7 +187,7 @@ export default function TablePaspatur({
         </thead>
 
         <tbody>
-          {filteredData.map((item, index) => (
+          {currentData.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}
@@ -202,10 +197,11 @@ export default function TablePaspatur({
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
-                    }`}
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
                 >
                   <div
                     className={styles.containerX}
@@ -302,10 +298,11 @@ export default function TablePaspatur({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
-                  }`}
+                className={`${
+                  pageNumber === currentPage
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

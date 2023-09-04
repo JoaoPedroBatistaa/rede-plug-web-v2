@@ -1,16 +1,13 @@
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/Table.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { GetServerSidePropsContext } from "next";
-import { getDocs } from "firebase/firestore";
-import { ITableBudgets } from "./type";
-import { deleteDoc } from "firebase/firestore";
+import { deleteDoc, getDocs } from "firebase/firestore";
+import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
+import { ITableBudgets } from "./type";
 
 import { toast } from "react-toastify";
 
@@ -22,7 +19,6 @@ interface Foam {
   margemLucro: number;
   valorMetro: number;
   valorPerda: number;
-
 }
 
 export default function TablePaspatur({
@@ -36,14 +32,14 @@ export default function TablePaspatur({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); // I
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
 
   useEffect(() => {
     const fetchData = async () => {
       const dbCollection = collection(db, `Login/${userId}/Paspatur`);
-      console.log('Fetching from: ', dbCollection);
+      console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -56,20 +52,22 @@ export default function TablePaspatur({
           valorMetro: data.valorMetro,
           valorPerda: data.valorPerda,
         };
-        console.log('Fetched data:', budget);
+        console.log("Fetched data:", budget);
         return budget;
       });
       setTeste(budgetList);
       setFilteredData(budgetList);
-      console.log('Set data: ', budgetList);
+      console.log("Set data: ", budgetList);
     };
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (searchValue !== '') {
+    if (searchValue !== "") {
       const lowerCaseSearchValue = searchValue.toLowerCase();
-      const newData = teste.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
+      const newData = teste.filter((item) =>
+        item.codigo.toLowerCase().includes(lowerCaseSearchValue)
+      );
       setFilteredData(newData);
     } else {
       setFilteredData(teste);
@@ -83,10 +81,14 @@ export default function TablePaspatur({
     if (orderValue !== "") {
       switch (orderValue) {
         case "codigoCrescente":
-          sortedData.sort((a, b) => (a.codigo.toUpperCase() < b.codigo.toUpperCase()) ? -1 : 1);
+          sortedData.sort((a, b) =>
+            a.codigo.toUpperCase() < b.codigo.toUpperCase() ? -1 : 1
+          );
           break;
         case "codigoDescrescente":
-          sortedData.sort((a, b) => (a.codigo.toUpperCase() > b.codigo.toUpperCase()) ? -1 : 1);
+          sortedData.sort((a, b) =>
+            a.codigo.toUpperCase() > b.codigo.toUpperCase() ? -1 : 1
+          );
           break;
         case "maiorValorMetro":
           sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
@@ -99,13 +101,11 @@ export default function TablePaspatur({
           break;
         default:
           break;
-
       }
     }
 
     setFilteredData(sortedData);
   }, [orderValue, filterValue, teste]);
-
 
   const totalItems = teste.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -137,7 +137,7 @@ export default function TablePaspatur({
   const handleDeleteItem = async (itemId: string) => {
     try {
       await deleteDoc(doc(db, `Login/${userId}/Paspatur`, itemId));
-      console.log('Deleting item: ', itemId);
+      console.log("Deleting item: ", itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
@@ -169,7 +169,6 @@ export default function TablePaspatur({
       );
 
       setFilteredData(filteredItems);
-
     };
     filterData();
   }, [searchValue, teste]);
@@ -188,7 +187,7 @@ export default function TablePaspatur({
         </thead>
 
         <tbody>
-          {filteredData.map((item, index) => (
+          {currentData.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}
@@ -198,10 +197,11 @@ export default function TablePaspatur({
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
-                    }`}
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
                 >
                   <div
                     className={styles.containerX}
@@ -210,12 +210,16 @@ export default function TablePaspatur({
                     X
                   </div>
                   <div className={styles.containerOptionsMore}>
-
                     {/* <button>Editar</button>
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
-                    <Link href={{ pathname: `/ProductPaspaturEdit`, query: { id: item.id } }}>
+                    <Link
+                      href={{
+                        pathname: `/ProductPaspaturEdit`,
+                        query: { id: item.id },
+                      }}
+                    >
                       Editar
                     </Link>
                     <button
@@ -244,7 +248,11 @@ export default function TablePaspatur({
                 <b>{item.margemLucro}%</b>
               </td>
               <td className={styles.td}>
-                <b>{typeof item.valorMetro === 'number' ? item.valorMetro.toFixed(2) : item.valorMetro}</b>
+                <b>
+                  {typeof item.valorMetro === "number"
+                    ? item.valorMetro.toFixed(2)
+                    : item.valorMetro}
+                </b>
               </td>
               <td className={styles.td}>
                 <b>{item.valorPerda}%</b>
@@ -302,10 +310,11 @@ export default function TablePaspatur({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
-                  }`}
+                className={`${
+                  pageNumber === currentPage
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

@@ -8,6 +8,8 @@
   width: 100%;
   height: auto;
   border-collapse: collapse;
+
+  overflow-x: hidden;
 }
 
 .table thead {
@@ -353,7 +355,6 @@
 }
 
 @media (max-width: 768px) {
-
   .tableContianer {
     height: 100%;
   }

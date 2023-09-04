@@ -1,35 +1,38 @@
 import Head from "next/head";
-import styles from "../../styles/ProductPerfil.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/ProductPerfil.module.scss";
 
 import HeaderNewProduct from "@/components/HeaderNewProduct";
-import SideMenuHome from "@/components/SideMenuBudget";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { getPerfilById, updatePerfilInLogin } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import { getPerfilById, updatePerfilInLogin } from "../../../firebase"
-import classnames from "classnames";
 
 export default function ProductPaspatur() {
   const router = useRouter();
   const { openMenu, setOpenMenu } = useMenu();
 
-  const id = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
+  const id = Array.isArray(router.query.id)
+    ? router.query.id[0]
+    : router.query.id;
 
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
 
   const [perfil, setPerfil] = useState<any | null>(null);
 
   useEffect(() => {
     if (id && userId) {
-      getPerfilById(id, userId).then(fetchedPerfil => setPerfil(fetchedPerfil));
+      getPerfilById(id, userId).then((fetchedPerfil) =>
+        setPerfil(fetchedPerfil)
+      );
     } else {
-      toast.error('Erro: ID de usuário não encontrado. Faça o login novamente.');
+      toast.error(
+        "Erro: ID de usuário não encontrado. Faça o login novamente."
+      );
     }
   }, [id]);
 
@@ -37,15 +40,15 @@ export default function ProductPaspatur() {
     event.preventDefault();
 
     if (!userId || !id) {
-      toast.error('Erro: ID de usuário ou ID de produto não encontrado.');
+      toast.error("Erro: ID de usuário ou ID de produto não encontrado.");
       return;
     }
 
     try {
       await updatePerfilInLogin(perfil, id, userId);
-      toast.success('Produto Atualizado!');
+      toast.success("Produto Atualizado!");
     } catch (e) {
-      toast.error('Erro ao atualizar produto.');
+      toast.error("Erro ao atualizar produto.");
     }
 
     setTimeout(() => {
@@ -53,10 +56,19 @@ export default function ProductPaspatur() {
     }, 500);
   };
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    let newValue = event.target.value;
+
+    // Se o ID for "codigo", substituímos a vírgula por um ponto
+    if (event.target.id === "valorMetro") {
+      newValue = newValue.replace(/,/g, ".");
+    }
+
     setPerfil({
       ...perfil,
-      [event.target.id]: event.target.value,
+      [event.target.id]: newValue,
     });
   };
 
@@ -78,12 +90,10 @@ export default function ProductPaspatur() {
       <HeaderNewProduct></HeaderNewProduct>
       <ToastContainer />
       <div className={styles.Container} onClick={handleOpenMenuDiv}>
-
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Perfil</p>
             <div className={styles.BudgetHeadS}>
-
               <button
                 className={styles.FinishButton}
                 onClick={handleButtonFinish}
@@ -110,7 +120,7 @@ export default function ProductPaspatur() {
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                value={perfil?.codigo || ''}
+                value={perfil?.codigo || ""}
                 onChange={handleChange}
               />
             </div>
@@ -122,7 +132,7 @@ export default function ProductPaspatur() {
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                value={perfil?.margemLucro || ''}
+                value={perfil?.margemLucro || ""}
                 onChange={handleChange}
               />
             </div>
@@ -134,11 +144,10 @@ export default function ProductPaspatur() {
                 type="text"
                 className={styles.Field}
                 placeholder=""
-                value={perfil?.fabricante || ''}
+                value={perfil?.fabricante || ""}
                 onChange={handleChange}
               />
             </div>
-
           </div>
 
           <div className={styles.InputContainer}>
@@ -149,7 +158,7 @@ export default function ProductPaspatur() {
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                value={perfil?.valorMetro || ''}
+                value={perfil?.valorMetro || ""}
                 onChange={handleChange}
               />
             </div>
@@ -161,7 +170,7 @@ export default function ProductPaspatur() {
                 type="text"
                 className={styles.Field}
                 placeholder=""
-                value={perfil?.valorPerda || ''}
+                value={perfil?.valorPerda || ""}
                 onChange={handleChange}
               />
             </div>
@@ -173,26 +182,23 @@ export default function ProductPaspatur() {
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                value={perfil?.largura || ''}
+                value={perfil?.largura || ""}
                 onChange={handleChange}
               />
             </div>
-
           </div>
 
           <div className={styles.InputContainer}>
-
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Descrição</p>
-              <textarea className={styles.Field}
+              <textarea
+                className={styles.Field}
                 id="descricao"
                 name=""
-                value={perfil?.descricao || ''}
+                value={perfil?.descricao || ""}
                 onChange={handleChange}
-              >
-              </textarea>
+              ></textarea>
             </div>
-
           </div>
 
           <div className={styles.Copyright}>

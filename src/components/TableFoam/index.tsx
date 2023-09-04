@@ -1,16 +1,13 @@
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableProducts.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { GetServerSidePropsContext } from "next";
-import { getDocs } from "firebase/firestore";
-import { ITableBudgets } from "./type";
-import { deleteDoc } from "firebase/firestore";
+import { deleteDoc, getDocs } from "firebase/firestore";
+import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
+import { ITableBudgets } from "./type";
 
 import { toast } from "react-toastify";
 
@@ -22,7 +19,6 @@ interface Foam {
   margemLucro: number;
   valorMetro: number;
   valorPerda: number;
-
 }
 
 export default function TableFoam({
@@ -36,8 +32,8 @@ export default function TableFoam({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
 
   useEffect(() => {
@@ -59,15 +55,17 @@ export default function TableFoam({
       });
       setTeste(budgetList);
       setFilteredData(budgetList);
-      console.log('Set data: ', budgetList);
+      console.log("Set data: ", budgetList);
     };
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (searchValue !== '') {
+    if (searchValue !== "") {
       const lowerCaseSearchValue = searchValue.toLowerCase();
-      const newData = teste.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
+      const newData = teste.filter((item) =>
+        item.codigo.toLowerCase().includes(lowerCaseSearchValue)
+      );
       setFilteredData(newData);
     } else {
       setFilteredData(teste);
@@ -81,10 +79,14 @@ export default function TableFoam({
     if (orderValue !== "") {
       switch (orderValue) {
         case "codigoCrescente":
-          sortedData.sort((a, b) => (a.codigo.toUpperCase() < b.codigo.toUpperCase()) ? -1 : 1);
+          sortedData.sort((a, b) =>
+            a.codigo.toUpperCase() < b.codigo.toUpperCase() ? -1 : 1
+          );
           break;
         case "codigoDescrescente":
-          sortedData.sort((a, b) => (a.codigo.toUpperCase() > b.codigo.toUpperCase()) ? -1 : 1);
+          sortedData.sort((a, b) =>
+            a.codigo.toUpperCase() > b.codigo.toUpperCase() ? -1 : 1
+          );
           break;
         case "maiorValorMetro":
           sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
@@ -97,7 +99,6 @@ export default function TableFoam({
           break;
         default:
           break;
-
       }
     }
 
@@ -148,14 +149,12 @@ export default function TableFoam({
     }
   };
 
-
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
     setOpenMenu(false);
     console.log(openMenu);
   };
-
 
   useEffect(() => {
     const filterData = () => {
@@ -166,22 +165,11 @@ export default function TableFoam({
       );
 
       setFilteredData(filteredItems);
-
     };
     filterData();
   }, [searchValue, teste]);
 
-
-
-
-
-
   const [openFilter, setOpenFilter] = useState(false);
-
-
-
-
-
 
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
@@ -198,7 +186,7 @@ export default function TableFoam({
         </thead>
 
         <tbody>
-          {filteredData.map((item, index) => (
+          {currentData.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}
@@ -208,10 +196,11 @@ export default function TableFoam({
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
-                    }`}
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
                 >
                   <div
                     className={styles.containerX}
@@ -225,7 +214,12 @@ export default function TableFoam({
                       Efetivar orçamento
                     </button> */}
                     <button className={styles.buttonBlack}>
-                      <Link href={{ pathname: `/ProductFoamEdit`, query: { id: item.id } }}>
+                      <Link
+                        href={{
+                          pathname: `/ProductFoamEdit`,
+                          query: { id: item.id },
+                        }}
+                      >
                         Editar
                       </Link>
                     </button>
@@ -255,7 +249,11 @@ export default function TableFoam({
                 <b>{item.margemLucro}%</b>
               </td>
               <td className={styles.td}>
-                <b>{typeof item.valorMetro === 'number' ? item.valorMetro.toFixed(2) : item.valorMetro}</b>
+                <b>
+                  {typeof item.valorMetro === "number"
+                    ? item.valorMetro.toFixed(2)
+                    : item.valorMetro}
+                </b>
               </td>
               <td className={styles.td}>
                 <b>{item.valorPerda}%</b>
@@ -313,10 +311,11 @@ export default function TableFoam({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
-                  }`}
+                className={`${
+                  pageNumber === currentPage
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

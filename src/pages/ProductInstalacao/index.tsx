@@ -1,33 +1,34 @@
 import Head from "next/head";
-import styles from "../../styles/ProductPerfil.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/ProductPerfil.module.scss";
 
 import HeaderNewProduct from "@/components/HeaderNewProduct";
-import SideMenuHome from "@/components/SideMenuBudget";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { addInstalacaoToLogin } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import { addInstalacaoToLogin } from "../../../firebase"
-import classnames from "classnames";
 export default function ProductPaspatur() {
   const router = useRouter();
   const { openMenu, setOpenMenu } = useMenu();
 
   const [codigo, setCodigo] = useState<string | null>(null);
-  const [descricao, setDescricao] = useState('');
+  const [descricao, setDescricao] = useState("");
   const [margemLucro, setMargemLucro] = useState<string | null>(null);
   const [fabricante, setFabricante] = useState<string | null>(null);
   const [valorMetro, setValorMetro] = useState<string | null>(null);
   const [valorPerda, setValorPerda] = useState<string | null>(null);
   const [largura, setLargura] = useState<string | null>(null);
 
+  const handleSetValorMetro = (value: string) => {
+    const updatedValue = value.replace(/,/g, ".");
+    setValorMetro(updatedValue);
+  };
 
   const handleButtonFinish = async (event: any) => {
     event.preventDefault();
 
-    let userId = localStorage.getItem('userId');
+    let userId = localStorage.getItem("userId");
 
     const colagem = {
       codigo,
@@ -36,15 +37,14 @@ export default function ProductPaspatur() {
       valorMetro,
       valorPerda,
       fabricante,
-
     };
 
     try {
       // Substitua 'id_do_login' pelo id do login onde você quer adicionar o paspatur
       await addInstalacaoToLogin(colagem, userId);
-      toast.success('Produto Cadastrado!');
+      toast.success("Produto Cadastrado!");
     } catch (e) {
-      toast.error('Erro ao cadastrar produto.');
+      toast.error("Erro ao cadastrar produto.");
     }
 
     setTimeout(() => {
@@ -69,12 +69,10 @@ export default function ProductPaspatur() {
       <HeaderNewProduct></HeaderNewProduct>
       <ToastContainer />
       <div className={styles.Container} onClick={handleOpenMenuDiv}>
-
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Instalação</p>
             <div className={styles.BudgetHeadS}>
-
               <button
                 className={styles.FinishButton}
                 onClick={handleButtonFinish}
@@ -101,7 +99,7 @@ export default function ProductPaspatur() {
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                onChange={e => setCodigo(e.target.value)}
+                onChange={(e) => setCodigo(e.target.value)}
               />
             </div>
 
@@ -112,7 +110,7 @@ export default function ProductPaspatur() {
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                onChange={e => setMargemLucro(e.target.value)}
+                onChange={(e) => setMargemLucro(e.target.value)}
               />
             </div>
 
@@ -123,10 +121,9 @@ export default function ProductPaspatur() {
                 type="text"
                 className={styles.Field}
                 placeholder=""
-                onChange={e => setFabricante(e.target.value)}
+                onChange={(e) => setFabricante(e.target.value)}
               />
             </div>
-
           </div>
 
           <div className={styles.InputContainer}>
@@ -137,7 +134,7 @@ export default function ProductPaspatur() {
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                onChange={e => setValorMetro(e.target.value)}
+                onChange={(e) => handleSetValorMetro(e.target.value)}
               />
             </div>
 
@@ -148,29 +145,21 @@ export default function ProductPaspatur() {
                 type="text"
                 className={styles.Field}
                 placeholder=""
-                onChange={e => setValorPerda(e.target.value)}
-
+                onChange={(e) => setValorPerda(e.target.value)}
               />
             </div>
             <div className={styles.InputContainer}>
-
               <div className={styles.InputField}>
                 <p className={styles.FieldLabel}>Descrição</p>
-                <textarea className={styles.Field}
+                <textarea
+                  className={styles.Field}
                   id="descricao"
                   name=""
-                  onChange={e => setDescricao(e.target.value)}
-                >
-                </textarea>
+                  onChange={(e) => setDescricao(e.target.value)}
+                ></textarea>
               </div>
-
             </div>
-
-
-
           </div>
-
-
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

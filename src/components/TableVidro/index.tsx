@@ -1,16 +1,13 @@
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/Table.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { GetServerSidePropsContext } from "next";
-import { getDocs } from "firebase/firestore";
-import { ITableBudgets } from "./type";
-import { deleteDoc } from "firebase/firestore";
+import { deleteDoc, getDocs } from "firebase/firestore";
+import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
+import { ITableBudgets } from "./type";
 
 import { toast } from "react-toastify";
 
@@ -22,7 +19,6 @@ interface Foam {
   margemLucro: number;
   valorMetro: number;
   valorPerda: number;
-
 }
 
 export default function TableVidro({
@@ -36,15 +32,14 @@ export default function TableVidro({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); // I
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
-
 
   useEffect(() => {
     const fetchData = async () => {
       const dbCollection = collection(db, `Login/${userId}/Vidro`);
-      console.log('Fetching from: ', dbCollection);
+      console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -57,20 +52,22 @@ export default function TableVidro({
           valorMetro: data.valorMetro,
           valorPerda: data.valorPerda,
         };
-        console.log('Fetched data:', budget);
+        console.log("Fetched data:", budget);
         return budget;
       });
       setTeste(budgetList);
       setFilteredData(budgetList);
-      console.log('Set data: ', budgetList);
+      console.log("Set data: ", budgetList);
     };
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (searchValue !== '') {
+    if (searchValue !== "") {
       const lowerCaseSearchValue = searchValue.toLowerCase();
-      const newData = teste.filter(item => item.codigo.toLowerCase().includes(lowerCaseSearchValue));
+      const newData = teste.filter((item) =>
+        item.codigo.toLowerCase().includes(lowerCaseSearchValue)
+      );
       setFilteredData(newData);
     } else {
       setFilteredData(teste);
@@ -84,10 +81,14 @@ export default function TableVidro({
     if (orderValue !== "") {
       switch (orderValue) {
         case "codigoCrescente":
-          sortedData.sort((a, b) => (a.codigo.toUpperCase() < b.codigo.toUpperCase()) ? -1 : 1);
+          sortedData.sort((a, b) =>
+            a.codigo.toUpperCase() < b.codigo.toUpperCase() ? -1 : 1
+          );
           break;
         case "codigoDescrescente":
-          sortedData.sort((a, b) => (a.codigo.toUpperCase() > b.codigo.toUpperCase()) ? -1 : 1);
+          sortedData.sort((a, b) =>
+            a.codigo.toUpperCase() > b.codigo.toUpperCase() ? -1 : 1
+          );
           break;
         case "maiorValorMetro":
           sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
@@ -100,13 +101,11 @@ export default function TableVidro({
           break;
         default:
           break;
-
       }
     }
 
     setFilteredData(sortedData);
   }, [orderValue, filterValue, teste]);
-
 
   const totalItems = teste.length; // Total de resultados
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -138,7 +137,7 @@ export default function TableVidro({
   const handleDeleteItem = async (itemId: string) => {
     try {
       await deleteDoc(doc(db, `Login/${userId}/Vidro`, itemId));
-      console.log('Deleting item: ', itemId);
+      console.log("Deleting item: ", itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
@@ -171,7 +170,6 @@ export default function TableVidro({
       );
 
       setFilteredData(filteredItems);
-
     };
     filterData();
   }, [searchValue, teste]);
@@ -191,7 +189,7 @@ export default function TableVidro({
         </thead>
 
         <tbody>
-          {filteredData.map((item, index) => (
+          {currentData.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}
@@ -201,10 +199,11 @@ export default function TableVidro({
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
-                    }`}
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
                 >
                   <div
                     className={styles.containerX}
@@ -213,12 +212,16 @@ export default function TableVidro({
                     X
                   </div>
                   <div className={styles.containerOptionsMore}>
-
                     {/* <button>Editar</button>
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
-                    <Link href={{ pathname: `/ProductVidroEdit`, query: { id: item.id } }}>
+                    <Link
+                      href={{
+                        pathname: `/ProductVidroEdit`,
+                        query: { id: item.id },
+                      }}
+                    >
                       Editar
                     </Link>
                     <button
@@ -247,7 +250,11 @@ export default function TableVidro({
                 <b>{item.margemLucro}%</b>
               </td>
               <td className={styles.td}>
-                <b>{typeof item.valorMetro === 'number' ? item.valorMetro.toFixed(2) : item.valorMetro}</b>
+                <b>
+                  {typeof item.valorMetro === "number"
+                    ? item.valorMetro.toFixed(2)
+                    : item.valorMetro}
+                </b>
               </td>
               <td className={styles.td}>
                 <b>{item.valorPerda}%</b>
@@ -305,10 +312,11 @@ export default function TableVidro({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
-                  }`}
+                className={`${
+                  pageNumber === currentPage
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}
