@@ -172,6 +172,11 @@ export default function TablePaspatur({
     filterData();
   }, [searchValue, teste]);
 
+  const displayCount = Math.min(filteredData.length, currentData.length);
+  const dataToDisplay = filteredData.filter((item) =>
+    currentData.some((currentItem) => currentItem.id === item.id)
+  );
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -187,7 +192,7 @@ export default function TablePaspatur({
         </thead>
 
         <tbody>
-          {currentData.map((item, index) => (
+          {dataToDisplay.map((item, index) => (
             <tr
               className={styles.budgetItem}
               key={item.id}

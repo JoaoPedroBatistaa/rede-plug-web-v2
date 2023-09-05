@@ -68,17 +68,20 @@
   align-items: center;
   justify-content: space-around;
   cursor: pointer;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ddd;
 
   td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+    padding-top: 8px;
     height: 60px;
     color: #404049;
     font-family: "Outfit";
+    font-size: 14px;
     font-style: normal;
     text-align: start;
     align-items: center;
-    margin: 6px auto;
     width: 10px;
   }
 
@@ -322,7 +325,6 @@
 }
 
 @media (max-width: 768px) {
-
   .tableContianer {
     height: 100%;
   }

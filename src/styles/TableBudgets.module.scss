@@ -68,10 +68,12 @@
   align-items: center;
   justify-content: space-around;
   cursor: pointer;
+  border-bottom: 1px solid #ddd;
+  padding-top: 16px;
+  padding-bottom: 16px;
 
   td {
     padding: 8px;
-    border-bottom: 1px solid #ddd;
     height: 60px;
     color: #404049;
     font-family: "Outfit";
@@ -361,9 +363,7 @@
   }
 }
 
-
 @media (max-width: 768px) {
-
   .tableContianer {
     height: 100%;
   }
