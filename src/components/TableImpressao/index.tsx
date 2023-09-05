@@ -107,12 +107,6 @@ export default function TableImpressao({
     setFilteredData(sortedData);
   }, [orderValue, filterValue, teste]);
 
-  const totalItems = teste.length; // Total de resultados
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = teste.slice(startIndex, endIndex);
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
 
   const handlePageChange = (page: number) => {
@@ -174,10 +168,11 @@ export default function TableImpressao({
     filterData();
   }, [searchValue, teste]);
 
-  const displayCount = Math.min(filteredData.length, currentData.length);
-  const dataToDisplay = filteredData.filter((item) =>
-    currentData.some((currentItem) => currentItem.id === item.id)
-  );
+  const totalItems = filteredData.length;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const dataToDisplay = filteredData.slice(startIndex, endIndex);
+  const currentData = teste.slice(startIndex, endIndex);
 
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>

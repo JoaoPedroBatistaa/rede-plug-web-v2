@@ -105,11 +105,10 @@ export default function TableFoam({
     setFilteredData(sortedData);
   }, [orderValue, filterValue, teste]);
 
-  const totalItems = teste.length; // Total de resultados
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+  const totalItems = filteredData.length;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
+  const dataToDisplay = filteredData.slice(startIndex, endIndex);
   const currentData = teste.slice(startIndex, endIndex);
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
 
@@ -175,11 +174,6 @@ export default function TableFoam({
 
   const uniqueData = combinedData.filter(
     (item, index, self) => index === self.findIndex((t) => t.id === item.id)
-  );
-
-  const displayCount = Math.min(filteredData.length, currentData.length);
-  const dataToDisplay = filteredData.filter((item) =>
-    currentData.some((currentItem) => currentItem.id === item.id)
   );
 
   return (
