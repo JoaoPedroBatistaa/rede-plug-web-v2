@@ -20,12 +20,20 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import Link from "next/link";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function Products() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 

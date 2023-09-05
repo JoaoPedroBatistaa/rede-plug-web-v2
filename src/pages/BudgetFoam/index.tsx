@@ -1,18 +1,16 @@
 import Head from "next/head";
-import styles from "../../styles/BudgetFoam.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/BudgetFoam.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
 
-import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
-import { db } from "../../../firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase";
+import { useMenu } from "../../components/Context/context";
 
 interface Foam {
   id: string;
@@ -22,33 +20,36 @@ interface Foam {
   margemLucro: number;
   valorMetro: number;
   valorPerda: number;
-
 }
 
 export default function BudgetFoam() {
   const router = useRouter();
 
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
+
   const [produtos, setProdutos] = useState<Foam[]>([]);
 
   const [selectedOption, setSelectedOption] = useState(() => {
-    if (typeof window !== 'undefined') {
-
+    if (typeof window !== "undefined") {
       const codigoFoam = localStorage.getItem("codigoFoam");
-      return codigoFoam ? codigoFoam : '';
+      return codigoFoam ? codigoFoam : "";
     }
   });
 
-
   const [selectedOptionFoam, setSelectedOptionFoam] = useState("");
-  const [selectedOptionCodigoFoam, setSelectedOptionCodigoFoam] =
-    useState("");
+  const [selectedOptionCodigoFoam, setSelectedOptionCodigoFoam] = useState("");
   const [selectedOptionMdf, setSelectedOptionMdf] = useState("");
-  const [selectedOptionCodigoMdf, setSelectedOptionCodigoMdf] =
-    useState("");
+  const [selectedOptionCodigoMdf, setSelectedOptionCodigoMdf] = useState("");
 
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
 
   useEffect(() => {
@@ -73,7 +74,6 @@ export default function BudgetFoam() {
     fetchData();
   }, []);
 
-
   useEffect(() => {
     localStorage.setItem("foam", selectedOptionFoam);
     localStorage.setItem("mdf", selectedOptionMdf);
@@ -86,8 +86,7 @@ export default function BudgetFoam() {
   ]);
 
   const [preco, setPreco] = useState(() => {
-    if (typeof window !== 'undefined') {
-
+    if (typeof window !== "undefined") {
       const valorFoam = localStorage.getItem("valorFoam");
       return valorFoam ? Number(valorFoam) : 0;
     }
@@ -98,31 +97,45 @@ export default function BudgetFoam() {
     localStorage.setItem("codigoFoam", event.target.value);
   };
 
-
-
   useEffect(() => {
     // if (selectedOption && selectedOptionFoam === "SIM") {
-    const selectedProduto = produtos.find(produto => produto.codigo === selectedOption);
+    const selectedProduto = produtos.find(
+      (produto) => produto.codigo === selectedOption
+    );
     if (selectedProduto) {
-      const tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || "0x0";
-      const [altura, largura] = tamanho.split('x').map(Number);
+      const tamanho =
+        localStorage.getItem("novoTamanho") ||
+        localStorage.getItem("Tamanho") ||
+        "0x0";
+      const [altura, largura] = tamanho.split("x").map(Number);
 
-      const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
+      const valor =
+        (altura / 100) * (largura / 100) * selectedProduto.valorMetro;
       const perda = (valor / 100) * selectedProduto.valorPerda;
-      const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
+      const lucro = ((valor + perda) * selectedProduto.margemLucro) / 100;
 
-
-
-      setPreco(prevPreco => {
+      setPreco((prevPreco) => {
         const novoPreco = valor + perda + lucro;
         localStorage.setItem("valorFoam", novoPreco.toString());
         if (!localStorage.getItem("novoTamanho")) {
           localStorage.setItem("valorFoamAntigo", novoPreco.toString());
         }
-        localStorage.setItem("metroFoam", selectedProduto.valorMetro.toString())
-        localStorage.setItem("perdaFoam", selectedProduto.valorPerda.toString())
-        localStorage.setItem("lucroFoam", selectedProduto.margemLucro.toString())
-        localStorage.setItem("descricaoFoam", selectedProduto.descricao.toString())
+        localStorage.setItem(
+          "metroFoam",
+          selectedProduto.valorMetro.toString()
+        );
+        localStorage.setItem(
+          "perdaFoam",
+          selectedProduto.valorPerda.toString()
+        );
+        localStorage.setItem(
+          "lucroFoam",
+          selectedProduto.margemLucro.toString()
+        );
+        localStorage.setItem(
+          "descricaoFoam",
+          selectedProduto.descricao.toString()
+        );
 
         return novoPreco;
       });
@@ -133,7 +146,8 @@ export default function BudgetFoam() {
   const [precoTotal, setPrecoTotal] = useState(0);
 
   useEffect(() => {
-    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+    const intervalId = setInterval(() => {
+      // Salve o ID do intervalo para limpar mais tarde
       if (typeof window !== "undefined") {
         const valorPerfil = Number(localStorage.getItem("valorPerfil"));
         const valorFoam = Number(localStorage.getItem("valorFoam"));
@@ -143,14 +157,19 @@ export default function BudgetFoam() {
         const valorColagem = Number(localStorage.getItem("valorColagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
+        setPrecoTotal(
+          valorPaspatur +
+            valorPerfil +
+            valorFoam +
+            valorVidro +
+            valorImpressao +
+            valorInstalacao
+        );
       }
     }, 200); // Tempo do intervalo em milissegundos
 
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
-
-
 
   // const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
 
@@ -174,16 +193,20 @@ export default function BudgetFoam() {
   //   setSelectedOptionCodigoMdf(event.target.value);
   // };
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const valorPerfil = Number(localStorage.getItem("valorPerfil"));
       const valorFoam = Number(localStorage.getItem("valorFoam"));
       const valorVidro = Number(localStorage.getItem("valorVidro"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
 
-      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
-
+      if (
+        valorPerfil ||
+        valorFoam ||
+        valorVidro ||
+        (valorPaspatur && tamanho !== "0x0") ||
+        tamanho !== "x"
+      ) {
         window.localStorage.setItem("preco", JSON.stringify(precoTotal));
 
         toast.success("Finalizando Orçamento!");
@@ -296,7 +319,7 @@ export default function BudgetFoam() {
                 <option value="" disabled selected>
                   Selecione um código
                 </option>
-                {produtos.map(produto => (
+                {produtos.map((produto) => (
                   <option key={produto.codigo} value={produto.codigo}>
                     {produto.codigo} - {produto.descricao}
                   </option>
@@ -307,7 +330,12 @@ export default function BudgetFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>.</p>
 
-              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
+              <button
+                className={styles.removeProduct}
+                onClick={handleRemoveProduct}
+              >
+                Remover
+              </button>
             </div>
             {/* )} */}
           </div>

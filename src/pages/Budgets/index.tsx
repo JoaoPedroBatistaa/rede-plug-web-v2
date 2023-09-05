@@ -1,23 +1,24 @@
 import Head from "next/head";
-import styles from "../../styles/Budgets.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/Budgets.module.scss";
 
-import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useState } from "react";
-import Link from "next/link";
-import HeaderHome from "@/components/HeaderHome";
-import HeaderRequests from "@/components/HeaderRequests";
-import SearchInput from "@/components/InputSearch";
-import SearchInputList from "@/components/InputSearchList";
-import GridComponent from "@/components/GridRequests";
-import Table from "@/components/Table";
-import TableBudgets from "@/components/TableBudgets";
 import HeaderBudgets from "@/components/HeaderBudgets";
-import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
+import SearchInputList from "@/components/InputSearchList";
+import SideMenuHome from "@/components/SideMenuHome";
+import TableBudgets from "@/components/TableBudgets";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Budgets() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [openMenu, setOpenMenu] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -48,9 +49,9 @@ export default function Budgets() {
   console.log(orderValue, filterValue);
 
   const limparLocalStorage = () => {
-    const itensParaManter = ['userId', 'ally-supports-cache'];
+    const itensParaManter = ["userId", "ally-supports-cache"];
     const todasAsChaves = Object.keys(localStorage);
-    todasAsChaves.forEach(chave => {
+    todasAsChaves.forEach((chave) => {
       if (!itensParaManter.includes(chave)) {
         localStorage.removeItem(chave);
       }
@@ -91,7 +92,10 @@ export default function Budgets() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href="/BudgetSize">
-                    <button className={styles.ListMenuButton} onClick={limparLocalStorage}>
+                    <button
+                      className={styles.ListMenuButton}
+                      onClick={limparLocalStorage}
+                    >
                       <span className={styles.maisNoneMobile}>
                         {" "}
                         Novo Orçamento
@@ -102,10 +106,11 @@ export default function Budgets() {
                 </div>
               </div>
               <div
-                className={`${openFilter
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  openFilter
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>

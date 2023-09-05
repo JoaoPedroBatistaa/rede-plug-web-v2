@@ -1,19 +1,24 @@
 import Head from "next/head";
-import styles from "../../styles/Requests.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/Requests.module.scss";
 
-import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useState } from "react";
-import Link from "next/link";
-import HeaderHome from "@/components/HeaderHome";
 import HeaderRequests from "@/components/HeaderRequests";
-import SearchInput from "@/components/InputSearch";
 import SearchInputList from "@/components/InputSearchList";
-import GridComponent from "@/components/GridRequests";
+import SideMenuHome from "@/components/SideMenuHome";
 import Table from "@/components/Table";
+import Link from "next/link";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function Requests() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
@@ -51,9 +56,9 @@ export default function Requests() {
   };
 
   const limparLocalStorage = () => {
-    const itensParaManter = ['userId', 'ally-supports-cache'];
+    const itensParaManter = ["userId", "ally-supports-cache"];
     const todasAsChaves = Object.keys(localStorage);
-    todasAsChaves.forEach(chave => {
+    todasAsChaves.forEach((chave) => {
       if (!itensParaManter.includes(chave)) {
         localStorage.removeItem(chave);
       }
@@ -94,7 +99,10 @@ export default function Requests() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <Link href="/BudgetSize">
-                    <button className={styles.ListMenuButton} onClick={limparLocalStorage}>
+                    <button
+                      className={styles.ListMenuButton}
+                      onClick={limparLocalStorage}
+                    >
                       <span className={styles.maisNoneMobile}>
                         {" "}
                         Novo Pedido
@@ -105,10 +113,11 @@ export default function Requests() {
                 </div>
               </div>
               <div
-                className={`${openFilter
-                  ? styles.containerFilter
-                  : styles.containerFilterClose
-                  }`}
+                className={`${
+                  openFilter
+                    ? styles.containerFilter
+                    : styles.containerFilterClose
+                }`}
               >
                 <div className={styles.listFilter}>
                   <h2>ORDENAR POR:</h2>

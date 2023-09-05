@@ -3,13 +3,22 @@ import { useRouter } from "next/router";
 import styles from "../../styles/ProductPerfil.module.scss";
 
 import HeaderNewProduct from "@/components/HeaderNewProduct";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addInstalacaoToLogin } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 export default function ProductPaspatur() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
+
   const { openMenu, setOpenMenu } = useMenu();
 
   const [codigo, setCodigo] = useState<string | null>(null);

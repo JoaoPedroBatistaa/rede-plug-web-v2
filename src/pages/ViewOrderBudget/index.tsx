@@ -1,16 +1,15 @@
 import Head from "next/head";
-import styles from "../../styles/ViewOrderBudget.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/ViewOrderBudget.module.scss";
 
 import HeaderOrder from "@/components/HeaderOrder";
 import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { ChangeEvent, useEffect, useState } from "react";
 
 import { db, doc, getDoc } from "../../../firebase";
 
-import jsPDF from 'jspdf';
-
+import jsPDF from "jspdf";
 
 type BudgetType = {
   descricaoImpressao: string;
@@ -62,12 +61,18 @@ type UserDataType = {
   budgets: BudgetType;
   Telefone: string;
   nomeCompleto: string;
-
 };
-
 
 export default function ViewOrderBudget() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
@@ -136,8 +141,8 @@ export default function ViewOrderBudget() {
   function formatDate(date: any) {
     const newDate = new Date(date);
     newDate.setDate(newDate.getDate() + 1); // Aqui nós adicionamos 1 ao dia atual.
-    const dia = newDate.getDate().toString().padStart(2, '0');
-    const mes = (newDate.getMonth() + 1).toString().padStart(2, '0'); //+1 pois no getMonth Janeiro começa com zero.
+    const dia = newDate.getDate().toString().padStart(2, "0");
+    const mes = (newDate.getMonth() + 1).toString().padStart(2, "0"); //+1 pois no getMonth Janeiro começa com zero.
     const ano = newDate.getFullYear();
     return `${dia}/${mes}/${ano}`;
   }
@@ -146,9 +151,17 @@ export default function ViewOrderBudget() {
 
   function createPDF(budgets: any[]) {
     const doc = new jsPDF();
-    let y = 50;  // posição inicial y
+    let y = 50; // posição inicial y
 
-    doc.text(`\n\nNome do cliente: ${userData?.nomeCompleto}\n\nValor total: R$ ${parseFloat(userData?.valorTotal || '0').toFixed(2)}\n\n\n`, 10, 10);
+    doc.text(
+      `\n\nNome do cliente: ${
+        userData?.nomeCompleto
+      }\n\nValor total: R$ ${parseFloat(userData?.valorTotal || "0").toFixed(
+        2
+      )}\n\n\n`,
+      10,
+      10
+    );
     budgets.forEach((budget, index) => {
       let content = formatSingleBudgetPDF(budget, index);
 
@@ -159,82 +172,209 @@ export default function ViewOrderBudget() {
       doc.text(lines, 10, y);
 
       // Atualize y para a próxima posição, adicionando a quantidade de linhas multiplicado pela altura da linha
-      y += lines.length * 7;  // ajuste a altura da linha conforme necessário
+      y += lines.length * 7; // ajuste a altura da linha conforme necessário
     });
 
-    doc.save('budget.pdf');
+    doc.save("budget.pdf");
   }
 
-  function formatSingleBudgetPDF(budget: {
-    descricaoInstalacao: any;
-    descricaoColagem: any;
-    descricaoPaspatur: any;
-    descricaoFoam: any;
-    descricaoVidro: any;
-    descricaoPerfil: any;
-    descricaoImpressao: any; Tamanho: any; codigoImpressao: any; valorImpressao: any; codigoPerfil: any; valorPerfil: any; codigoVidro: any; valorVidro: any; codigoFoam: any; valorFoam: any; codigoPaspatur: any; valorPaspatur: any; codigoColagem: any; valorColagem: any; instalacao: any; valorInstalacao: any; tipoEntrega: any; maoDeObraExtra: any; formaPagamento: any; dataVencimento: any; observacoes: any; valorTotal: any; dimensoesPaspatur: any;
-  }, index: number) {
+  function formatSingleBudgetPDF(
+    budget: {
+      descricaoInstalacao: any;
+      descricaoColagem: any;
+      descricaoPaspatur: any;
+      descricaoFoam: any;
+      descricaoVidro: any;
+      descricaoPerfil: any;
+      descricaoImpressao: any;
+      Tamanho: any;
+      codigoImpressao: any;
+      valorImpressao: any;
+      codigoPerfil: any;
+      valorPerfil: any;
+      codigoVidro: any;
+      valorVidro: any;
+      codigoFoam: any;
+      valorFoam: any;
+      codigoPaspatur: any;
+      valorPaspatur: any;
+      codigoColagem: any;
+      valorColagem: any;
+      instalacao: any;
+      valorInstalacao: any;
+      tipoEntrega: any;
+      maoDeObraExtra: any;
+      formaPagamento: any;
+      dataVencimento: any;
+      observacoes: any;
+      valorTotal: any;
+      dimensoesPaspatur: any;
+    },
+    index: number
+  ) {
     // let message = `\n\n\nOlá ${userData?.nomeCompleto}, segue o seu Pedido...\n\n\n\n`;
 
-    let message = `PEDIDO ${index + 1}                                                 VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n\n`;
+    let message = `PEDIDO ${
+      index + 1
+    }                                                 VALOR TOTAL: R$ ${parseFloat(
+      budget.valorTotal || "0"
+    ).toFixed(2)}\n\n\n`;
     // message += `VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
     message += `Tamanho: ${budget.Tamanho}\n`;
-    message += budget.codigoImpressao ? `Impressão: ${budget.codigoImpressao} - ${budget.descricaoImpressao} - R$ ${parseFloat(budget.valorImpressao || '0').toFixed(2)}\n` : "";
-    message += budget.codigoPerfil ? `Perfil: ${budget.codigoPerfil} - ${budget.descricaoPerfil} - R$ ${parseFloat(budget.valorPerfil || '0').toFixed(2)}\n` : "";
-    message += budget.codigoVidro ? `Vidro: ${budget.codigoVidro} - ${budget.descricaoVidro} - R$ ${parseFloat(budget.valorVidro || '0').toFixed(2)}\n` : "";
-    message += budget.codigoFoam ? `Foam: ${budget.codigoFoam} - ${budget.descricaoFoam} - R$ ${parseFloat(budget.valorFoam || '0').toFixed(2)}\n` : "";
-    message += budget.codigoPaspatur ? `Paspatur: ${budget.codigoPaspatur} - ${budget.descricaoPaspatur} - R$ ${parseFloat(budget.valorPaspatur || '0').toFixed(2)}\n` : "";
-    message += budget.dimensoesPaspatur ? `Dimensões do Paspatur: ${budget.dimensoesPaspatur}` : "";
-    message += budget.codigoColagem ? `Colagem: ${budget.codigoColagem} - ${budget.descricaoColagem} - R$ ${parseFloat(budget.valorColagem || '0').toFixed(2)}\n` : "";
-    message += budget.instalacao ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n` : "";
+    message += budget.codigoImpressao
+      ? `Impressão: ${budget.codigoImpressao} - ${
+          budget.descricaoImpressao
+        } - R$ ${parseFloat(budget.valorImpressao || "0").toFixed(2)}\n`
+      : "";
+    message += budget.codigoPerfil
+      ? `Perfil: ${budget.codigoPerfil} - ${
+          budget.descricaoPerfil
+        } - R$ ${parseFloat(budget.valorPerfil || "0").toFixed(2)}\n`
+      : "";
+    message += budget.codigoVidro
+      ? `Vidro: ${budget.codigoVidro} - ${
+          budget.descricaoVidro
+        } - R$ ${parseFloat(budget.valorVidro || "0").toFixed(2)}\n`
+      : "";
+    message += budget.codigoFoam
+      ? `Foam: ${budget.codigoFoam} - ${budget.descricaoFoam} - R$ ${parseFloat(
+          budget.valorFoam || "0"
+        ).toFixed(2)}\n`
+      : "";
+    message += budget.codigoPaspatur
+      ? `Paspatur: ${budget.codigoPaspatur} - ${
+          budget.descricaoPaspatur
+        } - R$ ${parseFloat(budget.valorPaspatur || "0").toFixed(2)}\n`
+      : "";
+    message += budget.dimensoesPaspatur
+      ? `Dimensões do Paspatur: ${budget.dimensoesPaspatur}`
+      : "";
+    message += budget.codigoColagem
+      ? `Colagem: ${budget.codigoColagem} - ${
+          budget.descricaoColagem
+        } - R$ ${parseFloat(budget.valorColagem || "0").toFixed(2)}\n`
+      : "";
+    message += budget.instalacao
+      ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
+      : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
     message += "\n\nPagamentos e prazos\n\n";
-    message += budget.maoDeObraExtra ? `Mão de obra externa: ${budget.maoDeObraExtra}\n` : "";
-    message += budget.formaPagamento ? `Forma de pagamento: ${budget.formaPagamento}\n` : "";
-    message += budget.dataVencimento ? `Prazo para entrega: ${formatDate(budget.dataVencimento)}\n\n` : "";
+    message += budget.maoDeObraExtra
+      ? `Mão de obra externa: ${budget.maoDeObraExtra}\n`
+      : "";
+    message += budget.formaPagamento
+      ? `Forma de pagamento: ${budget.formaPagamento}\n`
+      : "";
+    message += budget.dataVencimento
+      ? `Prazo para entrega: ${formatDate(budget.dataVencimento)}\n\n`
+      : "";
 
     message += `Observação: ${budget.observacoes}\n\n`;
-    message += `Valor total: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
+    message += `Valor total: R$ ${parseFloat(budget.valorTotal || "0").toFixed(
+      2
+    )}\n\n`;
 
     return message;
   }
 
-  function formatSingleBudget(budget: {
-    descricaoInstalacao: any;
-    descricaoColagem: any;
-    descricaoPaspatur: any;
-    descricaoFoam: any;
-    descricaoVidro: any;
-    descricaoPerfil: any;
-    descricaoImpressao: any; Tamanho: any; codigoImpressao: any; valorImpressao: any; codigoPerfil: any; valorPerfil: any; codigoVidro: any; valorVidro: any; codigoFoam: any; valorFoam: any; codigoPaspatur: any; valorPaspatur: any; codigoColagem: any; valorColagem: any; instalacao: any; valorInstalacao: any; tipoEntrega: any; maoDeObraExtra: any; formaPagamento: any; dataVencimento: any; observacoes: any; valorTotal: any; dimensoesPaspatur: any;
-  }, index: number) {
+  function formatSingleBudget(
+    budget: {
+      descricaoInstalacao: any;
+      descricaoColagem: any;
+      descricaoPaspatur: any;
+      descricaoFoam: any;
+      descricaoVidro: any;
+      descricaoPerfil: any;
+      descricaoImpressao: any;
+      Tamanho: any;
+      codigoImpressao: any;
+      valorImpressao: any;
+      codigoPerfil: any;
+      valorPerfil: any;
+      codigoVidro: any;
+      valorVidro: any;
+      codigoFoam: any;
+      valorFoam: any;
+      codigoPaspatur: any;
+      valorPaspatur: any;
+      codigoColagem: any;
+      valorColagem: any;
+      instalacao: any;
+      valorInstalacao: any;
+      tipoEntrega: any;
+      maoDeObraExtra: any;
+      formaPagamento: any;
+      dataVencimento: any;
+      observacoes: any;
+      valorTotal: any;
+      dimensoesPaspatur: any;
+    },
+    index: number
+  ) {
     let message = `Olá ${userData?.nomeCompleto}, segue o seu Pedido...\n\n`;
 
     message += `PEDIDO ${index + 1}\n`;
-    message += `VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
+    message += `VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || "0").toFixed(
+      2
+    )}\n\n`;
     message += `Tamanho: ${budget.Tamanho}\n`;
-    message += budget.codigoImpressao ? `Impressão: ${budget.codigoImpressao} - ${budget.descricaoImpressao} - R$ ${parseFloat(budget.valorImpressao || '0').toFixed(2)}\n` : "";
-    message += budget.codigoPerfil ? `Perfil: ${budget.codigoPerfil} - ${budget.descricaoPerfil} - R$ ${parseFloat(budget.valorPerfil || '0').toFixed(2)}\n` : "";
-    message += budget.codigoVidro ? `Vidro: ${budget.codigoVidro} - ${budget.descricaoVidro} - R$ ${parseFloat(budget.valorVidro || '0').toFixed(2)}\n` : "";
-    message += budget.codigoFoam ? `Foam: ${budget.codigoFoam} - ${budget.descricaoFoam} - R$ ${parseFloat(budget.valorFoam || '0').toFixed(2)}\n` : "";
-    message += budget.codigoPaspatur ? `Paspatur: ${budget.codigoPaspatur} - ${budget.descricaoPaspatur} - R$ ${parseFloat(budget.valorPaspatur || '0').toFixed(2)}\n` : "";
-    message += budget.dimensoesPaspatur ? `Dimensões do Paspatur: ${budget.dimensoesPaspatur}` : "";
-    message += budget.codigoColagem ? `Colagem: ${budget.codigoColagem} - ${budget.descricaoColagem} - R$ ${parseFloat(budget.valorColagem || '0').toFixed(2)}\n` : "";
-    message += budget.instalacao ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n` : "";
+    message += budget.codigoImpressao
+      ? `Impressão: ${budget.codigoImpressao} - ${
+          budget.descricaoImpressao
+        } - R$ ${parseFloat(budget.valorImpressao || "0").toFixed(2)}\n`
+      : "";
+    message += budget.codigoPerfil
+      ? `Perfil: ${budget.codigoPerfil} - ${
+          budget.descricaoPerfil
+        } - R$ ${parseFloat(budget.valorPerfil || "0").toFixed(2)}\n`
+      : "";
+    message += budget.codigoVidro
+      ? `Vidro: ${budget.codigoVidro} - ${
+          budget.descricaoVidro
+        } - R$ ${parseFloat(budget.valorVidro || "0").toFixed(2)}\n`
+      : "";
+    message += budget.codigoFoam
+      ? `Foam: ${budget.codigoFoam} - ${budget.descricaoFoam} - R$ ${parseFloat(
+          budget.valorFoam || "0"
+        ).toFixed(2)}\n`
+      : "";
+    message += budget.codigoPaspatur
+      ? `Paspatur: ${budget.codigoPaspatur} - ${
+          budget.descricaoPaspatur
+        } - R$ ${parseFloat(budget.valorPaspatur || "0").toFixed(2)}\n`
+      : "";
+    message += budget.dimensoesPaspatur
+      ? `Dimensões do Paspatur: ${budget.dimensoesPaspatur}`
+      : "";
+    message += budget.codigoColagem
+      ? `Colagem: ${budget.codigoColagem} - ${
+          budget.descricaoColagem
+        } - R$ ${parseFloat(budget.valorColagem || "0").toFixed(2)}\n`
+      : "";
+    message += budget.instalacao
+      ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
+      : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
     message += "\n\nPagamentos e prazos\n\n";
-    message += budget.maoDeObraExtra ? `Mão de obra externa: ${budget.maoDeObraExtra}\n` : "";
-    message += budget.formaPagamento ? `Forma de pagamento: ${budget.formaPagamento}\n` : "";
-    message += budget.dataVencimento ? `Prazo para entrega: ${formatDate(budget.dataVencimento)}\n\n` : "";
+    message += budget.maoDeObraExtra
+      ? `Mão de obra externa: ${budget.maoDeObraExtra}\n`
+      : "";
+    message += budget.formaPagamento
+      ? `Forma de pagamento: ${budget.formaPagamento}\n`
+      : "";
+    message += budget.dataVencimento
+      ? `Prazo para entrega: ${formatDate(budget.dataVencimento)}\n\n`
+      : "";
 
     message += `Observação: ${budget.observacoes}\n\n`;
-    message += `Valor total: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
+    message += `Valor total: R$ ${parseFloat(budget.valorTotal || "0").toFixed(
+      2
+    )}\n\n`;
 
     return message;
   }
-
 
   function formatBudgets(budgets: any[]) {
     let message = "";
@@ -248,7 +388,7 @@ export default function ViewOrderBudget() {
   }
 
   function formatPhoneNumber(phoneNumber: string | undefined) {
-    const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+    const cleaned = ("" + phoneNumber).replace(/\D/g, "");
     const match = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
 
     if (match) {
@@ -261,13 +401,12 @@ export default function ViewOrderBudget() {
   const Telefone = userData?.Telefone;
   console.log(Telefone);
 
-  const formattedPhone = '55' + formatPhoneNumber(Telefone);
+  const formattedPhone = "55" + formatPhoneNumber(Telefone);
 
-  const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${formatBudgets(budgets)}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${formatBudgets(
+    budgets
+  )}`;
   console.log(whatsappUrl);
-
-
-
 
   return (
     <>
@@ -310,7 +449,9 @@ export default function ViewOrderBudget() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$ {parseFloat(userData?.valorTotal || '0').toFixed(2)}</p>
+                <p className={styles.OrderValue}>
+                  R$ {parseFloat(userData?.valorTotal || "0").toFixed(2)}
+                </p>
               </div>
             </div>
 
@@ -333,108 +474,154 @@ export default function ViewOrderBudget() {
                       <div>
                         <p className={styles.ResName}>Impressão</p>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoImpressao && <p className={styles.ResValue}>
-                            {budget.codigoImpressao} - R$ {parseFloat(budget.valorImpressao || '0').toFixed(2)}
-                          </p>}
+                          {budget.codigoImpressao && (
+                            <p className={styles.ResValue}>
+                              {budget.codigoImpressao} - R${" "}
+                              {parseFloat(budget.valorImpressao || "0").toFixed(
+                                2
+                              )}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoImpressao && <p className={styles.ResValue}>
-                            {budget.descricaoImpressao}
-                          </p>}
+                          {budget.codigoImpressao && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoImpressao}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Perfil</p>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoPerfil && <p className={styles.ResValue}>
-                            {budget.codigoPerfil} - R$ {parseFloat(budget.valorPerfil || '0').toFixed(2)}
-                          </p>}
+                          {budget.codigoPerfil && (
+                            <p className={styles.ResValue}>
+                              {budget.codigoPerfil} - R${" "}
+                              {parseFloat(budget.valorPerfil || "0").toFixed(2)}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoPerfil && <p className={styles.ResValue}>
-                            {budget.descricaoPerfil}
-                          </p>}
+                          {budget.codigoPerfil && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoPerfil}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Vidro</p>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoVidro && <p className={styles.ResValue}>
-                            {budget.codigoVidro} - R$ {parseFloat(budget.valorVidro || '0').toFixed(2)}
-                          </p>}
+                          {budget.codigoVidro && (
+                            <p className={styles.ResValue}>
+                              {budget.codigoVidro} - R${" "}
+                              {parseFloat(budget.valorVidro || "0").toFixed(2)}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoVidro && <p className={styles.ResValue}>
-                            {budget.descricaoVidro}
-                          </p>}
+                          {budget.codigoVidro && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoVidro}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Foam</p>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoFoam && <p className={styles.ResValue}>
-                            {budget.codigoFoam} - R$ {parseFloat(budget.valorFoam || '0').toFixed(2)}
-                          </p>}
+                          {budget.codigoFoam && (
+                            <p className={styles.ResValue}>
+                              {budget.codigoFoam} - R${" "}
+                              {parseFloat(budget.valorFoam || "0").toFixed(2)}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoFoam && <p className={styles.ResValue}>
-                            {budget.descricaoFoam}
-                          </p>}
+                          {budget.codigoFoam && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoFoam}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Paspatur</p>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoPaspatur && <p className={styles.ResValue}>
-                            {budget.codigoPaspatur} - R$ {parseFloat(budget.valorPaspatur || '0').toFixed(2)}
-                          </p>}
+                          {budget.codigoPaspatur && (
+                            <p className={styles.ResValue}>
+                              {budget.codigoPaspatur} - R${" "}
+                              {parseFloat(budget.valorPaspatur || "0").toFixed(
+                                2
+                              )}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoPaspatur && <p className={styles.ResValue}>
-                            {budget.descricaoPaspatur}
-                          </p>}
+                          {budget.codigoPaspatur && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoPaspatur}
+                            </p>
+                          )}
                         </div>
-                        {budget.dimensoesPaspatur && <p className={styles.ResValue}>
-                          {budget.dimensoesPaspatur}
-                        </p>}
+                        {budget.dimensoesPaspatur && (
+                          <p className={styles.ResValue}>
+                            {budget.dimensoesPaspatur}
+                          </p>
+                        )}
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Colagem</p>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoColagem && <p className={styles.ResValue}>
-                            {budget.codigoColagem} - R$ {parseFloat(budget.valorColagem || '0').toFixed(2)}
-                          </p>}
+                          {budget.codigoColagem && (
+                            <p className={styles.ResValue}>
+                              {budget.codigoColagem} - R${" "}
+                              {parseFloat(budget.valorColagem || "0").toFixed(
+                                2
+                              )}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoColagem && <p className={styles.ResValue}>
-                            {budget.descricaoColagem}
-                          </p>}
+                          {budget.codigoColagem && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoColagem}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Instalação</p>
                         <div className={styles.OrderResValue}>
-                          {budget.instalacao && <p className={styles.ResValue}>
-                            {budget.instalacao} - {budget.valorInstalacao}
-                          </p>}
+                          {budget.instalacao && (
+                            <p className={styles.ResValue}>
+                              {budget.instalacao} - {budget.valorInstalacao}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.instalacao && <p className={styles.ResValue}>
-                            {budget.descricaoInstalacao}
-                          </p>}
+                          {budget.instalacao && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoInstalacao}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <p className={styles.ResName}>Entrega</p>
                         <div className={styles.OrderResValue}>
-                          {budget.tipoEntrega && <p className={styles.ResValue}>{budget.tipoEntrega}</p>}
+                          {budget.tipoEntrega && (
+                            <p className={styles.ResValue}>
+                              {budget.tipoEntrega}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -444,25 +631,36 @@ export default function ViewOrderBudget() {
                         <div>
                           <p className={styles.ResName}>Mão de obra</p>
                           <div className={styles.OrderResValue}>
-                            {budget.maoDeObraExtra && <p className={styles.ResValue}>{budget.maoDeObraExtra}</p>}
+                            {budget.maoDeObraExtra && (
+                              <p className={styles.ResValue}>
+                                {budget.maoDeObraExtra}
+                              </p>
+                            )}
                           </div>
                         </div>
 
                         <div>
                           <p className={styles.ResName}>Forma de pagamento</p>
                           <div className={styles.OrderResValue}>
-                            {budget.formaPagamento && <p className={styles.ResValue}>{budget.formaPagamento}</p>}
+                            {budget.formaPagamento && (
+                              <p className={styles.ResValue}>
+                                {budget.formaPagamento}
+                              </p>
+                            )}
                           </div>
                         </div>
 
                         <div>
                           <p className={styles.ResName}>Prazo para entrega</p>
                           <div className={styles.OrderResValue}>
-                            {budget.dataVencimento && <p className={styles.ResValue}>{formatDate(budget.dataVencimento)}</p>}
+                            {budget.dataVencimento && (
+                              <p className={styles.ResValue}>
+                                {formatDate(budget.dataVencimento)}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
-
 
                       <div className={styles.OrderNotes}>
                         <p className={styles.ResName}>Observação</p>
@@ -477,7 +675,9 @@ export default function ViewOrderBudget() {
                     <div className={styles.OrderRes}>
                       <p className={styles.ResTitle}>Valor total</p>
                       <div>
-                        <p className={styles.ResTotal}>R$ {parseFloat(budget.valorTotal || '0').toFixed(2)}</p>
+                        <p className={styles.ResTotal}>
+                          R$ {parseFloat(budget.valorTotal || "0").toFixed(2)}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -485,13 +685,18 @@ export default function ViewOrderBudget() {
               </div>
 
               <div className={styles.Cta}>
-                <div className={styles.WhatsButton} onClick={() => window.open(whatsappUrl, "_blank")}>
+                <div
+                  className={styles.WhatsButton}
+                  onClick={() => window.open(whatsappUrl, "_blank")}
+                >
                   <img className={styles.WhatsImg} src="./Wpp.png" alt="" />
                   <p className={styles.WhatsText}>ENVIAR POR WHATSAPP</p>
                 </div>
 
-                <div className={styles.PdfButton} onClick={() => createPDF(budgets)}>
-
+                <div
+                  className={styles.PdfButton}
+                  onClick={() => createPDF(budgets)}
+                >
                   <img className={styles.WhatsImg} src="./PdfIcon.png" alt="" />
                   <p className={styles.PdfText}>GERAR PDF</p>
                 </div>

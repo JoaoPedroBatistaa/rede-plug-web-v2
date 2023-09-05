@@ -1,17 +1,24 @@
 import Head from "next/head";
-import styles from "../../styles/Home.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/Home.module.scss";
 
-import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useState } from "react";
-import Link from "next/link";
 import HeaderHome from "@/components/HeaderHome";
+import SideMenuHome from "@/components/SideMenuHome";
+import Link from "next/link";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function Home() {
   const router = useRouter();
 
-  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
 
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
+
+  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchText, setSearchText] = useState("");
@@ -21,8 +28,8 @@ export default function Home() {
   };
 
   let userId;
-  if (typeof window !== 'undefined') {
-    userId = localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = localStorage.getItem("userId");
   }
   console.log("ID do usuário:", userId);
 
@@ -36,7 +43,10 @@ export default function Home() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
+        <SideMenuHome
+          activeRoute={router.pathname}
+          openMenu={openMenu}
+        ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderHome></HeaderHome>

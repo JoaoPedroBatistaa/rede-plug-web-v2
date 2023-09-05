@@ -1,12 +1,10 @@
 import Head from "next/head";
 import styles from "../../styles/Login.module.scss";
-import Link from "next/link";
 
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { GetServerSidePropsContext } from "next";
 import { getDocs } from "firebase/firestore";
-import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { FormEvent, useEffect, useState } from "react";
+import { collection, db } from "../../../firebase";
 
 interface Login {
   id: string;
@@ -37,7 +35,7 @@ export default function Login() {
         return login;
       });
       setTeste(loginList);
-      console.log(loginList);
+      // console.log(loginList);
     };
     fetchData();
   }, []);
@@ -53,16 +51,12 @@ export default function Login() {
 
     if (user) {
       setUserId(user.id);
-      localStorage.setItem('userId', user.id);
+      localStorage.setItem("userId", user.id);
       router.push("/Home");
     } else {
       setError("Email ou senha incorretos");
     }
   };
-
-
-
-
 
   return (
     <>

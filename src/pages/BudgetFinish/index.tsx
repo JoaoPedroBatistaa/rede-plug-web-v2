@@ -1,25 +1,31 @@
 import Head from "next/head";
-import styles from "../../styles/BudgetFinish.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/BudgetFinish.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { ChangeEvent, useEffect, useState } from "react";
-import Link from "next/link";
-import MaskedInput from "react-input-mask";
-import { db, addDoc, collection } from "../../../firebase";
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
-import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import Link from "next/link";
+import { ChangeEvent, useEffect, useState } from "react";
+import MaskedInput from "react-input-mask";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { addDoc, collection, db } from "../../../firebase";
+import { useMenu } from "../../components/Context/context";
 
 export default function BudgetFinish() {
   const router = useRouter();
 
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
+
   const [numero, setNumero] = useState("");
   const [estado, setEstado] = useState("");
-
 
   let nomeCompleto: string | null;
   let Telefone: string | null;
@@ -35,14 +41,14 @@ export default function BudgetFinish() {
     nomeCompleto = localStorage.getItem("nomeCompleto");
     Telefone = localStorage.getItem("Telefone");
     email = localStorage.getItem("email");
-    tipoPessoa = localStorage.getItem("tipoPessoa")
+    tipoPessoa = localStorage.getItem("tipoPessoa");
   }
 
   const [budgets, setBudgets] = useState<any[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const localBudgets = localStorage.getItem('budgets');
+      const localBudgets = localStorage.getItem("budgets");
       if (localBudgets) {
         const budgetsObject = JSON.parse(localBudgets);
         const budgetsArray = Object.values(budgetsObject);
@@ -115,12 +121,12 @@ export default function BudgetFinish() {
           tipoPessoa,
           valorTotal,
           budgets,
-          NumeroPedido  // Aqui está o novo campo
+          NumeroPedido, // Aqui está o novo campo
         });
 
         // Incrementar o valor do campo "numero" no documento "NumeroDoOrçamento"
         await updateDoc(numeroDoOrcamentoRef, {
-          numero: NumeroPedido
+          numero: NumeroPedido,
         });
 
         toast.success("Pedido enviado!");
@@ -128,14 +134,14 @@ export default function BudgetFinish() {
           window.location.href = "/Home";
         }, 500);
       } else {
-        console.error("Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'");
+        console.error(
+          "Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'"
+        );
       }
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }
   };
-
-
 
   const formatarData = (data: Date) => {
     const dia = data.getDate();
@@ -155,7 +161,9 @@ export default function BudgetFinish() {
   const [selectedOption, setSelectedOption] = useState("");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectElement = document.getElementById(event.target.id) as HTMLSelectElement;
+    const selectElement = document.getElementById(
+      event.target.id
+    ) as HTMLSelectElement;
     const selectedOption = selectElement.value;
     setSelectedOption(selectedOption);
     localStorage.setItem("tipoPessoa", selectedOption);
@@ -168,17 +176,22 @@ export default function BudgetFinish() {
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
 
-
-
   const handleInputChange = () => {
-    const CPF = (document.getElementById('CPF') as HTMLInputElement).value;
-    const Endereco = (document.getElementById('Endereco') as HTMLInputElement).value;
-    const Numero = (document.getElementById('Numero') as HTMLInputElement).value;
-    const CEP = (document.getElementById('CEP') as HTMLInputElement).value;
-    const estado = (document.getElementById('estado') as HTMLInputElement).value;
-    const Complemento = (document.getElementById('Complemento') as HTMLInputElement).value;
-    const Bairro = (document.getElementById('Bairro') as HTMLInputElement).value;
-    const Cidade = (document.getElementById('Cidade') as HTMLInputElement).value;
+    const CPF = (document.getElementById("CPF") as HTMLInputElement).value;
+    const Endereco = (document.getElementById("Endereco") as HTMLInputElement)
+      .value;
+    const Numero = (document.getElementById("Numero") as HTMLInputElement)
+      .value;
+    const CEP = (document.getElementById("CEP") as HTMLInputElement).value;
+    const estado = (document.getElementById("estado") as HTMLInputElement)
+      .value;
+    const Complemento = (
+      document.getElementById("Complemento") as HTMLInputElement
+    ).value;
+    const Bairro = (document.getElementById("Bairro") as HTMLInputElement)
+      .value;
+    const Cidade = (document.getElementById("Cidade") as HTMLInputElement)
+      .value;
 
     setCpf(CPF);
     setEndereco(Endereco);
@@ -200,7 +213,6 @@ export default function BudgetFinish() {
     localStorage.setItem("bairro", bairro);
     localStorage.setItem("cidade", cidade);
   }, [cpf, endereco, numero, cep, estado, complemento, bairro, cidade]);
-
 
   const checkCep = (event: any) => {
     const cep = event.target.value.replace(/\D/g, "");
@@ -228,15 +240,12 @@ export default function BudgetFinish() {
     }
   };
 
-
   const { openMenu, setOpenMenu } = useMenu();
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
       setOpenMenu(false);
     }, 100);
   };
-
-
 
   return (
     <>
@@ -312,9 +321,15 @@ export default function BudgetFinish() {
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>{selectedOption === 'FÍSICA' ? 'CPF' : 'CNPJ'}</p>
+                  <p className={styles.FieldLabel}>
+                    {selectedOption === "FÍSICA" ? "CPF" : "CNPJ"}
+                  </p>
                   <MaskedInput
-                    mask={selectedOption === 'FÍSICA' ? "999.999.999-99" : "99.999.999/9999-99"}
+                    mask={
+                      selectedOption === "FÍSICA"
+                        ? "999.999.999-99"
+                        : "99.999.999/9999-99"
+                    }
                     id="CPF"
                     type="text"
                     className={styles.FieldSave}
@@ -323,7 +338,6 @@ export default function BudgetFinish() {
                   />
                 </div>
               </div>
-
 
               {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
@@ -507,8 +521,6 @@ export default function BudgetFinish() {
           </div>
 
           <div className={styles.linhaSave}></div>
-
-
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

@@ -1,19 +1,16 @@
 import Head from "next/head";
-import styles from "../../styles/BudgetPrint.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/BudgetPrint.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
 
 import { getDocs } from "firebase/firestore";
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { deleteDoc } from "firebase/firestore";
+import { collection, db } from "../../../firebase";
 
 interface Foam {
   id: string;
@@ -25,10 +22,17 @@ interface Foam {
   valorPerda: number;
   fabricante: string;
   largura: number;
-
 }
 export default function BudgetPrint() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -36,10 +40,9 @@ export default function BudgetPrint() {
   const [selectedOptionPrint, setSelectedOptionPrint] = useState("");
 
   const [selectedOptionPrintType, setSelectedOptionPrintType] = useState(() => {
-    if (typeof window !== 'undefined') {
-
+    if (typeof window !== "undefined") {
       const codigoImpressao = localStorage.getItem("codigoImpressao");
-      return codigoImpressao ? codigoImpressao : '';
+      return codigoImpressao ? codigoImpressao : "";
     }
   });
 
@@ -57,8 +60,9 @@ export default function BudgetPrint() {
     }
   }, [selectedOptionPrintType]);
 
-
-  const handleSelectChangePrintType = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectChangePrintType = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
     setSelectedOptionPrintType(event.target.value);
     localStorage.setItem("codigoImpressao", event.target.value);
   };
@@ -91,16 +95,20 @@ export default function BudgetPrint() {
   };
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const valorPerfil = Number(localStorage.getItem("valorPerfil"));
       const valorFoam = Number(localStorage.getItem("valorFoam"));
       const valorVidro = Number(localStorage.getItem("valorVidro"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
 
-      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
-
+      if (
+        valorPerfil ||
+        valorFoam ||
+        valorVidro ||
+        (valorPaspatur && tamanho !== "0x0") ||
+        tamanho !== "x"
+      ) {
         window.localStorage.setItem("preco", JSON.stringify(precoTotal));
 
         toast.success("Finalizando Orçamento!");
@@ -120,10 +128,8 @@ export default function BudgetPrint() {
     }, 100);
   };
 
-
   const [preco, setPreco] = useState(() => {
-    if (typeof window !== 'undefined') {
-
+    if (typeof window !== "undefined") {
       const valorImpressao = localStorage.getItem("valorImpressao");
       return valorImpressao ? Number(valorImpressao) : 0;
     }
@@ -133,8 +139,8 @@ export default function BudgetPrint() {
   const [produtos, setProdutos] = useState<Foam[]>([]);
 
   let userId: string | null;
-  if (typeof window !== 'undefined') {
-    userId = window.localStorage.getItem('userId');
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
   }
 
   useEffect(() => {
@@ -167,36 +173,52 @@ export default function BudgetPrint() {
 
   useEffect(() => {
     // if (selectedOptionPrintType && selectedOptionPrint === "SIM") {
-    const selectedProduto = produtos.find(produto => produto.codigo === selectedOptionPrintType);
+    const selectedProduto = produtos.find(
+      (produto) => produto.codigo === selectedOptionPrintType
+    );
     if (selectedProduto) {
-      const tamanho = localStorage.getItem("novoTamanho") || localStorage.getItem("Tamanho") || "0x0";
-      const [altura, largura] = tamanho.split('x').map(Number);
+      const tamanho =
+        localStorage.getItem("novoTamanho") ||
+        localStorage.getItem("Tamanho") ||
+        "0x0";
+      const [altura, largura] = tamanho.split("x").map(Number);
 
-      const valor = ((altura / 100) * (largura / 100)) * selectedProduto.valorMetro;
+      const valor =
+        (altura / 100) * (largura / 100) * selectedProduto.valorMetro;
       const perda = (valor / 100) * selectedProduto.valorPerda;
-      const lucro = ((valor + perda) * selectedProduto.margemLucro / 100)
+      const lucro = ((valor + perda) * selectedProduto.margemLucro) / 100;
 
-      setPreco(prevPreco => {
+      setPreco((prevPreco) => {
         const novoPreco = valor + perda + lucro;
         localStorage.setItem("valorImpressao", novoPreco.toString());
         if (!localStorage.getItem("novoTamanho")) {
           localStorage.setItem("valorImpressaoAntigo", novoPreco.toString());
         }
-        localStorage.setItem("metroImpressao", selectedProduto.valorMetro.toString())
-        localStorage.setItem("perdaImpressao", selectedProduto.valorPerda.toString())
-        localStorage.setItem("lucroImpressao", selectedProduto.margemLucro.toString())
-        localStorage.setItem("descricaoImpressao", selectedProduto.descricao.toString())
+        localStorage.setItem(
+          "metroImpressao",
+          selectedProduto.valorMetro.toString()
+        );
+        localStorage.setItem(
+          "perdaImpressao",
+          selectedProduto.valorPerda.toString()
+        );
+        localStorage.setItem(
+          "lucroImpressao",
+          selectedProduto.margemLucro.toString()
+        );
+        localStorage.setItem(
+          "descricaoImpressao",
+          selectedProduto.descricao.toString()
+        );
         return novoPreco;
       });
-
     }
     // }
   }, [selectedOptionPrintType, produtos]);
 
-
-
   useEffect(() => {
-    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+    const intervalId = setInterval(() => {
+      // Salve o ID do intervalo para limpar mais tarde
       if (typeof window !== "undefined") {
         const valorPerfil = Number(localStorage.getItem("valorPerfil"));
         const valorFoam = Number(localStorage.getItem("valorFoam"));
@@ -206,7 +228,14 @@ export default function BudgetPrint() {
         const valorColagem = Number(localStorage.getItem("valorColagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
+        setPrecoTotal(
+          valorPaspatur +
+            valorPerfil +
+            valorFoam +
+            valorVidro +
+            valorImpressao +
+            valorInstalacao
+        );
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -296,7 +325,6 @@ export default function BudgetPrint() {
               </select>
             </div> */}
 
-
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Tipo de impressão</p>
               <select
@@ -308,7 +336,7 @@ export default function BudgetPrint() {
                 <option value="" disabled selected>
                   Selecione um código
                 </option>
-                {produtos.map(produto => (
+                {produtos.map((produto) => (
                   <option key={produto.codigo} value={produto.codigo}>
                     {produto.codigo} - {produto.descricao}
                   </option>
@@ -319,9 +347,13 @@ export default function BudgetPrint() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>.</p>
 
-              <button className={styles.removeProduct} onClick={handleRemoveProduct}>Remover</button>
+              <button
+                className={styles.removeProduct}
+                onClick={handleRemoveProduct}
+              >
+                Remover
+              </button>
             </div>
-
           </div>
 
           <p className={styles.Preview}>Envio do arquivo de impressão</p>

@@ -1,11 +1,11 @@
 import Head from "next/head";
-import styles from "../../styles/ViewBudgetData.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/ViewBudgetData.module.scss";
 
 import HeaderViewBudget from "@/components/HeaderViewBudget";
 import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { ChangeEvent, useEffect, useState } from "react";
 
 import { db, doc, getDoc } from "../../../firebase";
 
@@ -18,6 +18,14 @@ type UserDataType = {
 
 export default function ViewBudgetData() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
@@ -95,7 +103,9 @@ export default function ViewBudgetData() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$ {parseFloat(userData?.valorTotal || '0').toFixed(2)}</p>
+                <p className={styles.OrderValue}>
+                  R$ {parseFloat(userData?.valorTotal || "0").toFixed(2)}
+                </p>
               </div>
             </div>
 

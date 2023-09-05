@@ -1,34 +1,43 @@
 import Head from "next/head";
-import styles from "../../styles/BudgetSave.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/BudgetSave.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { ChangeEvent, useState, useEffect } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import MaskedInput from "react-input-mask";
 
-import { db, addDoc, collection } from "../../../firebase";
+import { addDoc, collection, db } from "../../../firebase";
 
 import { ToastContainer, toast } from "react-toastify";
-import { createSourceMapSource } from "typescript";
 import "react-toastify/dist/ReactToastify.css";
 
-import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useMenu } from "../../components/Context/context";
 
 export default function BudgetSave() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [nomeCompleto, setNomeCompleto] = useState("");
   const [Telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
 
   const handleInputChange = () => {
-    const nomeCompleto = (document.getElementById('nomeCompleto') as HTMLInputElement).value;
-    const Telefone = (document.getElementById('Telefone') as HTMLInputElement).value;
-    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const nomeCompleto = (
+      document.getElementById("nomeCompleto") as HTMLInputElement
+    ).value;
+    const Telefone = (document.getElementById("Telefone") as HTMLInputElement)
+      .value;
+    const email = (document.getElementById("email") as HTMLInputElement).value;
 
     setNomeCompleto(nomeCompleto);
     localStorage.setItem("nomeCompleto", nomeCompleto);
@@ -39,9 +48,6 @@ export default function BudgetSave() {
     setEmail(email);
     localStorage.setItem("email", email);
   };
-
-
-
 
   let valorTotal: string | null;
 
@@ -70,7 +76,7 @@ export default function BudgetSave() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const localBudgets = localStorage.getItem('budgets');
+      const localBudgets = localStorage.getItem("budgets");
       if (localBudgets) {
         const budgetsObject = JSON.parse(localBudgets);
         const budgetsArray = Object.values(budgetsObject);
@@ -78,8 +84,6 @@ export default function BudgetSave() {
       }
     }
   }, []);
-
-
 
   const handleSaveBudget = async () => {
     try {
@@ -102,12 +106,12 @@ export default function BudgetSave() {
           dataCadastro,
           budgets,
           valorTotal,
-          NumeroPedido,  // Aqui está o novo campo
+          NumeroPedido, // Aqui está o novo campo
         });
 
         // Incrementar o valor do campo "numero" no documento "NumeroDoOrcamento"
         await updateDoc(numeroDoOrcamentoRef, {
-          numero: NumeroPedido
+          numero: NumeroPedido,
         });
 
         toast.success("Salvo com sucesso!");
@@ -116,13 +120,14 @@ export default function BudgetSave() {
           window.location.href = "/BudgetFinish";
         }, 500);
       } else {
-        console.error("Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'");
+        console.error(
+          "Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'"
+        );
       }
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }
   };
-
 
   const { openMenu, setOpenMenu } = useMenu();
   const handleOpenMenuDiv = () => {
@@ -130,8 +135,6 @@ export default function BudgetSave() {
       setOpenMenu(false);
     }, 100);
   };
-
-
 
   return (
     <>

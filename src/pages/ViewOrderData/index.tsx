@@ -1,12 +1,12 @@
 import Head from "next/head";
-import styles from "../../styles/ViewOrderData.module.scss";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import styles from "../../styles/ViewOrderData.module.scss";
 
 import HeaderOrder from "@/components/HeaderOrder";
 import SideMenuHome from "@/components/SideMenuHome";
-import { ChangeEvent } from "react";
 import Link from "next/link";
+import { ChangeEvent } from "react";
 
 import { db, doc, getDoc } from "../../../firebase";
 
@@ -22,8 +22,15 @@ type UserDataType = {
 export default function ViewOrderData() {
   const router = useRouter();
 
-  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
 
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
+
+  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [userData, setUserData] = useState<UserDataType | null>(null);
@@ -85,7 +92,7 @@ export default function ViewOrderData() {
     fetchData();
   }, [selectedId]);
 
-  console.log("selectedId -->", selectedId)
+  console.log("selectedId -->", selectedId);
 
   return (
     <>
@@ -97,7 +104,10 @@ export default function ViewOrderData() {
       </Head>
 
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
+        <SideMenuHome
+          activeRoute={router.pathname}
+          openMenu={openMenu}
+        ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderOrder></HeaderOrder>
@@ -125,7 +135,9 @@ export default function ViewOrderData() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$ {parseFloat(userData?.valorTotal || '0').toFixed(2)}</p>
+                <p className={styles.OrderValue}>
+                  R$ {parseFloat(userData?.valorTotal || "0").toFixed(2)}
+                </p>
               </div>
             </div>
 

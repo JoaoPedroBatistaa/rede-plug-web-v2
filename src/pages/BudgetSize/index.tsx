@@ -1,18 +1,24 @@
 import Head from "next/head";
-import styles from "../../styles/BudgetSize.module.scss";
 import { useRouter } from "next/router";
+import styles from "../../styles/BudgetSize.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { SetStateAction, useEffect, useState } from "react";
+import { MouseEvent, SetStateAction, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { MouseEvent } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
 
 export default function BudgetSize() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [altura, setAltura] = useState(() => {
     if (typeof window !== "undefined") {
@@ -23,7 +29,7 @@ export default function BudgetSize() {
         tamanho = localStorage.getItem("Tamanho");
       }
       if (tamanho) {
-        const [altura,] = tamanho.split('x').map(Number);
+        const [altura] = tamanho.split("x").map(Number);
         return altura.toString();
       }
     }
@@ -39,36 +45,36 @@ export default function BudgetSize() {
         tamanho = localStorage.getItem("Tamanho");
       }
       if (tamanho) {
-        const [, largura] = tamanho.split('x').map(Number);
+        const [, largura] = tamanho.split("x").map(Number);
         return largura.toString();
       }
     }
     return "";
   });
 
+  const updateLocalStorage = (
+    novaAltura: SetStateAction<string>,
+    novaLargura: SetStateAction<string>
+  ) => {
+    let alturaFormatada = "";
+    let larguraFormatada = "";
 
-  const updateLocalStorage = (novaAltura: SetStateAction<string>, novaLargura: SetStateAction<string>) => {
-    let alturaFormatada = '';
-    let larguraFormatada = '';
-
-    if (typeof novaAltura === 'string') {
-      alturaFormatada = novaAltura.replace(',', '.');
+    if (typeof novaAltura === "string") {
+      alturaFormatada = novaAltura.replace(",", ".");
     }
 
-    if (typeof novaLargura === 'string') {
-      larguraFormatada = novaLargura.replace(',', '.');
+    if (typeof novaLargura === "string") {
+      larguraFormatada = novaLargura.replace(",", ".");
     }
 
     const value = `${alturaFormatada}x${larguraFormatada}`;
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.localStorage.setItem("Tamanho", value);
       if (localStorage.getItem("novoTamanho")) {
         localStorage.setItem("novoTamanho", value);
       }
     }
-  }
-
-
+  };
 
   const handleAlturaChange = (event: {
     target: { value: SetStateAction<string> };
@@ -86,17 +92,21 @@ export default function BudgetSize() {
     updateLocalStorage(altura, novaLargura);
   };
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
-
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const valorPerfil = Number(localStorage.getItem("valorPerfil"));
       const valorFoam = Number(localStorage.getItem("valorFoam"));
       const valorVidro = Number(localStorage.getItem("valorVidro"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
-      const [altura, largura] = tamanho.split('x').map(Number);
+      const [altura, largura] = tamanho.split("x").map(Number);
 
-      if (valorPerfil || valorFoam || valorVidro || valorPaspatur && tamanho !== "0x0" || tamanho !== "x") {
-
+      if (
+        valorPerfil ||
+        valorFoam ||
+        valorVidro ||
+        (valorPaspatur && tamanho !== "0x0") ||
+        tamanho !== "x"
+      ) {
         window.localStorage.setItem("preco", JSON.stringify(precoTotal));
 
         toast.success("Finalizando Orçamento!");
@@ -109,8 +119,6 @@ export default function BudgetSize() {
     }
   }
 
-
-
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
@@ -122,7 +130,8 @@ export default function BudgetSize() {
   const [precoTotal, setPrecoTotal] = useState(0);
 
   useEffect(() => {
-    const intervalId = setInterval(() => { // Salve o ID do intervalo para limpar mais tarde
+    const intervalId = setInterval(() => {
+      // Salve o ID do intervalo para limpar mais tarde
       if (typeof window !== "undefined") {
         const valorPerfil = Number(localStorage.getItem("valorPerfil"));
         const valorFoam = Number(localStorage.getItem("valorFoam"));
@@ -132,7 +141,14 @@ export default function BudgetSize() {
         const valorColagem = Number(localStorage.getItem("valorColagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
-        setPrecoTotal(valorPaspatur + valorPerfil + valorFoam + valorVidro + valorImpressao + valorInstalacao)
+        setPrecoTotal(
+          valorPaspatur +
+            valorPerfil +
+            valorFoam +
+            valorVidro +
+            valorImpressao +
+            valorInstalacao
+        );
       }
     }, 200); // Tempo do intervalo em milissegundos
 
@@ -141,9 +157,8 @@ export default function BudgetSize() {
 
   if (typeof window !== "undefined") {
     const tamanho = localStorage.getItem("Tamanho") || "0x0";
-    const [altura, largura] = tamanho.split('x').map(Number);
+    const [altura, largura] = tamanho.split("x").map(Number);
   }
-
 
   return (
     <>

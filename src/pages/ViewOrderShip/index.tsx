@@ -1,13 +1,13 @@
-import Head from 'next/head';
-import styles from '../../styles/ViewOrderShip.module.scss';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import { useRouter } from "next/router";
+import styles from "../../styles/ViewOrderShip.module.scss";
 
-import HeaderOrder from '@/components/HeaderOrder';
-import SideMenuHome from '@/components/SideMenuHome';
-import { ChangeEvent, useEffect, useState } from 'react';
-import Link from 'next/link';
+import HeaderOrder from "@/components/HeaderOrder";
+import SideMenuHome from "@/components/SideMenuHome";
+import Link from "next/link";
+import { ChangeEvent, useEffect, useState } from "react";
 
-import { db, doc, getDoc } from '../../../firebase';
+import { db, doc, getDoc } from "../../../firebase";
 
 type UserDataType = {
   cep: string;
@@ -21,13 +21,19 @@ type UserDataType = {
 };
 
 export default function ViewOrderShip() {
-
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
-
-  const [selectedOption, setSelectedOption] = useState('opcao1');
+  const [selectedOption, setSelectedOption] = useState("opcao1");
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -36,8 +42,8 @@ export default function ViewOrderShip() {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setSelectedId(localStorage.getItem('selectedId'));
+    if (typeof window !== "undefined") {
+      setSelectedId(localStorage.getItem("selectedId"));
     }
   }, []);
 
@@ -45,7 +51,7 @@ export default function ViewOrderShip() {
     async function fetchData() {
       if (selectedId) {
         try {
-          const docRef = doc(db, 'Orders', selectedId);
+          const docRef = doc(db, "Orders", selectedId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
@@ -64,7 +70,6 @@ export default function ViewOrderShip() {
     fetchData();
   }, [selectedId]);
 
-
   return (
     <>
       <Head>
@@ -74,45 +79,48 @@ export default function ViewOrderShip() {
         `}</style>
       </Head>
 
-
       <div className={styles.Container}>
-        <SideMenuHome activeRoute={router.pathname} openMenu={openMenu}></SideMenuHome>
+        <SideMenuHome
+          activeRoute={router.pathname}
+          openMenu={openMenu}
+        ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
           <HeaderOrder></HeaderOrder>
 
           <div className={styles.OrderDataContainer}>
-
             <div className={styles.BudgetHead}>
               <div className={styles.Nav}>
-                <Link href='ViewOrderData'>
+                <Link href="ViewOrderData">
                   <p className={styles.NavItem}>Dados do cliente</p>
                 </Link>
 
-                <Link href='ViewOrderShip'>
+                <Link href="ViewOrderShip">
                   <div>
-                    <p className={`${styles.NavItem} ${styles.active}`}>Endereço</p>
+                    <p className={`${styles.NavItem} ${styles.active}`}>
+                      Endereço
+                    </p>
                     <div className={styles.NavItemBar}></div>
                   </div>
                 </Link>
 
-                <Link href='ViewOrderBudget'>
+                <Link href="ViewOrderBudget">
                   <p className={styles.NavItem}>Orçamento</p>
                 </Link>
               </div>
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.OrderTotalValue}>Valor total:</p>
-                <p className={styles.OrderValue}>R$ {parseFloat(userData?.valorTotal || '0').toFixed(2)}</p>
+                <p className={styles.OrderValue}>
+                  R$ {parseFloat(userData?.valorTotal || "0").toFixed(2)}
+                </p>
               </div>
             </div>
 
             <div className={styles.linhaOrder}></div>
 
             <div className={styles.BudgetData}>
-
               <div className={styles.PessoalData}>
-
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>CEP</p>
@@ -155,19 +163,17 @@ export default function ViewOrderShip() {
                     <p className={styles.FixedDataMedium}>{userData?.estado}</p>
                   </div>
                 </div>
-
               </div>
-
             </div>
           </div>
 
           <div className={styles.Copyright}>
-            <p className={styles.Copy}>© Total Maxx 2023, todos os direitos reservados</p>
+            <p className={styles.Copy}>
+              © Total Maxx 2023, todos os direitos reservados
+            </p>
           </div>
-
         </div>
-
-      </div >
+      </div>
     </>
-  )
+  );
 }

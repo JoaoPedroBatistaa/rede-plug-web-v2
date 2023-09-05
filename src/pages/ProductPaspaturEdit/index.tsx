@@ -11,6 +11,15 @@ import { useMenu } from "../../components/Context/context";
 
 export default function UpdatePaspatur() {
   const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/Login");
+    }
+  }, []);
+
   const { openMenu, setOpenMenu } = useMenu();
 
   const id = Array.isArray(router.query.id)
