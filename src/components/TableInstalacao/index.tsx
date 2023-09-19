@@ -180,9 +180,7 @@ export default function TableImpressao({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>Nº Produto</th>
-            <th>Margem de Lucro</th>
             <th>Valor do Metro</th>
-            <th>Valor da Perda</th>
             <th>Descrição</th>
           </tr>
         </thead>
@@ -247,9 +245,7 @@ export default function TableImpressao({
               <td className={styles.td}>
                 <b>#{item.codigo}</b>
               </td>
-              <td className={styles.td}>
-                <b>{item.margemLucro}%</b>
-              </td>
+
               <td className={styles.td}>
                 <b>
                   {typeof item.valorMetro === "number"
@@ -257,9 +253,7 @@ export default function TableImpressao({
                     : item.valorMetro}
                 </b>
               </td>
-              <td className={styles.td}>
-                <b>{item.valorPerda}%</b>
-              </td>
+
               <td className={styles.td}>
                 <b>{item.descricao}</b>
               </td>

@@ -1,9 +1,7 @@
 import Head from "next/head";
-import styles from "../../styles/Header.Home.module.scss";
-import SearchInput from "../InputSearch";
 import { useState } from "react";
-import Link from "next/link";
 import { useMenu } from "../../components/Context/context";
+import styles from "../../styles/Header.Home.module.scss";
 
 export default function HeaderHome() {
   const [searchText, setSearchText] = useState("");
@@ -29,9 +27,9 @@ export default function HeaderHome() {
             <img src="./menuSamduba.svg" height={20} width={26} alt="" />
           </div>
 
-          <Link href="/HomeResults">
+          {/* <Link href="/HomeResults">
             <SearchInput></SearchInput>
-          </Link>
+          </Link> */}
           <div className={styles.HeaderContainerIcons}>
             <img
               src="./iconSino.png"

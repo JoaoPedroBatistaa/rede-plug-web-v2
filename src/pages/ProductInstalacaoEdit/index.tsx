@@ -133,20 +133,6 @@ export default function UpdateImpressao() {
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Margem de Lucro (%)</p>
-              <input
-                id="margemLucro"
-                type="number"
-                className={styles.Field}
-                placeholder=""
-                onChange={handleChange}
-                value={impressao?.margemLucro}
-              />
-            </div>
-          </div>
-
-          <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Valor do Metro</p>
               <input
                 id="valorMetro"
@@ -155,18 +141,6 @@ export default function UpdateImpressao() {
                 placeholder=""
                 onChange={handleChange}
                 value={impressao?.valorMetro}
-              />
-            </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Perda de Material (%)</p>
-              <input
-                id="valorPerda"
-                type="text"
-                className={styles.Field}
-                placeholder=""
-                onChange={handleChange}
-                value={impressao?.valorPerda}
               />
             </div>
 
@@ -181,6 +155,8 @@ export default function UpdateImpressao() {
               ></textarea>
             </div>
           </div>
+
+          <div className={styles.InputContainer}></div>
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

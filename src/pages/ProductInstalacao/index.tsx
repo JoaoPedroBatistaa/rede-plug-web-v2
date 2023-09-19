@@ -23,11 +23,8 @@ export default function ProductPaspatur() {
 
   const [codigo, setCodigo] = useState<string | null>(null);
   const [descricao, setDescricao] = useState("");
-  const [margemLucro, setMargemLucro] = useState<string | null>(null);
-  const [fabricante, setFabricante] = useState<string | null>(null);
+
   const [valorMetro, setValorMetro] = useState<string | null>(null);
-  const [valorPerda, setValorPerda] = useState<string | null>(null);
-  const [largura, setLargura] = useState<string | null>(null);
 
   const handleSetValorMetro = (value: string) => {
     const updatedValue = value.replace(/,/g, ".");
@@ -42,10 +39,7 @@ export default function ProductPaspatur() {
     const colagem = {
       codigo,
       descricao,
-      margemLucro,
       valorMetro,
-      valorPerda,
-      fabricante,
     };
 
     try {
@@ -113,30 +107,6 @@ export default function ProductPaspatur() {
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Margem de Lucro (%)</p>
-              <input
-                id="margemLucro"
-                type="number"
-                className={styles.Field}
-                placeholder=""
-                onChange={(e) => setMargemLucro(e.target.value)}
-              />
-            </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Fabricante</p>
-              <input
-                id="margemLucro"
-                type="text"
-                className={styles.Field}
-                placeholder=""
-                onChange={(e) => setFabricante(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Valor do Metro</p>
               <input
                 id="valorMetro"
@@ -147,16 +117,6 @@ export default function ProductPaspatur() {
               />
             </div>
 
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Perda de Material (%)</p>
-              <input
-                id="valorPerda"
-                type="text"
-                className={styles.Field}
-                placeholder=""
-                onChange={(e) => setValorPerda(e.target.value)}
-              />
-            </div>
             <div className={styles.InputContainer}>
               <div className={styles.InputField}>
                 <p className={styles.FieldLabel}>Descrição</p>
@@ -169,6 +129,8 @@ export default function ProductPaspatur() {
               </div>
             </div>
           </div>
+
+          <div className={styles.InputContainer}></div>
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

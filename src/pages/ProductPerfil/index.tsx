@@ -49,6 +49,11 @@ export default function ProductPaspatur() {
       largura,
     };
 
+    if (!perfil.fabricante) {
+      toast.error("O campo fabricante é obrigatório.");
+      return;
+    }
+
     try {
       // Substitua 'id_do_login' pelo id do login onde você quer adicionar o paspatur
       await addPerfilToLogin(perfil, userId);
@@ -61,6 +66,7 @@ export default function ProductPaspatur() {
       router.push("/Products#perfil");
     }, 500);
   };
+
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
       setOpenMenu(false);
