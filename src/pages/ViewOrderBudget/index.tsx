@@ -255,7 +255,7 @@ export default function ViewOrderBudget() {
         } - R$ ${parseFloat(budget.valorColagem || "0").toFixed(2)}\n`
       : "";
     message += budget.instalacao
-      ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
+      ? `Diversos: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
       : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
@@ -353,7 +353,7 @@ export default function ViewOrderBudget() {
         } - R$ ${parseFloat(budget.valorColagem || "0").toFixed(2)}\n`
       : "";
     message += budget.instalacao
-      ? `Instalação: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
+      ? `Diversos: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
       : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
@@ -597,7 +597,7 @@ export default function ViewOrderBudget() {
                       </div>
 
                       <div>
-                        <p className={styles.ResName}>Instalação</p>
+                        <p className={styles.ResName}>Diversos</p>
                         <div className={styles.OrderResValue}>
                           {budget.instalacao && (
                             <p className={styles.ResValue}>

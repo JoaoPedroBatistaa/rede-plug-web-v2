@@ -57,7 +57,7 @@ export default function ProductPaspatur() {
     }
 
     setTimeout(() => {
-      router.push("/Products");
+      router.push("/Products#instalacao");
     }, 500);
   };
   const handleOpenMenuDiv = () => {
@@ -80,7 +80,7 @@ export default function ProductPaspatur() {
       <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Instalação</p>
+            <p className={styles.BudgetTitle}>Diversos</p>
             <div className={styles.BudgetHeadS}>
               <button
                 className={styles.FinishButton}
@@ -91,13 +91,13 @@ export default function ProductPaspatur() {
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText}>Cadastrar Instalação</span>
+                <span className={styles.buttonText}>Cadastrar Diversos</span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as credencias da sua instalação
+            Informe abaixo as credencias da sua Diversos
           </p>
 
           <div className={styles.InputContainer}>
@@ -105,7 +105,7 @@ export default function ProductPaspatur() {
               <p className={styles.FieldLabel}>Código</p>
               <input
                 id="codigo"
-                type="number"
+                type="text"
                 className={styles.Field}
                 placeholder=""
                 onChange={(e) => setCodigo(e.target.value)}

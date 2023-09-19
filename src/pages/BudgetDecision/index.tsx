@@ -611,7 +611,7 @@ export default function BudgetDecision() {
                     </div>
 
                     <div>
-                      <p className={styles.ResName}>Instalação</p>
+                      <p className={styles.ResName}>Diversos</p>
                       <div className={styles.OrderResValue}>
                         {valorInstalacao && (
                           <p className={styles.ResValue}>{valorInstalacao}</p>
@@ -828,7 +828,7 @@ export default function BudgetDecision() {
                       </div>
 
                       <div>
-                        <p className={styles.ResName}>Instalação</p>
+                        <p className={styles.ResName}>Diversos</p>
                         <div className={styles.OrderResValue}>
                           {budget.instalacao && (
                             <p className={styles.ResValue}>

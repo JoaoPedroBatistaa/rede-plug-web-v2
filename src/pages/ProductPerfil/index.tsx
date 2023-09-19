@@ -58,7 +58,7 @@ export default function ProductPaspatur() {
     }
 
     setTimeout(() => {
-      router.push("/Products");
+      router.push("/Products#perfil");
     }, 500);
   };
   const handleOpenMenuDiv = () => {
@@ -106,7 +106,7 @@ export default function ProductPaspatur() {
               <p className={styles.FieldLabel}>Código</p>
               <input
                 id="codigo"
-                type="number"
+                type="text"
                 className={styles.Field}
                 placeholder=""
                 onChange={(e) => setCodigo(e.target.value)}

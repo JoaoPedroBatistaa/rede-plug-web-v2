@@ -101,7 +101,7 @@ export default function UpdateImpressao() {
       <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Instalação</p>
+            <p className={styles.BudgetTitle}>Diversos</p>
             <div className={styles.BudgetHeadS}>
               <button
                 className={styles.FinishButton}
@@ -112,14 +112,12 @@ export default function UpdateImpressao() {
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText}>Atualizar instalação</span>
+                <span className={styles.buttonText}>Atualizar Diversos</span>
               </button>
             </div>
           </div>
 
-          <p className={styles.Notes}>
-            Atualize as credencias da sua Instalação
-          </p>
+          <p className={styles.Notes}>Atualize as credencias da sua Diversos</p>
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>

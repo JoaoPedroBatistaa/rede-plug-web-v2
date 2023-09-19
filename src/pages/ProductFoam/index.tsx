@@ -55,7 +55,7 @@ export default function ProductFoam() {
     }
 
     setTimeout(() => {
-      router.push("/Products");
+      router.push("/Products#foam");
     }, 500);
   };
   const handleOpenMenuDiv = () => {
@@ -103,7 +103,7 @@ export default function ProductFoam() {
               <p className={styles.FieldLabel}>Código</p>
               <input
                 id="codigo"
-                type="number"
+                type="text"
                 className={styles.Field}
                 placeholder=""
                 onChange={(e) => setCodigo(e.target.value)}

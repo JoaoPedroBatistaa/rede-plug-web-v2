@@ -141,7 +141,7 @@ export default function TableImpressao({
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Instalação excluída com sucesso!", {
+      toast.success("Diverso excluído com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,

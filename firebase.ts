@@ -1,27 +1,25 @@
 // Import the functions you need from the SDKs you need
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  doc,
-  getDoc,
-  where,
-  query,
-  updateDoc,
-} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 import {
   getAuth,
   signInWithEmailAndPassword,
-  signOut,
-  User,
+  signOut
 } from "firebase/auth";
 import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getFirestore,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import {
   getDownloadURL,
+  getStorage,
   ref,
   uploadBytesResumable,
-  getStorage,
 } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -80,9 +78,9 @@ async function getInstalacaoById(id: string, loginId: string) {
 async function addInstalacaoToLogin(foam: any, loginId: any) {
   try {
     await addDoc(collection(db, `Login/${loginId}/Instalacao`), foam);
-    console.log("Instalação adicionada com sucesso!");
+    console.log("Diversos adicionada com sucesso!");
   } catch (e) {
-    console.error("Erro ao adicionar Instalação: ", e);
+    console.error("Erro ao adicionar Diversos: ", e);
   }
 }
 
@@ -213,40 +211,10 @@ async function updateVidroInLogin(foam: any, id: string, loginId: string) {
 }
 
 export {
-  firebase,
-  db,
-  auth,
-  storage,
-  addPaspaturToLogin,
-  addFoamToLogin,
-  addImpressaoToLogin,
-  addPerfilToLogin,
-  addVidroToLogin,
-  signInWithEmailAndPassword,
-  signOut,
-  collection,
-  addDoc,
-  doc,
-  getDoc,
-  getDownloadURL,
-  ref,
-  uploadBytesResumable,
-  query,
-  where,
-  addColagemToLogin,
-  getFoamById,
-  updateFoamInLogin,
-  getImpressaoById,
-  updateImpressaoInLogin,
-  getPaspaturById,
-  updatePaspaturInLogin,
-  getPerfilById,
-  updatePerfilInLogin,
-  getVidroById,
-  updateVidroInLogin,
-  addInstalacaoToLogin,
-  getInstalacaoById,
-  updateInstalacaoInLogin,
-  getColagemById,
-  updateColagemInLogin
+  addColagemToLogin, addDoc, addFoamToLogin,
+  addImpressaoToLogin, addInstalacaoToLogin, addPaspaturToLogin, addPerfilToLogin,
+  addVidroToLogin, auth, collection, db, doc, firebase, getColagemById, getDoc,
+  getDownloadURL, getFoamById, getImpressaoById, getInstalacaoById, getPaspaturById, getPerfilById, getVidroById, query, ref, signInWithEmailAndPassword,
+  signOut, storage, updateColagemInLogin, updateFoamInLogin, updateImpressaoInLogin, updateInstalacaoInLogin, updatePaspaturInLogin, updatePerfilInLogin, updateVidroInLogin, uploadBytesResumable, where
 };
+

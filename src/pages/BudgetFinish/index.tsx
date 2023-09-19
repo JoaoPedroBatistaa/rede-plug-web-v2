@@ -491,7 +491,7 @@ export default function BudgetFinish() {
 
               {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Necessita de instalação?</p>
+                  <p className={styles.FieldLabel}>Necessita de Diversos?</p>
                   <select
                     className={styles.SelectField}
                     value={selectedOption}
@@ -513,7 +513,7 @@ export default function BudgetFinish() {
                 </div>
 
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Valor da instalação</p>
+                  <p className={styles.FieldLabel}>Valor da Diversos</p>
                   <p className={styles.FixedValue}>R$125,30</p>
                 </div>
               </div> */}

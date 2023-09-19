@@ -36,7 +36,7 @@ export default function BudgetShip() {
   }, []);
 
   const { openMenu, setOpenMenu } = useMenu();
-  // UseStates para instalação
+  // UseStates para Diversos
   const [selectedOptionInstall, setSelectedOptionInstall] = useState("opcao1");
   const [selectedOptionDelivery, setSelectedOptionDelivery] =
     useState("opcao1");
@@ -254,12 +254,12 @@ export default function BudgetShip() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>
-              O pedido necessita de instalação ou frete?
+              O pedido necessita de Diversos ou frete?
             </p>
 
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
-                <p className={styles.ValueLabel}>Valor da instalação</p>
+                <p className={styles.ValueLabel}>Valor da Diversos</p>
                 <p className={styles.Value}>R${preco}</p>
               </div>
               <div className={styles.TotalValue}>
@@ -282,12 +282,12 @@ export default function BudgetShip() {
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo se o pedido necessita de instalação ou frete
+            Informe abaixo se o pedido necessita de Diversos ou frete
           </p>
 
           {/* <div className={styles.InputContainer}>
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Necessita de instalação? *</p>
+              <p className={styles.FieldLabel}>Necessita de Diversos? *</p>
               <select
                 id="instalacao"
                 className={styles.SelectField}
@@ -304,7 +304,7 @@ export default function BudgetShip() {
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Valor da instalação</p>
+              <p className={styles.FieldLabel}>Valor da Diversos</p>
               <p id="valorInstalacao" className={styles.FixedValue}>
                 R$245,30
               </p>
