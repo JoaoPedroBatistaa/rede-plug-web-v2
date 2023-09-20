@@ -151,6 +151,8 @@ export default function BudgetFinish() {
     return `${dia}/${mes}/${ano}`;
   };
 
+  const MaskedInputAny: any = MaskedInput;
+
   const dataCadastroInicial = new Date();
   const EntregaInicial = new Date();
   EntregaInicial.setDate(dataCadastroInicial.getDate() + 5);
@@ -324,7 +326,8 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>
                     {selectedOption === "FÍSICA" ? "CPF" : "CNPJ"}
                   </p>
-                  <MaskedInput
+
+                  <MaskedInputAny
                     mask={
                       selectedOption === "FÍSICA"
                         ? "999.999.999-99"
