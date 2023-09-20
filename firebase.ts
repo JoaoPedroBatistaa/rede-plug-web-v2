@@ -65,6 +65,30 @@ async function updateFoamInLogin(foam: any, id: string, loginId: string) {
   await updateDoc(foamDoc, foam);
 }
 
+async function getSupplierById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Supplier`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No supplier found with id: ${id}`);
+  }
+}
+
+async function addSupplierToLogin(foam: any, loginId: any) {
+  try {
+    await addDoc(collection(db, `Login/${loginId}/Supplier`), foam);
+    console.log("Fornecedor adicionado com sucesso!");
+  } catch (e) {
+    console.error("Erro ao adicionar fornecedor: ", e);
+  }
+}
+
+async function updateSupplierInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Supplier`, id);
+  await updateDoc(foamDoc, foam);
+}
+
 async function getInstalacaoById(id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Instalacao`, id);
   const foamSnap = await getDoc(foamDoc);
@@ -212,9 +236,8 @@ async function updateVidroInLogin(foam: any, id: string, loginId: string) {
 
 export {
   addColagemToLogin, addDoc, addFoamToLogin,
-  addImpressaoToLogin, addInstalacaoToLogin, addPaspaturToLogin, addPerfilToLogin,
-  addVidroToLogin, auth, collection, db, doc, firebase, getColagemById, getDoc,
-  getDownloadURL, getFoamById, getImpressaoById, getInstalacaoById, getPaspaturById, getPerfilById, getVidroById, query, ref, signInWithEmailAndPassword,
-  signOut, storage, updateColagemInLogin, updateFoamInLogin, updateImpressaoInLogin, updateInstalacaoInLogin, updatePaspaturInLogin, updatePerfilInLogin, updateVidroInLogin, uploadBytesResumable, where
+  addImpressaoToLogin, addInstalacaoToLogin, addPaspaturToLogin, addPerfilToLogin, addSupplierToLogin, addVidroToLogin, auth, collection, db, doc, firebase, getColagemById, getDoc,
+  getDownloadURL, getFoamById, getImpressaoById, getInstalacaoById, getPaspaturById, getPerfilById, getSupplierById, getVidroById, query, ref, signInWithEmailAndPassword,
+  signOut, storage, updateColagemInLogin, updateFoamInLogin, updateImpressaoInLogin, updateInstalacaoInLogin, updatePaspaturInLogin, updatePerfilInLogin, updateSupplierInLogin, updateVidroInLogin, uploadBytesResumable, where
 };
 
