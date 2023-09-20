@@ -51,7 +51,7 @@ export default function ProductPaspatur() {
     }
 
     setTimeout(() => {
-      router.push("/Products#instalacao");
+      router.push("/Products#diversos");
     }, 500);
   };
   const handleOpenMenuDiv = () => {

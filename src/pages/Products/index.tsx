@@ -23,6 +23,12 @@ import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { db } from "../../../firebase";
+
+type Budget = {
+  id: string;
+  [key: string]: any;
+};
 
 export default function Products() {
   const router = useRouter();
@@ -59,6 +65,7 @@ export default function Products() {
   const [searchValue2, setSearchValue2] = useState("");
   const [searchValue3, setSearchValue3] = useState("");
   const [searchValue4, setSearchValue4] = useState("");
+  const [data, setData] = useState<Budget[]>([]);
 
   const [valueRadio, setValueRadio] = useState("");
 
@@ -86,6 +93,46 @@ export default function Products() {
   const handleSearchChange4 = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue4(e.target.value);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Perfil`);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+        };
+      });
+      setData(budgetList);
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (data) {
+      const hash = window.location.hash;
+      const elementId = hash.replace("#", "");
+
+      if (
+        elementId === "perfil" ||
+        elementId === "paspatur" ||
+        elementId === "colagem" ||
+        elementId === "impressao" ||
+        elementId === "foam" ||
+        elementId === "vidro" ||
+        elementId === "diversos"
+      ) {
+        const element = document.getElementById(elementId);
+
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }
+  }, [data]);
 
   console.log(searchValue);
 
@@ -759,6 +806,7 @@ export default function Products() {
                 searchValue={searchValue3}
                 orderValue={orderValue}
                 filterValue={filterValue}
+                data={data}
               />
             </div>
 
@@ -1056,7 +1104,7 @@ export default function Products() {
               />
             </div>
 
-            <div className={styles.ListContainer} id="instalacao">
+            <div className={styles.ListContainer} id="diversos">
               <div className={styles.topMenuMobile}>
                 <p className={styles.ProductNameMobile}>Diversos</p>
 
