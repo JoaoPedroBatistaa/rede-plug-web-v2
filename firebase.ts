@@ -64,6 +64,29 @@ async function updateFoamInLogin(foam: any, id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Foam`, id);
   await updateDoc(foamDoc, foam);
 }
+async function getClientById(id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Clients`, id);
+  const foamSnap = await getDoc(foamDoc);
+  if (foamSnap.exists()) {
+    return foamSnap.data();
+  } else {
+    throw new Error(`No foam found with id: ${id}`);
+  }
+}
+
+async function addClientToLogin(foam: any, loginId: any) {
+  try {
+    await addDoc(collection(db, `Login/${loginId}/Clients`), foam);
+    console.log("Foam adicionado com sucesso!");
+  } catch (e) {
+    console.error("Erro ao adicionar Foam: ", e);
+  }
+}
+
+async function updateClientInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Clients`, id);
+  await updateDoc(foamDoc, foam);
+}
 
 async function getSupplierById(id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Supplier`, id);
@@ -235,9 +258,9 @@ async function updateVidroInLogin(foam: any, id: string, loginId: string) {
 }
 
 export {
-  addColagemToLogin, addDoc, addFoamToLogin,
-  addImpressaoToLogin, addInstalacaoToLogin, addPaspaturToLogin, addPerfilToLogin, addSupplierToLogin, addVidroToLogin, auth, collection, db, doc, firebase, getColagemById, getDoc,
+  addClientToLogin, addColagemToLogin, addDoc, addFoamToLogin,
+  addImpressaoToLogin, addInstalacaoToLogin, addPaspaturToLogin, addPerfilToLogin, addSupplierToLogin, addVidroToLogin, auth, collection, db, doc, firebase, getClientById, getColagemById, getDoc,
   getDownloadURL, getFoamById, getImpressaoById, getInstalacaoById, getPaspaturById, getPerfilById, getSupplierById, getVidroById, query, ref, signInWithEmailAndPassword,
-  signOut, storage, updateColagemInLogin, updateFoamInLogin, updateImpressaoInLogin, updateInstalacaoInLogin, updatePaspaturInLogin, updatePerfilInLogin, updateSupplierInLogin, updateVidroInLogin, uploadBytesResumable, where
+  signOut, storage, updateClientInLogin, updateColagemInLogin, updateFoamInLogin, updateImpressaoInLogin, updateInstalacaoInLogin, updatePaspaturInLogin, updatePerfilInLogin, updateSupplierInLogin, updateVidroInLogin, uploadBytesResumable, where
 };
 

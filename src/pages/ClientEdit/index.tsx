@@ -6,10 +6,10 @@ import HeaderNewProduct from "@/components/HeaderNewProduct";
 import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getSupplierById, updateSupplierInLogin } from "../../../firebase";
+import { getClientById, updateClientInLogin } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 
-export default function SupplierEdit() {
+export default function UpdateFoam() {
   const router = useRouter();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function SupplierEdit() {
   // fetch the foam data on component mount using the id from router
   useEffect(() => {
     if (id && userId) {
-      getSupplierById(id, userId).then((fetchedFoam) => setFoam(fetchedFoam));
+      getClientById(id, userId).then((fetchedFoam) => setFoam(fetchedFoam));
     } else {
       toast.error(
         "Erro: ID de usuário não encontrado. Faça o login novamente."
@@ -71,14 +71,14 @@ export default function SupplierEdit() {
     }
 
     try {
-      await updateSupplierInLogin(foam, id, userId);
-      toast.success("Fornecedor Atualizado!");
+      await updateClientInLogin(foam, id, userId);
+      toast.success("Cliente Atualizado!");
     } catch (e) {
       toast.error("Erro ao atualizar produto.");
     }
 
     setTimeout(() => {
-      router.push("/Supplier");
+      router.push("/Cliente");
     }, 500);
   };
 
@@ -102,42 +102,54 @@ export default function SupplierEdit() {
       <div className={styles.Container} onClick={handleOpenMenuDiv}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Atualizar Fornecedor</p>
+            <p className={styles.BudgetTitle}>Atualizar Cliente</p>
             <div className={styles.BudgetHeadS}>
               <button
                 className={styles.FinishButton}
                 onClick={handleButtonFinish}
               >
-                <span className={styles.buttonText}>Atualizar Fornecedor</span>
+                <span className={styles.buttonText}>Atualizar Cliente</span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as novas credenciais do seu Fornecedor
+            Informe abaixo as novas credenciais do seu Cliente
           </p>
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>CNPJ</p>
+              <p className={styles.FieldLabel}>CPF/CNPJ</p>
               <input
                 id="codigo"
                 type="number"
                 className={styles.Field}
                 placeholder=""
-                value={foam?.CNPJ || ""}
+                value={foam?.cpf || ""}
                 onChange={handleChange}
               />
             </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Razão social</p>
+              <p className={styles.FieldLabel}>Nome completo</p>
               <input
                 id="margemLucro"
                 type="text"
                 className={styles.Field}
                 placeholder=""
-                value={foam?.reason || ""}
+                value={foam?.NomeCompleto || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Email</p>
+              <input
+                id="margemLucro"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.email || ""}
                 onChange={handleChange}
               />
             </div>
@@ -145,13 +157,99 @@ export default function SupplierEdit() {
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Telefone</p>
+              <input
+                id="valorMetro"
+                type="number"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.Telefone || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Cidade</p>
+              <input
+                id="valorPerda"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.cidade || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Endereço</p>
+              <textarea
+                className={styles.Field}
+                id="descricao"
+                value={foam?.venue || ""}
+                onChange={handleChange}
+              ></textarea>
+            </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>CEP</p>
+              <input
+                id="valorMetro"
+                type="number"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.cep || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Estado</p>
+              <input
+                id="valorPerda"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.estado || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Numero</p>
+              <input
+                id="valorPerda"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.numero || ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Bairro</p>
               <input
                 id="valorMetro"
                 type="text"
                 className={styles.Field}
                 placeholder=""
-                value={foam?.venue || ""}
+                value={foam?.bairro || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Complemento</p>
+              <input
+                id="valorPerda"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.complemento || ""}
                 onChange={handleChange}
               />
             </div>

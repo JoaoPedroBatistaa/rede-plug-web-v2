@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { addSupplierToLogin } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 
-export default function ProductFoam() {
+export default function AddSupplier() {
   const router = useRouter();
 
   useEffect(() => {
