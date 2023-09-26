@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import styles from "../../styles/BudgetCollage.module.scss";
+import styles from "../../styles/BudgetShip.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
@@ -12,22 +12,16 @@ import { useMenu } from "../../components/Context/context";
 import { getDocs } from "firebase/firestore";
 import { collection, db } from "../../../firebase";
 
-interface Foam {
+interface Montagem {
   id: string;
 
   codigo: string;
   descricao: string;
-  margemLucro: number;
   valorMetro: number;
-  valorPerda: number;
-  fabricante: string;
-  largura: number;
 }
 
-export default function BudgetCollage() {
+export default function BudgetMontagem() {
   const router = useRouter();
-  const { openMenu, setOpenMenu } = useMenu();
-  const [selectedOptionCollage, setSelectedOptionCollage] = useState("");
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -37,20 +31,133 @@ export default function BudgetCollage() {
     }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("collage", selectedOptionCollage);
-  }, [selectedOptionCollage]);
+  const { openMenu, setOpenMenu } = useMenu();
+  // UseStates para Diversos
+  const [selectedOptionInstall, setSelectedOptionInstall] = useState("opcao1");
+  const [selectedOptionDelivery, setSelectedOptionDelivery] =
+    useState("opcao1");
 
-  const handleSelectChangeCollage = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOptionCollage(event.target.value);
+  const handleSelectChangeInstall = (event: ChangeEvent<HTMLSelectElement>) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("instalacao", event.target.value);
+    }
   };
+
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
+
+  const [produtos, setProdutos] = useState<Montagem[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Montagem`);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          descricao: data.descricao,
+          codigo: data.codigo,
+          valorMetro: data.valor,
+        };
+      });
+      setProdutos(budgetList);
+      console.log(budgetList);
+    };
+    fetchData();
+  }, []);
+
+  const [preco, setPreco] = useState(() => {
+    if (typeof window !== "undefined") {
+      const valorInstalacao = localStorage.getItem("valorMontagem");
+      return valorInstalacao ? Number(valorInstalacao) : 0;
+    }
+  });
+
+  const [selectedOption, setSelectedOption] = useState(() => {
+    if (typeof window !== "undefined") {
+      const codigoMontagem = localStorage.getItem("codigoMontagem");
+      return codigoMontagem ? codigoMontagem : "";
+    }
+  });
+
+  useEffect(() => {
+    if (selectedOption) {
+      const selectedProduto = produtos.find(
+        (produto) => produto.codigo === selectedOption
+      );
+      if (selectedProduto) {
+        setPreco((prevPreco) => {
+          const novoPreco = selectedProduto.valorMetro;
+          localStorage.setItem("valorMontagem", novoPreco.toString());
+          localStorage.setItem(
+            "descricaoMontagem",
+            selectedProduto.descricao.toString()
+          );
+          return novoPreco;
+        });
+
+        // setPrecoTotal(preco + valorFoam + valorVidro);
+      }
+    }
+  }, [selectedOption, produtos]);
+
+  const handleSelectChangeDelivery = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("tipoEntrega", event.target.value);
+    }
+  };
+
+  const handleInputValueChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (typeof window !== "undefined") {
+      localStorage.setItem(target.id, target.value);
+    }
+  };
+
+  useEffect(() => {
+    const valorMontagemElement = document.getElementById(
+      "valorMontagem"
+    ) as HTMLInputElement;
+    const valorEntregaElement = document.getElementById(
+      "valorEntrega"
+    ) as HTMLInputElement;
+
+    if (valorMontagemElement) {
+      valorMontagemElement.addEventListener("input", handleInputValueChange);
+    }
+
+    if (valorEntregaElement) {
+      valorEntregaElement.addEventListener("input", handleInputValueChange);
+    }
+
+    // Removendo os event listeners na desmontagem do componente
+    return () => {
+      if (valorMontagemElement) {
+        valorMontagemElement.removeEventListener(
+          "input",
+          handleInputValueChange
+        );
+      }
+
+      if (valorEntregaElement) {
+        valorEntregaElement.removeEventListener(
+          "input",
+          handleInputValueChange
+        );
+      }
+    };
+  }, []);
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
     if (typeof window !== "undefined") {
       const valorPerfil = Number(localStorage.getItem("valorPerfil"));
       const valorFoam = Number(localStorage.getItem("valorFoam"));
       const valorVidro = Number(localStorage.getItem("valorVidro"));
-      const valorMontagem = Number(localStorage.getItem("valorMontagem"));
+      const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
 
@@ -58,7 +165,7 @@ export default function BudgetCollage() {
         valorPerfil ||
         valorFoam ||
         valorVidro ||
-        valorMontagem ||
+        valorInstalacao ||
         (valorPaspatur && tamanho !== "0x0") ||
         tamanho !== "x"
       ) {
@@ -80,99 +187,7 @@ export default function BudgetCollage() {
     }, 100);
   };
 
-  const [preco, setPreco] = useState(() => {
-    if (typeof window !== "undefined") {
-      const valorColagem = localStorage.getItem("valorColagem");
-      return valorColagem ? Number(valorColagem) : 0;
-    }
-  });
-
   const [precoTotal, setPrecoTotal] = useState(0);
-  const [produtos, setProdutos] = useState<Foam[]>([]);
-
-  let userId: string | null;
-  if (typeof window !== "undefined") {
-    userId = window.localStorage.getItem("userId");
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Colagem`);
-      const budgetSnapshot = await getDocs(dbCollection);
-      const budgetList = budgetSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          descricao: data.descricao,
-          codigo: data.codigo,
-          margemLucro: data.margemLucro,
-          valorMetro: data.valorMetro,
-          valorPerda: data.valorPerda,
-          fabricante: data.fabricante,
-          largura: data.largura,
-        };
-      });
-      setProdutos(budgetList);
-    };
-    fetchData();
-  }, []);
-
-  const [selectedOption, setSelectedOption] = useState(() => {
-    if (typeof window !== "undefined") {
-      const codigoColagem = localStorage.getItem("codigoColagem");
-      return codigoColagem ? codigoColagem : "";
-    }
-  });
-
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
-    localStorage.setItem("codigoColagem", event.target.value);
-  };
-
-  useEffect(() => {
-    // if (selectedOption && selectedOptionCollage === "SIM") {
-    const selectedProduto = produtos.find(
-      (produto) => produto.codigo === selectedOption
-    );
-    if (selectedProduto) {
-      const tamanho =
-        localStorage.getItem("novoTamanho") ||
-        localStorage.getItem("Tamanho") ||
-        "0x0";
-      const [altura, largura] = tamanho.split("x").map(Number);
-
-      const valor =
-        (altura / 100) * (largura / 100) * selectedProduto.valorMetro;
-      const perda = (valor / 100) * selectedProduto.valorPerda;
-      const lucro = ((valor + perda) * selectedProduto.margemLucro) / 100;
-
-      setPreco((prevPreco) => {
-        const novoPreco = valor + perda + lucro;
-        localStorage.setItem("valorColagem", novoPreco.toString());
-        if (!localStorage.getItem("novoTamanho")) {
-          localStorage.setItem("valorColagemAntigo", novoPreco.toString());
-        }
-        localStorage.setItem(
-          "metroColagem",
-          selectedProduto.valorMetro.toString()
-        );
-        localStorage.setItem(
-          "perdaColagem",
-          selectedProduto.valorPerda.toString()
-        );
-        localStorage.setItem(
-          "lucroColagem",
-          selectedProduto.margemLucro.toString()
-        );
-        localStorage.setItem(
-          "descricaoColagem",
-          selectedProduto.descricao.toString()
-        );
-        return novoPreco;
-      });
-    }
-    // }
-  }, [selectedOption, produtos]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -181,11 +196,11 @@ export default function BudgetCollage() {
         const valorPerfil = Number(localStorage.getItem("valorPerfil"));
         const valorFoam = Number(localStorage.getItem("valorFoam"));
         const valorVidro = Number(localStorage.getItem("valorVidro"));
-        const valorMontagem = Number(localStorage.getItem("valorMontagem"));
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
+        const valorMontagem = Number(localStorage.getItem("valorMontagem"));
 
         setPrecoTotal(
           valorPaspatur +
@@ -193,8 +208,8 @@ export default function BudgetCollage() {
             valorFoam +
             valorVidro +
             valorImpressao +
-            valorInstalacao +
             valorColagem +
+            valorInstalacao +
             valorMontagem
         );
       }
@@ -203,14 +218,16 @@ export default function BudgetCollage() {
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
 
+  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOption(event.target.value);
+    localStorage.setItem("codigoMontagem", event.target.value);
+  };
+
   function handleRemoveProduct() {
     // Limpa os valores do localStorage
-    localStorage.removeItem("valorColagem");
-    localStorage.removeItem("metroColagem");
-    localStorage.removeItem("perdaColagem");
-    localStorage.removeItem("lucroColagem");
-    localStorage.removeItem("descricaoColagem");
-    localStorage.removeItem("codigoColagem");
+    localStorage.removeItem("valorMontagem");
+    localStorage.removeItem("descricaoMontagem");
+    localStorage.removeItem("codigoMontagem");
 
     // Chama setPreco(0)
     setPreco(0);
@@ -233,12 +250,14 @@ export default function BudgetCollage() {
 
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Necessita de colagem?</p>
+            <p className={styles.BudgetTitle}>
+              O pedido necessita de Montagem ou frete?
+            </p>
 
             <div className={styles.BudgetHeadS}>
               <div className={styles.TotalValue}>
-                <p className={styles.ValueLabel}>Valor da Colagem</p>
-                <p className={styles.Value}>R${preco ? preco.toFixed(2) : 0}</p>
+                <p className={styles.ValueLabel}>Valor da Montagem</p>
+                <p className={styles.Value}>R${preco}</p>
               </div>
               <div className={styles.TotalValue}>
                 <p className={styles.ValueLabel}>Valor total</p>
@@ -260,34 +279,40 @@ export default function BudgetCollage() {
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo se será utilizada colagem no pedido
+            Informe abaixo se o pedido necessita de Montagem ou frete
           </p>
 
-          <div className={styles.InputContainer}>
-            {/* <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Colagem</p>
+          {/* <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Necessita de Diversos? *</p>
               <select
-                id="collage"
+                id="instalacao"
                 className={styles.SelectField}
-                value={selectedOptionCollage}
-                onChange={handleSelectChangeCollage}
+                value={selectedOptionInstall}
+                onChange={handleSelectChangeInstall}
               >
-                <option value="" disabled selected>
-                  Inclui impressão?
-                </option>
-                <option value="SIM" selected={selectedOptionCollage === "SIM"}>
+                <option value="SIM" selected={selectedOptionInstall === "SIM"}>
                   SIM
                 </option>
-                <option value="NÃO" selected={selectedOptionCollage === "NÃO"}>
+                <option value="NÃO" selected={selectedOptionInstall === "NÃO"}>
                   NÃO
                 </option>
               </select>
-            </div> */}
+            </div>
 
             <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Selecione o código</p>
+              <p className={styles.FieldLabel}>Valor da Diversos</p>
+              <p id="valorInstalacao" className={styles.FixedValue}>
+                R$245,30
+              </p>
+            </div>
+          </div> */}
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Tipo de entrega</p>
               <select
-                id="tipoImpressao"
+                id="codigo"
                 className={styles.SelectField}
                 value={selectedOption}
                 onChange={handleSelectChange}
@@ -313,6 +338,13 @@ export default function BudgetCollage() {
                 Remover
               </button>
             </div>
+            {/*
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Valor da entrega</p>
+              <p id="valorEntrega" className={styles.FixedValue}>
+                R$245,30
+              </p>
+            </div> */}
           </div>
 
           <div className={styles.Copyright}>

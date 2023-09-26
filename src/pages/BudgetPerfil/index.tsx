@@ -143,6 +143,7 @@ export default function BudgetPerfil() {
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
+        const valorMontagem = Number(localStorage.getItem("valorMontagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
 
         setPrecoTotal(
@@ -151,7 +152,9 @@ export default function BudgetPerfil() {
             valorFoam +
             valorVidro +
             valorImpressao +
-            valorInstalacao
+            valorInstalacao +
+            valorColagem +
+            valorMontagem
         );
       }
     }, 200); // Tempo do intervalo em milissegundos
@@ -182,12 +185,14 @@ export default function BudgetPerfil() {
       const valorFoam = Number(localStorage.getItem("valorFoam"));
       const valorVidro = Number(localStorage.getItem("valorVidro"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+      const valorMontagem = Number(localStorage.getItem("valorMontagem"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
 
       if (
         valorPerfil ||
         valorFoam ||
         valorVidro ||
+        valorMontagem ||
         (valorPaspatur && tamanho !== "0x0") ||
         tamanho !== "x"
       ) {

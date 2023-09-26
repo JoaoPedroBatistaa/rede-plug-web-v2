@@ -404,6 +404,7 @@ export default function BudgetPaspatur() {
       const valorPerfil = Number(localStorage.getItem("valorPerfil"));
       const valorFoam = Number(localStorage.getItem("valorFoam"));
       const valorVidro = Number(localStorage.getItem("valorVidro"));
+      const valorMontagem = Number(localStorage.getItem("valorMontagem"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
 
@@ -411,6 +412,7 @@ export default function BudgetPaspatur() {
         valorPerfil ||
         valorFoam ||
         valorVidro ||
+        valorMontagem ||
         (valorPaspatur && tamanho !== "0x0") ||
         tamanho !== "x"
       ) {
@@ -705,6 +707,7 @@ export default function BudgetPaspatur() {
         const valorFoam = Number(localStorage.getItem("valorFoam"));
         const valorVidro = Number(localStorage.getItem("valorVidro"));
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorMontagem = Number(localStorage.getItem("valorMontagem"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
@@ -715,7 +718,9 @@ export default function BudgetPaspatur() {
             valorFoam +
             valorVidro +
             valorImpressao +
-            valorInstalacao
+            valorInstalacao +
+            valorColagem +
+            valorMontagem
         );
       }
     }, 200); // Tempo do intervalo em milissegundos

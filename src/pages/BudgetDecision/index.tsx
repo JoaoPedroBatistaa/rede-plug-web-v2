@@ -88,6 +88,7 @@ export default function BudgetDecision() {
 
   const [valorPerfil, setValorPerfil] = useState("");
   const [valorFoam, setValorFoam] = useState("");
+  const [valorMontagem, setValorMontagem] = useState("");
   const [valorVidro, setValorVidro] = useState("");
   const [valorPaspatur, setValorPaspatur] = useState("");
   const [valorImpressao, setValorImpressao] = useState("");
@@ -99,6 +100,7 @@ export default function BudgetDecision() {
     const intervalId = setInterval(() => {
       if (typeof window !== "undefined") {
         setValorPerfil(localStorage.getItem("valorPerfil") || "");
+        setValorMontagem(localStorage.getItem("valorMontagem") || "");
         setValorFoam(localStorage.getItem("valorFoam") || "");
         setValorVidro(localStorage.getItem("valorVidro") || "");
         setValorPaspatur(localStorage.getItem("valorPaspatur") || "");
@@ -112,6 +114,7 @@ export default function BudgetDecision() {
           Number(valorFoam) +
           Number(valorVidro) +
           Number(valorImpressao) +
+          Number(valorMontagem) +
           Number(valorInstalacao);
 
         if (!isNaN(total)) {
@@ -130,6 +133,7 @@ export default function BudgetDecision() {
         const valorFoam = Number(localStorage.getItem("valorFoam"));
         const valorVidro = Number(localStorage.getItem("valorVidro"));
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorMontagem = Number(localStorage.getItem("valorMontagem"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
@@ -140,7 +144,9 @@ export default function BudgetDecision() {
             valorFoam +
             valorVidro +
             valorImpressao +
-            valorInstalacao
+            valorInstalacao +
+            valorColagem +
+            valorMontagem
         );
       }
     }, 200); // Tempo do intervalo em milissegundos
@@ -164,6 +170,7 @@ export default function BudgetDecision() {
   let foam: string = "";
   let codigoFoam: string = "";
   let codigoImpressao: string = "";
+  let codigoMontagem: string = "";
   let codigoVidro: string = "";
   let codigoColagem: string = "";
   let mdf: string = "";
@@ -181,6 +188,7 @@ export default function BudgetDecision() {
 
   let descricaoPerfil: string = "";
   let descricaoVidro: string = "";
+  let descricaoMontagem: string = "";
   let descricaoColagem: string = "";
   let descricaoImpressao: string = "";
   let descricaoPaspatur: string = "";
@@ -204,6 +212,7 @@ export default function BudgetDecision() {
     foam = localStorage.getItem("foam") || "";
     codigoFoam = localStorage.getItem("codigoFoam") || "";
     codigoImpressao = localStorage.getItem("codigoImpressao") || "";
+    codigoMontagem = localStorage.getItem("codigoMontagem") || "";
     codigoVidro = localStorage.getItem("codigoVidro") || "";
     codigoColagem = localStorage.getItem("codigoColagem") || "";
     mdf = localStorage.getItem("mdf") || "";
@@ -228,6 +237,7 @@ export default function BudgetDecision() {
     descricaoImpressao = localStorage.getItem("descricaoImpressao") || "";
     descricaoInstalacao = localStorage.getItem("descricaoInstalacao") || "";
     descricaoPaspatur = localStorage.getItem("descricaoPaspatur") || "";
+    descricaoMontagem = localStorage.getItem("descricaoMontagem") || "";
   }
 
   const [maoDeObraExtra, setMaoDeObraExtra] = useState("");
@@ -319,7 +329,7 @@ export default function BudgetDecision() {
       dataVencimento,
       observacoes,
       formaPagamento,
-
+      codigoMontagem,
       valorPerfil,
       valorColagem,
       valorFoam,
@@ -327,7 +337,7 @@ export default function BudgetDecision() {
       valorPaspatur,
       valorInstalacao,
       valorVidro,
-
+      descricaoMontagem,
       descricaoPerfil,
       descricaoColagem,
       descricaoFoam,
@@ -335,6 +345,7 @@ export default function BudgetDecision() {
       descricaoInstalacao,
       descricaoPaspatur,
       descricaoVidro,
+      valorMontagem,
     };
 
     saveBudget(newBudgetId.toString(), budgetData);
@@ -404,8 +415,10 @@ export default function BudgetDecision() {
       valorImpressao,
       valorPaspatur,
       valorInstalacao,
+      valorMontagem,
       valorVidro,
-
+      codigoMontagem,
+      descricaoMontagem,
       descricaoPerfil,
       descricaoColagem,
       descricaoFoam,
@@ -627,6 +640,20 @@ export default function BudgetDecision() {
                     </div>
 
                     <div>
+                      <p className={styles.ResName}>Montagem</p>
+                      <div className={styles.OrderResValue}>
+                        {valorMontagem && (
+                          <p className={styles.ResValue}>{valorMontagem}</p>
+                        )}
+                      </div>
+                      <div className={styles.OrderResValue}>
+                        {valorMontagem && (
+                          <p className={styles.ResValue}>{descricaoMontagem}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
                       <p className={styles.ResName}>Entrega</p>
                       <div className={styles.OrderResValue}>
                         <p className={styles.ResValue}>{tipoEntrega}</p>
@@ -840,6 +867,24 @@ export default function BudgetDecision() {
                           {budget.instalacao && (
                             <p className={styles.ResValue}>
                               {budget.descricaoInstalacao}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Montagem</p>
+                        <div className={styles.OrderResValue}>
+                          {budget.montagem && (
+                            <p className={styles.ResValue}>
+                              {budget.montagem} - {budget.valorMontagem}
+                            </p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.montagem && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoMontagem}
                             </p>
                           )}
                         </div>

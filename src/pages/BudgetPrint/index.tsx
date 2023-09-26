@@ -98,6 +98,7 @@ export default function BudgetPrint() {
     if (typeof window !== "undefined") {
       const valorPerfil = Number(localStorage.getItem("valorPerfil"));
       const valorFoam = Number(localStorage.getItem("valorFoam"));
+      const valorMontagem = Number(localStorage.getItem("valorMontagem"));
       const valorVidro = Number(localStorage.getItem("valorVidro"));
       const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
       const tamanho = localStorage.getItem("Tamanho") || "0x0";
@@ -106,6 +107,7 @@ export default function BudgetPrint() {
         valorPerfil ||
         valorFoam ||
         valorVidro ||
+        valorMontagem ||
         (valorPaspatur && tamanho !== "0x0") ||
         tamanho !== "x"
       ) {
@@ -224,6 +226,7 @@ export default function BudgetPrint() {
         const valorFoam = Number(localStorage.getItem("valorFoam"));
         const valorVidro = Number(localStorage.getItem("valorVidro"));
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
+        const valorMontagem = Number(localStorage.getItem("valorMontagem"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
         const valorColagem = Number(localStorage.getItem("valorColagem"));
         const valorInstalacao = Number(localStorage.getItem("valorInstalacao"));
@@ -234,7 +237,9 @@ export default function BudgetPrint() {
             valorFoam +
             valorVidro +
             valorImpressao +
-            valorInstalacao
+            valorInstalacao +
+            valorColagem +
+            valorMontagem
         );
       }
     }, 200); // Tempo do intervalo em milissegundos
