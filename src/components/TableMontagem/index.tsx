@@ -2,35 +2,33 @@ import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import styles from "../../styles/TableProducts.module.scss";
+import styles from "../../styles/Table.module.scss";
 
 import { deleteDoc, getDocs } from "firebase/firestore";
 import { collection, db, doc } from "../../../firebase";
-import { useMenu } from "../../components/Context/context";
+import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
 import { toast } from "react-toastify";
 
-interface Foam {
+interface Montagem {
   id: string;
 
   codigo: string;
   descricao: string;
-  margemLucro: number;
   valorMetro: number;
-  valorPerda: number;
 }
 
-export default function TableFoam({
+export default function TableMontagem({
   searchValue,
   orderValue,
   filterValue,
 }: ITableBudgets) {
-  const [filteredData, setFilteredData] = useState<Foam[]>([]);
-  const [teste, setTeste] = useState<Foam[]>([]);
+  const [filteredData, setFilteredData] = useState<Montagem[]>([]);
+  const [teste, setTeste] = useState<Montagem[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10); // I
   let userId: string | null;
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
@@ -38,19 +36,19 @@ export default function TableFoam({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Foam`);
+      const dbCollection = collection(db, `Login/${userId}/Montagem`);
+      console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();
-        const budget: Foam = {
+        const budget: Montagem = {
           id: doc.id,
 
           descricao: data.descricao,
           codigo: data.codigo,
-          margemLucro: data.margemLucro,
-          valorMetro: data.valorMetro,
-          valorPerda: data.valorPerda,
+          valorMetro: data.valor,
         };
+        console.log("Fetched data:", budget);
         return budget;
       });
 
@@ -99,12 +97,6 @@ export default function TableFoam({
         case "maiorValorMetro":
           sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
           break;
-        case "maiorValorPerda":
-          sortedData.sort((a, b) => b.valorPerda - a.valorPerda);
-          break;
-        case "maiorLucro":
-          sortedData.sort((a, b) => b.margemLucro - a.margemLucro);
-          break;
         default:
           break;
       }
@@ -113,11 +105,6 @@ export default function TableFoam({
     setFilteredData(sortedData);
   }, [orderValue, filterValue, teste]);
 
-  const totalItems = filteredData.length;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const dataToDisplay = filteredData.slice(startIndex, endIndex);
-  const currentData = teste.slice(startIndex, endIndex);
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
 
   const handlePageChange = (page: number) => {
@@ -136,16 +123,18 @@ export default function TableFoam({
       ...prevState,
       [itemId]: !prevState[itemId],
     }));
+    console.log(itemId);
   };
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Foam`, itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Montagem`, itemId));
+      console.log("Deleting item: ", itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Foam excluído com sucesso!", {
+      toast.success("Montagem excluída com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,
@@ -155,6 +144,7 @@ export default function TableFoam({
       toast.error("Ocorreu um erro ao excluir o orçamento.");
     }
   };
+  // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
 
   const { openMenu, setOpenMenu } = useMenu();
 
@@ -176,13 +166,11 @@ export default function TableFoam({
     filterData();
   }, [searchValue, teste]);
 
-  const [openFilter, setOpenFilter] = useState(false);
-
-  const combinedData = [...filteredData, ...currentData];
-
-  const uniqueData = combinedData.filter(
-    (item, index, self) => index === self.findIndex((t) => t.id === item.id)
-  );
+  const totalItems = filteredData.length;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const dataToDisplay = filteredData.slice(startIndex, endIndex);
+  const currentData = teste.slice(startIndex, endIndex);
 
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
@@ -191,9 +179,7 @@ export default function TableFoam({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>Nº Produto</th>
-            <th>Margem de Lucro</th>
-            <th>Valor do Metro</th>
-            <th>Valor da Perda</th>
+            <th>Valor</th>
             <th>Descrição</th>
           </tr>
         </thead>
@@ -229,7 +215,7 @@ export default function TableFoam({
                     <button className={styles.buttonBlack}>
                       <Link
                         href={{
-                          pathname: `/ProductFoamEdit`,
+                          pathname: `/ProductMontagemEdit`,
                           query: { id: item.id },
                         }}
                       >
@@ -259,18 +245,13 @@ export default function TableFoam({
                 <b>#{item.codigo}</b>
               </td>
               <td className={styles.td}>
-                <b>{item.margemLucro}%</b>
-              </td>
-              <td className={styles.td}>
                 <b>
                   {typeof item.valorMetro === "number"
                     ? item.valorMetro.toFixed(2)
                     : item.valorMetro}
                 </b>
               </td>
-              <td className={styles.td}>
-                <b>{item.valorPerda}%</b>
-              </td>
+
               <td className={styles.td}>
                 <b>{item.descricao}</b>
               </td>

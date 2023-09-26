@@ -55,6 +55,11 @@ export default function TableImpressao({
         console.log("Fetched data:", budget);
         return budget;
       });
+
+      budgetList.sort((a, b) =>
+        a.codigo.toUpperCase() < b.codigo.toUpperCase() ? -1 : 1
+      );
+
       setTeste(budgetList);
       setFilteredData(budgetList);
       console.log("Set data: ", budgetList);

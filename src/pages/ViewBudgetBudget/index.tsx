@@ -16,6 +16,7 @@ type BudgetType = {
   descricaoPerfil: string;
   descricaoVidro: string;
   descricaoPaspatur: string;
+  descricaoMontagem: string;
   descricaoColagem: string;
   descricaoFoam: string;
   descricaoInstalacao: string;
@@ -34,11 +35,14 @@ type BudgetType = {
   codigoImpressao: string;
   codigoFoam: string;
   codigoVidro: string;
+  codigoMontagem: string;
   codigoColagem: string;
   dimensoesPaspatur: string;
   collage: string;
   instalacao: string;
+  montagem: string;
   valorInstalacao: string;
+  valorMontagem: string;
   tipoEntrega: string;
   formaPagamento: string;
   observacao: string;
@@ -160,6 +164,7 @@ export default function ViewBudgetBudget() {
     budget: {
       descricaoInstalacao: any;
       descricaoColagem: any;
+      descricaoMontagem: any;
       descricaoPaspatur: any;
       descricaoFoam: any;
       descricaoVidro: any;
@@ -170,6 +175,7 @@ export default function ViewBudgetBudget() {
       valorImpressao: any;
       codigoPerfil: any;
       valorPerfil: any;
+      valorMontagem: any;
       codigoVidro: any;
       valorVidro: any;
       codigoFoam: any;
@@ -177,8 +183,10 @@ export default function ViewBudgetBudget() {
       codigoPaspatur: any;
       valorPaspatur: any;
       codigoColagem: any;
+      codigoMontagem: any;
       valorColagem: any;
       instalacao: any;
+      montagem: any;
       valorInstalacao: any;
       tipoEntrega: any;
       maoDeObraExtra: any;
@@ -235,6 +243,9 @@ export default function ViewBudgetBudget() {
     message += budget.instalacao
       ? `Diversos: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
       : "";
+    message += budget.montagem
+      ? `Montagem: - ${budget.descricaoMontagem} - ${budget.valorMontagem}\n`
+      : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
     message += "\n\nPagamentos e prazos\n\n";
@@ -287,6 +298,10 @@ export default function ViewBudgetBudget() {
       observacoes: any;
       valorTotal: any;
       dimensoesPaspatur: any;
+      montagem: any;
+      codigoMontagem: any;
+      valorMontagem: any;
+      descricaoMontagem: any;
     },
     index: number
   ) {
@@ -332,6 +347,11 @@ export default function ViewBudgetBudget() {
       : "";
     message += budget.instalacao
       ? `Diversos: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
+      : "";
+    message += budget.montagem
+      ? `Montagem: - ${budget.descricaoMontagem} - R$ ${parseFloat(
+          budget.valorMontagem || "0"
+        ).toFixed(2)}\n`
       : "";
     message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
 
@@ -583,6 +603,27 @@ export default function ViewBudgetBudget() {
                           {budget.instalacao && (
                             <p className={styles.ResValue}>
                               {budget.descricaoInstalacao}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Montagem</p>
+                        <div className={styles.OrderResValue}>
+                          {budget.codigoMontagem && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoMontagem} - R${" "}
+                              {parseFloat(budget.valorMontagem || "0").toFixed(
+                                2
+                              )}
+                            </p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {budget.montagem && (
+                            <p className={styles.ResValue}>
+                              {budget.descricaoMontagem}
                             </p>
                           )}
                         </div>

@@ -195,6 +195,16 @@ async function getPaspaturById(id: string, loginId: string) {
   }
 }
 
+async function getMontagemById(id: string, loginId: string) {
+  const montagemDoc = doc(db, `Login/${loginId}/Montagem`, id);
+  const montagemSnap = await getDoc(montagemDoc);
+  if (montagemSnap.exists()) {
+    return montagemSnap.data();
+  } else {
+    throw new Error(`No montagem found with id: ${id}`);
+  }
+}
+
 async function addPaspaturToLogin(paspatur: any, loginId: any) {
   try {
     await addDoc(collection(db, `Login/${loginId}/Paspatur`), paspatur);
@@ -233,6 +243,11 @@ async function updatePerfilInLogin(foam: any, id: string, loginId: string) {
   await updateDoc(foamDoc, foam);
 }
 
+async function updateMontagemInLogin(montagem: any, id: string, loginId: string) {
+  const foamDoc = doc(db, `Login/${loginId}/Montagem`, id);
+  await updateDoc(foamDoc, montagem);
+}
+
 async function getVidroById(id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Vidro`, id);
   const foamSnap = await getDoc(foamDoc);
@@ -251,6 +266,14 @@ async function addVidroToLogin(vidro: any, loginId: any) {
     console.error("Erro ao adicionar Vidro: ", e);
   }
 }
+async function addMontagemToLogin(montagem: any, loginId: any) {
+  try {
+    await addDoc(collection(db, `Login/${loginId}/Montagem`), montagem);
+    console.log("Montagem adicionado com sucesso!");
+  } catch (e) {
+    console.error("Erro ao adicionar Montagem: ", e);
+  }
+}
 
 async function updateVidroInLogin(foam: any, id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Vidro`, id);
@@ -258,9 +281,43 @@ async function updateVidroInLogin(foam: any, id: string, loginId: string) {
 }
 
 export {
-  addClientToLogin, addColagemToLogin, addDoc, addFoamToLogin,
-  addImpressaoToLogin, addInstalacaoToLogin, addPaspaturToLogin, addPerfilToLogin, addSupplierToLogin, addVidroToLogin, auth, collection, db, doc, firebase, getClientById, getColagemById, getDoc,
-  getDownloadURL, getFoamById, getImpressaoById, getInstalacaoById, getPaspaturById, getPerfilById, getSupplierById, getVidroById, query, ref, signInWithEmailAndPassword,
-  signOut, storage, updateClientInLogin, updateColagemInLogin, updateFoamInLogin, updateImpressaoInLogin, updateInstalacaoInLogin, updatePaspaturInLogin, updatePerfilInLogin, updateSupplierInLogin, updateVidroInLogin, uploadBytesResumable, where
+  addClientToLogin,
+  addColagemToLogin,
+  addDoc,
+  addFoamToLogin,
+  addImpressaoToLogin,
+  addInstalacaoToLogin, addMontagemToLogin, addPaspaturToLogin,
+  addPerfilToLogin,
+  addSupplierToLogin,
+  addVidroToLogin,
+  auth,
+  collection,
+  db,
+  doc,
+  firebase,
+  getClientById,
+  getColagemById,
+  getDoc,
+  getDownloadURL,
+  getFoamById,
+  getImpressaoById,
+  getInstalacaoById, getMontagemById, getPaspaturById,
+  getPerfilById,
+  getSupplierById,
+  getVidroById,
+  query,
+  ref,
+  signInWithEmailAndPassword,
+  signOut,
+  storage, updateClientInLogin,
+  updateColagemInLogin,
+  updateFoamInLogin,
+  updateImpressaoInLogin,
+  updateInstalacaoInLogin, updateMontagemInLogin, updatePaspaturInLogin,
+  updatePerfilInLogin,
+  updateSupplierInLogin,
+  updateVidroInLogin,
+  uploadBytesResumable,
+  where
 };
 

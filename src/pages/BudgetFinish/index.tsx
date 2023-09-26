@@ -31,11 +31,14 @@ export default function BudgetFinish() {
   let Telefone: string | null;
   let email: string | null;
   let tipoPessoa: string | null;
-  let valorTotal: string | null;
 
-  if (typeof window !== "undefined") {
-    valorTotal = localStorage.getItem("grandTotal");
-  }
+  const [valorTotal, setValorTotal] = useState<number>(0);
+  const [valorOriginal, setValorOriginal] = useState<number>(0);
+
+  // if (typeof window !== "undefined") {
+  //   const storedValue = parseFloat(localStorage.getItem("grandTotal") || "0");
+  //   valorTotal = !isNaN(storedValue) ? storedValue : 0;
+  // }
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto");
@@ -177,6 +180,7 @@ export default function BudgetFinish() {
   const [complemento, setComplemento] = useState("");
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
+  const [desconto, setDesconto] = useState(0);
 
   const handleInputChange = () => {
     const CPF = (document.getElementById("CPF") as HTMLInputElement).value;
@@ -194,7 +198,12 @@ export default function BudgetFinish() {
       .value;
     const Cidade = (document.getElementById("Cidade") as HTMLInputElement)
       .value;
+    const descontoInput = document.getElementById(
+      "Desconto"
+    ) as HTMLInputElement;
+    const Desconto = parseFloat(descontoInput.value);
 
+    setDesconto(Desconto);
     setCpf(CPF);
     setEndereco(Endereco);
     setNumero(Numero);
@@ -205,6 +214,31 @@ export default function BudgetFinish() {
     setCidade(Cidade);
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedValue = parseFloat(localStorage.getItem("grandTotal") || "0");
+      setValorOriginal(!isNaN(storedValue) ? storedValue : 0);
+    }
+  }, []);
+
+  useEffect(() => {
+    let valorComDesconto: number = valorOriginal;
+
+    if (
+      desconto !== null &&
+      !isNaN(desconto) &&
+      desconto >= 0 &&
+      desconto <= 100
+    ) {
+      valorComDesconto = valorOriginal - valorOriginal * (desconto / 100);
+    }
+
+    setValorTotal(valorComDesconto);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("grandTotal", valorComDesconto.toString());
+    }
+  }, [desconto, valorOriginal]);
   useEffect(() => {
     localStorage.setItem("cpf", cpf);
     localStorage.setItem("endereco", endereco);
@@ -366,6 +400,21 @@ export default function BudgetFinish() {
                   />
                 </div>
               </div> */}
+              <p className={styles.BudgetSubTitle}>Dados adicionais</p>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Desconto (%)</p>
+
+                  <input
+                    id="Desconto"
+                    type="number"
+                    className={styles.FieldSave}
+                    placeholder=""
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className={styles.linhaData}></div>

@@ -151,6 +151,7 @@ export default function BudgetFoam() {
       if (typeof window !== "undefined") {
         const valorPerfil = Number(localStorage.getItem("valorPerfil"));
         const valorFoam = Number(localStorage.getItem("valorFoam"));
+        const valorMontagem = Number(localStorage.getItem("valorMontagem"));
         const valorVidro = Number(localStorage.getItem("valorVidro"));
         const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
         const valorImpressao = Number(localStorage.getItem("valorImpressao"));
@@ -163,7 +164,9 @@ export default function BudgetFoam() {
             valorFoam +
             valorVidro +
             valorImpressao +
-            valorInstalacao
+            valorInstalacao +
+            valorColagem +
+            valorMontagem
         );
       }
     }, 200); // Tempo do intervalo em milissegundos

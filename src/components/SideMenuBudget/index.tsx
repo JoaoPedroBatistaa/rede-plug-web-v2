@@ -142,6 +142,18 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           </div>
         </Link>
 
+        <Link href="BudgetMontagem">
+          <div
+            className={`${styles.MenuNavigate} ${
+              activeRoute === "/BudgetMontagem" ? styles.active : ""
+            }`}
+            onClick={handleOpenMenuDiv}
+          >
+            <img src="./check.png" className={styles.Pointer}></img>
+            <p className={styles.NavigateItem}>Montagem</p>
+          </div>
+        </Link>
+
         <Link href="BudgetDecision">
           <div
             className={`${styles.MenuNavigate} ${

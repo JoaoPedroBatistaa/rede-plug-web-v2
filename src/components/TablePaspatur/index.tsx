@@ -55,6 +55,14 @@ export default function TablePaspatur({
         console.log("Fetched data:", budget);
         return budget;
       });
+
+      budgetList.sort((a, b) => {
+        const aCodigo = a.codigo ? a.codigo.toUpperCase() : "";
+        const bCodigo = b.codigo ? b.codigo.toUpperCase() : "";
+
+        return aCodigo < bCodigo ? -1 : 1;
+      });
+
       setTeste(budgetList);
       setFilteredData(budgetList);
       console.log("Set data: ", budgetList);
