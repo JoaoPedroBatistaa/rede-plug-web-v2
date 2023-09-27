@@ -28,9 +28,15 @@ export default function BudgetCollage() {
   const router = useRouter();
   const { openMenu, setOpenMenu } = useMenu();
   const [selectedOptionCollage, setSelectedOptionCollage] = useState("");
+  const [hasBudgets, setHasBudgets] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const budgets = localStorage.getItem("budgets");
+
+    if (budgets) {
+      setHasBudgets(true);
+    }
 
     if (!userId) {
       router.push("/Login");
@@ -256,6 +262,22 @@ export default function BudgetCollage() {
                 />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
+
+              {hasBudgets && (
+                <button
+                  className={styles.DesistirOrcamento}
+                  onClick={handleButtonFinish}
+                >
+                  <img
+                    src="./finishBudget.png"
+                    alt="Finalizar"
+                    className={styles.buttonImage}
+                  />
+                  <span className={styles.buttonText}>
+                    Desistir Do Orçamento
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 

@@ -26,9 +26,15 @@ interface Foam {
 
 export default function BudgetPaspatur() {
   const router = useRouter();
+  const [hasBudgets, setHasBudgets] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const budgets = localStorage.getItem("budgets");
+
+    if (budgets) {
+      setHasBudgets(true);
+    }
 
     if (!userId) {
       router.push("/Login");
@@ -80,21 +86,6 @@ export default function BudgetPaspatur() {
     fetchData();
   }, []);
 
-  //...
-
-  // const handleSelectChangeCodigoPaspatur = (
-  //   event: ChangeEvent<HTMLSelectElement>
-  // ) => {
-  //   setSelectedOptionCodigoPaspatur(event.target.value);
-  //   const selectedProduto = produtos.find(produto => produto.codigo === event.target.value);
-  //   if (selectedProduto) {
-  //     console.log(`Descrição: ${selectedProduto.descricao}`);
-  //     console.log(`Margem de Lucro: ${selectedProduto.margemLucro}`);
-  //     console.log(`Valor por Metro: ${selectedProduto.valorMetro}`);
-  //     console.log(`Valor de Perda: ${selectedProduto.valorPerda}`);
-  //     console.log(`Fabricante: ${selectedProduto.fabricante}`);
-  //   }
-  // };
   const [larguraEsquerda, setLarguraEsquerda] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("larguraEsquerda") || "";
@@ -123,33 +114,11 @@ export default function BudgetPaspatur() {
     return "";
   });
 
-  // useEffect(() => {
-  //   localStorage.setItem("paspatur", selectedOptionPaspatur);
-  //   localStorage.setItem("codigoPaspatur", selectedOptionCodigoPaspatur);
-  //   localStorage.setItem(
-  //     "dimensoesPaspatur",
-  //     `${larguraSuperior}x${larguraEsquerda}x${larguraInferior}x${larguraDireita}`
-  //   );
-  // }, [
-  //   selectedOptionPaspatur,
-  //   selectedOptionCodigoPaspatur,
-  //   larguraSuperior,
-  //   larguraEsquerda,
-  //   larguraInferior,
-  //   larguraDireita,
-  // ]);
-
   const handleSelectChangePaspatur = (
     event: ChangeEvent<HTMLSelectElement>
   ) => {
     setSelectedOptionPaspatur(event.target.value);
   };
-
-  // const handleSelectChangeCodigoPaspatur = (
-  //   event: ChangeEvent<HTMLSelectElement>
-  // ) => {
-  //   setSelectedOptionCodigoPaspatur(event.target.value);
-  // };
 
   const handleInputChangeEsquerda = (event: ChangeEvent<HTMLInputElement>) => {
     const inputElement = document.getElementById(
@@ -827,6 +796,22 @@ export default function BudgetPaspatur() {
                 />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
+
+              {hasBudgets && (
+                <button
+                  className={styles.DesistirOrcamento}
+                  onClick={handleButtonFinish}
+                >
+                  <img
+                    src="./finishBudget.png"
+                    alt="Finalizar"
+                    className={styles.buttonImage}
+                  />
+                  <span className={styles.buttonText}>
+                    Desistir Do Orçamento
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
