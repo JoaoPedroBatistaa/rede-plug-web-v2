@@ -53,7 +53,6 @@ export default function BudgetDecision() {
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
-  const [formaPagamento, setFormaPagamento] = useState("");
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
 
@@ -195,6 +194,8 @@ export default function BudgetDecision() {
   let descricaoInstalacao: string = "";
   let descricaoFoam: string = "";
 
+  valorTotal = precoTotal.toString();
+
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto") || "";
     Telefone = localStorage.getItem("Telefone") || "";
@@ -240,15 +241,8 @@ export default function BudgetDecision() {
     descricaoMontagem = localStorage.getItem("descricaoMontagem") || "";
   }
 
-  const [maoDeObraExtra, setMaoDeObraExtra] = useState("");
   const [dataVencimento, setDataVencimento] = useState("");
   const [observacoes, setObservacoes] = useState("");
-
-  // Atualizando o valor do estado e salvando no localStorage ao mudar o select
-  const handleSelectChange = (e: any) => {
-    setFormaPagamento(e.target.value);
-    localStorage.setItem("formaPagamento", e.target.value);
-  };
 
   // Criando um useEffect para monitorar a mudança dos estados
   useEffect(() => {
@@ -258,15 +252,13 @@ export default function BudgetDecision() {
       const localDataVencimento = localStorage.getItem("dataVencimento");
       const localObservacoes = localStorage.getItem("observacoes");
 
-      if (localFormaPagamento) setFormaPagamento(localFormaPagamento);
-      if (localMaoDeObraExtra) setMaoDeObraExtra(localMaoDeObraExtra);
       if (localDataVencimento) setDataVencimento(localDataVencimento);
       if (localObservacoes) setObservacoes(localObservacoes);
     }
   }, []);
 
-  const novoValorTotal = precoTotal + parseFloat(maoDeObraExtra || "0");
-  valorTotal = novoValorTotal.toString();
+  // const novoValorTotal = precoTotal + parseFloat(maoDeObraExtra || "0");
+  // valorTotal = novoValorTotal.toString();
 
   function formatDate(date: any) {
     const newDate = new Date(date);
@@ -325,10 +317,8 @@ export default function BudgetDecision() {
       espessuraPerfil,
       Tamanho,
       valorTotal,
-      maoDeObraExtra,
       dataVencimento,
       observacoes,
-      formaPagamento,
       codigoMontagem,
       valorPerfil,
       valorColagem,
@@ -404,11 +394,8 @@ export default function BudgetDecision() {
       espessuraPerfil,
       Tamanho,
       valorTotal,
-      maoDeObraExtra,
       dataVencimento,
       observacoes,
-      formaPagamento,
-
       valorPerfil,
       valorColagem,
       valorFoam,
@@ -428,10 +415,10 @@ export default function BudgetDecision() {
       descricaoVidro,
     };
 
-    if (!formaPagamento || formaPagamento === "") {
-      toast.error("Por favor, defina a forma de pagamento");
-      return; // Termina a execução da função
-    }
+    // if (!formaPagamento || formaPagamento === "") {
+    //   toast.error("Por favor, defina a forma de pagamento");
+    //   return; // Termina a execução da função
+    // }
 
     if (!dataVencimento || dataVencimento === "") {
       toast.error("Por favor, defina a data de vencimento");
@@ -664,7 +651,7 @@ export default function BudgetDecision() {
                   <div className={styles.OrderRes}>
                     <p className={styles.ResTitle}>Pagamentos e prazos</p>
 
-                    <div>
+                    {/* <div>
                       <p className={styles.ResName}>Mão de obra </p>
                       <div className={styles.OrderResValue}>
                         <p className={styles.ResValue}>{maoDeObraExtra}</p>
@@ -676,7 +663,7 @@ export default function BudgetDecision() {
                       <div className={styles.OrderResValue}>
                         <p className={styles.ResValue}>{formaPagamento}</p>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div>
                       <p className={styles.ResName}>Prazo para entrega</p>
@@ -904,7 +891,7 @@ export default function BudgetDecision() {
                       <div className={styles.OrderRes}>
                         <p className={styles.ResTitle}>Pagamentos e prazos</p>
 
-                        <div>
+                        {/* <div>
                           <p className={styles.ResName}>Mão de obra</p>
                           <div className={styles.OrderResValue}>
                             {budget.maoDeObraExtra && (
@@ -924,7 +911,7 @@ export default function BudgetDecision() {
                               </p>
                             )}
                           </div>
-                        </div>
+                        </div> */}
 
                         <div>
                           <p className={styles.ResName}>Prazo para entrega</p>
@@ -961,55 +948,6 @@ export default function BudgetDecision() {
               </div>
 
               <div className={styles.CtaOne}>
-                <div className={styles.InputContainer}>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Forma de pagamento</p>
-                    <select
-                      className={styles.SelectFieldPersonDes}
-                      value={formaPagamento}
-                      onChange={handleSelectChange}
-                    >
-                      <option value="" disabled selected>
-                        Defina a forma de pagamento
-                      </option>
-                      <option
-                        value="A VISTA"
-                        selected={formaPagamento === "A VISTA"}
-                      >
-                        A VISTA
-                      </option>
-                      <option
-                        value="A PRAZO"
-                        selected={formaPagamento === "A PRAZO"}
-                      >
-                        A PRAZO
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className={styles.InputContainer}>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Mão de obra</p>
-                    <input
-                      type="text"
-                      className={styles.FieldSaveDes}
-                      placeholder=""
-                      value={maoDeObraExtra}
-                      onKeyPress={(e) => {
-                        const char = e.key;
-                        if (!/[0-9.,]/.test(char)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      onChange={(e) => {
-                        setMaoDeObraExtra(e.target.value);
-                        localStorage.setItem("maoDeObraExtra", e.target.value);
-                      }}
-                    />
-                  </div>
-                </div>
-
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Data de entrega</p>

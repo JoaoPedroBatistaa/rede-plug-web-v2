@@ -27,6 +27,9 @@ export default function BudgetFinish() {
   const [numero, setNumero] = useState("");
   const [estado, setEstado] = useState("");
 
+  const [formaPagamento, setFormaPagamento] = useState("");
+  const [maoDeObraExtra, setMaoDeObraExtra] = useState("");
+
   let nomeCompleto: string | null;
   let Telefone: string | null;
   let email: string | null;
@@ -124,7 +127,9 @@ export default function BudgetFinish() {
           tipoPessoa,
           valorTotal,
           budgets,
-          NumeroPedido, // Aqui está o novo campo
+          NumeroPedido,
+          formaPagamento,
+          maoDeObraExtra,
         });
 
         // Incrementar o valor do campo "numero" no documento "NumeroDoOrçamento"
@@ -214,12 +219,27 @@ export default function BudgetFinish() {
     setCidade(Cidade);
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedValue = parseFloat(localStorage.getItem("grandTotal") || "0");
-      setValorOriginal(!isNaN(storedValue) ? storedValue : 0);
-    }
-  }, []);
+  const [adicional, setAdicional] = useState<string>("");
+
+  // useEffect(() => {
+  //   let valorComAdicional: number = valorOriginal;
+
+  //   const valorAdicionalNumerico = parseFloat(adicional) || 0;
+  //   valorComAdicional = valorOriginal + valorAdicionalNumerico;
+
+  //   setValorTotal(valorComAdicional);
+
+  //   if (typeof window !== "undefined") {
+  //     localStorage.setItem("grandTotal", valorComAdicional.toString());
+  //   }
+  // }, [adicional, valorOriginal]);
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const storedValue = parseFloat(localStorage.getItem("grandTotal") || "0");
+  //     setValorOriginal(!isNaN(storedValue) ? storedValue : 0);
+  //   }
+  // }, []);
 
   useEffect(() => {
     let valorComDesconto: number = valorOriginal;
@@ -412,6 +432,55 @@ export default function BudgetFinish() {
                     className={styles.FieldSave}
                     placeholder=""
                     onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Forma de pagamento</p>
+                  <select
+                    className={styles.SelectFieldPersonDes}
+                    value={formaPagamento}
+                    onChange={handleSelectChange}
+                  >
+                    <option value="" disabled selected>
+                      Defina a forma de pagamento
+                    </option>
+                    <option
+                      value="A VISTA"
+                      selected={formaPagamento === "A VISTA"}
+                    >
+                      A VISTA
+                    </option>
+                    <option
+                      value="A PRAZO"
+                      selected={formaPagamento === "A PRAZO"}
+                    >
+                      A PRAZO
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Mão de obra</p>
+                  <input
+                    type="text"
+                    className={styles.FieldSaveDes}
+                    placeholder=""
+                    value={adicional}
+                    onKeyPress={(e) => {
+                      const char = e.key;
+                      if (!/[0-9.,]/.test(char)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      setAdicional(e.target.value);
+                      localStorage.setItem("adicional", e.target.value);
+                    }}
                   />
                 </div>
               </div>
