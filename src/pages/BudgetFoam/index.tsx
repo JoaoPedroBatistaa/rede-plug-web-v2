@@ -28,6 +28,11 @@ export default function BudgetFoam() {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const budgets = localStorage.getItem("budgets");
+
+    if (budgets) {
+      setHasBudgets(true);
+    }
 
     if (!userId) {
       router.push("/Login");
