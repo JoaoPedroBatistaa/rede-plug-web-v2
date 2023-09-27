@@ -127,6 +127,15 @@ export default function BudgetSize() {
     }
   }
 
+  function handleButtonFinishSecond(event: MouseEvent<HTMLButtonElement>) {
+    if (typeof window !== "undefined") {
+      toast.success("Finalizando Orçamento!");
+      setTimeout(() => {
+        window.location.href = "/BudgetDecision";
+      }, 500);
+    }
+  }
+
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
@@ -211,7 +220,7 @@ export default function BudgetSize() {
               {hasBudgets && (
                 <button
                   className={styles.DesistirOrcamento}
-                  onClick={handleButtonFinish}
+                  onClick={handleButtonFinishSecond}
                 >
                   <img
                     src="./finishBudget.png"

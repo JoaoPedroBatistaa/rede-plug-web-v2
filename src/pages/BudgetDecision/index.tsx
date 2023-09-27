@@ -465,6 +465,8 @@ export default function BudgetDecision() {
     localStorage.setItem("grandTotal", grandTotal);
   }
 
+  console.log(precoTotal);
+
   return (
     <>
       <Head>
@@ -501,221 +503,229 @@ export default function BudgetDecision() {
 
             <div className={styles.OrderData}>
               <div className={styles.Budgets}>
-                <div className={styles.OrderAll}>
-                  <div className={styles.OrderRes}>
-                    <p className={styles.ResTitle}>ORÇAMENTO ATUAL:</p>
+                {precoTotal > 0 && (
+                  <div className={styles.OrderAll}>
+                    <div className={styles.OrderRes}>
+                      <p className={styles.ResTitle}>ORÇAMENTO ATUAL:</p>
 
-                    <div>
-                      <p className={styles.ResName}>Tamanho</p>
-                      <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{Tamanho}</p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Impressão</p>
-                      <div className={styles.OrderResValue}>
-                        {codigoImpressao && valorImpressao && (
-                          <p className={styles.ResValue}>
-                            {codigoImpressao} - R${" "}
-                            {parseFloat(valorImpressao || "0").toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-                      <div className={styles.OrderResValue}>
-                        {codigoImpressao && valorImpressao && (
-                          <p className={styles.ResValue}>
-                            {descricaoImpressao}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Perfil</p>
-                      <div className={styles.OrderResValue}>
-                        {codigoPerfil && valorPerfil && (
-                          <p className={styles.ResValue}>
-                            {codigoPerfil} - R${" "}
-                            {parseFloat(valorPerfil || "0").toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-                      <div className={styles.OrderResValue}>
-                        {codigoPerfil && valorPerfil && (
-                          <p className={styles.ResValue}>{descricaoPerfil}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Vidro</p>
-                      <div className={styles.OrderResValue}>
-                        {codigoVidro && valorVidro && (
-                          <p className={styles.ResValue}>
-                            {codigoVidro} - R${" "}
-                            {parseFloat(valorVidro || "0").toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-                      <div className={styles.OrderResValue}>
-                        {codigoVidro && valorVidro && (
-                          <p className={styles.ResValue}>{descricaoVidro}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Foam</p>
-                      <div className={styles.OrderResValue}>
-                        {codigoFoam && valorFoam && (
-                          <p className={styles.ResValue}>
-                            {codigoFoam} - R${" "}
-                            {parseFloat(valorFoam || "0").toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-                      <div className={styles.OrderResValue}>
-                        {codigoFoam && valorFoam && (
-                          <p className={styles.ResValue}>{descricaoFoam}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Paspatur</p>
                       <div>
+                        <p className={styles.ResName}>Tamanho</p>
                         <div className={styles.OrderResValue}>
-                          {codigoPaspatur && valorPaspatur && (
+                          <p className={styles.ResValue}>{Tamanho}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Impressão</p>
+                        <div className={styles.OrderResValue}>
+                          {codigoImpressao && valorImpressao && (
                             <p className={styles.ResValue}>
-                              {codigoPaspatur} - R${" "}
-                              {parseFloat(valorPaspatur || "0").toFixed(2)}
+                              {codigoImpressao} - R${" "}
+                              {parseFloat(valorImpressao || "0").toFixed(2)}
                             </p>
                           )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {codigoPaspatur && valorPaspatur && (
+                          {codigoImpressao && valorImpressao && (
                             <p className={styles.ResValue}>
-                              {descricaoPaspatur}
+                              {descricaoImpressao}
                             </p>
                           )}
                         </div>
-                        {dimensoesPaspatur && (
-                          <p className={styles.ResValue}>{dimensoesPaspatur}</p>
-                        )}
                       </div>
-                    </div>
 
-                    <div>
-                      <p className={styles.ResName}>Colagem</p>
-                      <div className={styles.OrderResValue}>
-                        {codigoColagem && valorColagem && (
-                          <p className={styles.ResValue}>
-                            {codigoColagem} - R${" "}
-                            {parseFloat(valorColagem || "0").toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-                      <div className={styles.OrderResValue}>
-                        {codigoColagem && valorColagem && (
-                          <p className={styles.ResValue}>{descricaoColagem}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Diversos</p>
-                      <div className={styles.OrderResValue}>
-                        {valorInstalacao && (
-                          <p className={styles.ResValue}>{valorInstalacao}</p>
-                        )}
-                      </div>
-                      <div className={styles.OrderResValue}>
-                        {valorInstalacao && (
-                          <p className={styles.ResValue}>
-                            {descricaoInstalacao}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Montagem</p>
-                      <div className={styles.OrderResValue}>
-                        {valorMontagem && (
-                          <p className={styles.ResValue}>{valorMontagem}</p>
-                        )}
-                      </div>
-                      <div className={styles.OrderResValue}>
-                        {valorMontagem && (
-                          <p className={styles.ResValue}>{descricaoMontagem}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Entrega</p>
-                      <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{tipoEntrega}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.OrderRes}>
-                    <p className={styles.ResTitle}>Pagamentos e prazos</p>
-
-                    <div>
-                      <p className={styles.ResName}>Mão de obra </p>
-                      <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{maoDeObraExtra}</p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Forma de pagamento</p>
-                      <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{formaPagamento}</p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className={styles.ResName}>Prazo para entrega</p>
-                      <div className={styles.OrderResValue}>
-                        {dataVencimento && (
-                          <p className={styles.ResValue}>
-                            {formatDate(dataVencimento)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className={styles.OrderNotes}>
-                      <p className={styles.ResName}>Observação</p>
-                      <div className={styles.OrderResValue}>
-                        <p className={styles.ResValue}>{observacoes}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.OrderResEdit}>
-                    <Link href="/BudgetSize">
-                      <img
-                        src="/lapis.png"
-                        className={styles.editIcon}
-                        alt=""
-                      />
-                    </Link>
-
-                    <div className={styles.totalValue}>
-                      <p className={styles.ResTitle}>Valor total</p>
                       <div>
-                        <p className={styles.ResTotal}>
-                          R$ {parseFloat(valorTotal || "0").toFixed(2)}
-                        </p>
+                        <p className={styles.ResName}>Perfil</p>
+                        <div className={styles.OrderResValue}>
+                          {codigoPerfil && valorPerfil && (
+                            <p className={styles.ResValue}>
+                              {codigoPerfil} - R${" "}
+                              {parseFloat(valorPerfil || "0").toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {codigoPerfil && valorPerfil && (
+                            <p className={styles.ResValue}>{descricaoPerfil}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Vidro</p>
+                        <div className={styles.OrderResValue}>
+                          {codigoVidro && valorVidro && (
+                            <p className={styles.ResValue}>
+                              {codigoVidro} - R${" "}
+                              {parseFloat(valorVidro || "0").toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {codigoVidro && valorVidro && (
+                            <p className={styles.ResValue}>{descricaoVidro}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Foam</p>
+                        <div className={styles.OrderResValue}>
+                          {codigoFoam && valorFoam && (
+                            <p className={styles.ResValue}>
+                              {codigoFoam} - R${" "}
+                              {parseFloat(valorFoam || "0").toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {codigoFoam && valorFoam && (
+                            <p className={styles.ResValue}>{descricaoFoam}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Paspatur</p>
+                        <div>
+                          <div className={styles.OrderResValue}>
+                            {codigoPaspatur && valorPaspatur && (
+                              <p className={styles.ResValue}>
+                                {codigoPaspatur} - R${" "}
+                                {parseFloat(valorPaspatur || "0").toFixed(2)}
+                              </p>
+                            )}
+                          </div>
+                          <div className={styles.OrderResValue}>
+                            {codigoPaspatur && valorPaspatur && (
+                              <p className={styles.ResValue}>
+                                {descricaoPaspatur}
+                              </p>
+                            )}
+                          </div>
+                          {dimensoesPaspatur && (
+                            <p className={styles.ResValue}>
+                              {dimensoesPaspatur}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Colagem</p>
+                        <div className={styles.OrderResValue}>
+                          {codigoColagem && valorColagem && (
+                            <p className={styles.ResValue}>
+                              {codigoColagem} - R${" "}
+                              {parseFloat(valorColagem || "0").toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {codigoColagem && valorColagem && (
+                            <p className={styles.ResValue}>
+                              {descricaoColagem}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Diversos</p>
+                        <div className={styles.OrderResValue}>
+                          {valorInstalacao && (
+                            <p className={styles.ResValue}>{valorInstalacao}</p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {valorInstalacao && (
+                            <p className={styles.ResValue}>
+                              {descricaoInstalacao}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Montagem</p>
+                        <div className={styles.OrderResValue}>
+                          {valorMontagem && (
+                            <p className={styles.ResValue}>{valorMontagem}</p>
+                          )}
+                        </div>
+                        <div className={styles.OrderResValue}>
+                          {valorMontagem && (
+                            <p className={styles.ResValue}>
+                              {descricaoMontagem}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Entrega</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{tipoEntrega}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.OrderRes}>
+                      <p className={styles.ResTitle}>Pagamentos e prazos</p>
+
+                      <div>
+                        <p className={styles.ResName}>Mão de obra </p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{maoDeObraExtra}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Forma de pagamento</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{formaPagamento}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className={styles.ResName}>Prazo para entrega</p>
+                        <div className={styles.OrderResValue}>
+                          {dataVencimento && (
+                            <p className={styles.ResValue}>
+                              {formatDate(dataVencimento)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.OrderNotes}>
+                        <p className={styles.ResName}>Observação</p>
+                        <div className={styles.OrderResValue}>
+                          <p className={styles.ResValue}>{observacoes}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.OrderResEdit}>
+                      <Link href="/BudgetSize">
+                        <img
+                          src="/lapis.png"
+                          className={styles.editIcon}
+                          alt=""
+                        />
+                      </Link>
+
+                      <div className={styles.totalValue}>
+                        <p className={styles.ResTitle}>Valor total</p>
+                        <div>
+                          <p className={styles.ResTotal}>
+                            R$ {parseFloat(valorTotal || "0").toFixed(2)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {savedBudgets.map((budget, index) => (
                   <div key={index} className={styles.OrderAll}>

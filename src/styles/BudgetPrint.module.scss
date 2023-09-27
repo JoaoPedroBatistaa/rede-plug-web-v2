@@ -190,13 +190,7 @@
   }
 
   @media (max-width: 768px) {
-    .buttonImage {
-      display: block; // Mostra a imagem em telas pequenas
-    }
-
-    .buttonText {
-      display: none; // Esconde o texto em telas pequenas
-    }
+    display: none;
   }
 }
 
