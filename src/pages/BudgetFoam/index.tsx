@@ -24,6 +24,7 @@ interface Foam {
 
 export default function BudgetFoam() {
   const router = useRouter();
+  const [hasBudgets, setHasBudgets] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -174,8 +175,6 @@ export default function BudgetFoam() {
     return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
   }, []);
 
-  // const precoAnterior = JSON.parse(localStorage.getItem("preco") || "0");
-
   const handleSelectChangeFoam = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOptionFoam(event.target.value);
   };
@@ -186,15 +185,6 @@ export default function BudgetFoam() {
     setSelectedOptionCodigoFoam(event.target.value);
   };
 
-  // const handleSelectChangeMdf = (event: ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedOptionMdf(event.target.value);
-  // };
-
-  // const handleSelectChangeCodigoMdf = (
-  //   event: ChangeEvent<HTMLSelectElement>
-  // ) => {
-  //   setSelectedOptionCodigoMdf(event.target.value);
-  // };
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
     if (typeof window !== "undefined") {
       const valorPerfil = Number(localStorage.getItem("valorPerfil"));
@@ -282,6 +272,22 @@ export default function BudgetFoam() {
                 />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
+
+              {hasBudgets && (
+                <button
+                  className={styles.DesistirOrcamento}
+                  onClick={handleButtonFinish}
+                >
+                  <img
+                    src="./finishBudget.png"
+                    alt="Finalizar"
+                    className={styles.buttonImage}
+                  />
+                  <span className={styles.buttonText}>
+                    Desistir Do Orçamento
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -290,27 +296,6 @@ export default function BudgetFoam() {
           </p>
 
           <div className={styles.InputContainer}>
-            {/* <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Foam</p>
-              <select
-                id="Foam"
-                className={styles.SelectField}
-                value={selectedOptionFoam}
-                onChange={handleSelectChangeFoam}
-              >
-                <option value="" disabled selected>
-                  Inclui Foam?
-                </option>
-                <option value="SIM" selected={selectedOptionFoam === "SIM"}>
-                  SIM
-                </option>
-                <option value="NÃO" selected={selectedOptionFoam === "NÃO"}>
-                  NÃO
-                </option>
-              </select>
-            </div> */}
-
-            {/* {selectedOptionFoam === "SIM" && ( */}
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
               <select
@@ -340,56 +325,7 @@ export default function BudgetFoam() {
                 Remover
               </button>
             </div>
-            {/* )} */}
           </div>
-
-          {/* <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>MDF</p>
-              <select
-                id="mdf"
-                className={styles.SelectField}
-                value={selectedOptionMdf}
-                onChange={handleSelectChangeMdf}
-              >
-                <option value="SIM" selected={selectedOptionMdf === "SIM"}>
-                  SIM
-                </option>
-                <option value="NÃO" selected={selectedOptionMdf === "NÃO"}>
-                  NÃO
-                </option>
-              </select>
-            </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espessura do MDF</p>
-              <select
-                id="codigoMdf"
-                className={styles.SelectField}
-                value={selectedOptionCodigoMdf}
-                onChange={handleSelectChangeCodigoMdf}
-              >
-                <option
-                  value="55020"
-                  selected={selectedOptionCodigoMdf === "55020"}
-                >
-                  55020
-                </option>
-                <option
-                  value="55021"
-                  selected={selectedOptionCodigoMdf === "55021"}
-                >
-                  55021
-                </option>
-                <option
-                  value="55025"
-                  selected={selectedOptionCodigoMdf === "55025"}
-                >
-                  55025
-                </option>
-              </select>
-            </div>
-          </div> */}
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

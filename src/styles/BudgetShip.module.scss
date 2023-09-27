@@ -15,10 +15,10 @@
 }
 
 .removeProduct {
-  background-color: #7C0000;
+  background-color: #7c0000;
   color: #fff;
   border: none;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
 
@@ -35,8 +35,7 @@
 
 .ValueLabel {
   color: #000000;
-  font-family: 'Outfit', sans-serif;
-
+  font-family: "Outfit", sans-serif;
 }
 
 .BudgetHead {
@@ -151,6 +150,38 @@
   font-size: 16px;
   font-weight: 400;
   color: #404049;
+}
+
+.DesistirOrcamento {
+  width: 15em;
+  height: 2.7rem;
+  border-radius: 5px;
+  background-color: #7c0000;
+  border: none;
+  cursor: pointer;
+
+  .buttonImage {
+    display: none;
+    padding-left: 0.9rem; // Esconde a imagem por padrão
+  }
+
+  .buttonText {
+    display: block; // Mostra o texto por padrão
+    color: #fff;
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: medium;
+  }
+
+  @media (max-width: 768px) {
+    .buttonImage {
+      display: block; // Mostra a imagem em telas pequenas
+    }
+
+    .buttonText {
+      display: none; // Esconde o texto em telas pequenas
+    }
+  }
 }
 
 .FieldSmall {
@@ -278,7 +309,6 @@
   .ValueLabel {
     font-size: 12px;
     color: #000000;
-
   }
 
   .Value {
@@ -303,8 +333,6 @@
   .Container {
     height: 1000px;
   }
-
-
 
   .InputContainer {
     flex-direction: column;

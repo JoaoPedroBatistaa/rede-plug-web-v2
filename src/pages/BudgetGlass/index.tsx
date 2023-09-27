@@ -26,9 +26,15 @@ interface Foam {
 
 export default function BudgetGlass() {
   const router = useRouter();
+  const [hasBudgets, setHasBudgets] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const budgets = localStorage.getItem("budgets");
+
+    if (budgets) {
+      setHasBudgets(true);
+    }
 
     if (!userId) {
       router.push("/Login");
@@ -37,23 +43,10 @@ export default function BudgetGlass() {
 
   const { openMenu, setOpenMenu } = useMenu();
   const [selectedOptionVidro, setSelectedOptionVidro] = useState("");
-  // const [selectedOptionEspessuraVidro, setSelectedOptionEspessuraVidro] =
-  //   useState("opcao1");
-  // const [selectedOptionEspelho, setSelectedOptionEspelho] = useState("opcao1");
-  // const [selectedOptionEspessuraEspelho, setSelectedOptionEspessuraEspelho] =
-  //   useState("opcao1");
 
   useEffect(() => {
     localStorage.setItem("vidro", selectedOptionVidro);
-    // localStorage.setItem("espessuraVidro", selectedOptionEspessuraVidro);
-    // localStorage.setItem("espelho", selectedOptionEspelho);
-    // localStorage.setItem("espessuraEspelho", selectedOptionEspessuraEspelho);
-  }, [
-    selectedOptionVidro,
-    // selectedOptionEspessuraVidro,
-    // selectedOptionEspelho,
-    // selectedOptionEspessuraEspelho,
-  ]);
+  }, [selectedOptionVidro]);
 
   const [vidro, setVidro] = useState("");
 
@@ -63,22 +56,6 @@ export default function BudgetGlass() {
 
     console.log(selectedOptionVidro);
   };
-
-  // const handleSelectChangeEspessuraVidro = (
-  //   event: ChangeEvent<HTMLSelectElement>
-  // ) => {
-  //   setSelectedOptionEspessuraVidro(event.target.value);
-  // };
-
-  // const handleSelectChangeEspelho = (event: ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedOptionEspelho(event.target.value);
-  // };
-
-  // const handleSelectChangeEspessuraEspelho = (
-  //   event: ChangeEvent<HTMLSelectElement>
-  // ) => {
-  //   setSelectedOptionEspessuraEspelho(event.target.value);
-  // };
 
   function handleButtonFinish(event: MouseEvent<HTMLButtonElement>) {
     if (typeof window !== "undefined") {
@@ -164,25 +141,7 @@ export default function BudgetGlass() {
     localStorage.setItem("codigoVidro", event.target.value);
   };
 
-  // const [valorFoam, setValorFoam] = useState(0);
-  // const [valorPerfil, setValorPerfil] = useState(0);
-
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const valorPerfil = Number(localStorage.getItem("valorPerfil"));
-  //     const valorFoam = Number(localStorage.getItem("valorFoam"));
-  //     const valorVidro = Number(localStorage.getItem("valorVidro"));
-  //     const valorPaspatur = Number(localStorage.getItem("valorPaspatur"));
-
-  //     setValorFoam(valorFoam);
-  //     setValorPerfil(valorPerfil);
-
-  //     setPrecoTotal(valorPerfil + valorFoam + valorVidro)
-  //   }
-  // }, []);
-
   useEffect(() => {
-    // if (selectedOption && selectedOptionVidro === "SIM") {
     const selectedProduto = produtos.find(
       (produto) => produto.codigo === selectedOption
     );
@@ -229,7 +188,6 @@ export default function BudgetGlass() {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      // Salve o ID do intervalo para limpar mais tarde
       if (typeof window !== "undefined") {
         const valorPerfil = Number(localStorage.getItem("valorPerfil"));
         const valorFoam = Number(localStorage.getItem("valorFoam"));
@@ -251,13 +209,12 @@ export default function BudgetGlass() {
             valorMontagem
         );
       }
-    }, 200); // Tempo do intervalo em milissegundos
+    }, 200);
 
-    return () => clearInterval(intervalId); // Limpe o intervalo quando o componente for desmontado
+    return () => clearInterval(intervalId);
   }, []);
 
   function handleRemoveProduct() {
-    // Limpa os valores do localStorage
     localStorage.removeItem("valorVidro");
     localStorage.removeItem("metroVidro");
     localStorage.removeItem("perdaVidro");
@@ -265,7 +222,6 @@ export default function BudgetGlass() {
     localStorage.removeItem("descricaoVidro");
     localStorage.removeItem("codigoVidro");
 
-    // Chama setPreco(0)
     setPreco(0);
     setSelectedOption("");
   }
@@ -311,6 +267,22 @@ export default function BudgetGlass() {
                 />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
+
+              {hasBudgets && (
+                <button
+                  className={styles.DesistirOrcamento}
+                  onClick={handleButtonFinish}
+                >
+                  <img
+                    src="./finishBudget.png"
+                    alt="Finalizar"
+                    className={styles.buttonImage}
+                  />
+                  <span className={styles.buttonText}>
+                    Desistir Do Orçamento
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -319,26 +291,6 @@ export default function BudgetGlass() {
           </p>
 
           <div className={styles.InputContainer}>
-            {/* <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Vidro</p>
-              <select
-                id="vidro"
-                className={styles.SelectField}
-                value={selectedOptionVidro}
-                onChange={handleSelectChangeVidro}
-              >
-                <option value="" disabled selected>
-                  Inclui vidro?
-                </option>
-                <option value="SIM" selected={selectedOptionVidro === "SIM"}>
-                  SIM
-                </option>
-                <option value="NÃO" selected={selectedOptionVidro === "NÃO"}>
-                  NÃO
-                </option>
-              </select>
-            </div> */}
-
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Espessura do Vidro</p>
               <select
@@ -369,56 +321,6 @@ export default function BudgetGlass() {
               </button>
             </div>
           </div>
-
-          {/* <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espelho</p>
-              <select
-                id="espelho"
-                className={styles.SelectField}
-                value={selectedOptionEspelho}
-                onChange={handleSelectChangeEspelho}
-              >
-                <option value="SIM" selected={selectedOptionEspelho === "SIM"}>
-                  SIM
-                </option>
-                <option value="NÃO" selected={selectedOptionEspelho === "NÃO"}>
-                  NÃO
-                </option>
-              </select>
-            </div>
-
-            {selectedOptionEspelho === "SIM" && (
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Espessura do Espelho</p>
-              <select
-                id="espessuraEspelho"
-                className={styles.SelectField}
-                value={selectedOptionEspessuraEspelho}
-                onChange={handleSelectChangeEspessuraEspelho}
-              >
-                <option
-                  value="2MM"
-                  selected={selectedOptionEspessuraEspelho === "2MM"}
-                >
-                  2MM
-                </option>
-                <option
-                  value="4MM"
-                  selected={selectedOptionEspessuraEspelho === "4MM"}
-                >
-                  4MM
-                </option>
-                <option
-                  value="6MM"
-                  selected={selectedOptionEspessuraEspelho === "6MM"}
-                >
-                  6MM
-                </option>
-              </select>
-            </div>
-            )}
-          </div> */}
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

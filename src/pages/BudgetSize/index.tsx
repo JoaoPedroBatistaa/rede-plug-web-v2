@@ -10,10 +10,16 @@ import "react-toastify/dist/ReactToastify.css";
 import { useMenu } from "../../components/Context/context";
 
 export default function BudgetSize() {
+  const [hasBudgets, setHasBudgets] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const budgets = localStorage.getItem("budgets");
+
+    if (budgets) {
+      setHasBudgets(true);
+    }
 
     if (!userId) {
       router.push("/Login");
@@ -202,6 +208,21 @@ export default function BudgetSize() {
                 />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
+              {hasBudgets && (
+                <button
+                  className={styles.DesistirOrcamento}
+                  onClick={handleButtonFinish}
+                >
+                  <img
+                    src="./finishBudget.png"
+                    alt="Finalizar"
+                    className={styles.buttonImage}
+                  />
+                  <span className={styles.buttonText}>
+                    Desistir Do Orçamento
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 

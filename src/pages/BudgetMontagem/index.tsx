@@ -22,9 +22,15 @@ interface Montagem {
 
 export default function BudgetMontagem() {
   const router = useRouter();
+  const [hasBudgets, setHasBudgets] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    const budgets = localStorage.getItem("budgets");
+
+    if (budgets) {
+      setHasBudgets(true);
+    }
 
     if (!userId) {
       router.push("/Login");
@@ -275,38 +281,28 @@ export default function BudgetMontagem() {
                 />
                 <span className={styles.buttonText}>Finalizar Orçamento</span>
               </button>
+
+              {hasBudgets && (
+                <button
+                  className={styles.DesistirOrcamento}
+                  onClick={handleButtonFinish}
+                >
+                  <img
+                    src="./finishBudget.png"
+                    alt="Finalizar"
+                    className={styles.buttonImage}
+                  />
+                  <span className={styles.buttonText}>
+                    Desistir Do Orçamento
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
           <p className={styles.Notes}>
             Informe abaixo se o pedido necessita de Montagem ou frete
           </p>
-
-          {/* <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Necessita de Diversos? *</p>
-              <select
-                id="instalacao"
-                className={styles.SelectField}
-                value={selectedOptionInstall}
-                onChange={handleSelectChangeInstall}
-              >
-                <option value="SIM" selected={selectedOptionInstall === "SIM"}>
-                  SIM
-                </option>
-                <option value="NÃO" selected={selectedOptionInstall === "NÃO"}>
-                  NÃO
-                </option>
-              </select>
-            </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Valor da Diversos</p>
-              <p id="valorInstalacao" className={styles.FixedValue}>
-                R$245,30
-              </p>
-            </div>
-          </div> */}
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
@@ -338,13 +334,6 @@ export default function BudgetMontagem() {
                 Remover
               </button>
             </div>
-            {/*
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Valor da entrega</p>
-              <p id="valorEntrega" className={styles.FixedValue}>
-                R$245,30
-              </p>
-            </div> */}
           </div>
 
           <div className={styles.Copyright}>
