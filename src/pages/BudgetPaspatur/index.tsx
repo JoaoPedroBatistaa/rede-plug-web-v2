@@ -62,7 +62,10 @@ export default function BudgetPaspatur() {
   // Fetch produtos do banco de dados
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Paspatur`);
+      const dbCollection = collection(
+        db,
+        `Login/lB2pGqkarGyq98VhMGM6/Paspatur`
+      );
       console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {

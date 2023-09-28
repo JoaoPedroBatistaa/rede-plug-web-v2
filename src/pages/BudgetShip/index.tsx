@@ -62,7 +62,10 @@ export default function BudgetShip() {
   const [produtos, setProdutos] = useState<Foam[]>([]);
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Instalacao`);
+      const dbCollection = collection(
+        db,
+        `Login/lB2pGqkarGyq98VhMGM6/Instalacao`
+      );
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();

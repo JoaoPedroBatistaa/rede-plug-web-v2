@@ -11,6 +11,7 @@ interface Login {
   Login: string;
 
   Senha: string;
+  Tipo: string;
 }
 
 export default function Login() {
@@ -31,6 +32,7 @@ export default function Login() {
           id: doc.id,
           Login: data.Login,
           Senha: data.Senha,
+          Tipo: data.Tipo,
         };
         return login;
       });
@@ -52,6 +54,7 @@ export default function Login() {
     if (user) {
       setUserId(user.id);
       localStorage.setItem("userId", user.id);
+      localStorage.setItem("typeUser", user.Tipo);
       router.push("/Home");
     } else {
       setError("Email ou senha incorretos");

@@ -1,19 +1,16 @@
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/Table.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { GetServerSidePropsContext } from "next";
-import { getDocs } from "firebase/firestore";
-import { ITableBudgets } from "./type";
-import { deleteDoc } from "firebase/firestore";
+import { deleteDoc, getDocs } from "firebase/firestore";
+import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
+import { ITableBudgets } from "./type";
 
-import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 interface Order {
   id: string;
@@ -41,13 +38,17 @@ export default function Table({
 
   const router = useRouter();
 
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, "Orders");
+      const dbCollection = collection(db, `Login/${userId}/Orders`);
       const orderSnapshot = await getDocs(dbCollection);
       const orderList = orderSnapshot.docs
-        .filter((doc) => doc.id !== "NumeroDoPedido")  // Adicione esta linha
+        .filter((doc) => doc.id !== "NumeroDoPedido") // Adicione esta linha
         .map((doc) => {
           const data = doc.data();
           const order: Order = {
@@ -68,8 +69,6 @@ export default function Table({
     };
     fetchData();
   }, []);
-
-
 
   useEffect(() => {
     const filterData = () => {
@@ -195,7 +194,10 @@ export default function Table({
     console.log(itemId);
   };
 
-  const handleDeleteItem = async (itemId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDeleteItem = async (
+    itemId: string,
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.stopPropagation();
 
     try {
@@ -214,7 +216,6 @@ export default function Table({
       router.push("/Requests");
     } catch (error) {
       toast.error("Ocorreu um erro ao excluir o orçamento.");
-
     }
   };
   // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
@@ -259,16 +260,16 @@ export default function Table({
               key={item.id}
               onClick={() => {
                 localStorage.setItem("selectedId", item.id);
-                router.push('/ViewOrderData');
-
+                router.push("/ViewOrderData");
               }}
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
-                    }`}
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
                 >
                   <div
                     className={styles.containerX}
@@ -352,7 +353,7 @@ export default function Table({
                 <span className={styles.diasUteis}>{item.nomeCompleto}</span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
-                R$ {parseFloat(item.valorTotal || '0').toFixed(2)}
+                R$ {parseFloat(item.valorTotal || "0").toFixed(2)}
                 <br />
                 <span className={styles.diasUteis}></span>
               </td>
@@ -360,7 +361,6 @@ export default function Table({
               <td>
                 <img
                   src="./nota.png"
-
                   className={styles.iconNota}
                   onClick={(event) => handleClickImg(event, item.id)}
                 />
@@ -415,10 +415,11 @@ export default function Table({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
-                  }`}
+                className={`${
+                  pageNumber === currentPage
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

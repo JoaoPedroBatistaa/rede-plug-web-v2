@@ -289,7 +289,7 @@ export default function Products() {
                       Codigo decrescente
                     </label>
                   </div>
-                  <div className={styles.filterItem}>
+                  {/* <div className={styles.filterItem}>
                     <input
                       type="radio"
                       id="maiorLucro"
@@ -325,7 +325,7 @@ export default function Products() {
                     <label htmlFor="maiorValorPerda">
                       Maior Valor da Perda
                     </label>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className={styles.MarginTop}></div>

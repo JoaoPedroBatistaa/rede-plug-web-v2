@@ -87,6 +87,9 @@ export default function Supplier() {
     setFilterValue(event.target.value);
   };
 
+  const typeUser =
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+
   return (
     <>
       <Head>
@@ -139,15 +142,17 @@ export default function Supplier() {
                 </div>
 
                 <div className={styles.ListMenuRight}>
-                  <Link href="/AddSupplier">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Fornecedor
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/AddSupplier">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Fornecedor
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -183,7 +188,7 @@ export default function Supplier() {
                       Codigo decrescente
                     </label>
                   </div>
-                  <div className={styles.filterItem}>
+                  {/* <div className={styles.filterItem}>
                     <input
                       type="radio"
                       id="maiorLucro"
@@ -219,7 +224,7 @@ export default function Supplier() {
                     <label htmlFor="maiorValorPerda">
                       Maior Valor da Perda
                     </label>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className={styles.MarginTop}></div>

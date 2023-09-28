@@ -2,14 +2,15 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import styles from "../../styles/Requests.module.scss";
 
-import HeaderRequests from "@/components/HeaderRequests";
-import SearchInputList from "@/components/InputSearchList";
+import HeaderProducts from "@/components/HeaderUsers";
+import SearchInputListProducts from "@/components/InputSearchListUsers";
 import SideMenuHome from "@/components/SideMenuHome";
-import Table from "@/components/Table";
+import TableSupplier from "@/components/TableUsers";
 import Link from "next/link";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function Requests() {
+export default function Users() {
   const router = useRouter();
 
   useEffect(() => {
@@ -22,26 +23,57 @@ export default function Requests() {
 
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
+  const [filterStates, setFilterStates] = useState({
+    foam: false,
+    impressao: false,
+    paspatur: false,
+    perfil: false,
+    vidro: false,
+  });
+
+  const toggleFilter = (key: keyof typeof filterStates) => {
+    setFilterStates((prevState) => ({
+      ...prevState,
+      [key]: !prevState[key],
+    }));
+  };
+
   const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchValue, setSearchValue] = useState("");
+  const [searchValue1, setSearchValue1] = useState("");
+  const [searchValue2, setSearchValue2] = useState("");
+  const [searchValue3, setSearchValue3] = useState("");
+  const [searchValue4, setSearchValue4] = useState("");
 
   const [valueRadio, setValueRadio] = useState("");
 
   const [orderValue, setOrderValue] = useState<string>("");
   const [filterValue, setFilterValue] = useState<string>("");
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  };
-  console.log(searchValue);
+  const [increaseValue, setIncreaseValue] = useState<string>("");
 
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
-  };
   const handleOpenFilter = () => {
     setOpenFilter(!openFilter);
   };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
+  const handleSearchChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue1(e.target.value);
+  };
+  const handleSearchChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue2(e.target.value);
+  };
+  const handleSearchChange3 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue3(e.target.value);
+  };
+  const handleSearchChange4 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue4(e.target.value);
+  };
+
+  console.log(searchValue);
 
   const handleOrderValueChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -53,16 +85,6 @@ export default function Requests() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setFilterValue(event.target.value);
-  };
-
-  const limparLocalStorage = () => {
-    const itensParaManter = ["userId", "ally-supports-cache", "typeUser"];
-    const todasAsChaves = Object.keys(localStorage);
-    todasAsChaves.forEach((chave) => {
-      if (!itensParaManter.includes(chave)) {
-        localStorage.removeItem(chave);
-      }
-    });
   };
 
   return (
@@ -81,31 +103,47 @@ export default function Requests() {
         ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
-          <HeaderRequests></HeaderRequests>
+          <HeaderProducts></HeaderProducts>
           <div className={styles.MainContainer}>
-            <div className={styles.ListContainer}>
+            <div className={styles.ListContainer} id="foam">
+              <div className={styles.topMenuMobile}>
+                <p className={styles.ProductNameMobile}>Usuários</p>
+
+                <div className={styles.porcentContainerMobile}>
+                  <div>
+                    <input
+                      type="text"
+                      className={styles.InputEdit}
+                      placeholder="Aumento em %"
+                    />
+                  </div>
+                  <button className={styles.AumentoPorcent}>
+                    <span className={styles.maisNoneMobile}> +</span>
+                    <span className={styles.maisNone}> +</span>
+                  </button>
+                </div>
+              </div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
+                  <p className={styles.ProductName}>Usuários</p>
                   <div
                     className={styles.ListMenuFilter}
-                    onClick={handleOpenFilter}
+                    onClick={() => toggleFilter("foam")}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
                   </div>
-                  <SearchInputList
+                  <SearchInputListProducts
                     handleSearchChange={(e) => handleSearchChange(e)}
-                  ></SearchInputList>
+                  ></SearchInputListProducts>
                 </div>
+
                 <div className={styles.ListMenuRight}>
-                  <Link href="/BudgetSize">
-                    <button
-                      className={styles.ListMenuButton}
-                      onClick={limparLocalStorage}
-                    >
+                  <Link href="/AddUser">
+                    <button className={styles.ListMenuButton}>
                       <span className={styles.maisNoneMobile}>
                         {" "}
-                        Novo Pedido
+                        Novo Usuário
                       </span>
                       <span className={styles.maisNone}> +</span>
                     </button>
@@ -114,7 +152,7 @@ export default function Requests() {
               </div>
               <div
                 className={`${
-                  openFilter
+                  filterStates.foam
                     ? styles.containerFilter
                     : styles.containerFilterClose
                 }`}
@@ -124,98 +162,69 @@ export default function Requests() {
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeCrescente"
+                      id="codigoCrescente"
                       name="ordenarPor"
-                      value="nomeCrescente"
+                      value="codigoCrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeCrescente">Nome crescente</label>
+                    <label htmlFor="codigoCrescente">Codigo crescente</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="nomeDecrescente"
+                      id="codigoDescrescente"
                       name="ordenarPor"
-                      value="nomeDecrescente"
+                      value="codigoDescrescente"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="nomeDecrescente">Nome decrescente</label>
+                    <label htmlFor="codigoDescrescente">
+                      Codigo decrescente
+                    </label>
                   </div>
-                  <div className={styles.filterItem}>
+                  {/* <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="maiorValor"
+                      id="maiorLucro"
                       name="ordenarPor"
-                      value="maiorValor"
+                      value="maiorLucro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="maiorValor">Maior Valor</label>
+                    <label htmlFor="maiorLucro">Maior % Lucro</label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataCadastro"
+                      id="maiorValorMetro"
                       name="ordenarPor"
-                      value="dataCadastro"
+                      value="maiorValorMetro"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataCadastro">Data de cadastro</label>
+                    <label htmlFor="maiorValorMetro">
+                      Maior Valor por Metro
+                    </label>
                   </div>
                   <div className={styles.filterItem}>
                     <input
                       type="radio"
-                      id="dataVencimento"
+                      id="maiorValorPerda"
                       name="ordenarPor"
-                      value="dataVencimento"
+                      value="maiorValorPerda"
                       onChange={handleOrderValueChange}
                       className={styles.filterItem}
                     />
-                    <label htmlFor="dataVencimento">Data de vencimento</label>
-                  </div>
-                  <span className={styles.sublinado}></span>
-                  <h2>SITUAÇÃO</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="todos"
-                      name="situacao"
-                      value="todos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="todos">Todos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="ativos"
-                      name="situacao"
-                      value="ativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="ativos">Ativos</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="inativos"
-                      name="situacao"
-                      value="inativos"
-                      onChange={handleFilterValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="inativos">Inativos</label>
-                  </div>
+                    <label htmlFor="maiorValorPerda">
+                      Maior Valor da Perda
+                    </label>
+                  </div> */}
                 </div>
               </div>
               <div className={styles.MarginTop}></div>
               {/* <GridComponent/> */}
-              <Table
+              <TableSupplier
                 searchValue={searchValue}
                 orderValue={orderValue}
                 filterValue={filterValue}

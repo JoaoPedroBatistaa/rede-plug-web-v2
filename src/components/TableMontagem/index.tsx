@@ -36,7 +36,10 @@ export default function TableMontagem({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Montagem`);
+      const dbCollection = collection(
+        db,
+        `Login/lB2pGqkarGyq98VhMGM6/Montagem`
+      );
       console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
@@ -128,7 +131,7 @@ export default function TableMontagem({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Montagem`, itemId));
+      await deleteDoc(doc(db, `Login/lB2pGqkarGyq98VhMGM6/Montagem`, itemId));
       console.log("Deleting item: ", itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
@@ -172,6 +175,9 @@ export default function TableMontagem({
   const dataToDisplay = filteredData.slice(startIndex, endIndex);
   const currentData = teste.slice(startIndex, endIndex);
 
+  const typeUser =
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -212,22 +218,26 @@ export default function TableMontagem({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
-                    <button className={styles.buttonBlack}>
-                      <Link
-                        href={{
-                          pathname: `/ProductMontagemEdit`,
-                          query: { id: item.id },
-                        }}
-                      >
-                        Editar
-                      </Link>
-                    </button>
-                    <button
-                      className={styles.buttonRed}
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      Deletar
-                    </button>
+                    {typeUser === "admin" && (
+                      <>
+                        <button className={styles.buttonBlack}>
+                          <Link
+                            href={{
+                              pathname: `/ProductFoamEdit`,
+                              query: { id: item.id },
+                            }}
+                          >
+                            Editar
+                          </Link>
+                        </button>
+                        <button
+                          className={styles.buttonRed}
+                          onClick={() => handleDeleteItem(item.id)}
+                        >
+                          Deletar
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </td>

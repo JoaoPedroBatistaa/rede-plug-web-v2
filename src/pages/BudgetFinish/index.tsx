@@ -4,7 +4,7 @@ import styles from "../../styles/BudgetFinish.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import MaskedInput from "react-input-mask";
@@ -63,6 +63,11 @@ export default function BudgetFinish() {
     }
   }, []);
 
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
+
   const handleSaveOrder = async () => {
     if (!nomeCompleto) {
       toast.error("Por favor, preencha o campo Nome Completo.");
@@ -100,52 +105,56 @@ export default function BudgetFinish() {
     }
 
     try {
-      // Recuperar o documento "NumeroDoOrçamento" na coleção "Budgets"
-      const numeroDoOrcamentoRef = doc(db, "Orders", "NumeroDoPedido");
-      const numeroDoOrcamentoSnap = await getDoc(numeroDoOrcamentoRef);
+      const numeroDoPedidoRef = doc(
+        db,
+        `Login/${userId}/Orders`,
+        "NumeroDoPedido"
+      );
+      const numeroDoPedidoSnap = await getDoc(numeroDoPedidoRef);
 
-      if (numeroDoOrcamentoSnap.exists()) {
-        // Recuperar o valor atual do campo "numero"
-        const numeroAtual = numeroDoOrcamentoSnap.data().numero;
+      let NumeroPedido;
 
-        // Incrementar o valor atual para obter o "NumeroPedido" para o novo orçamento
-        const NumeroPedido = Number(numeroAtual) + 1;
-
-        // Adicionar o novo orçamento
-        await addDoc(collection(db, "Orders"), {
-          nomeCompleto,
-          Telefone,
-          email,
-          dataCadastro,
-          Entrega,
-          cpf,
-          endereco,
-          cidade,
-          bairro,
-          cep,
-          complemento,
-          tipoPessoa,
-          valorTotal,
-          budgets,
-          NumeroPedido,
-          formaPagamento,
-          maoDeObraExtra,
+      if (!numeroDoPedidoSnap.exists()) {
+        await setDoc(numeroDoPedidoRef, {
+          numero: 0,
         });
-
-        // Incrementar o valor do campo "numero" no documento "NumeroDoOrçamento"
-        await updateDoc(numeroDoOrcamentoRef, {
-          numero: NumeroPedido,
-        });
-
-        toast.success("Pedido enviado!");
-        setTimeout(() => {
-          window.location.href = "/Home";
-        }, 500);
+        NumeroPedido = 1;
       } else {
-        console.error(
-          "Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'"
-        );
+        const numeroAtual = numeroDoPedidoSnap.data().numero;
+
+        NumeroPedido = Number(numeroAtual) + 1;
       }
+
+      // Adicionar o novo pedido
+      await addDoc(collection(db, `Login/${userId}/Orders`), {
+        nomeCompleto,
+        Telefone,
+        email,
+        dataCadastro,
+        Entrega,
+        cpf,
+        endereco,
+        cidade,
+        bairro,
+        cep,
+        complemento,
+        tipoPessoa,
+        valorTotal,
+        budgets,
+        NumeroPedido,
+        formaPagamento,
+        maoDeObraExtra,
+      });
+
+      await updateDoc(numeroDoPedidoRef, {
+        numero: NumeroPedido,
+      });
+
+      toast.success("Pedido enviado!");
+
+      setTimeout(() => {
+        window.location.href = "/Home";
+      }, 500);
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }

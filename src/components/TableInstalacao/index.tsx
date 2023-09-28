@@ -38,7 +38,10 @@ export default function TableImpressao({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Instalacao`);
+      const dbCollection = collection(
+        db,
+        `Login/lB2pGqkarGyq98VhMGM6/Instalacao`
+      );
       console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
@@ -143,7 +146,7 @@ export default function TableImpressao({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Instalacao`, itemId));
+      await deleteDoc(doc(db, `Login/lB2pGqkarGyq98VhMGM6/Instalacao`, itemId));
       console.log("Deleting item: ", itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
@@ -181,6 +184,9 @@ export default function TableImpressao({
     filterData();
   }, [searchValue, teste]);
 
+  const typeUser =
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -188,7 +194,7 @@ export default function TableImpressao({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>Nº Produto</th>
-            <th>Valor do Metro</th>
+            <th>Valor</th>
             <th>Descrição</th>
           </tr>
         </thead>
@@ -221,22 +227,26 @@ export default function TableImpressao({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
-                    <button className={styles.buttonBlack}>
-                      <Link
-                        href={{
-                          pathname: `/ProductInstalacaoEdit`,
-                          query: { id: item.id },
-                        }}
-                      >
-                        Editar
-                      </Link>
-                    </button>
-                    <button
-                      className={styles.buttonRed}
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      Deletar
-                    </button>
+                    {typeUser === "admin" && (
+                      <>
+                        <button className={styles.buttonBlack}>
+                          <Link
+                            href={{
+                              pathname: `/ProductFoamEdit`,
+                              query: { id: item.id },
+                            }}
+                          >
+                            Editar
+                          </Link>
+                        </button>
+                        <button
+                          className={styles.buttonRed}
+                          onClick={() => handleDeleteItem(item.id)}
+                        >
+                          Deletar
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </td>

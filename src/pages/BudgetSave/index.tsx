@@ -13,7 +13,7 @@ import { addDoc, collection, db } from "../../../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useMenu } from "../../components/Context/context";
 
 export default function BudgetSave() {
@@ -85,45 +85,52 @@ export default function BudgetSave() {
     }
   }, []);
 
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
+
   const handleSaveBudget = async () => {
     try {
-      // Recuperar o documento "NumeroDoOrçamento" na coleção "Budgets"
-      const numeroDoOrcamentoRef = doc(db, "Budget", "NumeroDoOrçamento");
+      const numeroDoOrcamentoRef = doc(
+        db,
+        `Login/${userId}/Budget`,
+        "NumeroDoOrçamento"
+      );
       const numeroDoOrcamentoSnap = await getDoc(numeroDoOrcamentoRef);
 
-      if (numeroDoOrcamentoSnap.exists()) {
-        // Recuperar o valor atual do campo "numero"
+      let NumeroPedido;
+
+      if (!numeroDoOrcamentoSnap.exists()) {
+        await setDoc(numeroDoOrcamentoRef, {
+          numero: 0,
+        });
+        NumeroPedido = 1;
+      } else {
         const numeroAtual = numeroDoOrcamentoSnap.data().numero;
 
-        // Incrementar o valor atual para obter o "NumeroPedido" para o novo orçamento
-        const NumeroPedido = Number(numeroAtual) + 1;
-
-        // Adicionar o novo orçamento
-        await addDoc(collection(db, "Budget"), {
-          nomeCompleto,
-          Telefone,
-          email,
-          dataCadastro,
-          budgets,
-          valorTotal,
-          NumeroPedido, // Aqui está o novo campo
-        });
-
-        // Incrementar o valor do campo "numero" no documento "NumeroDoOrcamento"
-        await updateDoc(numeroDoOrcamentoRef, {
-          numero: NumeroPedido,
-        });
-
-        toast.success("Salvo com sucesso!");
-
-        setTimeout(() => {
-          window.location.href = "/BudgetFinish";
-        }, 500);
-      } else {
-        console.error(
-          "Erro: documento 'NumeroDoOrçamento' não existe na coleção 'Budgets'"
-        );
+        NumeroPedido = Number(numeroAtual) + 1;
       }
+
+      await addDoc(collection(db, `Login/${userId}/Budget`), {
+        nomeCompleto,
+        Telefone,
+        email,
+        dataCadastro,
+        budgets,
+        valorTotal,
+        NumeroPedido,
+      });
+
+      await updateDoc(numeroDoOrcamentoRef, {
+        numero: NumeroPedido,
+      });
+
+      toast.success("Salvo com sucesso!");
+
+      setTimeout(() => {
+        window.location.href = "/BudgetFinish";
+      }, 500);
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
     }

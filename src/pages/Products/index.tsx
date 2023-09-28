@@ -197,6 +197,9 @@ export default function Products() {
     }
   };
 
+  const typeUser =
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+
   return (
     <>
       <Head>
@@ -270,15 +273,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductFoam">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductFoam">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -416,15 +421,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductImpressao">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductImpressao">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -562,15 +569,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductPaspatur">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductPaspatur">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -708,15 +717,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductPerfil">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductPerfil">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -867,15 +878,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductVidro">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductVidro">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -1014,15 +1027,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductColagem">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductColagem">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -1161,15 +1176,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductInstalacao">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductInstalacao">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div
@@ -1307,15 +1324,17 @@ export default function Products() {
                       <span className={styles.maisNone}> +</span>
                     </button>
                   </div>
-                  <Link href="/ProductMontagem">
-                    <button className={styles.ListMenuButton}>
-                      <span className={styles.maisNoneMobile}>
-                        {" "}
-                        Novo Produto
-                      </span>
-                      <span className={styles.maisNone}> +</span>
-                    </button>
-                  </Link>
+                  {typeUser === "admin" && (
+                    <Link href="/ProductMontagem">
+                      <button className={styles.ListMenuButton}>
+                        <span className={styles.maisNoneMobile}>
+                          {" "}
+                          Novo Produto
+                        </span>
+                        <span className={styles.maisNone}> +</span>
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
               <div

@@ -1,6 +1,5 @@
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableProducts.module.scss";
 
@@ -9,6 +8,7 @@ import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 import { ITableBudgets } from "./type";
 
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 interface Foam {
@@ -38,7 +38,7 @@ export default function TableFoam({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Foam`);
+      const dbCollection = collection(db, `Login/lB2pGqkarGyq98VhMGM6/Foam`);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -140,7 +140,7 @@ export default function TableFoam({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Foam`, itemId));
+      await deleteDoc(doc(db, `Login/lB2pGqkarGyq98VhMGM6/Foam`, itemId));
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
@@ -184,6 +184,9 @@ export default function TableFoam({
     (item, index, self) => index === self.findIndex((t) => t.id === item.id)
   );
 
+  const typeUser =
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -191,8 +194,14 @@ export default function TableFoam({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>Nº Produto</th>
-            <th>Margem de Lucro</th>
-            <th>Valor do Metro</th>
+            {typeUser === "admin" ? (
+              <>
+                <th>Margem de Lucro</th>
+                <th>Valor do Metro</th>
+              </>
+            ) : (
+              <th>Valor</th>
+            )}
             <th>Valor da Perda</th>
             <th>Descrição</th>
           </tr>
@@ -226,22 +235,27 @@ export default function TableFoam({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
-                    <button className={styles.buttonBlack}>
-                      <Link
-                        href={{
-                          pathname: `/ProductFoamEdit`,
-                          query: { id: item.id },
-                        }}
-                      >
-                        Editar
-                      </Link>
-                    </button>
-                    <button
-                      className={styles.buttonRed}
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      Deletar
-                    </button>
+
+                    {typeUser === "admin" && (
+                      <>
+                        <button className={styles.buttonBlack}>
+                          <Link
+                            href={{
+                              pathname: `/ProductFoamEdit`,
+                              query: { id: item.id },
+                            }}
+                          >
+                            Editar
+                          </Link>
+                        </button>
+                        <button
+                          className={styles.buttonRed}
+                          onClick={() => handleDeleteItem(item.id)}
+                        >
+                          Deletar
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </td>
@@ -258,16 +272,31 @@ export default function TableFoam({
               <td className={styles.td}>
                 <b>#{item.codigo}</b>
               </td>
-              <td className={styles.td}>
-                <b>{item.margemLucro}%</b>
-              </td>
-              <td className={styles.td}>
-                <b>
-                  {typeof item.valorMetro === "number"
-                    ? item.valorMetro.toFixed(2)
-                    : item.valorMetro}
-                </b>
-              </td>
+              {typeUser === "admin" ? (
+                <>
+                  <td className={styles.td}>
+                    <b>{item.margemLucro}%</b>
+                  </td>
+                  <td className={styles.td}>
+                    <b>
+                      {typeof item.valorMetro === "number"
+                        ? item.valorMetro.toFixed(2)
+                        : item.valorMetro}
+                    </b>
+                  </td>
+                </>
+              ) : (
+                <td className={styles.td}>
+                  <b>
+                    {(
+                      (item.margemLucro / 100) *
+                      (typeof item.valorMetro === "number"
+                        ? item.valorMetro
+                        : parseFloat(item.valorMetro))
+                    ).toFixed(2)}
+                  </b>
+                </td>
+              )}
               <td className={styles.td}>
                 <b>{item.valorPerda}%</b>
               </td>

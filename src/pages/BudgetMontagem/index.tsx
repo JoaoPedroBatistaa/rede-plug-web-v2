@@ -57,7 +57,10 @@ export default function BudgetMontagem() {
   const [produtos, setProdutos] = useState<Montagem[]>([]);
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Montagem`);
+      const dbCollection = collection(
+        db,
+        `Login/lB2pGqkarGyq98VhMGM6/Montagem`
+      );
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();

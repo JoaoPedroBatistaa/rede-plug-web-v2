@@ -345,6 +345,7 @@ export default function BudgetDecision() {
       "ally-supports-cache",
       "budgets",
       "budgetId",
+      "typeUser",
     ];
     const todasAsChaves = Object.keys(localStorage);
     todasAsChaves.forEach((chave) => {

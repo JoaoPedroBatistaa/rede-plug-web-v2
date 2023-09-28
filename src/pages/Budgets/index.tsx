@@ -49,7 +49,7 @@ export default function Budgets() {
   console.log(orderValue, filterValue);
 
   const limparLocalStorage = () => {
-    const itensParaManter = ["userId", "ally-supports-cache"];
+    const itensParaManter = ["userId", "ally-supports-cache", "typeUser"];
     const todasAsChaves = Object.keys(localStorage);
     todasAsChaves.forEach((chave) => {
       if (!itensParaManter.includes(chave)) {

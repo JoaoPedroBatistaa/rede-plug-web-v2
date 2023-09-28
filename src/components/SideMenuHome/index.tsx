@@ -16,6 +16,11 @@ interface SideMenuBudgetProps {
 export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
   const router = useRouter();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    router.push("/Login");
+  };
+
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenu = () => {
@@ -28,6 +33,9 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
       setOpenMenu(false);
     }, 200);
   };
+
+  const typeUser =
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
 
   return (
     <>
@@ -243,6 +251,44 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               {/* <p className={styles.NavigateItem}>Pedidos</p> */}
             </div>
 
+            {typeUser === "admin" && (
+              <div
+                className={`${styles.MenuNavigate} ${
+                  activeRoute === "/Users" ? styles.active : ""
+                }`}
+                onClick={handleOpenMenuDiv}
+              >
+                <svg
+                  className={styles.Pointer}
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g clip-path="url(#clip0_45_10)">
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M7.99993 1.33325C11.6819 1.33325 14.6666 4.31792 14.6666 7.99992C14.6689 9.53852 14.1369 11.0302 13.1613 12.2199L13.1746 12.2346L13.0866 12.3093C12.4614 13.0487 11.6823 13.6428 10.8037 14.05C9.92515 14.4571 8.96827 14.6676 7.99993 14.6666C6.03326 14.6666 4.26659 13.8153 3.04659 12.4619L2.91326 12.3086L2.82526 12.2353L2.83859 12.2193C1.8631 11.0297 1.33101 9.5383 1.33326 7.99992C1.33326 4.31792 4.31793 1.33325 7.99993 1.33325ZM7.99993 11.3333C6.75993 11.3333 5.63926 11.7279 4.80459 12.2699C5.72612 12.9617 6.84766 13.3349 7.99993 13.3333C9.1522 13.3349 10.2737 12.9617 11.1953 12.2699C10.2414 11.659 9.13262 11.334 7.99993 11.3333ZM7.99993 2.66659C6.99627 2.66656 6.01298 2.94973 5.16307 3.48355C4.31316 4.01738 3.63113 4.78018 3.19537 5.6843C2.7596 6.58842 2.5878 7.59714 2.69969 8.59454C2.81159 9.59193 3.20265 10.5375 3.82793 11.3226C4.90859 10.5473 6.38326 9.99992 7.99993 9.99992C9.61659 9.99992 11.0913 10.5473 12.1719 11.3226C12.7972 10.5375 13.1883 9.59193 13.3002 8.59454C13.4121 7.59714 13.2403 6.58842 12.8045 5.6843C12.3687 4.78018 11.6867 4.01738 10.8368 3.48355C9.98687 2.94973 9.00358 2.66656 7.99993 2.66659ZM7.99993 3.99992C8.70717 3.99992 9.38545 4.28087 9.88554 4.78097C10.3856 5.28106 10.6666 5.95934 10.6666 6.66659C10.6666 7.37383 10.3856 8.05211 9.88554 8.5522C9.38545 9.0523 8.70717 9.33325 7.99993 9.33325C7.29268 9.33325 6.6144 9.0523 6.11431 8.5522C5.61421 8.05211 5.33326 7.37383 5.33326 6.66659C5.33326 5.95934 5.61421 5.28106 6.11431 4.78097C6.6144 4.28087 7.29268 3.99992 7.99993 3.99992ZM7.99993 5.33325C7.6463 5.33325 7.30717 5.47373 7.05712 5.72378C6.80707 5.97383 6.66659 6.31296 6.66659 6.66659C6.66659 7.02021 6.80707 7.35935 7.05712 7.60939C7.30717 7.85944 7.6463 7.99992 7.99993 7.99992C8.35355 7.99992 8.69269 7.85944 8.94273 7.60939C9.19278 7.35935 9.33326 7.02021 9.33326 6.66659C9.33326 6.31296 9.19278 5.97383 8.94273 5.72378C8.69269 5.47373 8.35355 5.33325 7.99993 5.33325Z"
+                      fill=""
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_45_10">
+                      <rect width="16" height="16" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
+
+                {/* <img src="./pedidosIcon.svg" className={styles.Pointer}></img> */}
+                <Link className={styles.NavigateItem} href="/Users">
+                  Usuários
+                </Link>
+                {/* <p className={styles.NavigateItem}>Pedidos</p> */}
+              </div>
+            )}
+
             <div
               className={`${styles.MenuNavigate} ${
                 activeRoute === "/BudgetFoam" ? styles.active : ""
@@ -342,17 +388,15 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
             <div className={styles.linha}></div>
           </div>
 
-          <div>
-            <Link href="/Login">
-              <div
-                className={`${styles.MenuNavigate} ${
-                  activeRoute === "/BudgetSize" ? styles.active : ""
-                }`}
-              >
-                <p className={styles.NavigateItemEnd}>Encerrar sessão</p>
-                <img src="./Logout.svg" className={styles.PointerEnd}></img>
-              </div>
-            </Link>
+          <div onClick={handleLogout}>
+            <div
+              className={`${styles.MenuNavigate} ${
+                activeRoute === "/" ? styles.active : ""
+              }`}
+            >
+              <p className={styles.NavigateItemEnd}>Encerrar sessão</p>
+              <img src="./Logout.svg" className={styles.PointerEnd}></img>
+            </div>
           </div>
         </div>
       </div>

@@ -1,27 +1,25 @@
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import styles from "../../styles/Table.module.scss";
+import styles from "../../styles/TableProducts.module.scss";
 
 import { deleteDoc, getDocs } from "firebase/firestore";
 import { collection, db, doc } from "../../../firebase";
-import { useMenu } from "../../components/Context/context";
+import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
-import Link from "next/link";
 import { toast } from "react-toastify";
 
 interface Foam {
   id: string;
+  Nome: string;
 
-  codigo: string;
-  descricao: string;
-  margemLucro: number;
-  valorMetro: number;
-  valorPerda: number;
+  Login: string;
+  NomeEmpresa: string;
+  Tipo: string;
 }
 
-export default function TableImpressao({
+export default function TableFoam({
   searchValue,
   orderValue,
   filterValue,
@@ -30,7 +28,7 @@ export default function TableImpressao({
   const [teste, setTeste] = useState<Foam[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // I
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   let userId: string | null;
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
@@ -38,31 +36,20 @@ export default function TableImpressao({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(
-        db,
-        `Login/lB2pGqkarGyq98VhMGM6/Impressao`
-      );
-      console.log("Fetching from: ", dbCollection);
+      const dbCollection = collection(db, "Login");
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();
         const budget: Foam = {
           id: doc.id,
 
-          descricao: data.descricao,
-          codigo: data.codigo,
-          margemLucro: data.margemLucro,
-          valorMetro: data.valorMetro,
-          valorPerda: data.valorPerda,
+          Nome: data.Nome,
+          Login: data.Login,
+          NomeEmpresa: data.NomeEmpresa,
+          Tipo: data.Tipo,
         };
-        console.log("Fetched data:", budget);
         return budget;
       });
-
-      budgetList.sort((a, b) =>
-        a.codigo.toUpperCase() < b.codigo.toUpperCase() ? -1 : 1
-      );
-
       setTeste(budgetList);
       setFilteredData(budgetList);
       console.log("Set data: ", budgetList);
@@ -74,7 +61,7 @@ export default function TableImpressao({
     if (searchValue !== "") {
       const lowerCaseSearchValue = searchValue.toLowerCase();
       const newData = teste.filter((item) =>
-        item.codigo.toLowerCase().includes(lowerCaseSearchValue)
+        item.Nome.toLowerCase().includes(lowerCaseSearchValue)
       );
       setFilteredData(newData);
     } else {
@@ -90,23 +77,15 @@ export default function TableImpressao({
       switch (orderValue) {
         case "codigoCrescente":
           sortedData.sort((a, b) =>
-            a.codigo.toUpperCase() < b.codigo.toUpperCase() ? -1 : 1
+            a.Nome.toUpperCase() < b.Nome.toUpperCase() ? -1 : 1
           );
           break;
         case "codigoDescrescente":
           sortedData.sort((a, b) =>
-            a.codigo.toUpperCase() > b.codigo.toUpperCase() ? -1 : 1
+            a.Nome.toUpperCase() > b.Nome.toUpperCase() ? -1 : 1
           );
           break;
-        case "maiorValorMetro":
-          sortedData.sort((a, b) => b.valorMetro - a.valorMetro);
-          break;
-        case "maiorValorPerda":
-          sortedData.sort((a, b) => b.valorPerda - a.valorPerda);
-          break;
-        case "maiorLucro":
-          sortedData.sort((a, b) => b.margemLucro - a.margemLucro);
-          break;
+
         default:
           break;
       }
@@ -115,6 +94,11 @@ export default function TableImpressao({
     setFilteredData(sortedData);
   }, [orderValue, filterValue, teste]);
 
+  const totalItems = filteredData.length;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const dataToDisplay = filteredData.slice(startIndex, endIndex);
+  const currentData = teste.slice(startIndex, endIndex);
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
 
   const handlePageChange = (page: number) => {
@@ -133,28 +117,25 @@ export default function TableImpressao({
       ...prevState,
       [itemId]: !prevState[itemId],
     }));
-    console.log(itemId);
   };
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/lB2pGqkarGyq98VhMGM6/Impressao`, itemId));
-      console.log("Deleting item: ", itemId);
+      await deleteDoc(doc(db, "Login", itemId));
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);
 
-      toast.success("Impressão excluída com sucesso!", {
+      toast.success("Usuário excluído com sucesso!", {
         style: {
           fontSize: "12px",
           fontWeight: 600,
         },
       });
     } catch (error) {
-      toast.error("Ocorreu um erro ao excluir o orçamento.");
+      toast.error("Ocorreu um erro ao excluir o fornecedor.");
     }
   };
-  // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
 
   const { openMenu, setOpenMenu } = useMenu();
 
@@ -167,8 +148,8 @@ export default function TableImpressao({
     const filterData = () => {
       const filteredItems = teste.filter(
         (item) =>
-          item.descricao?.toLowerCase().includes(searchValue.toLowerCase()) ||
-          item.codigo?.toLowerCase().includes(searchValue.toLowerCase())
+          item.Login?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item.Nome?.toLowerCase().includes(searchValue.toLowerCase())
       );
 
       setFilteredData(filteredItems);
@@ -176,14 +157,13 @@ export default function TableImpressao({
     filterData();
   }, [searchValue, teste]);
 
-  const totalItems = filteredData.length;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const dataToDisplay = filteredData.slice(startIndex, endIndex);
-  const currentData = teste.slice(startIndex, endIndex);
+  const [openFilter, setOpenFilter] = useState(false);
 
-  const typeUser =
-    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+  const combinedData = [...filteredData, ...currentData];
+
+  const uniqueData = combinedData.filter(
+    (item, index, self) => index === self.findIndex((t) => t.id === item.id)
+  );
 
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
@@ -191,17 +171,10 @@ export default function TableImpressao({
         <thead>
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
-            <th>Nº Produto</th>
-            {typeUser === "admin" ? (
-              <>
-                <th>Margem de Lucro</th>
-                <th>Valor do Metro</th>
-              </>
-            ) : (
-              <th>Valor</th>
-            )}
-            <th>Valor da Perda</th>
-            <th>Descrição</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Nome da empresa</th>
+            <th>Tipo</th>
           </tr>
         </thead>
 
@@ -211,7 +184,7 @@ export default function TableImpressao({
               className={styles.budgetItem}
               key={item.id}
               onClick={() => {
-                localStorage.setItem("selectedBudgetId", item.id);
+                localStorage.setItem("selectedSupplierId", item.id);
               }}
             >
               <td className={styles.tdDisabled}>
@@ -233,26 +206,22 @@ export default function TableImpressao({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
-                    {typeUser === "admin" && (
-                      <>
-                        <button className={styles.buttonBlack}>
-                          <Link
-                            href={{
-                              pathname: `/ProductFoamEdit`,
-                              query: { id: item.id },
-                            }}
-                          >
-                            Editar
-                          </Link>
-                        </button>
-                        <button
-                          className={styles.buttonRed}
-                          onClick={() => handleDeleteItem(item.id)}
-                        >
-                          Deletar
-                        </button>
-                      </>
-                    )}
+                    {/* <button className={styles.buttonBlack}>
+                      <Link
+                        href={{
+                          pathname: `/SupplierEdit`,
+                          query: { id: item.id },
+                        }}
+                      >
+                        Editar
+                      </Link>
+                    </button> */}
+                    <button
+                      className={styles.buttonRed}
+                      onClick={() => handleDeleteItem(item.id)}
+                    >
+                      Deletar
+                    </button>
                   </div>
                 </div>
               </td>
@@ -267,38 +236,18 @@ export default function TableImpressao({
               </td>
 
               <td className={styles.td}>
-                <b>#{item.codigo}</b>
-              </td>
-              {typeUser === "admin" ? (
-                <>
-                  <td className={styles.td}>
-                    <b>{item.margemLucro}%</b>
-                  </td>
-                  <td className={styles.td}>
-                    <b>
-                      {typeof item.valorMetro === "number"
-                        ? item.valorMetro.toFixed(2)
-                        : item.valorMetro}
-                    </b>
-                  </td>
-                </>
-              ) : (
-                <td className={styles.td}>
-                  <b>
-                    {(
-                      (item.margemLucro / 100) *
-                      (typeof item.valorMetro === "number"
-                        ? item.valorMetro
-                        : parseFloat(item.valorMetro))
-                    ).toFixed(2)}
-                  </b>
-                </td>
-              )}
-              <td className={styles.td}>
-                <b>{item.valorPerda}%</b>
+                <b>{item.Nome}</b>
               </td>
               <td className={styles.td}>
-                <b>{item.descricao}</b>
+                <b>{item.Login}</b>
+              </td>
+
+              <td className={styles.td}>
+                <b>{item.NomeEmpresa}</b>
+              </td>
+
+              <td className={styles.td}>
+                <b>{item.Tipo}</b>
               </td>
             </tr>
           ))}

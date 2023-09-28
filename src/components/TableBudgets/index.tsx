@@ -1,19 +1,16 @@
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableBudgets.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 
-import { collection, db, getDoc, doc } from "../../../firebase";
-import { GetServerSidePropsContext } from "next";
-import { getDocs } from "firebase/firestore";
-import { ITableBudgets } from "./type";
-import { deleteDoc } from "firebase/firestore";
+import { deleteDoc, getDocs } from "firebase/firestore";
+import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
-import classnames from "classnames";
+import { ITableBudgets } from "./type";
 
-import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 interface Budget {
   id: string;
@@ -35,14 +32,19 @@ export default function TableBudgets({
   const [filteredData, setFilteredData] = useState<Budget[]>([]);
   const [teste, setTeste] = useState<Budget[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Itens exibidos por página
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, "Budget");
+      const dbCollection = collection(db, `Login/${userId}/Budget`);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs
-        .filter((doc) => doc.id !== "NumeroDoOrçamento")  // Adicione esta linha
+        .filter((doc) => doc.id !== "NumeroDoOrçamento") // Adicione esta linha
         .map((doc) => {
           const data = doc.data();
           const budget: Budget = {
@@ -63,7 +65,6 @@ export default function TableBudgets({
     };
     fetchData();
   }, []);
-
 
   useEffect(() => {
     const filterData = () => {
@@ -193,7 +194,10 @@ export default function TableBudgets({
     console.log(itemId);
   };
 
-  const handleDeleteItem = async (itemId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDeleteItem = async (
+    itemId: string,
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.stopPropagation();
 
     try {
@@ -213,7 +217,6 @@ export default function TableBudgets({
     } catch (error) {
       toast.error("Ocorreu um erro ao excluir o orçamento.");
       // router.push("/Budgets");
-
     }
   };
   // Função para ordenar a lista pelo campo 'dataCadastro' em ordem decrescente
@@ -238,7 +241,6 @@ export default function TableBudgets({
 
   const router = useRouter();
 
-
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -261,15 +263,16 @@ export default function TableBudgets({
               key={item.id}
               onClick={() => {
                 localStorage.setItem("selectedBudgetId", item.id);
-                router.push('/ViewBudgetData');
+                router.push("/ViewBudgetData");
               }}
             >
               <td className={styles.tdDisabled}>
                 <div
-                  className={`${openMenus[item.id]
-                    ? styles.containerMore
-                    : styles.containerMoreClose
-                    }`}
+                  className={`${
+                    openMenus[item.id]
+                      ? styles.containerMore
+                      : styles.containerMoreClose
+                  }`}
                 >
                   <div
                     className={styles.containerX}
@@ -302,8 +305,6 @@ export default function TableBudgets({
                   onClick={(event) => handleClickImg(event, item.id)}
                 />
               </td>
-
-
 
               <td className={styles.td}>
                 <b>#{item.NumeroPedido}</b>
@@ -355,15 +356,13 @@ export default function TableBudgets({
                 <span className={styles.diasUteis}>{item.nomeCompleto}</span>
               </td>
               <td className={styles.td} id={styles.tdNone}>
-                R$ {parseFloat(item.valorTotal || '0').toFixed(2)}
-
+                R$ {parseFloat(item.valorTotal || "0").toFixed(2)}
                 <br />
                 <span className={styles.diasUteis}>À Vista</span>
               </td>
               <td>
                 <img
                   src="./nota.png"
-
                   className={styles.iconNota}
                   onClick={(event) => handleClickImg(event, item.id)}
                 />
@@ -418,10 +417,11 @@ export default function TableBudgets({
             (pageNumber) => (
               <div
                 key={pageNumber}
-                className={`${pageNumber === currentPage
-                  ? styles.RodapePaginacaoContadorDestaque
-                  : styles.RodapePaginacaoContadorSemBorda
-                  }`}
+                className={`${
+                  pageNumber === currentPage
+                    ? styles.RodapePaginacaoContadorDestaque
+                    : styles.RodapePaginacaoContadorSemBorda
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
               >
                 {pageNumber}

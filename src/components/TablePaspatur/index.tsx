@@ -1,6 +1,5 @@
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/Table.module.scss";
 
@@ -9,6 +8,7 @@ import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 import { ITableBudgets } from "./type";
 
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 interface Foam {
@@ -38,7 +38,10 @@ export default function TablePaspatur({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Paspatur`);
+      const dbCollection = collection(
+        db,
+        `Login/lB2pGqkarGyq98VhMGM6/Paspatur`
+      );
       console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
@@ -143,7 +146,7 @@ export default function TablePaspatur({
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteDoc(doc(db, `Login/${userId}/Paspatur`, itemId));
+      await deleteDoc(doc(db, `Login/lB2pGqkarGyq98VhMGM6/Paspatur`, itemId));
       console.log("Deleting item: ", itemId);
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
@@ -180,6 +183,9 @@ export default function TablePaspatur({
     filterData();
   }, [searchValue, teste]);
 
+  const typeUser =
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -187,8 +193,14 @@ export default function TablePaspatur({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>Nº Produto</th>
-            <th>Margem de Lucro</th>
-            <th>Valor do Metro</th>
+            {typeUser === "admin" ? (
+              <>
+                <th>Margem de Lucro</th>
+                <th>Valor do Metro</th>
+              </>
+            ) : (
+              <th>Valor</th>
+            )}
             <th>Valor da Perda</th>
             <th>Descrição</th>
           </tr>
@@ -222,20 +234,26 @@ export default function TablePaspatur({
                     <button className={styles.buttonGren}>
                       Efetivar orçamento
                     </button> */}
-                    <Link
-                      href={{
-                        pathname: `/ProductPaspaturEdit`,
-                        query: { id: item.id },
-                      }}
-                    >
-                      Editar
-                    </Link>
-                    <button
-                      className={styles.buttonRed}
-                      onClick={() => handleDeleteItem(item.id)}
-                    >
-                      Deletar
-                    </button>
+                    {typeUser === "admin" && (
+                      <>
+                        <button className={styles.buttonBlack}>
+                          <Link
+                            href={{
+                              pathname: `/ProductFoamEdit`,
+                              query: { id: item.id },
+                            }}
+                          >
+                            Editar
+                          </Link>
+                        </button>
+                        <button
+                          className={styles.buttonRed}
+                          onClick={() => handleDeleteItem(item.id)}
+                        >
+                          Deletar
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </td>
@@ -252,16 +270,31 @@ export default function TablePaspatur({
               <td className={styles.td}>
                 <b>#{item.codigo}</b>
               </td>
-              <td className={styles.td}>
-                <b>{item.margemLucro}%</b>
-              </td>
-              <td className={styles.td}>
-                <b>
-                  {typeof item.valorMetro === "number"
-                    ? item.valorMetro.toFixed(2)
-                    : item.valorMetro}
-                </b>
-              </td>
+              {typeUser === "admin" ? (
+                <>
+                  <td className={styles.td}>
+                    <b>{item.margemLucro}%</b>
+                  </td>
+                  <td className={styles.td}>
+                    <b>
+                      {typeof item.valorMetro === "number"
+                        ? item.valorMetro.toFixed(2)
+                        : item.valorMetro}
+                    </b>
+                  </td>
+                </>
+              ) : (
+                <td className={styles.td}>
+                  <b>
+                    {(
+                      (item.margemLucro / 100) *
+                      (typeof item.valorMetro === "number"
+                        ? item.valorMetro
+                        : parseFloat(item.valorMetro))
+                    ).toFixed(2)}
+                  </b>
+                </td>
+              )}
               <td className={styles.td}>
                 <b>{item.valorPerda}%</b>
               </td>

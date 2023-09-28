@@ -64,6 +64,20 @@ async function updateFoamInLogin(foam: any, id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Foam`, id);
   await updateDoc(foamDoc, foam);
 }
+
+async function addUserToLogin(foam: any, loginId: any) {
+  try {
+    await addDoc(collection(db, "Login"), foam);
+    console.log("Usuário adicionado com sucesso!");
+  } catch (e) {
+    console.error("Erro ao adicionar Foam: ", e);
+  }
+}
+
+async function updateUserInLogin(foam: any, id: string, loginId: string) {
+  const foamDoc = doc(db, "Login", id);
+  await updateDoc(foamDoc, foam);
+}
 async function getClientById(id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Clients`, id);
   const foamSnap = await getDoc(foamDoc);
@@ -288,8 +302,7 @@ export {
   addImpressaoToLogin,
   addInstalacaoToLogin, addMontagemToLogin, addPaspaturToLogin,
   addPerfilToLogin,
-  addSupplierToLogin,
-  addVidroToLogin,
+  addSupplierToLogin, addUserToLogin, addVidroToLogin,
   auth,
   collection,
   db,
@@ -315,8 +328,7 @@ export {
   updateImpressaoInLogin,
   updateInstalacaoInLogin, updateMontagemInLogin, updatePaspaturInLogin,
   updatePerfilInLogin,
-  updateSupplierInLogin,
-  updateVidroInLogin,
+  updateSupplierInLogin, updateUserInLogin, updateVidroInLogin,
   uploadBytesResumable,
   where
 };
