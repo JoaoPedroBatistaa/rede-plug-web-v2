@@ -346,6 +346,8 @@ export default function BudgetDecision() {
       "budgets",
       "budgetId",
       "typeUser",
+      "logo",
+      "nome",
     ];
     const todasAsChaves = Object.keys(localStorage);
     todasAsChaves.forEach((chave) => {

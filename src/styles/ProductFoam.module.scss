@@ -121,7 +121,8 @@
   text-align: start;
 }
 
-.TextArea {}
+.TextArea {
+}
 
 .Field {
   width: 17.5rem;
@@ -200,6 +201,14 @@
   margin-bottom: 0.5rem;
 }
 
+.logoTitle {
+  font-size: 20px;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  color: #404049;
+  margin-bottom: 0.5rem;
+}
+
 .PreviewContainer {
   display: flex;
   flex-direction: row;
@@ -244,7 +253,153 @@
   margin-bottom: 2rem;
 }
 
+.PrintContainer {
+  display: flex;
+  flex-direction: column;
+  width: 35rem;
+  justify-content: flex-start;
+  align-items: center;
+  border: dashed 2px #888990;
+  border-radius: 10px;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  gap: 1rem;
+}
+
+.FileSelected {
+  display: flex;
+  flex-direction: column;
+  width: 35rem;
+  justify-content: flex-start;
+  align-items: center;
+  border: solid 2px #888990;
+  border-radius: 10px;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  gap: 1rem;
+}
+
+.PreviewImgContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.PreviewSize {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  color: #404049;
+  margin-bottom: 1rem;
+}
+
+.PreviewImg {
+  width: 285px;
+  height: 383px;
+  margin-bottom: 1rem;
+}
+
+.Upload {
+  width: 34px;
+  height: 34px;
+}
+
+.LabelUpload {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  color: #404049;
+}
+
+.UploadButton {
+  color: #0bb07b;
+  border: solid 2px;
+  border-color: #0bb07b;
+  background-color: #fff;
+  width: 20rem;
+  height: 2rem;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.UploadInfo {
+  font-size: 12px;
+  font-weight: medium;
+  font-family: "Outfit", sans-serif;
+  color: #888990;
+}
+
+.FileInfo {
+  font-size: 12px;
+  font-weight: medium;
+  font-family: "Outfit", sans-serif;
+  color: #3c3c3c;
+}
+
+.FileSelected {
+  display: flex;
+  flex-direction: row;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.FileSelectedName {
+  width: 26.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.FileSelectedBar {
+  border: none;
+  height: 5px;
+  background-color: #0bb07b;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.FileImg {
+  width: 28px;
+  height: 32px;
+}
+
+.FileDelete {
+  width: 25px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.userContent {
+  display: flex;
+  flex-direction: row;
+
+  gap: 6rem;
+}
+
+.logoDef {
+  height: 280px;
+  width: 280px;
+
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+
+  padding: 12px;
+
+  border: dashed 2px #888990;
+  border-radius: 10px;
+}
+
 @media (max-width: 430px) {
+  .userContent {
+    flex-direction: column;
+  }
+
   .FinishButton {
     width: 3rem;
     border-radius: 1.5rem;
@@ -267,7 +422,6 @@
   .Value {
     font-size: 20px;
     color: #000000;
-
   }
 
   .InputContainer {
@@ -282,6 +436,10 @@
 
   .PrintContainer {
     width: 23rem;
+  }
+
+  .userImage {
+    margin-top: -4rem;
   }
 
   .FileSelectedName {
@@ -316,6 +474,18 @@
 
   .SelectFieldPerson {
     width: 17.5rem;
+  }
+
+  .PrintContainer {
+    width: 21rem;
+  }
+
+  .FileSelectedName {
+    width: 15rem;
+  }
+
+  .FileSelected {
+    width: 23rem;
   }
 
   .FieldSmall {

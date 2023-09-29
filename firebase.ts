@@ -41,6 +41,13 @@ const db = getFirestore();
 const auth = getAuth(firebase);
 const storage = getStorage(firebase);
 
+const uploadToFirebase = async (file: any) => {
+  const storageRef = ref(storage, `logos/${file.name}`);
+  await uploadBytesResumable(storageRef, file);
+  return await getDownloadURL(storageRef);
+};
+
+
 async function getFoamById(id: string, loginId: string) {
   const foamDoc = doc(db, `Login/${loginId}/Foam`, id);
   const foamSnap = await getDoc(foamDoc);
@@ -329,7 +336,6 @@ export {
   updateInstalacaoInLogin, updateMontagemInLogin, updatePaspaturInLogin,
   updatePerfilInLogin,
   updateSupplierInLogin, updateUserInLogin, updateVidroInLogin,
-  uploadBytesResumable,
-  where
+  uploadBytesResumable, uploadToFirebase, where
 };
 

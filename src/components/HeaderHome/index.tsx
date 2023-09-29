@@ -12,6 +12,10 @@ export default function HeaderHome() {
     setOpenMenu(!openMenu);
     console.log(openMenu);
   };
+
+  const nome =
+    typeof window !== "undefined" ? localStorage.getItem("nome") : null;
+
   return (
     <>
       <Head>
@@ -54,7 +58,7 @@ export default function HeaderHome() {
         </div>
         <div className={styles.HeaderTextContainer}>
           <div className={styles.HeaderTextTitle}>
-            Bem vindo de volta, <b>Evandro</b>
+            Bem vindo de volta, <b>{nome}</b>
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>

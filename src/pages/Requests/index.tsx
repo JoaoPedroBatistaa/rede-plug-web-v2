@@ -56,7 +56,13 @@ export default function Requests() {
   };
 
   const limparLocalStorage = () => {
-    const itensParaManter = ["userId", "ally-supports-cache", "typeUser"];
+    const itensParaManter = [
+      "userId",
+      "ally-supports-cache",
+      "typeUser",
+      "logo",
+      "nome",
+    ];
     const todasAsChaves = Object.keys(localStorage);
     todasAsChaves.forEach((chave) => {
       if (!itensParaManter.includes(chave)) {

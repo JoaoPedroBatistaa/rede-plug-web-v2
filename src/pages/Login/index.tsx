@@ -10,8 +10,11 @@ interface Login {
   id: string;
   Login: string;
 
+  Nome: string;
+
   Senha: string;
   Tipo: string;
+  fileDownloadURL: string;
 }
 
 export default function Login() {
@@ -33,6 +36,8 @@ export default function Login() {
           Login: data.Login,
           Senha: data.Senha,
           Tipo: data.Tipo,
+          fileDownloadURL: data.fileDownloadURL,
+          Nome: data.Nome,
         };
         return login;
       });
@@ -55,6 +60,9 @@ export default function Login() {
       setUserId(user.id);
       localStorage.setItem("userId", user.id);
       localStorage.setItem("typeUser", user.Tipo);
+      localStorage.setItem("logo", user.fileDownloadURL);
+      localStorage.setItem("nome", user.Nome);
+
       router.push("/Home");
     } else {
       setError("Email ou senha incorretos");
