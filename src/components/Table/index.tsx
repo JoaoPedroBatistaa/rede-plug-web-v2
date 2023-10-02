@@ -201,7 +201,7 @@ export default function Table({
     event.stopPropagation();
 
     try {
-      await deleteDoc(doc(db, "Orders", itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Orders`, itemId));
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);

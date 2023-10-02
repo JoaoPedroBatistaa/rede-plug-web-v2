@@ -25,6 +25,11 @@ export default function AddSupplier() {
   const [CNPJ, setCNPJ] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [venue, setVenue] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
+  const [telefone, setTelefone] = useState<string | null>(null);
+  const [cep, setCep] = useState<string | null>(null);
+  const [cidade, setCidade] = useState<string | null>(null);
+  const [estado, setEstado] = useState<string | null>(null);
 
   const handleButtonFinish = async (event: any) => {
     event.preventDefault();
@@ -35,6 +40,11 @@ export default function AddSupplier() {
       CNPJ,
       reason,
       venue,
+      name,
+      telefone,
+      cep,
+      cidade,
+      estado,
     };
 
     try {
@@ -111,6 +121,28 @@ export default function AddSupplier() {
                 onChange={(e) => setReason(e.target.value)}
               />
             </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Nome do representante</p>
+              <input
+                id="margemLucro"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Telefone</p>
+              <input
+                id="margemLucro"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                onChange={(e) => setTelefone(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className={styles.InputContainer}>
@@ -122,6 +154,36 @@ export default function AddSupplier() {
                 name=""
                 onChange={(e) => setVenue(e.target.value)}
               ></textarea>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>CEP</p>
+              <input
+                className={styles.Field}
+                id="text"
+                name=""
+                onChange={(e) => setCep(e.target.value)}
+              ></input>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Cidade</p>
+              <input
+                className={styles.Field}
+                id="text"
+                name=""
+                onChange={(e) => setCidade(e.target.value)}
+              ></input>
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Estado</p>
+              <input
+                className={styles.Field}
+                id="text"
+                name=""
+                onChange={(e) => setEstado(e.target.value)}
+              ></input>
             </div>
           </div>
 

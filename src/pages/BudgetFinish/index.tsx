@@ -4,7 +4,15 @@ import styles from "../../styles/BudgetFinish.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import MaskedInput from "react-input-mask";
@@ -12,6 +20,20 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { addDoc, collection, db } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
+
+interface Foam {
+  id: string;
+  NomeCompleto: string;
+  Telefone: string;
+  bairro: string;
+  cep: string;
+  cidade: string;
+  complemento: string;
+  cpf: string;
+  email: string;
+  estado: string;
+  venue: string;
+}
 
 export default function BudgetFinish() {
   const router = useRouter();
@@ -24,8 +46,35 @@ export default function BudgetFinish() {
     }
   }, []);
 
-  const [numero, setNumero] = useState("");
-  const [estado, setEstado] = useState("");
+  const [clientes, setClientes] = useState<Foam[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Clients`);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          NomeCompleto: data.NomeCompleto,
+          Telefone: data.Telefone,
+          bairro: data.bairro,
+          cep: data.cep,
+          cidade: data.cidade,
+          complemento: data.complemento,
+          cpf: data.cpf,
+          email: data.email,
+          estado: data.estado,
+
+          venue: data.venue,
+          // Add other fields as needed
+        };
+      });
+      setClientes(budgetList);
+      console.log(clientes);
+    };
+    fetchData();
+  }, []);
 
   const [formaPagamento, setFormaPagamento] = useState("");
   const [maoDeObraExtra, setMaoDeObraExtra] = useState("");
@@ -35,13 +84,9 @@ export default function BudgetFinish() {
   let email: string | null;
   let tipoPessoa: string | null;
 
-  const [valorTotal, setValorTotal] = useState<number>(0);
   const [valorOriginal, setValorOriginal] = useState<number>(0);
 
-  // if (typeof window !== "undefined") {
-  //   const storedValue = parseFloat(localStorage.getItem("grandTotal") || "0");
-  //   valorTotal = !isNaN(storedValue) ? storedValue : 0;
-  // }
+  const [valorTotal, setValorTotal] = useState<number>(0);
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto");
@@ -60,6 +105,20 @@ export default function BudgetFinish() {
         const budgetsArray = Object.values(budgetsObject);
         setBudgets(budgetsArray);
       }
+
+      const grandTotalFromStorage = localStorage.getItem("grandTotal");
+      const parsedTotal = grandTotalFromStorage
+        ? parseFloat(grandTotalFromStorage)
+        : 0;
+
+      if (!isNaN(parsedTotal)) {
+        setValorTotal(parsedTotal);
+        setValorOriginal(parsedTotal);
+        console.log("grandtotal: ", valorTotal);
+      } else {
+        console.log("ELSE");
+        setValorTotal(0); // or any default value you'd like
+      }
     }
   }, []);
 
@@ -67,6 +126,38 @@ export default function BudgetFinish() {
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
   }
+
+  const fetchClienteByCpfCnpj = async (cpfCnpj: any) => {
+    const dbCollection = collection(db, `Login/${userId}/Clients`);
+    const q = query(dbCollection, where("cpf", "==", cpfCnpj));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const data = querySnapshot.docs[0].data();
+
+      return data;
+    }
+
+    return null;
+  };
+
+  const handleSearch = async () => {
+    const cpfCnpjLimpo = cpf.replace(/[\.-]/g, "");
+    console.log("Buscando cliente com CPF/CNPJ limpo:", cpfCnpjLimpo);
+    const cliente = await fetchClienteByCpfCnpj(cpfCnpjLimpo);
+
+    if (cliente) {
+      setEndereco(cliente.venue || "");
+      setBairro(cliente.bairro || "");
+      setCidade(cliente.cidade || "");
+      setEstado(cliente.estado || "");
+      setNumero(cliente.numero || "");
+      setCep(cliente.cep || "");
+      setComplemento(cliente.complemento || "");
+
+      console.log("Dados do cliente carregados com sucesso!");
+    }
+  };
 
   const handleSaveOrder = async () => {
     if (!nomeCompleto) {
@@ -143,7 +234,6 @@ export default function BudgetFinish() {
         budgets,
         NumeroPedido,
         formaPagamento,
-        maoDeObraExtra,
       });
 
       await updateDoc(numeroDoPedidoRef, {
@@ -188,12 +278,21 @@ export default function BudgetFinish() {
     localStorage.setItem("tipoPessoa", selectedOption);
   };
 
+  const handlePaymentChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const selectedOption = event.target.value;
+    localStorage.setItem("formaPagamento", selectedOption);
+    setFormaPagamento(localStorage.getItem("formaPagamento") ?? "");
+  };
+
   const [cpf, setCpf] = useState("");
+  const [numero, setNumero] = useState("");
+  const [estado, setEstado] = useState("");
   const [endereco, setEndereco] = useState("");
   const [cep, setCep] = useState("");
   const [complemento, setComplemento] = useState("");
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
+
   const [desconto, setDesconto] = useState(0);
 
   const handleInputChange = () => {
@@ -268,6 +367,7 @@ export default function BudgetFinish() {
       localStorage.setItem("grandTotal", valorComDesconto.toString());
     }
   }, [desconto, valorOriginal]);
+
   useEffect(() => {
     localStorage.setItem("cpf", cpf);
     localStorage.setItem("endereco", endereco);
@@ -401,6 +501,7 @@ export default function BudgetFinish() {
                     className={styles.FieldSave}
                     placeholder=""
                     onChange={handleInputChange}
+                    onBlur={handleSearch}
                   />
                 </div>
               </div>
@@ -451,27 +552,22 @@ export default function BudgetFinish() {
                   <select
                     className={styles.SelectFieldPersonDes}
                     value={formaPagamento}
-                    onChange={handleSelectChange}
+                    onChange={handlePaymentChange}
                   >
-                    <option value="" disabled selected>
+                    <option value="" disabled>
                       Defina a forma de pagamento
                     </option>
-                    <option
-                      value="A VISTA"
-                      selected={formaPagamento === "A VISTA"}
-                    >
-                      A VISTA
-                    </option>
-                    <option
-                      value="A PRAZO"
-                      selected={formaPagamento === "A PRAZO"}
-                    >
-                      A PRAZO
-                    </option>
+                    <option value="PIX">PIX</option>
+                    <option value="DÉBITO">DÉBITO</option>
+                    <option value="CRÉDITO">CRÉDITO</option>
+                    <option value="DINHEIRO">DINHEIRO</option>
+                    <option value="BOLETO">BOLETO</option>
+                    <option value="A VISTA">A VISTA</option>
+                    <option value="A PRAZO">A PRAZO</option>
                   </select>
                 </div>
               </div>
-
+              {/*
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Mão de obra</p>
@@ -492,7 +588,7 @@ export default function BudgetFinish() {
                     }}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className={styles.linhaData}></div>
@@ -510,6 +606,7 @@ export default function BudgetFinish() {
                     placeholder=""
                     onKeyUp={checkCep}
                     maxLength={8}
+                    value={cep}
                   />
                 </div>
 
@@ -535,6 +632,7 @@ export default function BudgetFinish() {
                     className={styles.FieldSmall}
                     placeholder=""
                     onChange={handleInputChange}
+                    value={numero}
                   />
                 </div>
 
@@ -546,6 +644,7 @@ export default function BudgetFinish() {
                     className={styles.FieldSave}
                     placeholder=""
                     onChange={handleInputChange}
+                    value={complemento}
                   />
                 </div>
               </div>

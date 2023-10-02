@@ -201,7 +201,7 @@ export default function TableBudgets({
     event.stopPropagation();
 
     try {
-      await deleteDoc(doc(db, "Budget", itemId));
+      await deleteDoc(doc(db, `Login/${userId}/Budget`, itemId));
 
       const updatedData = filteredData.filter((item) => item.id !== itemId);
       setFilteredData(updatedData);

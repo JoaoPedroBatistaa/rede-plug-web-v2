@@ -53,6 +53,7 @@ export default function BudgetSave() {
 
   if (typeof window !== "undefined") {
     valorTotal = localStorage.getItem("grandTotal");
+    console.log("grandtotal: ", valorTotal);
   }
 
   const formatarData = (data: Date) => {

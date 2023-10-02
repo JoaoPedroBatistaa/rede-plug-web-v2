@@ -109,11 +109,23 @@ async function updateClientInLogin(foam: any, id: string, loginId: string) {
   await updateDoc(foamDoc, foam);
 }
 
-async function getSupplierById(id: string, loginId: string) {
+type FoamType = {
+  CNPJ: string;
+  reason: string;
+  name: string;
+  telefone: string;
+  venue: string;
+  cep: string;
+  cidade: string;
+  estado: string;
+};
+
+
+async function getSupplierById(id: string, loginId: string): Promise<FoamType> {
   const foamDoc = doc(db, `Login/${loginId}/Supplier`, id);
   const foamSnap = await getDoc(foamDoc);
   if (foamSnap.exists()) {
-    return foamSnap.data();
+    return foamSnap.data() as FoamType;
   } else {
     throw new Error(`No supplier found with id: ${id}`);
   }

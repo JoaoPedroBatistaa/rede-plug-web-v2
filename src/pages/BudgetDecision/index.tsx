@@ -453,9 +453,8 @@ export default function BudgetDecision() {
   const grandTotal = totalSavedBudgets + parseFloat(valorTotal || "0");
   if (typeof window !== "undefined") {
     localStorage.setItem("grandTotal", grandTotal);
+    console.log("grandtotal: ", grandTotal);
   }
-
-  console.log(precoTotal);
 
   return (
     <>

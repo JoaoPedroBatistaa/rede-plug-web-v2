@@ -17,6 +17,8 @@ interface Foam {
 
   reason: string;
   venue: string;
+  name: string;
+  telefone: string;
 }
 
 export default function TableFoam({
@@ -49,6 +51,8 @@ export default function TableFoam({
           CNPJ: data.CNPJ,
           reason: data.reason,
           venue: data.venue,
+          name: data.name,
+          telefone: data.telefone,
         };
         return budget;
       });
@@ -177,6 +181,8 @@ export default function TableFoam({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>CNPJ</th>
+            <th>Nome representante</th>
+            <th>Telefone</th>
             <th>Razão Social</th>
             <th>Endereço</th>
           </tr>
@@ -215,7 +221,7 @@ export default function TableFoam({
                         <button className={styles.buttonBlack}>
                           <Link
                             href={{
-                              pathname: `/ProductFoamEdit`,
+                              pathname: `/SupplierEdit`,
                               query: { id: item.id },
                             }}
                           >
@@ -245,6 +251,12 @@ export default function TableFoam({
 
               <td className={styles.td}>
                 <b>#{item.CNPJ}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.name}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.telefone}</b>
               </td>
               <td className={styles.td}>
                 <b>{item.reason}</b>
