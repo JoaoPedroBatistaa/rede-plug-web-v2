@@ -16,8 +16,7 @@
 
 .ValueLabel {
   color: #000000;
-  font-family: 'Outfit', sans-serif;
-
+  font-family: "Outfit", sans-serif;
 }
 
 .BudgetHead {
@@ -122,6 +121,19 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.SelectFieldPerson {
+  width: 26rem;
+  height: 2.5rem;
+  padding-left: 1rem;
+  background-color: #f6f7fa;
+  border-radius: 5px;
+  border-color: #4040492d;
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #404049;
 }
 
 .InputFieldPreview {
@@ -324,7 +336,6 @@
   .ValueLabel {
     font-size: 12px;
     color: #000000;
-
   }
 
   .Value {
@@ -353,7 +364,6 @@
   .Value {
     font-size: 20px;
     color: #000000;
-
   }
 
   .InputContainer {

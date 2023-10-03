@@ -5,7 +5,7 @@ import styles from "../../styles/BudgetSave.module.scss";
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import MaskedInput from "react-input-mask";
 
 import { addDoc, collection, db } from "../../../firebase";
@@ -13,8 +13,30 @@ import { addDoc, collection, db } from "../../../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { useMenu } from "../../components/Context/context";
+
+interface Foam {
+  id: string;
+  NomeCompleto: string;
+  Telefone: string;
+  bairro: string;
+  cep: string;
+  cidade: string;
+  complemento: string;
+  cpf: string;
+  email: string;
+  estado: string;
+  venue: string;
+}
 
 export default function BudgetSave() {
   const router = useRouter();
@@ -25,6 +47,47 @@ export default function BudgetSave() {
     if (!userId) {
       router.push("/Login");
     }
+  }, []);
+
+  const [selectedOption, setSelectedOption] = useState("");
+
+  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const selectElement = document.getElementById(
+      event.target.id
+    ) as HTMLSelectElement;
+    const selectedOption = selectElement.value;
+    setSelectedOption(selectedOption);
+    localStorage.setItem("tipoPessoa", selectedOption);
+  };
+
+  const [clientes, setClientes] = useState<Foam[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const dbCollection = collection(db, `Login/${userId}/Clients`);
+      const budgetSnapshot = await getDocs(dbCollection);
+      const budgetList = budgetSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          NomeCompleto: data.NomeCompleto,
+          Telefone: data.Telefone,
+          bairro: data.bairro,
+          cep: data.cep,
+          cidade: data.cidade,
+          complemento: data.complemento,
+          cpf: data.cpf,
+          email: data.email,
+          estado: data.estado,
+
+          venue: data.venue,
+          // Add other fields as needed
+        };
+      });
+      setClientes(budgetList);
+      console.log(clientes);
+    };
+    fetchData();
   }, []);
 
   const [nomeCompleto, setNomeCompleto] = useState("");
@@ -38,6 +101,7 @@ export default function BudgetSave() {
     const Telefone = (document.getElementById("Telefone") as HTMLInputElement)
       .value;
     const email = (document.getElementById("email") as HTMLInputElement).value;
+    const CPF = (document.getElementById("CPF") as HTMLInputElement).value; // Adicionado esta linha
 
     setNomeCompleto(nomeCompleto);
     localStorage.setItem("nomeCompleto", nomeCompleto);
@@ -47,6 +111,8 @@ export default function BudgetSave() {
 
     setEmail(email);
     localStorage.setItem("email", email);
+
+    setCpf(CPF); // Adicionado esta linha
   };
 
   let valorTotal: string | null;
@@ -90,6 +156,47 @@ export default function BudgetSave() {
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
   }
+
+  const [cpf, setCpf] = useState("");
+
+  const fetchClienteByCpfCnpj = async (cpfCnpj: any) => {
+    const dbCollection = collection(db, `Login/${userId}/Clients`);
+    const q = query(dbCollection, where("cpf", "==", cpfCnpj));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const data = querySnapshot.docs[0].data();
+
+      return data;
+    }
+
+    return null;
+  };
+
+  const handleSearch = async () => {
+    const cpfCnpjLimpo = cpf.replace(/[\.-]/g, "");
+    console.log("Buscando cliente com CPF/CNPJ limpo:", cpfCnpjLimpo);
+    const cliente = await fetchClienteByCpfCnpj(cpfCnpjLimpo);
+
+    if (cliente) {
+      setNomeCompleto(cliente.NomeCompleto || "");
+      setEmail(cliente.email || "");
+      setTelefone(cliente.Telefone || "");
+      localStorage.setItem("endereco", cliente.venue || "");
+      localStorage.setItem("bairro", cliente.bairro || "");
+      localStorage.setItem("cidade", cliente.cidade || "");
+      localStorage.setItem("estado", cliente.estado || "");
+      localStorage.setItem("numero", cliente.numero || "");
+      localStorage.setItem("cep", cliente.cep || "");
+      localStorage.setItem("complemento", cliente.complemento || "");
+      localStorage.setItem("cpf", cpfCnpjLimpo);
+      localStorage.setItem("nomeCompleto", nomeCompleto);
+      localStorage.setItem("Telefone", Telefone);
+      localStorage.setItem("email", email);
+
+      localStorage.setItem("searchSuccess", "true");
+    }
+  };
 
   const handleSaveBudget = async () => {
     try {
@@ -137,6 +244,7 @@ export default function BudgetSave() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { openMenu, setOpenMenu } = useMenu();
   const handleOpenMenuDiv = () => {
     setTimeout(() => {
@@ -165,6 +273,53 @@ export default function BudgetSave() {
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Pessoa física/jurídica</p>
+              <select
+                id="tipoPessoaSelect"
+                className={styles.SelectFieldPerson}
+                value={selectedOption}
+                onChange={handleSelectChange}
+              >
+                <option value="" disabled selected>
+                  Defina: física/jurídica
+                </option>
+                <option value="FÍSICA" selected={selectedOption === "FÍSICA"}>
+                  FÍSICA
+                </option>
+                <option
+                  value="JURÍDICA"
+                  selected={selectedOption === "JURÍDICA"}
+                >
+                  JURÍDICA
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>
+                {selectedOption === "FÍSICA" ? "CPF" : "CNPJ"}
+              </p>
+
+              <MaskedInput
+                mask={
+                  selectedOption === "FÍSICA"
+                    ? "999.999.999-99"
+                    : "99.999.999/9999-99"
+                }
+                id="CPF"
+                type="text"
+                className={styles.FieldSave}
+                placeholder=""
+                onChange={handleInputChange}
+                onBlur={handleSearch}
+              />
+            </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Nome completo</p>
               <input
                 id="nomeCompleto"
@@ -172,6 +327,7 @@ export default function BudgetSave() {
                 className={styles.FieldSave}
                 placeholder=""
                 onChange={handleInputChange}
+                value={nomeCompleto}
               />
             </div>
           </div>
@@ -185,6 +341,7 @@ export default function BudgetSave() {
               mask="(99) 99999-9999" // Exemplo de máscara para telefone
               placeholder=""
               onChange={handleInputChange}
+              value={Telefone}
             />
           </div>
 
@@ -197,6 +354,7 @@ export default function BudgetSave() {
                 className={styles.FieldSave}
                 placeholder=""
                 onChange={handleInputChange}
+                value={email}
               />
             </div>
           </div>

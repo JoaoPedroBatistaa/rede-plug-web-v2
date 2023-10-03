@@ -4,15 +4,7 @@ import styles from "../../styles/BudgetFinish.module.scss";
 
 import HeaderBudget from "@/components/HeaderBudget";
 import SideMenuBudget from "@/components/SideMenuBudget";
-import {
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import MaskedInput from "react-input-mask";
@@ -44,36 +36,6 @@ export default function BudgetFinish() {
     if (!userId) {
       router.push("/Login");
     }
-  }, []);
-
-  const [clientes, setClientes] = useState<Foam[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const dbCollection = collection(db, `Login/${userId}/Clients`);
-      const budgetSnapshot = await getDocs(dbCollection);
-      const budgetList = budgetSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          NomeCompleto: data.NomeCompleto,
-          Telefone: data.Telefone,
-          bairro: data.bairro,
-          cep: data.cep,
-          cidade: data.cidade,
-          complemento: data.complemento,
-          cpf: data.cpf,
-          email: data.email,
-          estado: data.estado,
-
-          venue: data.venue,
-          // Add other fields as needed
-        };
-      });
-      setClientes(budgetList);
-      console.log(clientes);
-    };
-    fetchData();
   }, []);
 
   const [formaPagamento, setFormaPagamento] = useState("");
@@ -126,38 +88,6 @@ export default function BudgetFinish() {
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
   }
-
-  const fetchClienteByCpfCnpj = async (cpfCnpj: any) => {
-    const dbCollection = collection(db, `Login/${userId}/Clients`);
-    const q = query(dbCollection, where("cpf", "==", cpfCnpj));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      const data = querySnapshot.docs[0].data();
-
-      return data;
-    }
-
-    return null;
-  };
-
-  const handleSearch = async () => {
-    const cpfCnpjLimpo = cpf.replace(/[\.-]/g, "");
-    console.log("Buscando cliente com CPF/CNPJ limpo:", cpfCnpjLimpo);
-    const cliente = await fetchClienteByCpfCnpj(cpfCnpjLimpo);
-
-    if (cliente) {
-      setEndereco(cliente.venue || "");
-      setBairro(cliente.bairro || "");
-      setCidade(cliente.cidade || "");
-      setEstado(cliente.estado || "");
-      setNumero(cliente.numero || "");
-      setCep(cliente.cep || "");
-      setComplemento(cliente.complemento || "");
-
-      console.log("Dados do cliente carregados com sucesso!");
-    }
-  };
 
   const handleSaveOrder = async () => {
     if (!nomeCompleto) {
@@ -292,6 +222,52 @@ export default function BudgetFinish() {
   const [complemento, setComplemento] = useState("");
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
+
+  useEffect(() => {
+    const searchSuccess = localStorage.getItem("searchSuccess");
+
+    if (searchSuccess === "true") {
+      const cpfFromLocalStorage = localStorage.getItem("cpf");
+      if (cpfFromLocalStorage) {
+        setCpf(cpfFromLocalStorage);
+      }
+
+      const numeroFromLocalStorage = localStorage.getItem("numero");
+      if (numeroFromLocalStorage) {
+        setNumero(numeroFromLocalStorage);
+      }
+
+      const estadoFromLocalStorage = localStorage.getItem("estado");
+      if (estadoFromLocalStorage) {
+        setEstado(estadoFromLocalStorage);
+      }
+
+      const enderecoFromLocalStorage = localStorage.getItem("endereco");
+      if (enderecoFromLocalStorage) {
+        setEndereco(enderecoFromLocalStorage);
+      }
+
+      const cepFromLocalStorage = localStorage.getItem("cep");
+      if (cepFromLocalStorage) {
+        setCep(cepFromLocalStorage);
+      }
+
+      const complementoFromLocalStorage = localStorage.getItem("complemento");
+      if (complementoFromLocalStorage) {
+        setComplemento(complementoFromLocalStorage);
+      }
+
+      const bairroFromLocalStorage = localStorage.getItem("bairro");
+      if (bairroFromLocalStorage) {
+        setBairro(bairroFromLocalStorage);
+      }
+
+      const cidadeFromLocalStorage = localStorage.getItem("cidade");
+      if (cidadeFromLocalStorage) {
+        setCidade(cidadeFromLocalStorage);
+      }
+    }
+  }, []);
 
   const [desconto, setDesconto] = useState(0);
 
@@ -443,36 +419,6 @@ export default function BudgetFinish() {
 
           <div className={styles.BudgetData}>
             <div className={styles.PessoalData}>
-              <p className={styles.BudgetSubTitle}>Dados pessoais</p>
-
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Pessoa física/jurídica</p>
-                  <select
-                    id="tipoPessoaSelect"
-                    className={styles.SelectFieldPerson}
-                    value={selectedOption}
-                    onChange={handleSelectChange}
-                  >
-                    <option value="" disabled selected>
-                      Defina: física/jurídica
-                    </option>
-                    <option
-                      value="FÍSICA"
-                      selected={selectedOption === "FÍSICA"}
-                    >
-                      FÍSICA
-                    </option>
-                    <option
-                      value="JURÍDICA"
-                      selected={selectedOption === "JURÍDICA"}
-                    >
-                      JURÍDICA
-                    </option>
-                  </select>
-                </div>
-              </div>
-
               {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome completo</p>
@@ -483,28 +429,6 @@ export default function BudgetFinish() {
                   />
                 </div>
               </div> */}
-
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    {selectedOption === "FÍSICA" ? "CPF" : "CNPJ"}
-                  </p>
-
-                  <MaskedInputAny
-                    mask={
-                      selectedOption === "FÍSICA"
-                        ? "999.999.999-99"
-                        : "99.999.999/9999-99"
-                    }
-                    id="CPF"
-                    type="text"
-                    className={styles.FieldSave}
-                    placeholder=""
-                    onChange={handleInputChange}
-                    onBlur={handleSearch}
-                  />
-                </div>
-              </div>
 
               {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
