@@ -269,10 +269,7 @@ export default function BudgetFinish() {
     }
   }, []);
 
-  const [desconto, setDesconto] = useState(0);
-
   const handleInputChange = () => {
-    const CPF = (document.getElementById("CPF") as HTMLInputElement).value;
     const Endereco = (document.getElementById("Endereco") as HTMLInputElement)
       .value;
     const Numero = (document.getElementById("Numero") as HTMLInputElement)
@@ -287,13 +284,7 @@ export default function BudgetFinish() {
       .value;
     const Cidade = (document.getElementById("Cidade") as HTMLInputElement)
       .value;
-    const descontoInput = document.getElementById(
-      "Desconto"
-    ) as HTMLInputElement;
-    const Desconto = parseFloat(descontoInput.value);
 
-    setDesconto(Desconto);
-    setCpf(CPF);
     setEndereco(Endereco);
     setNumero(Numero);
     setCep(CEP);
@@ -302,47 +293,6 @@ export default function BudgetFinish() {
     setBairro(Bairro);
     setCidade(Cidade);
   };
-
-  const [adicional, setAdicional] = useState<string>("");
-
-  // useEffect(() => {
-  //   let valorComAdicional: number = valorOriginal;
-
-  //   const valorAdicionalNumerico = parseFloat(adicional) || 0;
-  //   valorComAdicional = valorOriginal + valorAdicionalNumerico;
-
-  //   setValorTotal(valorComAdicional);
-
-  //   if (typeof window !== "undefined") {
-  //     localStorage.setItem("grandTotal", valorComAdicional.toString());
-  //   }
-  // }, [adicional, valorOriginal]);
-
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const storedValue = parseFloat(localStorage.getItem("grandTotal") || "0");
-  //     setValorOriginal(!isNaN(storedValue) ? storedValue : 0);
-  //   }
-  // }, []);
-
-  useEffect(() => {
-    let valorComDesconto: number = valorOriginal;
-
-    if (
-      desconto !== null &&
-      !isNaN(desconto) &&
-      desconto >= 0 &&
-      desconto <= 100
-    ) {
-      valorComDesconto = valorOriginal - valorOriginal * (desconto / 100);
-    }
-
-    setValorTotal(valorComDesconto);
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem("grandTotal", valorComDesconto.toString());
-    }
-  }, [desconto, valorOriginal]);
 
   useEffect(() => {
     localStorage.setItem("cpf", cpf);
@@ -387,6 +337,35 @@ export default function BudgetFinish() {
       setOpenMenu(false);
     }, 100);
   };
+
+  // ENTER PULA INPUTS
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        const inputs = Array.from(document.querySelectorAll("input"));
+        const index = inputs.indexOf(event.target);
+
+        if (index > -1 && index < inputs.length - 1) {
+          const nextInput = inputs[index + 1];
+          nextInput.focus();
+        }
+      }
+    };
+
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach((input) => {
+      input.addEventListener("keydown", handleKeyDown);
+    });
+
+    return () => {
+      inputs.forEach((input) => {
+        input.removeEventListener("keydown", handleKeyDown);
+      });
+    };
+  }, []);
 
   return (
     <>
@@ -458,20 +437,6 @@ export default function BudgetFinish() {
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Desconto (%)</p>
-
-                  <input
-                    id="Desconto"
-                    type="number"
-                    className={styles.FieldSave}
-                    placeholder=""
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Forma de pagamento</p>
                   <select
                     className={styles.SelectFieldPersonDes}
@@ -525,10 +490,11 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>CEP</p>
                   <input
                     id="CEP"
-                    type="text"
+                    type="number"
                     className={styles.FieldSmall}
                     placeholder=""
                     onKeyUp={checkCep}
+                    onChange={handleInputChange}
                     maxLength={8}
                     value={cep}
                   />
@@ -552,7 +518,7 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>Número *</p>
                   <input
                     id="Numero"
-                    type="text"
+                    type="number"
                     className={styles.FieldSmall}
                     placeholder=""
                     onChange={handleInputChange}

@@ -17,6 +17,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   setDoc,
   updateDoc,
@@ -94,27 +96,6 @@ export default function BudgetSave() {
   const [Telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
 
-  const handleInputChange = () => {
-    const nomeCompleto = (
-      document.getElementById("nomeCompleto") as HTMLInputElement
-    ).value;
-    const Telefone = (document.getElementById("Telefone") as HTMLInputElement)
-      .value;
-    const email = (document.getElementById("email") as HTMLInputElement).value;
-    const CPF = (document.getElementById("CPF") as HTMLInputElement).value; // Adicionado esta linha
-
-    setNomeCompleto(nomeCompleto);
-    localStorage.setItem("nomeCompleto", nomeCompleto);
-
-    setTelefone(Telefone);
-    localStorage.setItem("Telefone", Telefone);
-
-    setEmail(email);
-    localStorage.setItem("email", email);
-
-    setCpf(CPF); // Adicionado esta linha
-  };
-
   let valorTotal: string | null;
 
   if (typeof window !== "undefined") {
@@ -157,7 +138,79 @@ export default function BudgetSave() {
     userId = window.localStorage.getItem("userId");
   }
 
+  const handleInputChange = () => {
+    const nomeCompleto = (
+      document.getElementById("nomeCompleto") as HTMLInputElement
+    ).value;
+    const Telefone = (document.getElementById("Telefone") as HTMLInputElement)
+      .value;
+    const email = (document.getElementById("email") as HTMLInputElement).value;
+    const CPF = (document.getElementById("CPF") as HTMLInputElement).value; // Adicionado esta linha
+
+    setNomeCompleto(nomeCompleto);
+    localStorage.setItem("nomeCompleto", nomeCompleto);
+
+    setTelefone(Telefone);
+    localStorage.setItem("Telefone", Telefone);
+
+    setEmail(email);
+    localStorage.setItem("email", email);
+
+    const cleanedCPF = CPF.replace(/[^\d]/g, "");
+    setCpf(cleanedCPF);
+    fetchSuggestions(cleanedCPF);
+  };
+
   const [cpf, setCpf] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isInputFocused, setInputFocused] = useState(false);
+
+  const fetchSuggestions = async (input: string) => {
+    const dbCollection = collection(db, `Login/${userId}/Clients`);
+
+    // Buscando documentos que começam com o input
+    const startAtQuery = query(
+      dbCollection,
+      where("cpf", ">=", input),
+      where("cpf", "<", input + "\uf8ff"),
+      orderBy("cpf"),
+      limit(10)
+    );
+
+    const querySnapshot = await getDocs(startAtQuery);
+
+    if (!querySnapshot.empty) {
+      const results = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setSuggestions(results);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const selectSuggestion = (cliente: any) => {
+    setCpf(cliente.cpf);
+    setNomeCompleto(cliente.NomeCompleto || "");
+    setEmail(cliente.email || "");
+    setTelefone(cliente.Telefone || "");
+
+    localStorage.setItem("endereco", cliente.venue || "");
+    localStorage.setItem("bairro", cliente.bairro || "");
+    localStorage.setItem("cidade", cliente.cidade || "");
+    localStorage.setItem("estado", cliente.estado || "");
+    localStorage.setItem("numero", cliente.numero || "");
+    localStorage.setItem("cep", cliente.cep || "");
+    localStorage.setItem("complemento", cliente.complemento || "");
+    localStorage.setItem("cpf", cliente.cpf);
+    localStorage.setItem("nomeCompleto", cliente.NomeCompleto || "");
+    localStorage.setItem("Telefone", cliente.Telefone || "");
+    localStorage.setItem("email", cliente.email || "");
+    localStorage.setItem("searchSuccess", "true");
+
+    setSuggestions([]);
+  };
 
   const fetchClienteByCpfCnpj = async (cpfCnpj: any) => {
     const dbCollection = collection(db, `Login/${userId}/Clients`);
@@ -196,6 +249,9 @@ export default function BudgetSave() {
 
       localStorage.setItem("searchSuccess", "true");
     }
+
+    setSuggestions([]);
+    setInputFocused(false);
   };
 
   const handleSaveBudget = async () => {
@@ -252,6 +308,35 @@ export default function BudgetSave() {
     }, 100);
   };
 
+  // ENTER PULA INPUTS
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        const inputs = Array.from(document.querySelectorAll("input"));
+        const index = inputs.indexOf(event.target);
+
+        if (index > -1 && index < inputs.length - 1) {
+          const nextInput = inputs[index + 1];
+          nextInput.focus();
+        }
+      }
+    };
+
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach((input) => {
+      input.addEventListener("keydown", handleKeyDown);
+    });
+
+    return () => {
+      inputs.forEach((input) => {
+        input.removeEventListener("keydown", handleKeyDown);
+      });
+    };
+  }, []);
+
   return (
     <>
       <Head>
@@ -269,6 +354,15 @@ export default function BudgetSave() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Salvar Orçamento</p>
+            <div className={styles.ButtonsFinish}>
+              <Link href="Budgets">
+                <button className={styles.CancelButton}>Cancelar</button>
+              </Link>
+
+              <button className={styles.SaveButton} onClick={handleSaveBudget}>
+                Salvar Orçamento
+              </button>
+            </div>
           </div>
 
           <div className={styles.InputContainer}>
@@ -301,7 +395,6 @@ export default function BudgetSave() {
               <p className={styles.FieldLabel}>
                 {selectedOption === "FÍSICA" ? "CPF" : "CNPJ"}
               </p>
-
               <MaskedInput
                 mask={
                   selectedOption === "FÍSICA"
@@ -312,9 +405,23 @@ export default function BudgetSave() {
                 type="text"
                 className={styles.FieldSave}
                 placeholder=""
+                value={cpf}
                 onChange={handleInputChange}
                 onBlur={handleSearch}
               />
+              {suggestions.length > 0 && (
+                <div className={styles.SuggestionsDropdown}>
+                  {suggestions.map((suggestion) => (
+                    <div
+                      key={suggestion.id}
+                      className={styles.SuggestionItem}
+                      onClick={() => selectSuggestion(suggestion)}
+                    >
+                      {suggestion.cpf} - {suggestion.NomeCompleto}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -360,16 +467,6 @@ export default function BudgetSave() {
           </div>
 
           <div className={styles.linhaSave}></div>
-
-          <div className={styles.ButtonsFinish}>
-            <Link href="Budgets">
-              <button className={styles.CancelButton}>Cancelar</button>
-            </Link>
-
-            <button className={styles.SaveButton} onClick={handleSaveBudget}>
-              Salvar Orçamento
-            </button>
-          </div>
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

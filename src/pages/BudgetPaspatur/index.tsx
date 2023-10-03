@@ -759,6 +759,35 @@ export default function BudgetPaspatur() {
     setSelectedOptionCodigoPaspatur("");
   }
 
+  // ENTER PULA INPUTS
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        const inputs = Array.from(document.querySelectorAll("input"));
+        const index = inputs.indexOf(event.target);
+
+        if (index > -1 && index < inputs.length - 1) {
+          const nextInput = inputs[index + 1];
+          nextInput.focus();
+        }
+      }
+    };
+
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach((input) => {
+      input.addEventListener("keydown", handleKeyDown);
+    });
+
+    return () => {
+      inputs.forEach((input) => {
+        input.removeEventListener("keydown", handleKeyDown);
+      });
+    };
+  }, []);
+
   return (
     <>
       <Head>

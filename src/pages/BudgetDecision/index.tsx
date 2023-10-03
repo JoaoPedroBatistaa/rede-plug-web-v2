@@ -182,7 +182,6 @@ export default function BudgetDecision() {
   let espessuraPerfil: string = "";
   let Tamanho: string = "";
   let tipoPessoa: string = "";
-  let valorTotal: string = "";
   let obs: string = "";
 
   let descricaoPerfil: string = "";
@@ -194,7 +193,11 @@ export default function BudgetDecision() {
   let descricaoInstalacao: string = "";
   let descricaoFoam: string = "";
 
-  valorTotal = precoTotal.toString();
+  const [valorTotal, setValorTotal] = useState<string>("0");
+
+  useEffect(() => {
+    setValorTotal(precoTotal.toString());
+  }, [precoTotal]);
 
   if (typeof window !== "undefined") {
     nomeCompleto = localStorage.getItem("nomeCompleto") || "";
@@ -434,7 +437,9 @@ export default function BudgetDecision() {
   };
 
   const [savedBudgets, setSavedBudgets] = useState<any[]>([]);
+  const [grandTotal, setGrandTotal] = useState<number>(0);
 
+  // Carregar savedBudgets do localStorage ao montar o componente
   useEffect(() => {
     const localBudgets = localStorage.getItem("budgets");
     if (localBudgets) {
@@ -444,17 +449,58 @@ export default function BudgetDecision() {
     }
   }, []);
 
-  const totalSavedBudgets = savedBudgets
-    ? savedBudgets.reduce((sum, budget) => {
-        return sum + parseFloat(budget.valorTotal || "0");
-      }, 0)
-    : 0;
+  // Atualizar grandTotal no localStorage sempre que savedBudgets ou valorTotal mudar
+  useEffect(() => {
+    const totalSavedBudgets = savedBudgets
+      ? savedBudgets.reduce((sum, budget) => {
+          return sum + parseFloat(budget.valorTotal || "0");
+        }, 0)
+      : 0;
 
-  const grandTotal = totalSavedBudgets + parseFloat(valorTotal || "0");
-  if (typeof window !== "undefined") {
-    localStorage.setItem("grandTotal", grandTotal);
-    console.log("grandtotal: ", grandTotal);
-  }
+    const calculatedGrandTotal =
+      totalSavedBudgets + parseFloat(valorTotal || "0");
+
+    setGrandTotal(calculatedGrandTotal);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("grandTotal", calculatedGrandTotal.toString());
+      console.log("grandtotal: ", calculatedGrandTotal);
+    }
+  }, [savedBudgets, valorTotal]);
+
+  const [desconto, setDesconto] = useState(0);
+
+  const handleInputChange = () => {
+    const descontoInput = document.getElementById(
+      "Desconto"
+    ) as HTMLInputElement;
+    const Desconto = parseFloat(descontoInput.value);
+
+    setDesconto(Desconto);
+  };
+
+  const [valorComDesconto, setValorComDesconto] = useState<number>(0); // preco após desconto
+
+  useEffect(() => {
+    let novoValorComDesconto = precoTotal;
+
+    if (
+      desconto !== null &&
+      !isNaN(desconto) &&
+      desconto >= 0 &&
+      desconto <= 100
+    ) {
+      novoValorComDesconto = precoTotal - precoTotal * (desconto / 100);
+    }
+
+    setValorComDesconto(novoValorComDesconto);
+    setGrandTotal(novoValorComDesconto);
+
+    // Se você realmente precisa salvar no localStorage a cada mudança:
+    if (typeof window !== "undefined") {
+      localStorage.setItem("grandTotal", novoValorComDesconto.toString());
+    }
+  }, [desconto, precoTotal]);
 
   return (
     <>
@@ -483,7 +529,7 @@ export default function BudgetDecision() {
 
               <div className={styles.BudgetHeadO}>
                 <p className={styles.SubTitle}>
-                  Valor total: R$ {parseFloat(grandTotal || "0").toFixed(2)}
+                  Valor total: R$ {grandTotal.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -972,6 +1018,20 @@ export default function BudgetDecision() {
                         setDataVencimento(e.target.value);
                         localStorage.setItem("dataVencimento", e.target.value);
                       }}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Desconto (%)</p>
+
+                    <input
+                      id="Desconto"
+                      type="number"
+                      className={styles.FieldSaveDes}
+                      placeholder=""
+                      onChange={handleInputChange}
                     />
                   </div>
                 </div>

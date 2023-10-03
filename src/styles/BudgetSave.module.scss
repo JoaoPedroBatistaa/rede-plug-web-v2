@@ -6,6 +6,23 @@
   background-color: #ffffffff;
 }
 
+.SuggestionsDropdown {
+  background-color: #f6f7fa;
+  border-radius: 10px;
+  margin-top: -1.7rem;
+}
+
+.SuggestionItem {
+  color: #000000;
+  font-family: "Outfit", sans-serif;
+  padding: 12px;
+
+  &:hover {
+    cursor: pointer;
+    background-color: #f0f0f0;
+  }
+}
+
 .BudgetContainer {
   display: flex;
   flex-direction: column;
