@@ -49,6 +49,13 @@ export default function BudgetPerfil() {
     }
   });
 
+  const [selectedOption2, setSelectedOption2] = useState(() => {
+    if (typeof window !== "undefined") {
+      const codigoPerfil2 = localStorage.getItem("codigoPerfil2");
+      return codigoPerfil2 ? codigoPerfil2 : "";
+    }
+  });
+
   const [espessura, setEspessura] = useState("");
   const { openMenu, setOpenMenu } = useMenu();
   const [precoTotal, setPrecoTotal] = useState(0);
@@ -88,57 +95,57 @@ export default function BudgetPerfil() {
   });
 
   useEffect(() => {
+    let totalPreco = 0;
+
+    // Logic for selectedOption
     if (selectedOption) {
-      const selectedProduto = produtos.find(
+      const selectedProduto1 = produtos.find(
         (produto) => produto.codigo === selectedOption
       );
-      if (selectedProduto) {
+      if (selectedProduto1) {
         const tamanho =
           localStorage.getItem("novoTamanho") ||
           localStorage.getItem("Tamanho") ||
           "0x0";
         const [altura, largura] = tamanho.split("x").map(Number);
 
-        const valor =
-          ((altura * 2 + largura * 2 + selectedProduto.largura * 4) / 100) *
-          selectedProduto.valorMetro;
-        const perda = (valor / 100) * selectedProduto.valorPerda;
-        const lucro = ((valor + perda) * selectedProduto.margemLucro) / 100;
+        const valor1 =
+          ((altura * 2 + largura * 2 + selectedProduto1.largura * 4) / 100) *
+          selectedProduto1.valorMetro;
+        const perda1 = (valor1 / 100) * selectedProduto1.valorPerda;
+        const lucro1 = ((valor1 + perda1) * selectedProduto1.margemLucro) / 100;
 
-        setPreco((prevPreco) => {
-          const novoPreco = valor + perda + lucro;
-          localStorage.setItem("valorPerfil", novoPreco.toString());
-          if (!localStorage.getItem("novoTamanho")) {
-            localStorage.setItem("valorPerfilAntigo", novoPreco.toString());
-          }
-          localStorage.setItem(
-            "metroPerfil",
-            selectedProduto.valorMetro.toString()
-          );
-          localStorage.setItem(
-            "perdaPerfil",
-            selectedProduto.valorPerda.toString()
-          );
-          localStorage.setItem(
-            "lucroPerfil",
-            selectedProduto.margemLucro.toString()
-          );
-          localStorage.setItem(
-            "larguraPerfil",
-            selectedProduto.largura.toString()
-          );
-          localStorage.setItem(
-            "descricaoPerfil",
-            selectedProduto.descricao.toString()
-          );
-          localStorage.setItem("perfil", espessura.toString());
-          return novoPreco;
-        });
-
-        // setPrecoTotal(preco + valorFoam + valorVidro);
+        const priceForOption1 = valor1 + perda1 + lucro1;
+        totalPreco += priceForOption1;
       }
     }
-  }, [selectedOption, espessura, produtos]);
+
+    // Logic for selectedOption2
+    if (selectedOption2) {
+      const selectedProduto2 = produtos.find(
+        (produto) => produto.codigo === selectedOption2
+      );
+      if (selectedProduto2) {
+        const tamanho =
+          localStorage.getItem("novoTamanho") ||
+          localStorage.getItem("Tamanho") ||
+          "0x0";
+        const [altura, largura] = tamanho.split("x").map(Number);
+
+        const valor2 =
+          ((altura * 2 + largura * 2 + selectedProduto2.largura * 4) / 100) *
+          selectedProduto2.valorMetro;
+        const perda2 = (valor2 / 100) * selectedProduto2.valorPerda;
+        const lucro2 = ((valor2 + perda2) * selectedProduto2.margemLucro) / 100;
+
+        const priceForOption2 = valor2 + perda2 + lucro2;
+        totalPreco += priceForOption2;
+      }
+    }
+
+    setPreco(totalPreco);
+    localStorage.setItem("valorPerfil", totalPreco.toString());
+  }, [selectedOption, selectedOption2, espessura, produtos]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -180,6 +187,11 @@ export default function BudgetPerfil() {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
     localStorage.setItem("codigoPerfil", event.target.value);
+  };
+
+  const handleSelectChange2 = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOption2(event.target.value);
+    localStorage.setItem("codigoPerfil2", event.target.value);
   };
 
   const handleEspessuraChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -236,6 +248,19 @@ export default function BudgetPerfil() {
     setPreco(0);
     setSelectedOption("");
   }
+
+  const handleRemoveProduct1 = () => {
+    setSelectedOption("");
+    localStorage.removeItem("codigoPerfil");
+  };
+
+  const handleRemoveProduct2 = () => {
+    setSelectedOption2("");
+    setShowSecondInput(false);
+    localStorage.removeItem("codigoPerfil2");
+  };
+
+  const [showSecondInput, setShowSecondInput] = useState(false);
 
   return (
     <>
@@ -324,11 +349,59 @@ export default function BudgetPerfil() {
 
               <button
                 className={styles.removeProduct}
-                onClick={handleRemoveProduct}
+                onClick={handleRemoveProduct1}
               >
                 Remover
               </button>
             </div>
+
+            {!showSecondInput && (
+              <>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>.</p>
+
+                  <button
+                    className={styles.addProduct}
+                    onClick={() => setShowSecondInput(true)}
+                  >
+                    Adicionar mais um perfil
+                  </button>
+                </div>
+              </>
+            )}
+
+            {showSecondInput && (
+              <>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Código 2</p>
+                  <select
+                    id="codigo2"
+                    className={styles.SelectField}
+                    value={selectedOption2}
+                    onChange={handleSelectChange2}
+                  >
+                    <option value="" disabled selected>
+                      Selecione um código
+                    </option>
+                    {produtos.map((produto) => (
+                      <option key={produto.codigo} value={produto.codigo}>
+                        {produto.codigo} - {produto.descricao}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>.</p>
+                  <button
+                    className={styles.removeProduct}
+                    onClick={handleRemoveProduct2}
+                  >
+                    Remover
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           <p className={styles.Preview}>PREVIEW</p>

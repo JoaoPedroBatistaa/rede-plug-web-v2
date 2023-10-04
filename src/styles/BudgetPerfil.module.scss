@@ -107,6 +107,25 @@
   }
 }
 
+.addProduct {
+  background-color: #0bb07b;
+  color: #fff;
+  border: none;
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+
+  height: 2.45rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 0.5rem;
+
+  &:hover {
+    background-color: rgb(9, 158, 9);
+    cursor: pointer;
+  }
+}
+
 .DesistirOrcamento {
   width: 15em;
   height: 2.7rem;

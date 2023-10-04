@@ -121,7 +121,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>CPF/CNPJ</p>
               <input
-                id="codigo"
+                id="cpf"
                 type="number"
                 className={styles.Field}
                 placeholder=""
@@ -133,7 +133,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Nome completo</p>
               <input
-                id="margemLucro"
+                id="NomeCompleto"
                 type="text"
                 className={styles.Field}
                 placeholder=""
@@ -145,7 +145,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Email</p>
               <input
-                id="margemLucro"
+                id="email"
                 type="text"
                 className={styles.Field}
                 placeholder=""
@@ -159,7 +159,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Telefone</p>
               <input
-                id="valorMetro"
+                id="Telefone"
                 type="number"
                 className={styles.Field}
                 placeholder=""
@@ -171,7 +171,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Cidade</p>
               <input
-                id="valorPerda"
+                id="cidade"
                 type="text"
                 className={styles.Field}
                 placeholder=""
@@ -184,7 +184,7 @@ export default function UpdateFoam() {
               <p className={styles.FieldLabel}>Endereço</p>
               <textarea
                 className={styles.Field}
-                id="descricao"
+                id="venue"
                 value={foam?.venue || ""}
                 onChange={handleChange}
               ></textarea>
@@ -195,7 +195,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>CEP</p>
               <input
-                id="valorMetro"
+                id="cep"
                 type="number"
                 className={styles.Field}
                 placeholder=""
@@ -207,7 +207,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Estado</p>
               <input
-                id="valorPerda"
+                id="estado"
                 type="text"
                 className={styles.Field}
                 placeholder=""
@@ -219,8 +219,8 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Numero</p>
               <input
-                id="valorPerda"
-                type="text"
+                id="numero"
+                type="number"
                 className={styles.Field}
                 placeholder=""
                 value={foam?.numero || ""}
@@ -233,7 +233,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Bairro</p>
               <input
-                id="valorMetro"
+                id="bairro"
                 type="text"
                 className={styles.Field}
                 placeholder=""
@@ -245,7 +245,7 @@ export default function UpdateFoam() {
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Complemento</p>
               <input
-                id="valorPerda"
+                id="complemento"
                 type="text"
                 className={styles.Field}
                 placeholder=""

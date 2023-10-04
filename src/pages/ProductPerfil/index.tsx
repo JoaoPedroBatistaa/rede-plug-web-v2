@@ -28,6 +28,8 @@ export default function ProductPaspatur() {
   const [valorMetro, setValorMetro] = useState<string | null>(null);
   const [valorPerda, setValorPerda] = useState<string | null>(null);
   const [largura, setLargura] = useState<string | null>(null);
+  const [codInterno, setCodInterno] = useState<string | null>(null);
+  const [codFabricante, setCodFabricante] = useState<string | null>(null);
 
   const handleSetValorMetro = (value: string) => {
     const updatedValue = value.replace(/,/g, ".");
@@ -47,6 +49,8 @@ export default function ProductPaspatur() {
       valorPerda,
       fabricante,
       largura,
+      codInterno,
+      codFabricante,
     };
 
     if (!perfil.fabricante) {
@@ -178,6 +182,28 @@ export default function ProductPaspatur() {
           </div>
 
           <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Código interno</p>
+              <input
+                id="codigo"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                onChange={(e) => setCodInterno(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Código Fabricante</p>
+              <input
+                id="codigo"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                onChange={(e) => setCodFabricante(e.target.value)}
+              />
+            </div>
+
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Descrição</p>
               <textarea

@@ -120,10 +120,10 @@ export default function BudgetFinish() {
       return;
     }
 
-    if (!cep) {
-      toast.error("Por favor, preencha o campo CEP.");
-      return;
-    }
+    // if (!cep) {
+    //   toast.error("Por favor, preencha o campo CEP.");
+    //   return;
+    // }
 
     try {
       const numeroDoPedidoRef = doc(

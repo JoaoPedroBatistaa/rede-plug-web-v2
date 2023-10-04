@@ -157,9 +157,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
         <Link href="BudgetDecision">
           <div
             className={`${styles.MenuNavigate} ${
-              activeRoute === "/BudgetSave" || "/BudgetFinish"
-                ? styles.active
-                : ""
+              activeRoute === "/BudgetSave" ? styles.active : ""
             }`}
             onClick={handleOpenMenuDiv}
           >

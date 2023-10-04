@@ -249,7 +249,7 @@ export default function TablePerfil({
                         <button className={styles.buttonBlack}>
                           <Link
                             href={{
-                              pathname: `/ProductFoamEdit`,
+                              pathname: `/ProductPerfilEdit`,
                               query: { id: item.id },
                             }}
                           >

@@ -199,6 +199,30 @@ export default function ProductPaspatur() {
 
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Código interno</p>
+              <input
+                id="fabricante"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={perfil?.codInterno || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Código fabricante</p>
+              <input
+                id="fabricante"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={perfil?.codFabricante || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Descrição</p>
               <textarea
                 className={styles.Field}
