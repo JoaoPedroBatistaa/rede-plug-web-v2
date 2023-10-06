@@ -47,11 +47,16 @@ export default function ViewOrderShip() {
     }
   }, []);
 
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
+
   useEffect(() => {
     async function fetchData() {
       if (selectedId) {
         try {
-          const docRef = doc(db, "Orders", selectedId);
+          const docRef = doc(db, `Login/${userId}/Orders`, selectedId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {

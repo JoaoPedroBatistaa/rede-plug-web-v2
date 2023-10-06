@@ -95,11 +95,16 @@ export default function ViewBudgetBudget() {
     }
   }, []);
 
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
+
   useEffect(() => {
     async function fetchData() {
       if (selectedBudgetId) {
         try {
-          const docRef = doc(db, "Budget", selectedBudgetId);
+          const docRef = doc(db, `Login/${userId}/Budget`, selectedBudgetId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
@@ -131,140 +136,249 @@ export default function ViewBudgetBudget() {
 
   // ENVIAR POR WHATSAPP
 
-  function createPDF(budgets: any[]) {
+  function loadImage(url: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(xhr.response);
+      };
+      xhr.onerror = reject;
+      xhr.open("GET", url);
+      xhr.responseType = "blob";
+      xhr.send();
+    });
+  }
+
+  async function createPDF(budgets: any[]) {
     const doc = new jsPDF();
-    let y = 50; // posição inicial y
 
-    doc.text(
-      `\n\nNome do cliente: ${
-        userData?.nomeCompleto
-      }\n\nValor total: R$ ${parseFloat(userData?.valorTotal || "0").toFixed(
-        2
-      )}\n\n\n`,
-      10,
-      10
-    );
+    // Carregar imagem
+    const imageData = await loadImage("/LogoMenu.png");
+
+    // Adicionar a imagem ao centro do cabeçalho
+    let imgWidth = 50;
+    let imgHeight = 30;
+    let x = (doc.internal.pageSize.width - imgWidth) / 2;
+    let y = 10;
+
+    doc.addImage(imageData, "PNG", x, y, imgWidth, imgHeight);
+    y = imgHeight + 20;
+
+    // Configurações de fonte e estilo
+    doc.setFontSize(14);
+
+    // Retângulo e texto para "Nome do cliente:"
+    doc.setDrawColor(0);
+    doc.rect(10, y, 70, 10, "D");
+    doc.setFont("helvetica", "bold");
+
+    doc.text("Nome do cliente", 12, y + 7);
+    doc.setFont("helvetica", "normal");
+
+    doc.rect(85, y, 115, 10, "D");
+    doc.text(userData?.nomeCompleto || "", 87, y + 7);
+    y += 15;
+
+    // Retângulos e textos de "Valor total" e valor
+    doc.rect(10, y, 70, 10, "D");
+    doc.setFont("helvetica", "bold");
+
+    doc.text("Valor total", 12, y + 7);
+    doc.setFont("helvetica", "normal");
+
+    doc.rect(85, y, 115, 10, "D");
+    let valor = `R$ ${parseFloat(userData?.valorTotal || "0").toFixed(2)}`;
+    doc.text(valor, 87, y + 7);
+    y += 30;
+
+    // Processar os orçamentos individuais
     budgets.forEach((budget, index) => {
-      let content = formatSingleBudgetPDF(budget, index);
+      y = formatSingleBudgetPDF(doc, budget, y, index);
 
-      // Divida o texto em várias linhas se necessário
-      let lines = doc.splitTextToSize(content, 180);
+      // Adicionar "Orçamento válido por 30 dias" ao final de cada orçamento
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      const finalText = "Orçamento válido por 30 dias";
+      const textWidth = doc.getTextWidth(finalText);
+      const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
+      const yFinal = doc.internal.pageSize.height - 10;
+      doc.text(finalText, xCentered, yFinal);
 
-      // Adicione o texto à página
-      doc.text(lines, 10, y);
-
-      // Atualize y para a próxima posição, adicionando a quantidade de linhas multiplicado pela altura da linha
-      y += lines.length * 7; // ajuste a altura da linha conforme necessário
+      // Se não for o último orçamento, adiciona uma nova página
+      if (index < budgets.length - 1) {
+        doc.addPage();
+        y = 20; // Reinicializa a posição y para o início da nova página
+      }
     });
 
-    doc.save("budget.pdf");
+    doc.save(`${userData?.nomeCompleto || ""}_orcamento.pdf`);
   }
 
   function formatSingleBudgetPDF(
-    budget: {
-      descricaoInstalacao: any;
-      descricaoColagem: any;
-      descricaoMontagem: any;
-      descricaoPaspatur: any;
-      descricaoFoam: any;
-      descricaoVidro: any;
-      descricaoPerfil: any;
-      descricaoImpressao: any;
-      Tamanho: any;
-      codigoImpressao: any;
-      valorImpressao: any;
-      codigoPerfil: any;
-      valorPerfil: any;
-      valorMontagem: any;
-      codigoVidro: any;
-      valorVidro: any;
-      codigoFoam: any;
-      valorFoam: any;
-      codigoPaspatur: any;
-      valorPaspatur: any;
-      codigoColagem: any;
-      codigoMontagem: any;
-      valorColagem: any;
-      instalacao: any;
-      montagem: any;
-      valorInstalacao: any;
-      tipoEntrega: any;
-      maoDeObraExtra: any;
-      formaPagamento: any;
-      dataVencimento: any;
-      observacoes: any;
-      valorTotal: any;
-      dimensoesPaspatur: any;
-    },
+    doc: any,
+    budget: any,
+    y: number,
     index: number
-  ) {
-    // let message = `\n\n\nOlá ${userData?.nomeCompleto}, segue o seu Pedido...\n\n\n\n`;
+  ): number {
+    doc.setFontSize(12);
+    doc.setDrawColor(0);
 
-    let message = `ORÇAMENTO ${
-      index + 1
-    }                                      VALOR TOTAL: R$ ${parseFloat(
-      budget.valorTotal || "0"
-    ).toFixed(2)}\n\n\n`;
-    // message += `VALOR TOTAL: R$ ${parseFloat(budget.valorTotal || '0').toFixed(2)}\n\n`;
-    message += `Tamanho: ${budget.Tamanho}\n`;
-    message += budget.codigoImpressao
-      ? `Impressão: ${budget.codigoImpressao} - ${
-          budget.descricaoImpressao
-        } - R$ ${parseFloat(budget.valorImpressao || "0").toFixed(2)}\n`
-      : "";
-    message += budget.codigoPerfil
-      ? `Perfil: ${budget.codigoPerfil} - ${
-          budget.descricaoPerfil
-        } - R$ ${parseFloat(budget.valorPerfil || "0").toFixed(2)}\n`
-      : "";
-    message += budget.codigoVidro
-      ? `Vidro: ${budget.codigoVidro} - ${
-          budget.descricaoVidro
-        } - R$ ${parseFloat(budget.valorVidro || "0").toFixed(2)}\n`
-      : "";
-    message += budget.codigoFoam
-      ? `Foam: ${budget.codigoFoam} - ${budget.descricaoFoam} - R$ ${parseFloat(
-          budget.valorFoam || "0"
-        ).toFixed(2)}\n`
-      : "";
-    message += budget.codigoPaspatur
-      ? `Paspatur: ${budget.codigoPaspatur} - ${
-          budget.descricaoPaspatur
-        } - R$ ${parseFloat(budget.valorPaspatur || "0").toFixed(2)}\n`
-      : "";
-    message += budget.dimensoesPaspatur
-      ? `Dimensões do Paspatur: ${budget.dimensoesPaspatur}`
-      : "";
-    message += budget.codigoColagem
-      ? `Colagem: ${budget.codigoColagem} - ${
-          budget.descricaoColagem
-        } - R$ ${parseFloat(budget.valorColagem || "0").toFixed(2)}\n`
-      : "";
-    message += budget.instalacao
-      ? `Diversos: - ${budget.descricaoInstalacao} - ${budget.valorInstalacao}\n`
-      : "";
-    message += budget.montagem
-      ? `Montagem: - ${budget.descricaoMontagem} - ${budget.valorMontagem}\n`
-      : "";
-    message += budget.tipoEntrega ? `Entrega: ${budget.tipoEntrega}\n\n` : "";
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
 
-    message += "\n\nPagamentos e prazos\n\n";
-    message += budget.maoDeObraExtra
-      ? `Mão de obra externa: ${budget.maoDeObraExtra}\n`
-      : "";
-    message += budget.formaPagamento
-      ? `Forma de pagamento: ${budget.formaPagamento}\n`
-      : "";
-    message += budget.dataVencimento
-      ? `Prazo para entrega: ${formatDate(budget.dataVencimento)}\n\n`
-      : "";
+    let title = `ORÇAMENTO ${index + 1}`;
+    let titleWidth = doc.getTextWidth(title);
+    let xTitle = (210 - titleWidth) / 2;
 
-    message += `Observação: ${budget.observacoes}\n\n`;
-    message += `Valor total: R$ ${parseFloat(budget.valorTotal || "0").toFixed(
-      2
-    )}\n\n`;
+    doc.text(title, xTitle, y);
+    y += 7 + 5;
 
-    return message;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(14);
+
+    const maxWidth = 45; // Largura máxima dos retângulos
+
+    // Função auxiliar para renderizar um item do orçamento em múltiplos retângulos
+    const renderMultipleItems = (items: string[]) => {
+      let x = 10;
+      let maxHeight = 10; // Altura inicial do retângulo
+
+      // Determina a altura máxima necessária para os retângulos nesta linha
+      items.forEach((item) => {
+        let lines = doc.splitTextToSize(item, maxWidth - 4);
+        let height = lines.length * 7;
+        maxHeight = height > maxHeight ? height : maxHeight;
+      });
+
+      items.forEach((item, index) => {
+        let lines = doc.splitTextToSize(item, maxWidth - 4);
+        doc.rect(x, y, maxWidth, maxHeight, "D");
+        if (index === 0) {
+          doc.setFont("helvetica", "bold");
+        }
+        doc.text(lines, x + 2, y + 5);
+        if (index === 0) {
+          doc.setFont("helvetica", "normal");
+        }
+        x += maxWidth + 2;
+      });
+      y += maxHeight + 5; // Espaço adicional entre linhas
+    };
+
+    const renderTwoItems = (firstItem: string, secondItem: string) => {
+      const firstWidth = 45;
+      const gap = 2;
+      const secondWidth = 186 - firstWidth - gap;
+      const minHeight = 10;
+
+      let linesFirst = doc.splitTextToSize(firstItem, firstWidth - 4);
+      let linesSecond = doc.splitTextToSize(secondItem, secondWidth - 4);
+
+      let heightFirst = Math.max(linesFirst.length * 7, minHeight);
+      let heightSecond = Math.max(linesSecond.length * 7, minHeight);
+
+      let maxHeight = Math.max(heightFirst, heightSecond);
+
+      doc.setFont("helvetica", "bold");
+      doc.rect(10, y, firstWidth, maxHeight, "D");
+      doc.text(linesFirst, 12, y + 5);
+
+      doc.setFont("helvetica", "normal");
+      doc.rect(10 + firstWidth + gap, y, secondWidth, maxHeight, "D");
+      doc.text(linesSecond, 12 + firstWidth + gap, y + 5);
+
+      y += maxHeight + 5; // Espaço adicional entre linhas
+    };
+
+    if (budget.Tamanho) renderTwoItems("Tamanho", budget.Tamanho);
+    if (budget.codigoImpressao)
+      renderMultipleItems([
+        "Impressão",
+        budget.codigoImpressao,
+        budget.descricaoImpressao,
+        `R$ ${parseFloat(budget.valorImpressao || "0").toFixed(2)}`,
+      ]);
+    if (budget.codigoPerfil)
+      renderMultipleItems([
+        "Perfil",
+        budget.codigoPerfil,
+        budget.descricaoPerfil,
+        `R$ ${parseFloat(budget.valorPerfil || "0").toFixed(2)}`,
+      ]);
+    if (budget.codigoVidro)
+      renderMultipleItems([
+        "Vidro",
+        budget.codigoVidro,
+        budget.descricaoVidro,
+        `R$ ${parseFloat(budget.valorVidro || "0").toFixed(2)}`,
+      ]);
+    if (budget.codigoFoam)
+      renderMultipleItems([
+        "Foam",
+        budget.codigoFoam,
+        budget.descricaoFoam,
+        `R$ ${parseFloat(budget.valorFoam || "0").toFixed(2)}`,
+      ]);
+    if (budget.codigoPaspatur)
+      renderMultipleItems([
+        "Paspatur",
+        budget.codigoPaspatur,
+        budget.descricaoPaspatur,
+        `R$ ${parseFloat(budget.valorPaspatur || "0").toFixed(2)}`,
+      ]);
+    if (budget.dimensoesPaspatur)
+      renderMultipleItems(["Dimensões do Paspatur", budget.dimensoesPaspatur]);
+    if (budget.codigoColagem)
+      renderMultipleItems([
+        "Colagem",
+        budget.codigoColagem,
+        budget.descricaoColagem,
+        `R$ ${parseFloat(budget.valorColagem || "0").toFixed(2)}`,
+      ]);
+    if (budget.instalacao)
+      renderMultipleItems([
+        "Diversos",
+        budget.descricaoInstalacao,
+        `R$ ${parseFloat(budget.valorInstalacao || "0").toFixed(2)}`,
+      ]);
+    if (budget.montagem)
+      renderMultipleItems([
+        "Montagem",
+        budget.descricaoMontagem,
+        `R$ ${parseFloat(budget.valorMontagem || "0").toFixed(2)}`,
+      ]);
+    if (budget.tipoEntrega)
+      renderMultipleItems(["Entrega", budget.tipoEntrega]);
+
+    y += 10;
+
+    doc.setFont("helvetica", "bold");
+    let textWidth = doc.getTextWidth("Pagamentos e prazos");
+    let x = (210 - textWidth) / 2;
+
+    doc.text("Pagamentos e prazos", x, y);
+    y += 10;
+
+    doc.setFont("helvetica", "normal");
+
+    if (budget.maoDeObraExtra)
+      renderTwoItems("Mão de obra externa", budget.maoDeObraExtra);
+    if (budget.formaPagamento)
+      renderTwoItems("Forma de pagamento", budget.formaPagamento);
+    if (budget.dataVencimento)
+      renderTwoItems("Prazo para entrega", formatDate(budget.dataVencimento));
+
+    renderTwoItems("Observação", budget.observacoes);
+    renderTwoItems(
+      "Valor total",
+      `R$ ${parseFloat(budget.valorTotal || "0").toFixed(2)}`
+    );
+
+    return y; // Retorna a próxima posição y
   }
 
   function formatSingleBudget(

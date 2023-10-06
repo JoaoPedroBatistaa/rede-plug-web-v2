@@ -43,11 +43,16 @@ export default function ViewBudgetData() {
     }
   }, []);
 
+  let userId: string | null;
+  if (typeof window !== "undefined") {
+    userId = window.localStorage.getItem("userId");
+  }
+
   useEffect(() => {
     async function fetchData() {
       if (selectedBudgetId) {
         try {
-          const docRef = doc(db, "Budget", selectedBudgetId);
+          const docRef = doc(db, `Login/${userId}/Budget`, selectedBudgetId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {

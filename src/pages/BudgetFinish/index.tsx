@@ -90,35 +90,35 @@ export default function BudgetFinish() {
   }
 
   const handleSaveOrder = async () => {
-    if (!nomeCompleto) {
-      toast.error("Por favor, preencha o campo Nome Completo.");
-      return;
-    }
+    // if (!nomeCompleto) {
+    //   toast.error("Por favor, preencha o campo Nome Completo.");
+    //   return;
+    // }
 
-    if (!Telefone) {
-      toast.error("Por favor, preencha o campo Telefone.");
-      return;
-    }
+    // if (!Telefone) {
+    //   toast.error("Por favor, preencha o campo Telefone.");
+    //   return;
+    // }
 
-    if (!email) {
-      toast.error("Por favor, preencha o campo Email.");
-      return;
-    }
+    // if (!email) {
+    //   toast.error("Por favor, preencha o campo Email.");
+    //   return;
+    // }
 
-    if (!endereco) {
-      toast.error("Por favor, preencha o campo Endereço.");
-      return;
-    }
+    // if (!endereco) {
+    //   toast.error("Por favor, preencha o campo Endereço.");
+    //   return;
+    // }
 
-    if (!cidade) {
-      toast.error("Por favor, preencha o campo Cidade.");
-      return;
-    }
+    // if (!cidade) {
+    //   toast.error("Por favor, preencha o campo Cidade.");
+    //   return;
+    // }
 
-    if (!bairro) {
-      toast.error("Por favor, preencha o campo Bairro.");
-      return;
-    }
+    // if (!bairro) {
+    //   toast.error("Por favor, preencha o campo Bairro.");
+    //   return;
+    // }
 
     // if (!cep) {
     //   toast.error("Por favor, preencha o campo CEP.");
