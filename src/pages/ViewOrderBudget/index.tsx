@@ -188,49 +188,49 @@ export default function ViewOrderBudget() {
     doc.addImage(imageData, "PNG", x, y, imgWidth, imgHeight);
     y = imgHeight + 20;
 
-    // Configurações de fonte e estilo
     doc.setFontSize(8);
 
-    // Retângulo e texto para "Nome do cliente:"
-    doc.setDrawColor(0);
-    doc.rect(10, y, 70, 10, "D");
+    const calculateHeight = (text: string, width: number) => {
+      let lines = doc.splitTextToSize(text, width - 4);
+      return Math.max(lines.length * 3, 7); // Calcular a altura baseada no número de linhas, garantindo uma altura mínima de 7
+    };
+
+    let rectHeight = calculateHeight("Nome do cliente", 70);
+    doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
-
-    doc.text("Nome do cliente", 12, y + 7);
+    doc.text("Nome do cliente", 12, y + 5);
     doc.setFont("helvetica", "normal");
+    doc.rect(85, y, 115, rectHeight, "D");
+    doc.text(userData?.nomeCompleto || "", 87, y + 5);
+    y += rectHeight + 2;
 
-    doc.rect(85, y, 115, 10, "D");
-    doc.text(userData?.nomeCompleto || "", 87, y + 7);
-    y += 15;
-
-    // Retângulos e textos de "Número do orçamento" e seu número
-    doc.rect(10, y, 70, 10, "D");
+    rectHeight = calculateHeight("Número do orçamento", 70);
+    doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
-    doc.text("Número do pedido", 12, y + 7);
+    doc.text("Número do pedido", 12, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.rect(85, y, 115, 10, "D");
-    doc.text(userData?.NumeroPedido.toString() || "", 87, y + 7);
-    y += 15;
+    doc.rect(85, y, 115, rectHeight, "D");
+    doc.text(userData?.NumeroPedido.toString() || "", 87, y + 5);
+    y += rectHeight + 2;
 
-    doc.rect(10, y, 70, 10, "D");
+    rectHeight = calculateHeight("Data do orçamento", 70);
+    doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
-    doc.text("Data do pedido", 12, y + 7);
+    doc.text("Data do pedido", 12, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.rect(85, y, 115, 10, "D");
-    doc.text(userData?.dataCadastro || "", 87, y + 7);
-    y += 15;
+    doc.rect(85, y, 115, rectHeight, "D");
+    doc.text(userData?.dataCadastro || "", 87, y + 5);
+    y += rectHeight + 2;
 
-    // Retângulos e textos de "Valor total" e valor
-    doc.rect(10, y, 70, 10, "D");
+    rectHeight = calculateHeight("Valor total", 70);
+    doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
-
-    doc.text("Valor total", 12, y + 7);
+    doc.text("Valor total", 12, y + 5);
     doc.setFont("helvetica", "normal");
-
-    doc.rect(85, y, 115, 10, "D");
+    doc.rect(85, y, 115, rectHeight, "D");
     let valor = `R$ ${parseFloat(userData?.valorTotal || "0").toFixed(2)}`;
-    doc.text(valor, 87, y + 7);
-    y += 20;
+    doc.text(valor, 87, y + 5);
+    y += rectHeight + 10;
 
     // Processar os orçamentos individuais
     budgets.forEach((budget, index) => {
@@ -290,12 +290,12 @@ export default function ViewOrderBudget() {
     // Função auxiliar para renderizar um item do orçamento em múltiplos retângulos
     const renderMultipleItems = (items: string[]) => {
       let x = 10;
-      let maxHeight = 10; // Altura inicial do retângulo
+      let maxHeight = 7; // Altura inicial do retângulo ajustada
 
       // Determina a altura máxima necessária para os retângulos nesta linha
       items.forEach((item) => {
         let lines = doc.splitTextToSize(item, maxWidth - 4);
-        let height = lines.length * 7;
+        let height = Math.max(lines.length * 3, maxHeight); // Calcula a altura usando a lógica similar a do renderTwoItems
         maxHeight = height > maxHeight ? height : maxHeight;
       });
 
@@ -311,20 +311,20 @@ export default function ViewOrderBudget() {
         }
         x += maxWidth + 2;
       });
-      y += maxHeight + 5; // Espaço adicional entre linhas
+      y += maxHeight + 2; // Espaço adicional entre linhas
     };
 
     const renderTwoItems = (firstItem: string, secondItem: string) => {
       const firstWidth = 45;
       const gap = 2;
       const secondWidth = 186 - firstWidth - gap;
-      const minHeight = 8;
+      const minHeight = 7;
 
       let linesFirst = doc.splitTextToSize(firstItem, firstWidth - 4);
       let linesSecond = doc.splitTextToSize(secondItem, secondWidth - 4);
 
-      let heightFirst = Math.max(linesFirst.length * 7, minHeight);
-      let heightSecond = Math.max(linesSecond.length * 7, minHeight);
+      let heightFirst = Math.max(linesFirst.length * 3, minHeight);
+      let heightSecond = Math.max(linesSecond.length * 3, minHeight);
 
       let maxHeight = Math.max(heightFirst, heightSecond);
 
@@ -336,7 +336,7 @@ export default function ViewOrderBudget() {
       doc.rect(10 + firstWidth + gap, y, secondWidth, maxHeight, "D");
       doc.text(linesSecond, 12 + firstWidth + gap, y + 5);
 
-      y += maxHeight + 5; // Espaço adicional entre linhas
+      y += maxHeight + 2; // Espaço adicional entre linhas
     };
 
     if (budget.Tamanho) renderTwoItems("Tamanho", budget.Tamanho);
