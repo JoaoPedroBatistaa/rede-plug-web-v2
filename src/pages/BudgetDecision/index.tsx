@@ -419,6 +419,7 @@ export default function BudgetDecision() {
       descricaoInstalacao,
       descricaoPaspatur,
       descricaoVidro,
+      desconto,
     };
 
     // if (!formaPagamento || formaPagamento === "") {
@@ -477,6 +478,7 @@ export default function BudgetDecision() {
     const Desconto = parseFloat(descontoInput.value);
 
     setDesconto(Desconto);
+    localStorage.setItem("desconto", Desconto.toString());
   };
 
   const [valorComDesconto, setValorComDesconto] = useState<number>(0); // preco após desconto
