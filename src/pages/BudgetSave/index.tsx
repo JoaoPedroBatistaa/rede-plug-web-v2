@@ -43,8 +43,10 @@ interface Foam {
 export default function BudgetSave() {
   const router = useRouter();
 
+  const [desconto, setDesconto] = useState("");
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    setDesconto(localStorage.getItem("desconto") || "");
 
     if (!userId) {
       router.push("/Login");
@@ -284,6 +286,7 @@ export default function BudgetSave() {
         budgets,
         valorTotal,
         NumeroPedido,
+        desconto,
       });
 
       await updateDoc(numeroDoOrcamentoRef, {

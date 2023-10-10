@@ -30,8 +30,10 @@ interface Foam {
 export default function BudgetFinish() {
   const router = useRouter();
 
+  const [desconto, setDesconto] = useState("");
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    setDesconto(localStorage.getItem("desconto") || "");
 
     if (!userId) {
       router.push("/Login");
@@ -40,6 +42,7 @@ export default function BudgetFinish() {
 
   const [formaPagamento, setFormaPagamento] = useState("");
   const [maoDeObraExtra, setMaoDeObraExtra] = useState("");
+  const [vendedor, setVendedor] = useState("");
 
   let nomeCompleto: string | null;
   let Telefone: string | null;
@@ -164,6 +167,8 @@ export default function BudgetFinish() {
         budgets,
         NumeroPedido,
         formaPagamento,
+        vendedor,
+        desconto,
       });
 
       await updateDoc(numeroDoPedidoRef, {
@@ -456,28 +461,20 @@ export default function BudgetFinish() {
                   </select>
                 </div>
               </div>
-              {/*
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Mão de obra</p>
+                  <p className={styles.FieldLabel}>Vendedor</p>
                   <input
                     type="text"
                     className={styles.FieldSaveDes}
                     placeholder=""
-                    value={adicional}
-                    onKeyPress={(e) => {
-                      const char = e.key;
-                      if (!/[0-9.,]/.test(char)) {
-                        e.preventDefault();
-                      }
-                    }}
                     onChange={(e) => {
-                      setAdicional(e.target.value);
-                      localStorage.setItem("adicional", e.target.value);
+                      setVendedor(e.target.value);
                     }}
                   />
                 </div>
-              </div> */}
+              </div>
             </div>
 
             <div className={styles.linhaData}></div>

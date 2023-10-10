@@ -68,6 +68,7 @@ type UserDataType = {
   nomeCompleto: string;
   NumeroPedido: string;
   dataCadastro: string;
+  desconto: string;
 };
 
 export default function ViewBudgetBudget() {
@@ -158,13 +159,11 @@ export default function ViewBudgetBudget() {
   async function createPDF(budgets: any[]) {
     const doc = new jsPDF();
 
-    // Carregar imagem
     const imageData = await loadImage("/LogoMenu.png");
 
-    // Adicionar a imagem ao centro do cabeçalho
     let imgWidth = 35;
     let imgHeight = 21;
-    let x = (doc.internal.pageSize.width - imgWidth) / 2;
+    let x = 10;
     let y = 10;
 
     doc.addImage(imageData, "PNG", x, y, imgWidth, imgHeight);
@@ -174,51 +173,57 @@ export default function ViewBudgetBudget() {
 
     const calculateHeight = (text: string, width: number) => {
       let lines = doc.splitTextToSize(text, width - 4);
-      return Math.max(lines.length * 3, 7); // Calcular a altura baseada no número de linhas, garantindo uma altura mínima de 7
+      return Math.max(lines.length * 3, 7);
     };
 
-    let rectHeight = calculateHeight("Nome do cliente", 70);
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Nome do cliente", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(85, y, 115, rectHeight, "D");
-    doc.text(userData?.nomeCompleto || "", 87, y + 5);
-    y += rectHeight + 2;
+    let rectHeight = calculateHeight(
+      userData?.NumeroPedido.toString() || "",
+      65
+    );
+    const calculateWidth = (text: string) => {
+      let textWidth = doc.getTextWidth(text) + 10;
+      return Math.min(textWidth, 60);
+    };
 
-    rectHeight = calculateHeight("Número do orçamento", 70);
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Número do orçamento", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(85, y, 115, rectHeight, "D");
-    doc.text(userData?.NumeroPedido.toString() || "", 87, y + 5);
-    y += rectHeight + 2;
+    let rightStartX = doc.internal.pageSize.width - 90;
 
-    rectHeight = calculateHeight("Data do orçamento", 70);
-    doc.rect(10, y, 70, rectHeight, "D");
+    let rectWidth = calculateWidth("Número do orçamento");
+    doc.rect(rightStartX, 10, rectWidth, rectHeight, "D");
     doc.setFont("helvetica", "bold");
-    doc.text("Data do orçamento", 12, y + 5);
+    doc.text("Número do orçamento", rightStartX + 2, 10 + 5);
     doc.setFont("helvetica", "normal");
-    doc.rect(85, y, 115, rectHeight, "D");
-    doc.text(userData?.dataCadastro || "", 87, y + 5);
-    y += rectHeight + 2;
+    doc.rect(rightStartX + rectWidth + 2, 10, rectWidth, rectHeight, "D");
+    doc.setFontSize(12);
+
+    doc.text(
+      userData?.NumeroPedido.toString() || "",
+      rightStartX + rectWidth + 4,
+      10 + 5
+    );
+    doc.setFontSize(8);
+
+    y = 10 + rectHeight + 2.5;
+
+    doc.rect(rightStartX, y, rectWidth, rectHeight, "D");
+    doc.setFont("helvetica", "bold");
+    doc.text("Data do orçamento", rightStartX + 2, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.rect(rightStartX + rectWidth + 2, y, rectWidth, rectHeight, "D");
+    doc.text(userData?.dataCadastro || "", rightStartX + rectWidth + 4, y + 5);
+    y += rectHeight + 10;
 
     rectHeight = calculateHeight("Valor total", 70);
     doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
-    doc.text("Valor total", 12, y + 5);
+    doc.text("Nome do cliente", 12, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.rect(85, y, 115, rectHeight, "D");
-    let valor = `R$ ${parseFloat(userData?.valorTotal || "0").toFixed(2)}`;
-    doc.text(valor, 87, y + 5);
+    doc.rect(82, y, 115, rectHeight, "D");
+    doc.text(userData?.nomeCompleto || "", 87, y + 5);
     y += rectHeight + 10;
 
-    // Processar os orçamentos individuais
     budgets.forEach((budget, index) => {
       y = formatSingleBudgetPDF(doc, budget, y, index);
 
-      // Adicionar "Orçamento válido por 30 dias" ao final de cada orçamento
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
       const finalText = "Orçamento válido por 30 dias";
@@ -227,12 +232,50 @@ export default function ViewBudgetBudget() {
       const yFinal = doc.internal.pageSize.height - 10;
       doc.text(finalText, xCentered, yFinal);
 
-      // Se não for o último orçamento, adiciona uma nova página
       if (index < budgets.length - 1) {
         doc.addPage();
-        y = 20; // Reinicializa a posição y para o início da nova página
+        y = 20;
       }
     });
+
+    doc.addPage();
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Total do orçamento", doc.internal.pageSize.width / 2, 30, {
+      align: "center",
+    });
+    y = 40; // posição inicial após o título
+    doc.setFontSize(10);
+
+    rectHeight = calculateHeight("Sub total", 70);
+    doc.rect(10, y, 70, rectHeight, "D");
+    doc.setFont("helvetica", "bold");
+    doc.text("Sub total", 12, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.rect(82, y, 115, rectHeight, "D");
+    let desconto = parseFloat(userData?.desconto || "0");
+    let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
+    doc.text(`R$ ${subTotal.toFixed(2)}`, 87, y + 5);
+    y += rectHeight + 2;
+
+    rectHeight = calculateHeight("Desconto", 70);
+    doc.rect(10, y, 70, rectHeight, "D");
+    doc.setFont("helvetica", "bold");
+    doc.text("Desconto", 12, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.rect(82, y, 115, rectHeight, "D");
+    doc.text(`${(desconto * 100).toFixed(2)}%`, 87, y + 5);
+    y += rectHeight + 2;
+
+    rectHeight = calculateHeight("Valor total", 70);
+    doc.rect(10, y, 70, rectHeight, "D");
+    doc.setFont("helvetica", "bold");
+    doc.text("Valor total", 12, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.rect(82, y, 115, rectHeight, "D");
+    let valorTotal = parseFloat(userData?.valorTotal || "0");
+    doc.text(`R$ ${valorTotal.toFixed(2)}`, 87, y + 5);
+    y += rectHeight + 10;
 
     doc.save(`${userData?.nomeCompleto || ""}_orcamento.pdf`);
   }
@@ -387,7 +430,7 @@ export default function ViewBudgetBudget() {
 
     if (budget.maoDeObraExtra)
       renderTwoItems("Mão de obra externa", budget.maoDeObraExtra);
-    if (budget.desconto) renderTwoItems("Desconto", `${budget.desconto}%`);
+    // if (budget.desconto) renderTwoItems("Desconto", `${budget.desconto}%`);
     if (budget.formaPagamento)
       renderTwoItems("Forma de pagamento", budget.formaPagamento);
     if (budget.dataVencimento)
@@ -397,7 +440,7 @@ export default function ViewBudgetBudget() {
       renderTwoItems("Observação", budget.observacoes);
     }
     renderTwoItems(
-      "Valor total",
+      "Valor do item",
       `R$ ${parseFloat(budget.valorTotal || "0").toFixed(2)}`
     );
 

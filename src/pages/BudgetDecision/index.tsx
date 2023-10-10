@@ -419,7 +419,6 @@ export default function BudgetDecision() {
       descricaoInstalacao,
       descricaoPaspatur,
       descricaoVidro,
-      desconto,
     };
 
     // if (!formaPagamento || formaPagamento === "") {
