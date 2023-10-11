@@ -205,6 +205,15 @@ export default function ViewOrderBudget() {
       return Math.min(textWidth, 60);
     };
 
+    const checkPageEnd = (y: number): number => {
+      const bottomMargin = 40;
+      if (y > doc.internal.pageSize.height - bottomMargin) {
+        doc.addPage();
+        return 20;
+      }
+      return y;
+    };
+
     let rightStartX = doc.internal.pageSize.width - 90;
 
     let rectWidth = calculateWidth("Número do orçamento");
@@ -267,49 +276,34 @@ export default function ViewOrderBudget() {
     doc.text(userData?.endereco || "", 87, y + 5);
     y += rectHeight + 10;
 
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Valor total", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
-    let valor = `R$ ${parseFloat(userData?.valorTotal || "0").toFixed(2)}`;
-    doc.text(valor, 87, y + 5);
-    y += rectHeight + 10;
-
     budgets.forEach((budget, index) => {
       y = formatSingleBudgetPDF(doc, budget, y, index);
+      y = checkPageEnd(y);
 
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      const finalText =
-        "Srs Clientes, não nos responsabilizamos por objetos e pedidos não retirados no prazo máximo de 90 dias! SEM EXCESSÕES!";
-
-      const maxWidth = doc.internal.pageSize.width - 40;
-      const lines = doc.splitTextToSize(finalText, maxWidth);
-
-      const yStart = doc.internal.pageSize.height - 10 - lines.length * 7;
-      for (let line of lines) {
-        const lineWidth = doc.getTextWidth(line);
-        const xCentered = (doc.internal.pageSize.width - lineWidth) / 2;
-        doc.text(line, xCentered, yStart + lines.indexOf(line) * 7);
-      }
-
-      if (index < budgets.length - 1) {
-        doc.addPage();
-        y = 20;
-      }
+      // if (index === budgets.length - 1) {
+      //   doc.setFontSize(8);
+      //   doc.setFont("helvetica", "bold");
+      //   const finalText =
+      //     "Srs Clientes, não nos responsabilizamos por objetos e pedidos não retirados no prazo máximo de 90 dias! SEM EXCESSÕES!";
+      //   const textWidth = doc.getTextWidth(finalText);
+      //   const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
+      //   y = checkPageEnd(y + 20);
+      //   doc.text(finalText, xCentered, y);
+      //   y += 10;
+      // }
     });
 
-    doc.addPage();
+    y = checkPageEnd(y + 30);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("Total do pedido", doc.internal.pageSize.width / 2, 30, {
+    doc.text("Total do pedido", doc.internal.pageSize.width / 2, y, {
       align: "center",
     });
-    y = 40;
+    y += 5;
     doc.setFontSize(10);
 
     rectHeight = calculateHeight("Sub total", 70);
+    y = checkPageEnd(y + rectHeight + 2);
     doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Sub total", 12, y + 5);
@@ -318,18 +312,20 @@ export default function ViewOrderBudget() {
     let desconto = parseFloat(userData?.desconto || "0");
     let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
     doc.text(`R$ ${subTotal.toFixed(2)}`, 87, y + 5);
-    y += rectHeight + 2;
+    y += 1;
 
     rectHeight = calculateHeight("Desconto", 70);
+    y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Desconto", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(82, y, 115, rectHeight, "D");
     doc.text(`${(desconto * 100).toFixed(2)}%`, 87, y + 5);
-    y += rectHeight + 2;
+    y += rectHeight; // Só adicione a altura do retângulo
 
     rectHeight = calculateHeight("Valor total", 70);
+    y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Valor total", 12, y + 5);
@@ -337,7 +333,17 @@ export default function ViewOrderBudget() {
     doc.rect(82, y, 115, rectHeight, "D");
     let valorTotal = parseFloat(userData?.valorTotal || "0");
     doc.text(`R$ ${valorTotal.toFixed(2)}`, 87, y + 5);
-    y += rectHeight + 10;
+    y += rectHeight + 20;
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    const finalText =
+      "Srs Clientes, não nos responsabilizamos por objetos e pedidos não retirados no prazo máximo de 90 dias! SEM EXCESSÕES!";
+    const textWidth = doc.getTextWidth(finalText);
+    const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
+    y = checkPageEnd(y + 20);
+    doc.text(finalText, xCentered, y);
+    y += 10;
 
     doc.save(`${userData?.nomeCompleto || ""}_pedido.pdf`);
   }
@@ -505,6 +511,10 @@ export default function ViewOrderBudget() {
       "Valor do item",
       `R$ ${parseFloat(budget.valorTotal || "0").toFixed(2)}`
     );
+
+    if (index !== budgets.length - 1) {
+      y += 10;
+    }
 
     return y; // Retorna a próxima posição y
   }

@@ -185,6 +185,15 @@ export default function ViewBudgetBudget() {
       return Math.min(textWidth, 60);
     };
 
+    const checkPageEnd = (y: number): number => {
+      const bottomMargin = 40;
+      if (y > doc.internal.pageSize.height - bottomMargin) {
+        doc.addPage();
+        return 20;
+      }
+      return y;
+    };
+
     let rightStartX = doc.internal.pageSize.width - 90;
 
     let rectWidth = calculateWidth("Número do orçamento");
@@ -223,31 +232,31 @@ export default function ViewBudgetBudget() {
 
     budgets.forEach((budget, index) => {
       y = formatSingleBudgetPDF(doc, budget, y, index);
+      y = checkPageEnd(y);
 
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      const finalText = "Orçamento válido por 30 dias";
-      const textWidth = doc.getTextWidth(finalText);
-      const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
-      const yFinal = doc.internal.pageSize.height - 10;
-      doc.text(finalText, xCentered, yFinal);
-
-      if (index < budgets.length - 1) {
-        doc.addPage();
-        y = 20;
-      }
+      // if (index === budgets.length - 1) {
+      //   doc.setFontSize(8);
+      //   doc.setFont("helvetica", "bold");
+      //   const finalText = "Orçamento válido por 30 dias";
+      //   const textWidth = doc.getTextWidth(finalText);
+      //   const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
+      //   y = checkPageEnd(y + 20);
+      //   doc.text(finalText, xCentered, y);
+      //   y += 10;
+      // }
     });
 
-    doc.addPage();
+    y = checkPageEnd(y + 30);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("Total do orçamento", doc.internal.pageSize.width / 2, 30, {
+    doc.text("Total do orçamento", doc.internal.pageSize.width / 2, y, {
       align: "center",
     });
-    y = 40; // posição inicial após o título
+    y += 5;
     doc.setFontSize(10);
 
     rectHeight = calculateHeight("Sub total", 70);
+    y = checkPageEnd(y + rectHeight + 2);
     doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Sub total", 12, y + 5);
@@ -256,18 +265,20 @@ export default function ViewBudgetBudget() {
     let desconto = parseFloat(userData?.desconto || "0");
     let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
     doc.text(`R$ ${subTotal.toFixed(2)}`, 87, y + 5);
-    y += rectHeight + 2;
+    y += 1;
 
     rectHeight = calculateHeight("Desconto", 70);
+    y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Desconto", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(82, y, 115, rectHeight, "D");
     doc.text(`${(desconto * 100).toFixed(2)}%`, 87, y + 5);
-    y += rectHeight + 2;
+    y += rectHeight; // Só adicione a altura do retângulo
 
     rectHeight = calculateHeight("Valor total", 70);
+    y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, 70, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Valor total", 12, y + 5);
@@ -275,7 +286,16 @@ export default function ViewBudgetBudget() {
     doc.rect(82, y, 115, rectHeight, "D");
     let valorTotal = parseFloat(userData?.valorTotal || "0");
     doc.text(`R$ ${valorTotal.toFixed(2)}`, 87, y + 5);
-    y += rectHeight + 10;
+    y += rectHeight + 20; // Só adicione a altura do retângulo
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    const finalText = "Orçamento válido por 30 dias";
+    const textWidth = doc.getTextWidth(finalText);
+    const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
+    y = checkPageEnd(y + 20);
+    doc.text(finalText, xCentered, y);
+    y += 10;
 
     doc.save(`${userData?.nomeCompleto || ""}_orcamento.pdf`);
   }
@@ -443,6 +463,10 @@ export default function ViewBudgetBudget() {
       "Valor do item",
       `R$ ${parseFloat(budget.valorTotal || "0").toFixed(2)}`
     );
+
+    if (index !== budgets.length - 1) {
+      y += 10;
+    }
 
     return y; // Retorna a próxima posição y
   }
