@@ -66,6 +66,11 @@ type UserDataType = {
   endereco: string;
   vendedor: string;
   desconto: string;
+  bairro: string;
+  cep: string;
+  cidade: string;
+  cpf: string;
+  estado: string;
 };
 
 export default function ViewOrderBudget() {
@@ -82,6 +87,7 @@ export default function ViewOrderBudget() {
   const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
 
   const [selectedOption, setSelectedOption] = useState("opcao1");
+  const [dataEntrega, setDataEntrega] = useState("");
   const [userData, setUserData] = useState<UserDataType | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -176,6 +182,56 @@ export default function ViewOrderBudget() {
     });
   }
 
+  function renderMultipleItems(
+    doc: any,
+    startY: number,
+    ...items: (string | number)[]
+  ): number {
+    let y = startY;
+    const titleWidth = 25;
+    const dataWidth = 34;
+
+    const calculateHeight = (text: string, width: number): number => {
+      let lines = doc.splitTextToSize(text, width - 4);
+      return Math.max(lines.length * 4.5, 7); // aqui estamos assumindo que a altura de uma linha é 3
+    };
+
+    let x = 10;
+    let maxItemHeight = 0; // Inicialize aqui
+
+    for (let i = 0; i < items.length; i += 2) {
+      const title = items[i].toString();
+      const data = items[i + 1].toString();
+
+      // Calcule as alturas para título e dados
+      const titleHeight = calculateHeight(title, titleWidth);
+      const dataHeight = calculateHeight(data, dataWidth);
+
+      // Use a maior altura entre o título e os dados para definir a altura do retângulo
+      const currentItemHeight = Math.max(titleHeight, dataHeight);
+      maxItemHeight = Math.max(maxItemHeight, currentItemHeight);
+
+      // Renderizando título
+      doc.rect(x, y, titleWidth, currentItemHeight, "D");
+      doc.setFont("helvetica", "bold");
+      let splitTitle = doc.splitTextToSize(title, titleWidth - 4);
+      doc.text(splitTitle, x + 2, y + 5);
+
+      // Renderizando data
+      x += titleWidth + 2;
+      doc.setFont("helvetica", "normal");
+      doc.rect(x, y, dataWidth, currentItemHeight, "D");
+      let splitData = doc.splitTextToSize(data, dataWidth - 4);
+      doc.text(splitData, x + 2, y + 5);
+
+      x += dataWidth + 2;
+    }
+
+    y += maxItemHeight + 2;
+
+    return y; // Retorna a nova posição y
+  }
+
   async function createPDF(budgets: any[]) {
     const doc = new jsPDF();
 
@@ -249,48 +305,40 @@ export default function ViewOrderBudget() {
     doc.text(userData?.vendedor || "", rightStartX + rectWidth + 4, y + 5);
     y += rectHeight + 10;
 
-    rectHeight = calculateHeight("Valor total", 70);
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Nome do cliente", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
-    doc.text(userData?.nomeCompleto || "", 87, y + 5);
-    y += rectHeight + 2;
+    y = renderMultipleItems(
+      doc,
+      y,
+      "Nome do cliente",
+      userData?.nomeCompleto || "",
+      "CPF/CNPJ",
+      userData?.cpf || ""
+    );
+    y = renderMultipleItems(
+      doc,
+      y,
+      "Endereço",
+      userData?.endereco || "",
+      "Bairro",
+      userData?.bairro || "",
+      "CEP",
+      userData?.cep || ""
+    );
+    y = renderMultipleItems(
+      doc,
+      y,
+      "Cidade",
+      userData?.cidade || "",
+      "Estado",
+      userData?.estado || "",
+      "Telefone",
+      userData?.Telefone || ""
+    );
 
-    rectHeight = calculateHeight("Valor total", 70);
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Telefone", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
-    doc.text(userData?.Telefone || "", 87, y + 5);
-    y += rectHeight + 2;
-
-    rectHeight = calculateHeight("Valor total", 70);
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Endereço", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
-    doc.text(userData?.endereco || "", 87, y + 5);
-    y += rectHeight + 10;
+    y += 10;
 
     budgets.forEach((budget, index) => {
       y = formatSingleBudgetPDF(doc, budget, y, index);
       y = checkPageEnd(y);
-
-      // if (index === budgets.length - 1) {
-      //   doc.setFontSize(8);
-      //   doc.setFont("helvetica", "bold");
-      //   const finalText =
-      //     "Srs Clientes, não nos responsabilizamos por objetos e pedidos não retirados no prazo máximo de 90 dias! SEM EXCESSÕES!";
-      //   const textWidth = doc.getTextWidth(finalText);
-      //   const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
-      //   y = checkPageEnd(y + 20);
-      //   doc.text(finalText, xCentered, y);
-      //   y += 10;
-      // }
     });
 
     y = checkPageEnd(y + 30);
@@ -302,38 +350,50 @@ export default function ViewOrderBudget() {
     y += 5;
     doc.setFontSize(10);
 
-    rectHeight = calculateHeight("Sub total", 70);
+    const rectangleWidth = 50; // Definindo largura do retângulo
+
+    rectHeight = calculateHeight("Sub total", rectangleWidth);
     y = checkPageEnd(y + rectHeight + 2);
-    doc.rect(10, y, 70, rectHeight, "D");
+    doc.rect(10, y, rectangleWidth, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Sub total", 12, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
+    doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
     let desconto = parseFloat(userData?.desconto || "0");
     let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
-    doc.text(`R$ ${subTotal.toFixed(2)}`, 87, y + 5);
-    y += 1;
+    doc.text(`R$ ${subTotal.toFixed(2)}`, 10 + rectangleWidth + 4, y + 5);
+    y += 2;
 
-    rectHeight = calculateHeight("Desconto", 70);
+    rectHeight = calculateHeight("Valor total", rectangleWidth);
     y = checkPageEnd(y + rectHeight);
-    doc.rect(10, y, 70, rectHeight, "D");
+    doc.rect(10, y, rectangleWidth, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Desconto", 12, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
-    doc.text(`${(desconto * 100).toFixed(2)}%`, 87, y + 5);
-    y += rectHeight; // Só adicione a altura do retângulo
+    doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
+    doc.text(`${(desconto * 100).toFixed(2)}%`, 10 + rectangleWidth + 4, y + 5);
+    y += 2;
 
-    rectHeight = calculateHeight("Valor total", 70);
+    rectHeight = calculateHeight("Valor total", rectangleWidth);
     y = checkPageEnd(y + rectHeight);
-    doc.rect(10, y, 70, rectHeight, "D");
+    doc.rect(10, y, rectangleWidth, rectHeight, "D");
     doc.setFont("helvetica", "bold");
     doc.text("Valor total", 12, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
+    doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
     let valorTotal = parseFloat(userData?.valorTotal || "0");
-    doc.text(`R$ ${valorTotal.toFixed(2)}`, 87, y + 5);
-    y += rectHeight + 20;
+    doc.text(`R$ ${valorTotal.toFixed(2)}`, 10 + rectangleWidth + 4, y + 5);
+    y += 2;
+
+    rectHeight = calculateHeight("Prazo para entrega", rectangleWidth);
+    y = checkPageEnd(y + rectHeight);
+    doc.rect(10, y, rectangleWidth, rectHeight, "D");
+    doc.setFont("helvetica", "bold");
+    doc.text("Prazo para entrega", 12, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
+    doc.text(`${dataEntrega}`, 10 + rectangleWidth + 4, y + 5);
+    y += 20;
 
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
@@ -485,30 +545,29 @@ export default function ViewOrderBudget() {
     if (budget.tipoEntrega)
       renderMultipleItems(["Entrega", budget.tipoEntrega]);
 
-    y += 5;
+    // y += 5;
 
-    doc.setFont("helvetica", "bold");
-    let textWidth = doc.getTextWidth("Pagamentos e prazos");
-    let x = (210 - textWidth) / 2;
+    // doc.setFont("helvetica", "bold");
+    // let textWidth = doc.getTextWidth("Pagamentos e prazos");
+    // let x = (210 - textWidth) / 2;
 
-    doc.text("Pagamentos e prazos", x, y);
-    y += 5;
+    // doc.text("Pagamentos e prazos", x, y);
+    // y += 5;
 
-    doc.setFont("helvetica", "normal");
+    // doc.setFont("helvetica", "normal");
 
     if (budget.maoDeObraExtra)
       renderTwoItems("Mão de obra externa", budget.maoDeObraExtra);
     // if (budget.desconto) renderTwoItems("Desconto", `${budget.desconto}%`);
     if (budget.formaPagamento)
       renderTwoItems("Forma de pagamento", budget.formaPagamento);
-    if (budget.dataVencimento)
-      renderTwoItems("Prazo para entrega", formatDate(budget.dataVencimento));
+    if (budget.dataVencimento) setDataEntrega(budget.dataVencimento);
 
     if (budget.observacoes) {
       renderTwoItems("Observação", budget.observacoes);
     }
     renderTwoItems(
-      "Valor do item",
+      `Valor do item ${index + 1}`,
       `R$ ${parseFloat(budget.valorTotal || "0").toFixed(2)}`
     );
 
