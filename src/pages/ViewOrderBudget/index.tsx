@@ -341,13 +341,13 @@ export default function ViewOrderBudget() {
       y = checkPageEnd(y);
     });
 
-    y = checkPageEnd(y + 30);
+    y = checkPageEnd(y + 15);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("Total do pedido", doc.internal.pageSize.width / 2, y, {
       align: "center",
     });
-    y += 5;
+    y += 2;
     doc.setFontSize(10);
 
     const rectangleWidth = 50; // Definindo largura do retângulo
@@ -393,7 +393,7 @@ export default function ViewOrderBudget() {
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
     doc.text(`${dataEntrega}`, 10 + rectangleWidth + 4, y + 5);
-    y += 10;
+    y += 6;
 
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
