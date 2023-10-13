@@ -393,7 +393,7 @@ export default function ViewOrderBudget() {
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
     doc.text(`${dataEntrega}`, 10 + rectangleWidth + 4, y + 5);
-    y += 20;
+    y += 10;
 
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
@@ -403,7 +403,6 @@ export default function ViewOrderBudget() {
     const xCentered = (doc.internal.pageSize.width - textWidth) / 2;
     y = checkPageEnd(y + 20);
     doc.text(finalText, xCentered, y);
-    y += 10;
 
     doc.save(`${userData?.nomeCompleto || ""}_pedido.pdf`);
   }
