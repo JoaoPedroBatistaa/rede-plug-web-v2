@@ -181,6 +181,30 @@ export default function UpdateFoam() {
             </div>
 
             <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Bairro</p>
+              <input
+                id="bairro"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.bairro || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Numero</p>
+              <input
+                id="numero"
+                type="number"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.numero || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Endereço</p>
               <textarea
                 className={styles.Field}

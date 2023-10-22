@@ -40,6 +40,21 @@ interface Foam {
   venue: string;
 }
 
+interface Cliente {
+  id: string;
+  NomeCompleto: string;
+  Telefone: string;
+  bairro: string | null;
+  cep: string;
+  cidade: string;
+  complemento: string | null;
+  cpf: string;
+  email: string;
+  estado: string;
+  numero: string | null;
+  venue: string;
+}
+
 export default function BudgetSave() {
   const router = useRouter();
 
@@ -182,10 +197,26 @@ export default function BudgetSave() {
     const querySnapshot = await getDocs(startAtQuery);
 
     if (!querySnapshot.empty) {
-      const results = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const results = querySnapshot.docs
+        .map((doc) => {
+          const data = doc.data() as Cliente;
+          return {
+            ...data,
+            id: doc.id,
+          };
+        })
+        .filter((cliente) => {
+          // Verifica se o cpf é válido (não vazio)
+          if (!cliente.cpf || cliente.cpf === "") return false;
+
+          // Filtra baseado na máscara selecionada
+          if (selectedOption === "FÍSICA") {
+            return cliente.cpf.length <= 11;
+          } else {
+            return cliente.cpf.length > 11;
+          }
+        });
+
       setSuggestions(results);
     } else {
       setSuggestions([]);

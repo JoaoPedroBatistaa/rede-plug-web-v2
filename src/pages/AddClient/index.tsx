@@ -164,6 +164,28 @@ export default function ProductFoam() {
             </div>
 
             <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Bairro</p>
+              <input
+                id="valorPerda"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                onChange={(e) => setBairro(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Numero</p>
+              <input
+                id="valorPerda"
+                type="number"
+                className={styles.Field}
+                placeholder=""
+                onChange={(e) => setNumero(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Endereço</p>
               <textarea
                 className={styles.Field}
