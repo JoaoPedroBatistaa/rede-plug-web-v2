@@ -64,6 +64,9 @@ export default function Table({
           };
           return order;
         });
+
+      orderList.sort((a, b) => Number(b.NumeroPedido) - Number(a.NumeroPedido));
+
       setTeste(orderList);
       console.log(orderList);
     };

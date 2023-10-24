@@ -44,7 +44,7 @@ export default function TableBudgets({
       const dbCollection = collection(db, `Login/${userId}/Budget`);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs
-        .filter((doc) => doc.id !== "NumeroDoOrçamento") // Adicione esta linha
+        .filter((doc) => doc.id !== "NumeroDoOrçamento")
         .map((doc) => {
           const data = doc.data();
           const budget: Budget = {
@@ -60,6 +60,12 @@ export default function TableBudgets({
           };
           return budget;
         });
+
+      // Ordenando de forma decrescente pelo NumeroPedido
+      budgetList.sort(
+        (a, b) => Number(b.NumeroPedido) - Number(a.NumeroPedido)
+      );
+
       setTeste(budgetList);
       setFilteredData(budgetList);
     };

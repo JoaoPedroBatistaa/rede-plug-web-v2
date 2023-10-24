@@ -115,6 +115,23 @@ export default function BudgetPerfil() {
         const perda1 = (valor1 / 100) * selectedProduto1.valorPerda;
         const lucro1 = ((valor1 + perda1) * selectedProduto1.margemLucro) / 100;
 
+        localStorage.setItem(
+          "metroPerfil",
+          selectedProduto1.valorMetro.toString()
+        );
+        localStorage.setItem(
+          "perdaPerfil",
+          selectedProduto1.valorPerda.toString()
+        );
+        localStorage.setItem(
+          "lucroPerfil",
+          selectedProduto1.margemLucro.toString()
+        );
+        localStorage.setItem(
+          "larguraPerfil",
+          selectedProduto1.largura.toString()
+        );
+
         const priceForOption1 = valor1 + perda1 + lucro1;
         totalPreco += priceForOption1;
       }
@@ -336,11 +353,13 @@ export default function BudgetPerfil() {
                 <option value="" disabled selected>
                   Selecione um código
                 </option>
-                {produtos.map((produto) => (
-                  <option key={produto.codigo} value={produto.codigo}>
-                    {produto.codigo} - {produto.descricao}
-                  </option>
-                ))}
+                {[...produtos]
+                  .sort((a, b) => Number(a.codigo) - Number(b.codigo))
+                  .map((produto) => (
+                    <option key={produto.codigo} value={produto.codigo}>
+                      {produto.codigo} - {produto.descricao}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -383,11 +402,13 @@ export default function BudgetPerfil() {
                     <option value="" disabled selected>
                       Selecione um código
                     </option>
-                    {produtos.map((produto) => (
-                      <option key={produto.codigo} value={produto.codigo}>
-                        {produto.codigo} - {produto.descricao}
-                      </option>
-                    ))}
+                    {[...produtos]
+                      .sort((a, b) => Number(a.codigo) - Number(b.codigo))
+                      .map((produto) => (
+                        <option key={produto.codigo} value={produto.codigo}>
+                          {produto.codigo} - {produto.descricao}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
