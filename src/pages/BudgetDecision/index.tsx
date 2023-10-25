@@ -15,6 +15,7 @@ type UserDataType = {
   impressao: string;
   tipoImpressao: string;
   codigoPerfil: string;
+  codigoPerfilDois: string;
   espessuraPerfil: string;
   vidro: string;
   espessuraVidro: string;
@@ -33,6 +34,8 @@ type UserDataType = {
   obs: string;
 
   valorPerfil: string;
+  valorPerfilUm: string;
+  valorPerfilDois: string;
   valorVidro: string;
   valorFoam: string;
   valorColagem: string;
@@ -179,6 +182,9 @@ export default function BudgetDecision() {
   let espelho: string = "";
   let espessuraEspelho: string = "";
   let codigoPerfil: string = "";
+  let codigoPerfilDois: string = "";
+  let valorPerfilUm: string = "";
+  let valorPerfilDois: string = "";
   let espessuraPerfil: string = "";
   let Tamanho: string = "";
   let tipoPessoa: string = "";
@@ -226,6 +232,9 @@ export default function BudgetDecision() {
     espelho = localStorage.getItem("espelho") || "";
     espessuraEspelho = localStorage.getItem("espessuraEspelho") || "";
     codigoPerfil = localStorage.getItem("codigoPerfil") || "";
+    codigoPerfilDois = localStorage.getItem("codigoPerfilDois") || "";
+    valorPerfilUm = localStorage.getItem("valorPerfilUm") || "";
+    valorPerfilDois = localStorage.getItem("valorPerfilDois") || "";
     espessuraPerfil = localStorage.getItem("espessuraPerfil") || "";
     Tamanho =
       localStorage.getItem("novoTamanho") ||
@@ -317,6 +326,9 @@ export default function BudgetDecision() {
       espelho,
       espessuraEspelho,
       codigoPerfil,
+      codigoPerfilDois,
+      valorPerfilUm,
+      valorPerfilDois,
       espessuraPerfil,
       Tamanho,
       valorTotal,
@@ -397,6 +409,9 @@ export default function BudgetDecision() {
       espelho,
       espessuraEspelho,
       codigoPerfil,
+      codigoPerfilDois,
+      valorPerfilUm,
+      valorPerfilDois,
       espessuraPerfil,
       Tamanho,
       valorTotal,
@@ -573,16 +588,19 @@ export default function BudgetDecision() {
                       <div>
                         <p className={styles.ResName}>Perfil</p>
                         <div className={styles.OrderResValue}>
-                          {codigoPerfil && valorPerfil && (
+                          {codigoPerfil && valorPerfilUm && (
                             <p className={styles.ResValue}>
                               {codigoPerfil} - R${" "}
-                              {parseFloat(valorPerfil || "0").toFixed(2)}
+                              {parseFloat(valorPerfilUm || "0").toFixed(2)}
                             </p>
                           )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {codigoPerfil && valorPerfil && (
-                            <p className={styles.ResValue}>{descricaoPerfil}</p>
+                          {codigoPerfilDois && valorPerfilDois && (
+                            <p className={styles.ResValue}>
+                              {codigoPerfilDois} - R${" "}
+                              {parseFloat(valorPerfilDois || "0").toFixed(2)}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -802,14 +820,19 @@ export default function BudgetDecision() {
                           {budget.codigoPerfil && (
                             <p className={styles.ResValue}>
                               {budget.codigoPerfil} - R${" "}
-                              {parseFloat(budget.valorPerfil || "0").toFixed(2)}
+                              {parseFloat(budget.valorPerfilUm || "0").toFixed(
+                                2
+                              )}
                             </p>
                           )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoPerfil && (
+                          {budget.codigoPerfilDois && (
                             <p className={styles.ResValue}>
-                              {budget.descricaoPerfil}
+                              {budget.codigoPerfilDois} - R${" "}
+                              {parseFloat(
+                                budget.valorPerfilDois || "0"
+                              ).toFixed(2)}
                             </p>
                           )}
                         </div>

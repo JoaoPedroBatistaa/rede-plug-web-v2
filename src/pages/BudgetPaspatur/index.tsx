@@ -429,6 +429,8 @@ export default function BudgetPaspatur() {
 
   useEffect(() => {
     const valorPerfil = Number(localStorage.getItem("valorPerfil"));
+    const valorPerfilUm = Number(localStorage.getItem("valorPerfilUm"));
+    const valorPerfilDois = Number(localStorage.getItem("valorPerfilDois"));
     const valorFoam = Number(localStorage.getItem("valorFoam"));
     const valorVidro = Number(localStorage.getItem("valorVidro"));
     const valorMontagem = Number(localStorage.getItem("valorMontagem"));
@@ -439,6 +441,12 @@ export default function BudgetPaspatur() {
     // Em seguida, armazene esses valores como os valores antigos
     if (valorPerfil) {
       localStorage.setItem("valorPerfilAntigo", valorPerfil.toString());
+    }
+    if (valorPerfilUm) {
+      localStorage.setItem("valorPerfilUmAntigo", valorPerfilUm.toString());
+    }
+    if (valorPerfilDois) {
+      localStorage.setItem("valorPerfilDoisAntigo", valorPerfilDois.toString());
     }
     if (valorFoam) {
       localStorage.setItem("valorFoamAntigo", valorFoam.toString());
@@ -464,6 +472,11 @@ export default function BudgetPaspatur() {
     const perdaPerfil = localStorage.getItem("perdaPerfil");
     const lucroPerfil = localStorage.getItem("lucroPerfil");
     const perfil = localStorage.getItem("larguraPerfil");
+
+    const metroPerfilDois = localStorage.getItem("metroPerfilDois");
+    const perdaPerfilDois = localStorage.getItem("perdaPerfilDois");
+    const lucroPerfilDois = localStorage.getItem("lucroPerfilDois");
+    const perfilDois = localStorage.getItem("larguraPerfilDois");
 
     const metroVidro = localStorage.getItem("metroVidro");
     const perdaVidro = localStorage.getItem("perdaVidro");
@@ -520,6 +533,7 @@ export default function BudgetPaspatur() {
           const lucro = ((valor + perda) * selectedProduto.margemLucro) / 100;
 
           // VALOR PERFIL NOVO
+
           const valorP =
             Number(metroPerfil) && perfil !== null
               ? (((altura + Number(larguraInferior) + Number(larguraSuperior)) *
@@ -539,11 +553,66 @@ export default function BudgetPaspatur() {
               ? ((valorP + perdaP) * Number(lucroPerfil)) / 100
               : 0;
 
-          localStorage.setItem(
-            "valorPerfil",
-            (valorP + perdaP + lucroP).toString()
-          );
-          setPrecoPerfil(valorP + perdaP + lucroP);
+          const valorPDois =
+            Number(metroPerfilDois) && perfil !== null
+              ? (((altura + Number(larguraInferior) + Number(larguraSuperior)) *
+                  2 +
+                  (largura + Number(larguraEsquerda) + Number(larguraDireita)) *
+                    2 +
+                  Number(perfilDois) * 4) /
+                  100) *
+                Number(metroPerfilDois)
+              : 0;
+          const perdaPDois =
+            Number(perdaPerfilDois) !== null
+              ? (valorPDois / 100) * Number(perdaPerfilDois)
+              : 0;
+          const lucroPDois =
+            Number(lucroPerfilDois) !== null
+              ? ((valorPDois + perdaPDois) * Number(lucroPerfilDois)) / 100
+              : 0;
+
+          if (valorPerfilDois) {
+            localStorage.setItem(
+              "valorPerfil",
+              (
+                valorP +
+                perdaP +
+                lucroP +
+                valorPDois +
+                perdaPDois +
+                lucroPDois
+              ).toString()
+            );
+            localStorage.setItem(
+              "valorPerfil",
+              (
+                valorP +
+                perdaP +
+                lucroP +
+                valorPDois +
+                perdaPDois +
+                lucroPDois
+              ).toString()
+            );
+            localStorage.setItem(
+              "valorPerfilUm",
+              (valorP + perdaP + lucroP).toString()
+            );
+            localStorage.setItem(
+              "valorPerfilDois",
+              (valorPDois + perdaPDois + lucroPDois).toString()
+            );
+            setPrecoPerfil(
+              valorP + perdaP + lucroP + valorPDois + perdaPDois + lucroPDois
+            );
+          } else {
+            localStorage.setItem(
+              "valorPerfil",
+              (valorP + perdaP + lucroP).toString()
+            );
+            setPrecoPerfil(valorP + perdaP + lucroP);
+          }
 
           // VALOR VIDRO NOVO
           const valorV =
@@ -731,6 +800,20 @@ export default function BudgetPaspatur() {
       localStorage.setItem(
         "valorPerfil",
         localStorage.getItem("valorPerfilAntigo") || ""
+      );
+    }
+
+    if (localStorage.getItem("valorPerfilUm")) {
+      localStorage.setItem(
+        "valorPerfilUm",
+        localStorage.getItem("valorPerfilUmAntigo") || ""
+      );
+    }
+
+    if (localStorage.getItem("valorPerfilDois")) {
+      localStorage.setItem(
+        "valorPerfilDois",
+        localStorage.getItem("valorPerfilDoisAntigo") || ""
       );
     }
 

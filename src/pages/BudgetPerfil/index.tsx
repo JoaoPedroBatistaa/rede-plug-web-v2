@@ -133,6 +133,9 @@ export default function BudgetPerfil() {
         );
 
         const priceForOption1 = valor1 + perda1 + lucro1;
+
+        localStorage.setItem("valorPerfilUm", priceForOption1.toString());
+
         totalPreco += priceForOption1;
       }
     }
@@ -155,7 +158,28 @@ export default function BudgetPerfil() {
         const perda2 = (valor2 / 100) * selectedProduto2.valorPerda;
         const lucro2 = ((valor2 + perda2) * selectedProduto2.margemLucro) / 100;
 
+        localStorage.setItem("codigoPerfilDois", selectedOption2);
+        localStorage.setItem(
+          "metroPerfilDois",
+          selectedProduto2.valorMetro.toString()
+        );
+        localStorage.setItem(
+          "perdaPerfilDois",
+          selectedProduto2.valorPerda.toString()
+        );
+        localStorage.setItem(
+          "lucroPerfilDois",
+          selectedProduto2.margemLucro.toString()
+        );
+        localStorage.setItem(
+          "larguraPerfilDois",
+          selectedProduto2.largura.toString()
+        );
+
         const priceForOption2 = valor2 + perda2 + lucro2;
+
+        localStorage.setItem("valorPerfilDois", priceForOption2.toString());
+
         totalPreco += priceForOption2;
       }
     }

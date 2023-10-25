@@ -26,6 +26,7 @@ type BudgetType = {
   impressao: string;
   tipoImpressao: string;
   codigoPerfil: string;
+  codigoPerfilDois: string;
   espessuraPerfil: string;
   vidro: string;
   espessuraVidro: string;
@@ -51,6 +52,8 @@ type BudgetType = {
   obs: string;
   valorImpressao: string;
   valorPerfil: string;
+  valorPerfilUm: string;
+  valorPerfilDois: string;
   valorPaspatur: string;
   valorVidro: string;
   dataVencimento: string;
@@ -262,8 +265,9 @@ export default function ViewBudgetBudget() {
     doc.text("Sub total", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(82, y, 115, rectHeight, "D");
-    let desconto = parseFloat(userData?.desconto || "0");
+    let desconto = parseFloat(userData?.desconto || "0") / 100;
     let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
+
     doc.text(`R$ ${subTotal.toFixed(2)}`, 87, y + 5);
     y += 1;
 
@@ -274,7 +278,7 @@ export default function ViewBudgetBudget() {
     doc.text("Desconto", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(82, y, 115, rectHeight, "D");
-    doc.text(`${(desconto * 100).toFixed(2)}%`, 87, y + 5);
+    doc.text(`${desconto.toFixed(2)}%`, 87, y + 5);
     y += rectHeight; // Só adicione a altura do retângulo
 
     rectHeight = calculateHeight("Valor total", 70);
@@ -389,7 +393,14 @@ export default function ViewBudgetBudget() {
         "Perfil",
         budget.codigoPerfil,
         budget.descricaoPerfil,
-        `R$ ${parseFloat(budget.valorPerfil || "0").toFixed(2)}`,
+        `R$ ${parseFloat(budget.valorPerfilUm || "0").toFixed(2)}`,
+      ]);
+    if (budget.codigoPerfilDois)
+      renderMultipleItems([
+        "Perfil Dois",
+        budget.codigoPerfilDois,
+        budget.descricaoPerfilDois || "",
+        `R$ ${parseFloat(budget.valorPerfilDois || "0").toFixed(2)}`,
       ]);
     if (budget.codigoVidro)
       renderMultipleItems([
@@ -696,14 +707,19 @@ export default function ViewBudgetBudget() {
                           {budget.codigoPerfil && (
                             <p className={styles.ResValue}>
                               {budget.codigoPerfil} - R${" "}
-                              {parseFloat(budget.valorPerfil || "0").toFixed(2)}
+                              {parseFloat(budget.valorPerfilUm || "0").toFixed(
+                                2
+                              )}
                             </p>
                           )}
                         </div>
                         <div className={styles.OrderResValue}>
-                          {budget.codigoPerfil && (
+                          {budget.codigoPerfilDois && (
                             <p className={styles.ResValue}>
-                              {budget.descricaoPerfil}
+                              1{budget.codigoPerfilDois} - R${" "}
+                              {parseFloat(
+                                budget.valorPerfilDois || "0"
+                              ).toFixed(2)}
                             </p>
                           )}
                         </div>
