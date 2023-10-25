@@ -278,7 +278,7 @@ export default function ViewBudgetBudget() {
     doc.text("Desconto", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(82, y, 115, rectHeight, "D");
-    doc.text(`${desconto.toFixed(2)}%`, 87, y + 5);
+    doc.text(`${desconto * 100}%`, 87, y + 5);
     y += rectHeight; // Só adicione a altura do retângulo
 
     rectHeight = calculateHeight("Valor total", 70);

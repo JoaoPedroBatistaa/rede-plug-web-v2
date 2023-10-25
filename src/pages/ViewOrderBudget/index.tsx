@@ -378,7 +378,7 @@ export default function ViewOrderBudget() {
     doc.text("Desconto", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
-    doc.text(`${desconto.toFixed(2)}%`, 10 + rectangleWidth + 4, y + 5);
+    doc.text(`${desconto * 100}%`, 10 + rectangleWidth + 4, y + 5);
     y += 2;
 
     rectHeight = calculateHeight("Valor total", rectangleWidth);
