@@ -14,15 +14,68 @@ import { toast } from "react-toastify";
 
 interface Order {
   id: string;
-
-  NumeroPedido: string;
-  Telefone: string;
-  nomeCompleto: string;
-  Ativo: boolean;
   Entrega: string;
+  NumeroPedido: number;
+  Telefone: string;
+  bairro: string;
+  budgets: Array<{
+    Tamanho: string;
+    codigoColagem: string;
+    codigoFoam: string;
+    codigoImpressao: string;
+    codigoMdf: string;
+    codigoMontagem: string;
+    codigoPaspatur: string;
+    codigoPerfil: string;
+    codigoVidro: string;
+    collage: string;
+    dataVencimento: string;
+    descricaoColagem: string;
+    descricaoFoam: string;
+    descricaoImpressao: string;
+    descricaoInstalacao: string;
+    descricaoMontagem: string;
+    descricaoPaspatur: string;
+    descricaoPerfil: string;
+    descricaoVidro: string;
+    dimensoesPaspatur: string;
+    espelho: string;
+    espessuraEspelho: string;
+    espessuraPerfil: string;
+    espessuraVidro: string;
+    fileInput: string;
+    foam: string;
+    impressao: string;
+    instalacao: string;
+    mdf: string;
+    observacoes: string;
+    paspatur: string;
+    tipoEntrega: string;
+    tipoImpressao: string;
+    valorColagem: string;
+    valorEntrega: string;
+    valorFoam: string;
+    valorImpressao: string;
+    valorInstalacao: string;
+    valorMontagem: string;
+    valorPaspatur: string;
+    valorPerfil: string;
+    valorTotal: string;
+    valorVidro: string;
+    vidro: string;
+  }>;
+  cep: string;
+  cidade: string;
+  complemento: string;
+  cpf: string;
   dataCadastro: string;
+  email: string;
+  endereco: string;
   formaPagamento: string;
+  nomeCompleto: string;
+  tipoPessoa: string;
   valorTotal: string;
+  Ativo: boolean;
 }
 
 export default function Table({
@@ -47,25 +100,36 @@ export default function Table({
     const fetchData = async () => {
       const dbCollection = collection(db, `Login/${userId}/Orders`);
       const orderSnapshot = await getDocs(dbCollection);
-      const orderList = orderSnapshot.docs
-        .filter((doc) => doc.id !== "NumeroDoPedido") // Adicione esta linha
+      const orderList: Order[] = orderSnapshot.docs
+        .filter((doc) => doc.id !== "NumeroDoPedido")
         .map((doc) => {
           const data = doc.data();
+
           const order: Order = {
             id: doc.id,
+            Entrega: data.Entrega,
             NumeroPedido: data.NumeroPedido,
             Telefone: data.Telefone,
-            nomeCompleto: data.nomeCompleto,
-            Ativo: data.Ativo,
-            Entrega: data.Entrega,
+            bairro: data.bairro,
+            budgets: data.budgets,
+            cep: data.cep,
+            cidade: data.cidade,
+            complemento: data.complemento,
+            cpf: data.cpf,
             dataCadastro: data.dataCadastro,
+            email: data.email,
+            endereco: data.endereco,
             formaPagamento: data.formaPagamento,
+            nomeCompleto: data.nomeCompleto,
+            tipoPessoa: data.tipoPessoa,
             valorTotal: data.valorTotal,
+            Ativo: data.Ativo,
           };
+
           return order;
         });
 
-      orderList.sort((a, b) => Number(b.NumeroPedido) - Number(a.NumeroPedido));
+      orderList.sort((a, b) => b.NumeroPedido - a.NumeroPedido);
 
       setTeste(orderList);
       console.log(orderList);
@@ -242,6 +306,54 @@ export default function Table({
     console.log(openMenu);
   };
 
+  // NOTA FISCAL
+
+  const handleClickNote = async (event: any, orderId: string) => {
+    const order = teste.find((o) => o.id === orderId);
+    if (!order) {
+      toast.error("Pedido não encontrado!");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/emissao", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(order),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === 200) {
+        toast.success("Nota fiscal emitida com sucesso!");
+
+        // Converte o PDF em base64 para Blob
+        const pdfBlob = new Blob(
+          [Uint8Array.from(atob(data.pdf), (c) => c.charCodeAt(0))],
+          {
+            type: "application/pdf",
+          }
+        );
+
+        // Converte o Blob para uma URL de objeto
+        const objectURL = URL.createObjectURL(pdfBlob);
+
+        // Cria um link temporário para download
+        const tempLink = document.createElement("a");
+        tempLink.href = objectURL;
+        tempLink.download = "nfe.pdf"; // você pode nomear o arquivo conforme desejar
+        tempLink.click(); // inicia o download
+      } else {
+        toast.error(data.motivo || "Erro ao emitir a nota fiscal.");
+      }
+    } catch (error) {
+      console.error("Erro ao fazer a chamada da API:", error);
+      toast.error("Erro ao emitir a nota fiscal.");
+    }
+  };
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -365,7 +477,7 @@ export default function Table({
                 <img
                   src="./nota.png"
                   className={styles.iconNota}
-                  onClick={(event) => handleClickImg(event, item.id)}
+                  onClick={(event) => handleClickNote(event, item.id)}
                 />
               </td>
             </tr>
