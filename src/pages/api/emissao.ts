@@ -574,20 +574,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                }
             },
             "transp": {
-               "modFrete": "1",
-               "transporta": {
-                  "CNPJ": "37320367000100",
-                  "xNome": "EXEMPLO",
-                  "IE": "129027724114",
-                  "xEnder": "EXEMPLOEXEMPLO",
-                  "xMun": "CAXIAS DO SUL",
-                  "UF": "SP"
-               },
-               "vol": {
-                  "qVol": "0",
-                  "marca": "EXEMPLO",
-                  "nVol": "0"
-               }
+               "modFrete": "9"
             },
             "cobr": {
                "fat": {
