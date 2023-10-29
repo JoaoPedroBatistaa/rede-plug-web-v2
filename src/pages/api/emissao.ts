@@ -91,466 +91,123 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             "det": order.budgets.flatMap((item, index) => {
                let details = [];
+               let productCodes = [item.Tamanho];
+               let totalValue = 0;
 
                if (item.codigoColagem) {
-                  cont += 1
-                  details.push({
-                     nItem: details.length + 1,
-                     prod: {
-                        cProd: item.codigoColagem,
-                        xProd: "Colagem",
-                        NCM: "87089990",
-                        vProd: parseFloat(item.valorColagem).toFixed(2),
-                        "CFOP": "5101",
-                        "uCom": "UN",
-                        "cEAN": "SEM GTIN",
-                        "CEST": "0107500",
-                        "qCom": "1",
-                        "vUnCom": parseFloat(item.valorColagem).toFixed(2),
-                        "cEANTrib": "SEM GTIN",
-                        "uTrib": "UN",
-                        "qTrib": "1",
-                        "vUnTrib": parseFloat(item.valorColagem).toFixed(2),
-                        "indTot": "1",
-                        "nItemPed": "0",
-                     },
-                     imposto: {
-                        "vTotTrib": "10.00",
-                        "ICMS": {
-                           "ICMS00": {
-                              "orig": "0",
-                              "CST": "00",
-                              "modBC": "0",
-                              "vBC": "100.00",
-                              "pICMS": "10.00",
-                              "vICMS": "10.00",
-                              "pFCP": "2.00",
-                              "vFCP": "2.00"
-                           }
-                        },
-                        "IPI": {
-                           "cEnq": "999",
-                           "IPINT": {
-                              "CST": "53"
-                           }
-                        },
-                        "PIS": {
-                           "PISAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pPIS": "0.65",  // Valor comum de alíquota PIS
-                              "vPIS": "0.65"
-                           }
-                        },
-                        "COFINS": {
-                           "COFINSAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                              "vCOFINS": "3.00"
-                           }
-                        }
-                     }
-
-                  });
+                  productCodes.push("Colagem");
+                  totalValue += parseFloat(item.valorColagem);
                }
 
                if (item.codigoFoam) {
-                  cont += 1
-                  details.push({
-                     nItem: details.length + 1,
-                     prod: {
-                        cProd: item.codigoFoam,
-                        xProd: "Foam",
-                        NCM: "87089990",
-                        vProd: parseFloat(item.valorFoam).toFixed(2),
-                        "CFOP": "5101",
-                        "uCom": "UN",
-                        "cEAN": "SEM GTIN",
-
-
-                        "CEST": "0107500",
-
-
-                        "qCom": "1",
-                        "vUnCom": parseFloat(item.valorFoam).toFixed(2),
-
-                        "cEANTrib": "SEM GTIN",
-                        "uTrib": "UN",
-                        "qTrib": "1",
-                        "vUnTrib": "12.99",
-                        "indTot": "1",
-                        "nItemPed": "0"
-                     },
-                     imposto: {
-                        "vTotTrib": "10.00",
-                        "ICMS": {
-                           "ICMS00": {
-                              "orig": "0",
-                              "CST": "00",
-                              "modBC": "0",
-                              "vBC": "100.00",
-                              "pICMS": "10.00",
-                              "vICMS": "10.00",
-                              "pFCP": "2.00",
-                              "vFCP": "2.00"
-                           }
-                        },
-                        "IPI": {
-                           "cEnq": "999",
-                           "IPINT": {
-                              "CST": "53"
-                           }
-                        },
-                        "PIS": {
-                           "PISAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pPIS": "0.65",  // Valor comum de alíquota PIS
-                              "vPIS": "0.65"
-                           }
-                        },
-                        "COFINS": {
-                           "COFINSAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                              "vCOFINS": "3.00"
-                           }
-                        }
-                     }
-
-                  });
+                  productCodes.push("Foam");
+                  totalValue += parseFloat(item.valorFoam);
                }
 
                if (item.codigoImpressao) {
-                  cont += 1
-                  details.push({
-                     nItem: details.length + 1,
-                     prod: {
-                        cProd: item.codigoImpressao,
-                        xProd: "Impressao",
-                        NCM: "87089990",
-                        vProd: parseFloat(item.valorImpressao).toFixed(2),
-                        "CFOP": "5101",
-                        "uCom": "UN",
-                        "cEAN": "SEM GTIN",
-                        "CEST": "0107500",
-                        "qCom": "1",
-                        "vUnCom": parseFloat(item.valorImpressao).toFixed(2),
-                        "cEANTrib": "SEM GTIN",
-                        "uTrib": "UN",
-                        "qTrib": "1",
-                        "vUnTrib": parseFloat(item.valorImpressao).toFixed(2),
-                        "indTot": "1",
-                        "nItemPed": "0",
-                     },
-                     imposto: {
-                        "vTotTrib": "10.00",
-                        "ICMS": {
-                           "ICMS00": {
-                              "orig": "0",
-                              "CST": "00",
-                              "modBC": "0",
-                              "vBC": "100.00",
-                              "pICMS": "10.00",
-                              "vICMS": "10.00",
-                              "pFCP": "2.00",
-                              "vFCP": "2.00"
-                           }
-                        },
-                        "IPI": {
-                           "cEnq": "999",
-                           "IPINT": {
-                              "CST": "53"
-                           }
-                        },
-                        "PIS": {
-                           "PISAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pPIS": "0.65",  // Valor comum de alíquota PIS
-                              "vPIS": "0.65"
-                           }
-                        },
-                        "COFINS": {
-                           "COFINSAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                              "vCOFINS": "3.00"
-                           }
-                        }
-                     },
-                  });
+                  productCodes.push("Impressao");
+                  totalValue += parseFloat(item.valorImpressao);
                }
 
                if (item.codigoMontagem) {
-                  cont += 1
-                  details.push({
-                     nItem: details.length + 1,
-                     prod: {
-                        cProd: item.codigoMontagem,
-                        xProd: "Montagem",
-                        NCM: "87089990",
-                        vProd: parseFloat(item.valorMontagem).toFixed(2),
-                        "CFOP": "5101",
-                        "uCom": "UN",
-                        "cEAN": "SEM GTIN",
-                        "CEST": "0107500",
-                        "qCom": "1",
-                        "vUnCom": parseFloat(item.valorMontagem).toFixed(2),
-                        "cEANTrib": "SEM GTIN",
-                        "uTrib": "UN",
-                        "qTrib": "1",
-                        "vUnTrib": parseFloat(item.valorMontagem).toFixed(2),
-                        "indTot": "1",
-                        "nItemPed": "0",
-                     },
-                     imposto: {
-                        "vTotTrib": "10.00",
-                        "ICMS": {
-                           "ICMS00": {
-                              "orig": "0",
-                              "CST": "00",
-                              "modBC": "0",
-                              "vBC": "100.00",
-                              "pICMS": "10.00",
-                              "vICMS": "10.00",
-                              "pFCP": "2.00",
-                              "vFCP": "2.00"
-                           }
-                        },
-                        "IPI": {
-                           "cEnq": "999",
-                           "IPINT": {
-                              "CST": "53"
-                           }
-                        },
-                        "PIS": {
-                           "PISAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pPIS": "0.65",  // Valor comum de alíquota PIS
-                              "vPIS": "0.65"
-                           }
-                        },
-                        "COFINS": {
-                           "COFINSAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                              "vCOFINS": "3.00"
-                           }
-                        }
-                     }
-
-                  });
+                  productCodes.push("Montagem");
+                  totalValue += parseFloat(item.valorMontagem);
                }
 
                if (item.codigoPaspatur) {
-                  cont += 1
-                  details.push({
-                     nItem: details.length + 1,
-                     prod: {
-                        cProd: item.codigoPaspatur,
-                        xProd: "Paspatur",
-                        NCM: "87089990",
-                        vProd: parseFloat(item.valorPaspatur).toFixed(2),
-                        "CFOP": "5101",
-                        "uCom": "UN",
-                        "cEAN": "SEM GTIN",
-
-
-                        "CEST": "0107500",
-
-
-                        "qCom": "1",
-                        "vUnCom": parseFloat(item.valorPaspatur).toFixed(2),
-
-                        "cEANTrib": "SEM GTIN",
-                        "uTrib": "UN",
-                        "qTrib": "1",
-                        "vUnTrib": "12.99",
-                        "indTot": "1",
-                        "nItemPed": "0"
-                     },
-                     imposto: {
-                        "vTotTrib": "10.00",
-                        "ICMS": {
-                           "ICMS00": {
-                              "orig": "0",
-                              "CST": "00",
-                              "modBC": "0",
-                              "vBC": "100.00",
-                              "pICMS": "10.00",
-                              "vICMS": "10.00",
-                              "pFCP": "2.00",
-                              "vFCP": "2.00"
-                           }
-                        },
-                        "IPI": {
-                           "cEnq": "999",
-                           "IPINT": {
-                              "CST": "53"
-                           }
-                        },
-                        "PIS": {
-                           "PISAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pPIS": "0.65",  // Valor comum de alíquota PIS
-                              "vPIS": "0.65"
-                           }
-                        },
-                        "COFINS": {
-                           "COFINSAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                              "vCOFINS": "3.00"
-                           }
-                        }
-                     }
-
-                  });
+                  productCodes.push("Paspatur");
+                  totalValue += parseFloat(item.valorPaspatur);
                }
 
                if (item.codigoPerfil) {
-                  cont += 1
-                  details.push({
-                     nItem: details.length + 1,
-                     prod: {
-                        cProd: item.codigoPerfil,
-                        xProd: "Perfil",
-                        NCM: "87089990",
-                        vProd: parseFloat(item.valorPerfil).toFixed(2),
-                        "CFOP": "5101",
-                        "uCom": "UN",
-                        "cEAN": "SEM GTIN",
-                        "CEST": "0107500",
-                        "qCom": "1",
-                        "vUnCom": parseFloat(item.valorPerfil).toFixed(2),
-                        "cEANTrib": "SEM GTIN",
-                        "uTrib": "UN",
-                        "qTrib": "1",
-                        "vUnTrib": parseFloat(item.valorPerfil).toFixed(2),
-                        "indTot": "1",
-                        "nItemPed": "0",
-                     },
-                     imposto: {
-                        "vTotTrib": "10.00",
-                        "ICMS": {
-                           "ICMS00": {
-                              "orig": "0",
-                              "CST": "00",
-                              "modBC": "0",
-                              "vBC": "100.00",
-                              "pICMS": "10.00",
-                              "vICMS": "10.00",
-                              "pFCP": "2.00",
-                              "vFCP": "2.00"
-                           }
-                        },
-                        "IPI": {
-                           "cEnq": "999",
-                           "IPINT": {
-                              "CST": "53"
-                           }
-                        },
-                        "PIS": {
-                           "PISAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pPIS": "0.65",  // Valor comum de alíquota PIS
-                              "vPIS": "0.65"
-                           }
-                        },
-                        "COFINS": {
-                           "COFINSAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                              "vCOFINS": "3.00"
-                           }
-                        }
-                     }
-
-                  });
+                  productCodes.push("Perfil");
+                  totalValue += parseFloat(item.valorPerfil);
                }
 
                if (item.codigoVidro) {
-                  cont += 1
-                  details.push({
-                     nItem: details.length + 1,
-                     prod: {
-                        cProd: item.codigoVidro,
-                        xProd: "Vidro",
-                        NCM: "87089990",
-                        vProd: parseFloat(item.valorVidro).toFixed(2),
-                        "CFOP": "5101",
-                        "uCom": "UN",
-                        "cEAN": "SEM GTIN",
-                        "CEST": "0107500",
-                        "qCom": "1",
-                        "vUnCom": parseFloat(item.valorVidro).toFixed(2),
-                        "cEANTrib": "SEM GTIN",
-                        "uTrib": "UN",
-                        "qTrib": "1",
-                        "vUnTrib": parseFloat(item.valorVidro).toFixed(2),
-                        "indTot": "1",
-                        "nItemPed": "0",
+                  productCodes.push("Vidro");
+                  totalValue += parseFloat(item.valorVidro);
+               }
+
+               let cProd = productCodes.join(" ");
+
+               if (cProd.length > 60) {
+                  cProd = cProd.substring(0, 60);
+               }
+
+
+               details.push({
+                  nItem: details.length + 1,
+                  prod: {
+                     cProd: order.NumeroPedido,
+                     xProd: `Moldura: ${cProd}`,
+                     NCM: "87089990",
+                     vProd: totalValue.toFixed(2),
+                     "CFOP": "5101",
+                     "uCom": "UN",
+                     "cEAN": "SEM GTIN",
+                     "CEST": "0107500",
+                     "qCom": "1",
+                     "vUnCom": totalValue.toFixed(2),
+                     "cEANTrib": "SEM GTIN",
+                     "uTrib": "UN",
+                     "qTrib": "1",
+                     "vUnTrib": totalValue.toFixed(2),
+                     "indTot": "1",
+                     "nItemPed": "0",
+                  },
+                  imposto: {
+                     "vTotTrib": "10.00",
+                     "ICMS": {
+                        "ICMS00": {
+                           "orig": "0",
+                           "CST": "00",
+                           "modBC": "0",
+                           "vBC": "100.00",
+                           "pICMS": "10.00",
+                           "vICMS": "10.00",
+                           "pFCP": "2.00",
+                           "vFCP": "2.00"
+                        }
                      },
-                     imposto: {
-                        "vTotTrib": "10.00",
-                        "ICMS": {
-                           "ICMS00": {
-                              "orig": "0",
-                              "CST": "00",
-                              "modBC": "0",
-                              "vBC": "100.00",
-                              "pICMS": "10.00",
-                              "vICMS": "10.00",
-                              "pFCP": "2.00",
-                              "vFCP": "2.00"
-                           }
-                        },
-                        "IPI": {
-                           "cEnq": "999",
-                           "IPINT": {
-                              "CST": "53"
-                           }
-                        },
-                        "PIS": {
-                           "PISAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pPIS": "0.65",  // Valor comum de alíquota PIS
-                              "vPIS": "0.65"
-                           }
-                        },
-                        "COFINS": {
-                           "COFINSAliq": {
-                              "CST": "01",
-                              "vBC": "100.00",
-                              "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                              "vCOFINS": "3.00"
-                           }
+                     "IPI": {
+                        "cEnq": "999",
+                        "IPINT": {
+                           "CST": "53"
+                        }
+                     },
+                     "PIS": {
+                        "PISAliq": {
+                           "CST": "01",
+                           "vBC": "100.00",
+                           "pPIS": "0.65",  // Valor comum de alíquota PIS
+                           "vPIS": "0.65"
+                        }
+                     },
+                     "COFINS": {
+                        "COFINSAliq": {
+                           "CST": "01",
+                           "vBC": "100.00",
+                           "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
+                           "vCOFINS": "3.00"
                         }
                      }
+                  }
 
-                  });
-               }
+               });
+
+
+
 
                return details;
             }),  // Concatenar os arrays gerados
 
             "total": {
                "ICMSTot": {
-                  vBC: cont * 100.00,  // Total da base de cálculo
-                  "vICMS": (cont * 100.00 * 0.10).toFixed(2),  // Total de ICMS = vBC * 10%
+                  vBC: 100.00,  // Total da base de cálculo
+                  "vICMS": (100.00 * 0.10).toFixed(2),  // Total de ICMS = vBC * 10%
                   "vICMSDeson": "0.00",
-                  "vFCP": (cont * 100.00 * 0.02).toFixed(2),
+                  "vFCP": (100.00 * 0.02).toFixed(2),
                   "vBCST": "0.00",
                   "vST": "0.00",
                   "vFCPST": "0.00",
@@ -562,11 +219,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   "vII": "0.00",
                   "vIPI": "0.00",
                   "vIPIDevol": "0.00",
-                  "vPIS": (cont * 100.00 * 0.0065).toFixed(2),  // Total de PIS = vBC * 0.65%
-                  "vCOFINS": (cont * 100.00 * 0.03).toFixed(2),
+                  "vPIS": (100.00 * 0.0065).toFixed(2),  // Total de PIS = vBC * 0.65%
+                  "vCOFINS": (100.00 * 0.03).toFixed(2),
                   "vOutro": "0.00",
                   "vNF": parseFloat(order.valorTotal).toFixed(2),
-                  "vTotTrib": (cont * 10.00).toFixed(2)
+                  "vTotTrib": (10.00).toFixed(2)
                },
                "retTrib": {
                   "vRetPIS": "0.06",
