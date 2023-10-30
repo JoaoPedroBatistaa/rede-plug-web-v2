@@ -36,8 +36,14 @@ export default function UpdateFoam() {
 
   // fetch the foam data on component mount using the id from router
   useEffect(() => {
+    console.log("ID:", id); // Log do ID
+    console.log("UserID:", userId); // Log do UserID
+
     if (id && userId) {
-      getClientById(id, userId).then((fetchedFoam) => setFoam(fetchedFoam));
+      getClientById(id, userId).then((fetchedFoam) => {
+        console.log("Dados recebidos:", fetchedFoam); // Log dos dados fetchedFoam
+        setFoam(fetchedFoam);
+      });
     } else {
       toast.error(
         "Erro: ID de usuário não encontrado. Faça o login novamente."
@@ -149,7 +155,7 @@ export default function UpdateFoam() {
               <p className={styles.FieldLabel}>CPF/CNPJ</p>
               <input
                 id="cpf"
-                type="number"
+                type="text"
                 className={styles.Field}
                 placeholder=""
                 value={foam?.cpf || ""}
@@ -187,7 +193,7 @@ export default function UpdateFoam() {
               <p className={styles.FieldLabel}>Telefone</p>
               <input
                 id="Telefone"
-                type="number"
+                type="text"
                 className={styles.Field}
                 placeholder=""
                 value={foam?.Telefone || ""}
@@ -247,7 +253,7 @@ export default function UpdateFoam() {
               <p className={styles.FieldLabel}>CEP</p>
               <input
                 id="cep"
-                type="number"
+                type="text"
                 className={styles.Field}
                 placeholder=""
                 value={foam?.cep || ""}
