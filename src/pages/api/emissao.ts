@@ -17,7 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    date.setHours(date.getHours() - 3);
    const adjustedDate = date.toISOString().split('.')[0] + "-03:00";
 
-   let cont = 0
+   let totalValue = 0;
+
 
    const formattedJSON = {
       NFe: {
@@ -92,10 +93,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             "det": order.budgets.flatMap((item, index) => {
                let details = [];
                let productCodes = [item.Tamanho];
-               let totalValue = 0;
 
                if (item.codigoColagem) {
-                  productCodes.push("Colagem");
                   totalValue += parseFloat(item.valorColagem);
                }
 
@@ -105,12 +104,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                }
 
                if (item.codigoImpressao) {
-                  productCodes.push("Impressao");
                   totalValue += parseFloat(item.valorImpressao);
                }
 
                if (item.codigoMontagem) {
-                  productCodes.push("Montagem");
                   totalValue += parseFloat(item.valorMontagem);
                }
 
@@ -212,7 +209,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   "vST": "0.00",
                   "vFCPST": "0.00",
                   "vFCPSTRet": "0.00",
-                  "vProd": parseFloat(order.valorTotal).toFixed(2),
+                  "vProd": totalValue.toFixed(2),
                   "vFrete": "0.00",
                   "vSeg": "0.00",
                   "vDesc": "0.00",
@@ -222,7 +219,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   "vPIS": (100.00 * 0.0065).toFixed(2),  // Total de PIS = vBC * 0.65%
                   "vCOFINS": (100.00 * 0.03).toFixed(2),
                   "vOutro": "0.00",
-                  "vNF": parseFloat(order.valorTotal).toFixed(2),
+                  "vNF": totalValue.toFixed(2),
                   "vTotTrib": (10.00).toFixed(2)
                },
                "retTrib": {
@@ -236,21 +233,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             "cobr": {
                "fat": {
                   "nFat": "48412",
-                  "vOrig": parseFloat(order.valorTotal).toFixed(2),
+                  "vOrig": totalValue.toFixed(2),
                   "vDesc": "0.00",
-                  "vLiq": parseFloat(order.valorTotal).toFixed(2)
+                  "vLiq": totalValue.toFixed(2)
                },
                "dup": {
                   "nDup": "001",
                   "dVenc": "2020-10-26",
-                  "vDup": parseFloat(order.valorTotal).toFixed(2)
+                  "vDup": totalValue.toFixed(2)
                }
             },
             "pag": {
                "detPag": {
                   "indPag": "1",
                   "tPag": "15",
-                  "vPag": parseFloat(order.valorTotal).toFixed(2)
+                  "vPag": totalValue.toFixed(2)
                },
                "vTroco": "0.00"
             },
