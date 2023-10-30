@@ -100,6 +100,24 @@ export default function BudgetSave() {
           estado: data.estado,
 
           venue: data.venue,
+          orig: data.orig,
+          CSTICMS: data.CSTICMS,
+          modBC: data.modBC,
+          vBC: data.vBC,
+          pICMS: data.pICMS,
+          vICMS: data.vICMS,
+          pFCP: data.pFCP,
+          vFCP: data.vFCP,
+          cEnq: data.cEnq,
+          CSTIPI: data.CSTIPI,
+          CSTPIS: data.CSTPIS,
+          vBCPIS: data.vBCPIS,
+          pPIS: data.pPIS,
+          vPIS: data.vPIS,
+          CSTCOFINS: data.CSTCOFINS,
+          vBCCOFINS: data.vBCCOFINS,
+          pCOFINS: data.pCOFINS,
+          vCOFINS: data.vCOFINS,
           // Add other fields as needed
         };
       });
@@ -241,6 +259,24 @@ export default function BudgetSave() {
     localStorage.setItem("Telefone", cliente.Telefone || "");
     localStorage.setItem("email", cliente.email || "");
     localStorage.setItem("searchSuccess", "true");
+    localStorage.setItem("orig", cliente.orig || "");
+    localStorage.setItem("CSTICMS", cliente.CSTICMS || "");
+    localStorage.setItem("modBC", cliente.modBC || "");
+    localStorage.setItem("vBC", cliente.vBC || "");
+    localStorage.setItem("pICMS", cliente.pICMS || "");
+    localStorage.setItem("vICMS", cliente.vICMS || "");
+    localStorage.setItem("pFCP", cliente.pFCP || "");
+    localStorage.setItem("vFCP", cliente.vFCP || "");
+    localStorage.setItem("cEnq", cliente.cEnq || "");
+    localStorage.setItem("CSTIPI", cliente.CSTIPI || "");
+    localStorage.setItem("CSTPIS", cliente.CSTPIS || "");
+    localStorage.setItem("vBCPIS", cliente.vBCPIS || "");
+    localStorage.setItem("pPIS", cliente.pPIS || "");
+    localStorage.setItem("vPIS", cliente.vPIS || "");
+    localStorage.setItem("CSTCOFINS", cliente.CSTCOFINS || "");
+    localStorage.setItem("vBCCOFINS", cliente.vBCCOFINS || "");
+    localStorage.setItem("pCOFINS", cliente.pCOFINS || "");
+    localStorage.setItem("vCOFINS", cliente.vCOFINS || "");
 
     setSuggestions([]);
   };

@@ -20,6 +20,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    let totalValue = 0;
 
 
+   let calculated_vICMS = ""
+   let calculated_vFCP = ""
+   let vTotTrib = ""
+
+
+
    const formattedJSON = {
       NFe: {
          infNFe: {
@@ -69,6 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
 
 
+
             dest: {
                CNPJ: "37320367000100",   // Destination entity's CNPJ
                xNome: "NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL",
@@ -79,7 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   xBairro: order.bairro,
                   cMun: "3550308",
                   xMun: order.cidade,
-                  UF: getUFfromCidade(order.cidade),  // Using the function to extract UF
+                  UF: getUFfromEstado(order.estado),  // Using the function to extract UF
                   CEP: order.cep,
                   cPais: "1058",
                   xPais: "BRASIL",
@@ -132,6 +139,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   cProd = cProd.substring(0, 60);
                }
 
+               const vICMS = parseFloat(order.vICMS || "0");
+               const vFCP = parseFloat(order.vFCP || "0");
+               const vPIS = parseFloat(order.vPIS || "0");
+               const vCOFINS = parseFloat(order.vCOFINS || "0");
+
+               vTotTrib = (vICMS + vFCP + vPIS + vCOFINS).toFixed(2);
+
+               let vBC = parseFloat(order.vBC || "0");
+               let pICMS = parseFloat(order.pICMS || "0");
+               calculated_vICMS = (vBC * pICMS / 100).toFixed(2);
+
+               let pFCP = parseFloat(order.pFCP || "0");
+               calculated_vFCP = (vBC * pFCP / 100).toFixed(2);
+
+
 
                details.push({
                   nItem: details.length + 1,
@@ -154,21 +176,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                      "nItemPed": "0",
                   },
                   imposto: {
-                     "vTotTrib": "10.00",
+                     "vTotTrib": vTotTrib,
                      "ICMS": {
                         "ICMS00": {
-                           "orig": "0",
+                           "orig": order.orig || "0",
                            "CST": "00",
-                           "modBC": "0",
-                           "vBC": "100.00",
-                           "pICMS": "10.00",
-                           "vICMS": "10.00",
-                           "pFCP": "2.00",
-                           "vFCP": "2.00"
+                           "modBC": order.modBC || "0",
+                           "vBC": parseFloat(order.vBC || "0").toFixed(2),
+                           "pICMS": parseFloat(order.pICMS || "0").toFixed(2),
+                           vICMS: calculated_vICMS,
+                           "pFCP": parseFloat(order.pFCP || "0").toFixed(2),
+                           "vFCP": calculated_vFCP
                         }
                      },
                      "IPI": {
-                        "cEnq": "999",
+                        "cEnq": order.cEnq || "999",
                         "IPINT": {
                            "CST": "53"
                         }
@@ -176,17 +198,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                      "PIS": {
                         "PISAliq": {
                            "CST": "01",
-                           "vBC": "100.00",
-                           "pPIS": "0.65",  // Valor comum de alíquota PIS
-                           "vPIS": "0.65"
+                           "vBC": parseFloat(order.vBCPIS || "0").toFixed(2),
+                           "pPIS": parseFloat(order.pPIS || "0").toFixed(2),
+                           "vPIS": parseFloat(order.vPIS || "0").toFixed(2)
                         }
                      },
                      "COFINS": {
                         "COFINSAliq": {
                            "CST": "01",
-                           "vBC": "100.00",
-                           "pCOFINS": "3.00",  // Valor comum de alíquota COFINS
-                           "vCOFINS": "3.00"
+                           "vBC": parseFloat(order.vBCCOFINS || "0").toFixed(2),
+                           "pCOFINS": parseFloat(order.pCOFINS || "0").toFixed(2),
+                           "vCOFINS": parseFloat(order.vCOFINS || "0").toFixed(2)
                         }
                      }
                   }
@@ -201,10 +223,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             "total": {
                "ICMSTot": {
-                  vBC: 100.00,  // Total da base de cálculo
-                  "vICMS": (100.00 * 0.10).toFixed(2),  // Total de ICMS = vBC * 10%
+                  vBC: parseFloat(order.vBC || "0").toFixed(2),
+                  "vICMS": calculated_vICMS,
                   "vICMSDeson": "0.00",
-                  "vFCP": (100.00 * 0.02).toFixed(2),
+                  "vFCP": calculated_vFCP,
                   "vBCST": "0.00",
                   "vST": "0.00",
                   "vFCPST": "0.00",
@@ -216,15 +238,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   "vII": "0.00",
                   "vIPI": "0.00",
                   "vIPIDevol": "0.00",
-                  "vPIS": (100.00 * 0.0065).toFixed(2),  // Total de PIS = vBC * 0.65%
-                  "vCOFINS": (100.00 * 0.03).toFixed(2),
+                  "vPIS": parseFloat(order.vPIS || "0").toFixed(2),
+                  "vCOFINS": parseFloat(order.vCOFINS || "0").toFixed(2),
                   "vOutro": "0.00",
                   "vNF": totalValue.toFixed(2),
-                  "vTotTrib": (10.00).toFixed(2)
+                  "vTotTrib": vTotTrib
                },
+
                "retTrib": {
-                  "vRetPIS": "0.06",
-                  "vRetCOFINS": "0.06"
+                  "vRetPIS": parseFloat((parseFloat(order.vPIS || "0") * 0.0065).toFixed(2)),
+                  "vRetCOFINS": parseFloat(order.vCOFINS || "0").toFixed(2)
                }
             },
             "transp": {
@@ -393,11 +416,38 @@ interface Order {
    dataCadastro: string;
    email: string;
    endereco: string;
+   estado: string;
    formaPagamento: string;
    nomeCompleto: string;
    tipoPessoa: string;
    valorTotal: string;
    Ativo: boolean;
+
+   // ICMS
+   orig: string | null;
+   CSTICMS: string | null;
+   modBC: string | null;
+   vBC: string | null;
+   pICMS: string | null;
+   vICMS: string | null;
+   pFCP: string | null;
+   vFCP: string | null;
+
+   // IPI
+   cEnq: string | null;
+   CSTIPI: string | null;
+
+   // PIS
+   CSTPIS: string | null;
+   vBCPIS: string | null;
+   pPIS: string | null;
+   vPIS: string | null;
+
+   // COFINS
+   CSTCOFINS: string | null;
+   vBCCOFINS: string | null;
+   pCOFINS: string | null;
+   vCOFINS: string | null;
 }
 
 async function downloadNFePDF(chNFe: string, res: any) {
@@ -504,10 +554,37 @@ async function consultarStatusNFe(nsNRec: any, res: any) {
 
 
 
-function getUFfromCidade(cidade: any) {
-   switch (cidade) {
+function getUFfromEstado(estado: string) {
+   switch (estado) {
+      case 'Acre': return 'AC';
+      case 'Alagoas': return 'AL';
+      case 'Amapá': return 'AP';
+      case 'Amazonas': return 'AM';
+      case 'Bahia': return 'BA';
+      case 'Ceará': return 'CE';
+      case 'Distrito Federal': return 'DF';
+      case 'Espírito Santo': return 'ES';
+      case 'Goiás': return 'GO';
+      case 'Maranhão': return 'MA';
+      case 'Mato Grosso': return 'MT';
+      case 'Mato Grosso do Sul': return 'MS';
+      case 'Minas Gerais': return 'MG';
+      case 'Pará': return 'PA';
+      case 'Paraíba': return 'PB';
+      case 'Paraná': return 'PR';
+      case 'Pernambuco': return 'PE';
+      case 'Piauí': return 'PI';
+      case 'Rio de Janeiro': return 'RJ';
+      case 'Rio Grande do Norte': return 'RN';
+      case 'Rio Grande do Sul': return 'RS';
+      case 'Rondônia': return 'RO';
+      case 'Roraima': return 'RR';
+      case 'Santa Catarina': return 'SC';
       case 'São Paulo': return 'SP';
-      case 'Belo Horizonte': return 'MG';
-      default: return 'UNKNOWN';
+      case 'Sergipe': return 'SE';
+      case 'Tocantins': return 'TO';
+      default:
+         throw new Error(`Estado desconhecido: ${estado}`);
    }
 }
+

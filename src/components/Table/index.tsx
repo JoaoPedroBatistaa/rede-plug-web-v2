@@ -71,11 +71,38 @@ interface Order {
   dataCadastro: string;
   email: string;
   endereco: string;
+  estado: string;
   formaPagamento: string;
   nomeCompleto: string;
   tipoPessoa: string;
   valorTotal: string;
   Ativo: boolean;
+
+  // ICMS
+  orig: string | null;
+  CSTICMS: string | null;
+  modBC: string | null;
+  vBC: string | null;
+  pICMS: string | null;
+  vICMS: string | null;
+  pFCP: string | null;
+  vFCP: string | null;
+
+  // IPI
+  cEnq: string | null;
+  CSTIPI: string | null;
+
+  // PIS
+  CSTPIS: string | null;
+  vBCPIS: string | null;
+  pPIS: string | null;
+  vPIS: string | null;
+
+  // COFINS
+  CSTCOFINS: string | null;
+  vBCCOFINS: string | null;
+  pCOFINS: string | null;
+  vCOFINS: string | null;
 }
 
 export default function Table({
@@ -119,11 +146,30 @@ export default function Table({
             dataCadastro: data.dataCadastro,
             email: data.email,
             endereco: data.endereco,
+            estado: data.estado,
             formaPagamento: data.formaPagamento,
             nomeCompleto: data.nomeCompleto,
             tipoPessoa: data.tipoPessoa,
             valorTotal: data.valorTotal,
             Ativo: data.Ativo,
+            orig: data.orig,
+            CSTICMS: data.CSTICMS,
+            modBC: data.modBC,
+            vBC: data.vBC,
+            pICMS: data.pICMS,
+            vICMS: data.vICMS,
+            pFCP: data.pFCP,
+            vFCP: data.vFCP,
+            cEnq: data.cEnq,
+            CSTIPI: data.CSTIPI,
+            CSTPIS: data.CSTPIS,
+            vBCPIS: data.vBCPIS,
+            pPIS: data.pPIS,
+            vPIS: data.vPIS,
+            CSTCOFINS: data.CSTCOFINS,
+            vBCCOFINS: data.vBCCOFINS,
+            pCOFINS: data.pCOFINS,
+            vCOFINS: data.vCOFINS,
           };
 
           return order;

@@ -93,41 +93,6 @@ export default function BudgetFinish() {
   }
 
   const handleSaveOrder = async () => {
-    // if (!nomeCompleto) {
-    //   toast.error("Por favor, preencha o campo Nome Completo.");
-    //   return;
-    // }
-
-    // if (!Telefone) {
-    //   toast.error("Por favor, preencha o campo Telefone.");
-    //   return;
-    // }
-
-    // if (!email) {
-    //   toast.error("Por favor, preencha o campo Email.");
-    //   return;
-    // }
-
-    // if (!endereco) {
-    //   toast.error("Por favor, preencha o campo Endereço.");
-    //   return;
-    // }
-
-    // if (!cidade) {
-    //   toast.error("Por favor, preencha o campo Cidade.");
-    //   return;
-    // }
-
-    // if (!bairro) {
-    //   toast.error("Por favor, preencha o campo Bairro.");
-    //   return;
-    // }
-
-    // if (!cep) {
-    //   toast.error("Por favor, preencha o campo CEP.");
-    //   return;
-    // }
-
     try {
       const numeroDoPedidoRef = doc(
         db,
@@ -169,6 +134,32 @@ export default function BudgetFinish() {
         formaPagamento,
         vendedor,
         desconto,
+        estado,
+        // ICMS
+        orig,
+        CSTICMS,
+        modBC,
+        vBC,
+        pICMS,
+        vICMS,
+        pFCP,
+        vFCP,
+
+        // IPI
+        cEnq,
+        CSTIPI,
+
+        // PIS
+        CSTPIS,
+        vBCPIS,
+        pPIS,
+        vPIS,
+
+        // COFINS
+        CSTCOFINS,
+        vBCCOFINS,
+        pCOFINS,
+        vCOFINS,
       });
 
       await updateDoc(numeroDoPedidoRef, {
@@ -228,6 +219,32 @@ export default function BudgetFinish() {
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
 
+  // ICMS
+  const [orig, setOrig] = useState("");
+  const [CSTICMS, setCST] = useState("");
+  const [modBC, setModBC] = useState("");
+  const [vBC, setVBC] = useState("");
+  const [pICMS, setPICMS] = useState("");
+  const [vICMS, setVICMS] = useState("");
+  const [pFCP, setPFCP] = useState("");
+  const [vFCP, setVFCP] = useState("");
+
+  // IPI
+  const [cEnq, setCEnq] = useState("");
+  const [CSTIPI, setCSTIPI] = useState("");
+
+  // PIS
+  const [CSTPIS, setCSTPIS] = useState("");
+  const [vBCPIS, setVBCPIS] = useState("");
+  const [pPIS, setPPIS] = useState("");
+  const [vPIS, setVPIS] = useState("");
+
+  // COFINS
+  const [CSTCOFINS, setCSTCOFINS] = useState("");
+  const [vBCCOFINS, setVBCCOFINS] = useState("");
+  const [pCOFINS, setPCOFINS] = useState("");
+  const [vCOFINS, setVCOFINS] = useState("");
+
   useEffect(() => {
     const searchSuccess = localStorage.getItem("searchSuccess");
 
@@ -270,6 +287,100 @@ export default function BudgetFinish() {
       const cidadeFromLocalStorage = localStorage.getItem("cidade");
       if (cidadeFromLocalStorage) {
         setCidade(cidadeFromLocalStorage);
+      }
+
+      // ICMS
+      const origFromLocalStorage = localStorage.getItem("orig");
+      if (origFromLocalStorage) {
+        setOrig(origFromLocalStorage);
+      }
+
+      const CSTFromLocalStorage = localStorage.getItem("CSTICMS");
+      if (CSTFromLocalStorage) {
+        setCST(CSTFromLocalStorage);
+      }
+
+      const modBCFromLocalStorage = localStorage.getItem("modBC");
+      if (modBCFromLocalStorage) {
+        setModBC(modBCFromLocalStorage);
+      }
+
+      const vBCFromLocalStorage = localStorage.getItem("vBC");
+      if (vBCFromLocalStorage) {
+        setVBC(vBCFromLocalStorage);
+      }
+
+      const pICMSFromLocalStorage = localStorage.getItem("pICMS");
+      if (pICMSFromLocalStorage) {
+        setPICMS(pICMSFromLocalStorage);
+      }
+
+      const vICMSFromLocalStorage = localStorage.getItem("vICMS");
+      if (vICMSFromLocalStorage) {
+        setVICMS(vICMSFromLocalStorage);
+      }
+
+      const pFCPFromLocalStorage = localStorage.getItem("pFCP");
+      if (pFCPFromLocalStorage) {
+        setPFCP(pFCPFromLocalStorage);
+      }
+
+      const vFCPFromLocalStorage = localStorage.getItem("vFCP");
+      if (vFCPFromLocalStorage) {
+        setVFCP(vFCPFromLocalStorage);
+      }
+
+      // IPI
+      const cEnqFromLocalStorage = localStorage.getItem("cEnq");
+      if (cEnqFromLocalStorage) {
+        setCEnq(cEnqFromLocalStorage);
+      }
+
+      const CSTIPIFromLocalStorage = localStorage.getItem("CSTIPI");
+      if (CSTIPIFromLocalStorage) {
+        setCSTIPI(CSTIPIFromLocalStorage);
+      }
+
+      // PIS
+      const CSTPISFromLocalStorage = localStorage.getItem("CSTPIS");
+      if (CSTPISFromLocalStorage) {
+        setCSTPIS(CSTPISFromLocalStorage);
+      }
+
+      const vBCPISFromLocalStorage = localStorage.getItem("vBCPIS");
+      if (vBCPISFromLocalStorage) {
+        setVBCPIS(vBCPISFromLocalStorage);
+      }
+
+      const pPISFromLocalStorage = localStorage.getItem("pPIS");
+      if (pPISFromLocalStorage) {
+        setPPIS(pPISFromLocalStorage);
+      }
+
+      const vPISFromLocalStorage = localStorage.getItem("vPIS");
+      if (vPISFromLocalStorage) {
+        setVPIS(vPISFromLocalStorage);
+      }
+
+      // COFINS
+      const CSTCOFINSFromLocalStorage = localStorage.getItem("CSTCOFINS");
+      if (CSTCOFINSFromLocalStorage) {
+        setCSTCOFINS(CSTCOFINSFromLocalStorage);
+      }
+
+      const vBCCOFINSFromLocalStorage = localStorage.getItem("vBCCOFINS");
+      if (vBCCOFINSFromLocalStorage) {
+        setVBCCOFINS(vBCCOFINSFromLocalStorage);
+      }
+
+      const pCOFINSFromLocalStorage = localStorage.getItem("pCOFINS");
+      if (pCOFINSFromLocalStorage) {
+        setPCOFINS(pCOFINSFromLocalStorage);
+      }
+
+      const vCOFINSFromLocalStorage = localStorage.getItem("vCOFINS");
+      if (vCOFINSFromLocalStorage) {
+        setVCOFINS(vCOFINSFromLocalStorage);
       }
     }
   }, []);
