@@ -126,6 +126,7 @@ export default function BudgetFinish() {
         cidade,
         bairro,
         cep,
+        numero,
         complemento,
         tipoPessoa,
         valorTotal,
@@ -598,7 +599,7 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>CEP</p>
                   <input
                     id="CEP"
-                    type="number"
+                    type="text"
                     className={styles.FieldSmall}
                     placeholder=""
                     onKeyUp={checkCep}
@@ -626,7 +627,7 @@ export default function BudgetFinish() {
                   <p className={styles.FieldLabel}>Número *</p>
                   <input
                     id="Numero"
-                    type="number"
+                    type="text"
                     className={styles.FieldSmall}
                     placeholder=""
                     onChange={handleInputChange}

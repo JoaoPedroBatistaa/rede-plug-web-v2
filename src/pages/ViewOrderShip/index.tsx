@@ -61,6 +61,7 @@ export default function ViewOrderShip() {
 
           if (docSnap.exists()) {
             setUserData(docSnap.data() as UserDataType);
+            console.log(userData);
           } else {
             console.log("Nenhum documento encontrado!");
           }
