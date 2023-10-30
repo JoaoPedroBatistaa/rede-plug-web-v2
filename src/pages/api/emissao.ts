@@ -24,6 +24,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    let calculated_vFCP = ""
    let vTotTrib = ""
 
+   let formattedCEP = order.cep.replace(/\D/g, ''); // Remove caracteres não numéricos
+   if (formattedCEP.length !== 8) {
+      // Lança um erro ou trata de acordo com sua lógica
+      console.error("O CEP deve conter exatamente 8 caracteres numéricos.");
+   }
+
+   // Tratamento para o campo 'fone' (telefone)
+   let formattedFone = order.Telefone.replace(/\D/g, ''); // Remove caracteres não numéricos
+   if (formattedFone.length < 6 || formattedFone.length > 14) {
+      // Lança um erro ou trata de acordo com sua lógica
+      console.error("O telefone deve conter entre 6 a 14 caracteres numéricos.");
+   }
+
+   let formattedEmail = order.email.trim();
+
+   let formattedInfCpl = order.nomeCompleto.trim();
+
 
 
    const formattedJSON = {
@@ -87,14 +104,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   cMun: "3550308",
                   xMun: order.cidade,
                   UF: getUFfromEstado(order.estado),  // Using the function to extract UF
-                  CEP: order.cep,
+                  CEP: formattedCEP,
                   cPais: "1058",
                   xPais: "BRASIL",
-                  fone: order.Telefone
+                  fone: formattedFone
                },
                indIEDest: "1",
                IE: "129027724114",
-               email: order.email
+               email: formattedEmail
             },
 
             "det": order.budgets.flatMap((item, index) => {
@@ -179,14 +196,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                      "vTotTrib": vTotTrib,
                      "ICMS": {
                         "ICMS00": {
-                           "orig": order.orig || "0",
+                           "orig": order.orig || "1",
                            "CST": "00",
-                           "modBC": order.modBC || "0",
-                           "vBC": parseFloat(order.vBC || "0").toFixed(2),
-                           "pICMS": parseFloat(order.pICMS || "0").toFixed(2),
-                           vICMS: calculated_vICMS,
-                           "pFCP": parseFloat(order.pFCP || "0").toFixed(2),
-                           "vFCP": calculated_vFCP
+                           "modBC": order.modBC || "1",
+                           "vBC": parseFloat(order.vBC || "1").toFixed(2),
+                           "pICMS": parseFloat(order.pICMS || "10").toFixed(2),
+                           vICMS: calculated_vICMS || "1",
+                           "pFCP": parseFloat(order.pFCP || "2").toFixed(2),
+                           "vFCP": calculated_vFCP || "1"
                         }
                      },
                      "IPI": {
@@ -198,17 +215,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                      "PIS": {
                         "PISAliq": {
                            "CST": "01",
-                           "vBC": parseFloat(order.vBCPIS || "0").toFixed(2),
-                           "pPIS": parseFloat(order.pPIS || "0").toFixed(2),
-                           "vPIS": parseFloat(order.vPIS || "0").toFixed(2)
+                           "vBC": parseFloat(order.vBCPIS || "1").toFixed(2),
+                           "pPIS": parseFloat(order.pPIS || "10").toFixed(2),
+                           "vPIS": parseFloat(order.vPIS || "10").toFixed(2)
                         }
                      },
                      "COFINS": {
                         "COFINSAliq": {
                            "CST": "01",
-                           "vBC": parseFloat(order.vBCCOFINS || "0").toFixed(2),
-                           "pCOFINS": parseFloat(order.pCOFINS || "0").toFixed(2),
-                           "vCOFINS": parseFloat(order.vCOFINS || "0").toFixed(2)
+                           "vBC": parseFloat(order.vBCCOFINS || "10").toFixed(2),
+                           "pCOFINS": parseFloat(order.pCOFINS || "1").toFixed(2),
+                           "vCOFINS": parseFloat(order.vCOFINS || "10").toFixed(2)
                         }
                      }
                   }
@@ -246,8 +263,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                },
 
                "retTrib": {
-                  "vRetPIS": parseFloat((parseFloat(order.vPIS || "0") * 0.0065).toFixed(2)),
-                  "vRetCOFINS": parseFloat(order.vCOFINS || "0").toFixed(2)
+                  "vRetPIS": parseFloat((parseFloat(order.vPIS || "100.01") * 0.0065).toFixed(2)),
+                  "vRetCOFINS": parseFloat(order.vCOFINS || "0.01").toFixed(2)
                }
             },
             "transp": {
@@ -275,10 +292,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                "vTroco": "0.00"
             },
             "infAdic": {
-               "infCpl": order.nomeCompleto,
+               "infCpl": formattedInfCpl,
                "obsCont": [{
                   "xCampo": "enviaEmail",
-                  "xTexto": order.email
+                  "xTexto": formattedEmail
                }]
             }
          }

@@ -102,7 +102,9 @@ interface Order {
   CSTCOFINS: string | null;
   vBCCOFINS: string | null;
   pCOFINS: string | null;
+
   vCOFINS: string | null;
+  [key: string]: any;
 }
 
 export default function Table({
@@ -355,9 +357,50 @@ export default function Table({
   // NOTA FISCAL
 
   const handleClickNote = async (event: any, orderId: string) => {
+    event.stopPropagation();
     const order = teste.find((o) => o.id === orderId);
     if (!order) {
       toast.error("Pedido não encontrado!");
+      return;
+    }
+
+    const requiredFields = [
+      "orig",
+      "CSTICMS",
+      "modBC",
+      "vBC",
+      "pICMS",
+      "vICMS",
+      "pFCP",
+      "vFCP",
+      "cEnq",
+      "CSTIPI",
+      "CSTPIS",
+      "vBCPIS",
+      "pPIS",
+      "vPIS",
+      "CSTCOFINS",
+      "vBCCOFINS",
+      "pCOFINS",
+      "vCOFINS",
+    ];
+
+    let missingFields = requiredFields.filter(
+      (field) =>
+        order[field] === undefined ||
+        order[field] === null ||
+        order[field] === ""
+    );
+
+    console.log("Order", order);
+    console.log("Campos ausentes:", missingFields);
+
+    if (missingFields.length > 0) {
+      toast.error(
+        `Os seguintes campos estão faltando no cadastro do cliente: ${missingFields.join(
+          ", "
+        )}`
+      );
       return;
     }
 
