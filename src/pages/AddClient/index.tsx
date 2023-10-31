@@ -144,33 +144,57 @@ export default function ProductFoam() {
       }
     }
 
-    const isFieldMissing = Object.values(foam).some(
-      (value) => !value || value === ""
+    const optionalFields = [
+      "orig",
+      "CSTICMS",
+      "modBC",
+      "vBC",
+      "pICMS",
+      "vICMS",
+      "pFCP",
+      "vFCP",
+      "cEnq",
+      "CSTIPI",
+      "CSTPIS",
+      "vBCPIS",
+      "pPIS",
+      "vPIS",
+      "CSTCOFINS",
+      "vBCCOFINS",
+      "pCOFINS",
+      "vCOFINS",
+    ];
+
+    const isFieldMissing = Object.entries(foam).some(
+      ([key, value]) => !value && !optionalFields.includes(key)
     );
+
     if (isFieldMissing) {
-      toast.error("Por favor, preencha todos os campos antes de salvar.");
+      toast.error(
+        "Por favor, preencha todos os campos antes de salvar. Apenas campos da área Finanças podem ficar em branco"
+      );
       return;
     }
 
-    if (CSTICMS.length !== 2) {
+    if (CSTICMS.length >= 1 && CSTICMS.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (ICMS)' deve conter exatamente 2 caracteres."
       );
       return;
     }
-    if (CSTIPI.length !== 2) {
+    if (CSTIPI.length >= 1 && CSTIPI.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (IPI)' deve conter exatamente 2 caracteres."
       );
       return;
     }
-    if (CSTCOFINS.length !== 2) {
+    if (CSTCOFINS.length >= 1 && CSTCOFINS.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (COFINS)' deve conter exatamente 2 caracteres."
       );
       return;
     }
-    if (CSTPIS.length !== 2) {
+    if (CSTPIS.length >= 1 && CSTPIS.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (PIS)' deve conter exatamente 2 caracteres."
       );

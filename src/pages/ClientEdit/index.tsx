@@ -78,25 +78,25 @@ export default function UpdateFoam() {
       return;
     }
 
-    if (foam?.CSTICMS && foam?.CSTICMS.length !== 2) {
+    if (foam.CSTICMS?.length >= 1 && foam.CSTICMS.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (ICMS)' deve conter exatamente 2 caracteres."
       );
       return;
     }
-    if (foam?.CSTIPI && foam?.CSTIPI.length !== 2) {
+    if (foam.CSTIPI?.length >= 1 && foam.CSTIPI.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (IPI)' deve conter exatamente 2 caracteres."
       );
       return;
     }
-    if (foam?.CSTCOFINS && foam?.CSTCOFINS.length !== 2) {
+    if (foam.CSTCOFINS?.length >= 1 && foam.CSTCOFINS.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (COFINS)' deve conter exatamente 2 caracteres."
       );
       return;
     }
-    if (foam?.CSTPIS && foam?.CSTPIS.length !== 2) {
+    if (foam.CSTPIS?.length >= 1 && foam.CSTPIS.length !== 2) {
       toast.error(
         "O campo 'Código de Situação Tributária (PIS)' deve conter exatamente 2 caracteres."
       );
