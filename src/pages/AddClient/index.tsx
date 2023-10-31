@@ -107,16 +107,16 @@ export default function ProductFoam() {
     let userId = localStorage.getItem("userId");
 
     const foam: FoamType = {
-      cpf,
+      cpf: cpf ? cpf.replace(/[^\d]/g, "") : null,
       NomeCompleto,
-      Telefone,
+      Telefone: Telefone ? Telefone.replace(/[^\d]/g, "") : null,
       email,
       bairro,
-      cep,
+      cep: cep ? cep.replace(/[^\d]/g, "") : null,
       venue,
       estado,
       cidade,
-      numero,
+      numero: numero ? numero.replace(/[^\d]/g, "") : null,
       complemento,
       orig,
       CSTICMS,

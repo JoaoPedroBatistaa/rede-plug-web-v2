@@ -103,6 +103,12 @@ export default function UpdateFoam() {
       return;
     }
 
+    // Limpeza de campos
+    foam.cpf = foam?.cpf ? foam.cpf.replace(/[^\d]/g, "") : null;
+    foam.Telefone = foam?.Telefone ? foam.Telefone.replace(/[^\d]/g, "") : null;
+    foam.numero = foam?.numero ? foam.numero.replace(/[^\d]/g, "") : null;
+    foam.cep = foam?.cep ? foam.cep.replace(/[^\d]/g, "") : null;
+
     try {
       await updateClientInLogin(foam, id, userId);
       toast.success("Cliente Atualizado!");
