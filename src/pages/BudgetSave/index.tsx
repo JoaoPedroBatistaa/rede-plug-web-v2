@@ -227,11 +227,14 @@ export default function BudgetSave() {
           // Verifica se o cpf é válido (não vazio)
           if (!cliente.cpf || cliente.cpf === "") return false;
 
+          // Remove qualquer caractere que não seja um dígito
+          const cleanedCPF = cliente.cpf.replace(/\D/g, "");
+
           // Filtra baseado na máscara selecionada
           if (selectedOption === "FÍSICA") {
-            return cliente.cpf.length <= 11;
+            return cleanedCPF.length <= 11;
           } else {
-            return cliente.cpf.length > 11;
+            return cleanedCPF.length > 11;
           }
         });
 
@@ -407,6 +410,16 @@ export default function BudgetSave() {
     };
   }, []);
 
+  function getPhoneMask(phone: string): string {
+    const digitsOnly = phone.replace(/\D/g, ""); // Remova caracteres não numéricos
+
+    if (digitsOnly.length <= 10) {
+      return "(99) 9999-9999"; // Máscara para telefone fixo
+    } else {
+      return "(99) 99999-9999"; // Máscara para celular
+    }
+  }
+
   return (
     <>
       <Head>
@@ -515,7 +528,7 @@ export default function BudgetSave() {
               id="Telefone"
               type="tel"
               className={styles.FieldSave}
-              mask="(99) 99999-9999" // Exemplo de máscara para telefone
+              mask={getPhoneMask(Telefone)} // Chame a função para obter a máscara correta
               placeholder=""
               onChange={handleInputChange}
               value={Telefone}
