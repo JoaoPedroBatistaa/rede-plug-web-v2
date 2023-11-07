@@ -223,14 +223,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Foam</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Foam")}
@@ -257,14 +259,16 @@ export default function Products() {
 
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Foam")}
@@ -372,14 +376,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Impressao</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Impressao")}
@@ -405,14 +411,16 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Impressao")}
@@ -520,14 +528,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Paspatur</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Paspatur")}
@@ -553,14 +563,16 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Paspatur")}
@@ -668,14 +680,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Perfil</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Perfil")}
@@ -701,14 +715,16 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Perfil")}
@@ -829,14 +845,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Vidro</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Vidro")}
@@ -862,14 +880,16 @@ export default function Products() {
                 </div>
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Vidro")}
@@ -977,14 +997,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Colagem</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Colagem")}
@@ -1011,14 +1033,16 @@ export default function Products() {
 
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Perfil")}
@@ -1126,14 +1150,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Diversos</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Instalacao")}
@@ -1160,14 +1186,16 @@ export default function Products() {
 
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Instalacao")}
@@ -1274,14 +1302,16 @@ export default function Products() {
                 <p className={styles.ProductNameMobile}>Montagem</p>
 
                 <div className={styles.porcentContainerMobile}>
-                  <div>
-                    <input
-                      type="text"
-                      className={styles.InputEdit}
-                      placeholder="Aumento em %"
-                      onChange={handleIncreaseChange}
-                    />
-                  </div>
+                  {typeUser === "admin" && (
+                    <div>
+                      <input
+                        type="text"
+                        className={styles.InputEdit}
+                        placeholder="Aumento em %"
+                        onChange={handleIncreaseChange}
+                      />
+                    </div>
+                  )}
                   <button
                     className={styles.AumentoPorcent}
                     onClick={() => handleIncrease("Montagem")}
@@ -1308,14 +1338,16 @@ export default function Products() {
 
                 <div className={styles.ListMenuRight}>
                   <div className={styles.porcentContainer}>
-                    <div>
-                      <input
-                        type="text"
-                        className={styles.InputEdit}
-                        placeholder="Aumento em %"
-                        onChange={handleIncreaseChange}
-                      />
-                    </div>
+                    {typeUser === "admin" && (
+                      <div>
+                        <input
+                          type="text"
+                          className={styles.InputEdit}
+                          placeholder="Aumento em %"
+                          onChange={handleIncreaseChange}
+                        />
+                      </div>
+                    )}
                     <button
                       className={styles.AumentoPorcent}
                       onClick={() => handleIncrease("Instalacao")}
