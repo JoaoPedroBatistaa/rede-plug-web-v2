@@ -563,11 +563,13 @@ export default function Table({
               </td>
 
               <td>
-                <img
-                  src="./nota.png"
-                  className={styles.iconNota}
-                  onClick={(event) => handleClickNote(event, item.id)}
-                />
+                {userId === "lB2pGqkarGyq98VhMGM6" && (
+                  <img
+                    src="./nota.png"
+                    className={styles.iconNota}
+                    onClick={(event) => handleClickNote(event, item.id)}
+                  />
+                )}
               </td>
             </tr>
           ))}

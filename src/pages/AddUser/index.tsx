@@ -17,13 +17,13 @@ export default function AddUser() {
 
   const [fileDownloadURL, setFileDownloadURL] = useState<string | null>(null);
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
 
+  useEffect(() => {
     if (!userId) {
       router.push("/Login");
     }
-  }, []);
+  }, [userId]);
 
   const { openMenu, setOpenMenu } = useMenu();
 
@@ -47,7 +47,6 @@ export default function AddUser() {
       fileDownloadURL,
     };
 
-    // Verificações para cada variável do objeto foam
     if (!Nome) {
       toast.error("Por favor, insira o nome.");
       return;
@@ -74,12 +73,11 @@ export default function AddUser() {
     }
 
     if (!fileDownloadURL) {
-      toast.error("Por favor, insira u ma logo.");
+      toast.error("Por favor, insira um logo.");
       return;
     }
 
     try {
-      // Substitua 'id_do_login' pelo id do login onde você quer adicionar o paspatur
       await addUserToLogin(foam, userId);
       toast.success("Usuário Cadastrado!");
     } catch (e) {
@@ -227,11 +225,14 @@ export default function AddUser() {
                     id="valorPerda"
                     className={styles.SelectField}
                     onChange={(e) => setTipo(e.target.value)}
+                    defaultValue=""
                   >
-                    <option value="" disabled selected>
+                    <option value="" disabled>
                       Selecione o tipo de usuário
                     </option>
-                    <option value="admin">admin</option>
+                    {userId === "lB2pGqkarGyq98VhMGM6" && (
+                      <option value="admin">admin</option>
+                    )}
                     <option value="vendedor">vendedor</option>
                   </select>
                 </div>

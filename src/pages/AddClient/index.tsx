@@ -67,11 +67,11 @@ export default function ProductFoam() {
   const [NomeCompleto, setNomeCompleto] = useState("");
   const [Telefone, setTelefone] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
-  const [bairro, setBairro] = useState<string | null>(null);
-  const [cep, setCep] = useState<string | null>(null);
+  const [bairro, setBairro] = useState("");
+  const [cep, setCep] = useState("");
   const [venue, setVenue] = useState<string | null>(null);
-  const [estado, setEstado] = useState<string | null>(null);
-  const [cidade, setCidade] = useState<string | null>(null);
+  const [estado, setEstado] = useState("");
+  const [cidade, setCidade] = useState("");
   const [numero, setNumero] = useState<string | null>(null);
   const [complemento, setComplemento] = useState<string | null>(null);
 
@@ -219,6 +219,64 @@ export default function ProductFoam() {
     }, 100);
   };
 
+  type EstadosMap = {
+    [key: string]: string;
+  };
+
+  const estadosMap: EstadosMap = {
+    AC: "Acre",
+    AL: "Alagoas",
+    AP: "Amapá",
+    AM: "Amazonas",
+    BA: "Bahia",
+    CE: "Ceará",
+    DF: "Distrito Federal",
+    ES: "Espírito Santo",
+    GO: "Goiás",
+    MA: "Maranhão",
+    MT: "Mato Grosso",
+    MS: "Mato Grosso do Sul",
+    MG: "Minas Gerais",
+    PA: "Pará",
+    PB: "Paraíba",
+    PR: "Paraná",
+    PE: "Pernambuco",
+    PI: "Piauí",
+    RJ: "Rio de Janeiro",
+    RN: "Rio Grande do Norte",
+    RS: "Rio Grande do Sul",
+    RO: "Rondônia",
+    RR: "Roraima",
+    SC: "Santa Catarina",
+    SP: "São Paulo",
+    SE: "Sergipe",
+    TO: "Tocantins",
+  };
+
+  const buscarCep = async (cep: string) => {
+    if (cep.length === 8 && /^[0-9]+$/.test(cep)) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await response.json();
+
+        const uf = data.uf as keyof EstadosMap;
+
+        if (!data.erro) {
+          setCidade(data.localidade);
+          setBairro(data.logradouro);
+          const estadoNomeCompleto = estadosMap[uf] || "";
+          setEstado(estadoNomeCompleto);
+        } else {
+          alert("CEP não encontrado.");
+        }
+      } catch (error) {
+        alert("Erro ao buscar o CEP.");
+      }
+    } else {
+      alert("Formato de CEP inválido.");
+    }
+  };
+
   return (
     <>
       <Head>
@@ -286,9 +344,7 @@ export default function ProductFoam() {
                 onChange={(e) => setTelefone(e.target.value)}
               />
             </div>
-          </div>
 
-          <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Email</p>
               <input
@@ -299,37 +355,37 @@ export default function ProductFoam() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Cep</p>
+              <input
+                type="text"
+                className={styles.Field}
+                value={cep}
+                onChange={(e) => setCep(e.target.value)}
+                onBlur={() => buscarCep(cep)}
+                maxLength={8}
+              />
+            </div>
 
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Cidade</p>
               <input
-                id="valorPerda"
                 type="text"
                 className={styles.Field}
-                placeholder=""
+                value={cidade}
                 onChange={(e) => setCidade(e.target.value)}
               />
             </div>
-
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Bairro</p>
               <input
-                id="valorPerda"
                 type="text"
                 className={styles.Field}
-                placeholder=""
+                value={bairro}
                 onChange={(e) => setBairro(e.target.value)}
-              />
-            </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Numero</p>
-              <input
-                id="valorPerda"
-                type="number"
-                className={styles.Field}
-                placeholder=""
-                onChange={(e) => setNumero(e.target.value)}
               />
             </div>
 
@@ -342,6 +398,17 @@ export default function ProductFoam() {
                 onChange={(e) => setVenue(e.target.value)}
               ></textarea>
             </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Numero</p>
+              <input
+                id="valorPerda"
+                type="number"
+                className={styles.Field}
+                placeholder=""
+                onChange={(e) => setNumero(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className={styles.InputContainer}>
@@ -350,8 +417,8 @@ export default function ProductFoam() {
               <select
                 id="valorMetro"
                 className={styles.SelectField}
+                value={estado}
                 onChange={(e) => setEstado(e.target.value)}
-                defaultValue=""
               >
                 <option value="" disabled>
                   Selecione seu estado
@@ -384,17 +451,6 @@ export default function ProductFoam() {
                 <option value="Sergipe">Sergipe</option>
                 <option value="Tocantins">Tocantins</option>
               </select>
-            </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Cep</p>
-              <input
-                id="valorPerda"
-                type="text"
-                className={styles.Field}
-                placeholder=""
-                onChange={(e) => setCep(e.target.value)}
-              />
             </div>
 
             <div className={styles.InputField}>

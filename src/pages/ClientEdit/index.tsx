@@ -192,9 +192,7 @@ export default function UpdateFoam() {
                 onChange={handleChange}
               />
             </div>
-          </div>
 
-          <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Telefone</p>
               <input
@@ -203,6 +201,20 @@ export default function UpdateFoam() {
                 className={styles.Field}
                 placeholder=""
                 value={foam?.Telefone || ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>CEP</p>
+              <input
+                id="cep"
+                type="text"
+                className={styles.Field}
+                placeholder=""
+                value={foam?.cep || ""}
                 onChange={handleChange}
               />
             </div>
@@ -232,6 +244,16 @@ export default function UpdateFoam() {
             </div>
 
             <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Endereço</p>
+              <textarea
+                className={styles.Field}
+                id="venue"
+                value={foam?.venue || ""}
+                onChange={handleChange}
+              ></textarea>
+            </div>
+
+            <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Numero</p>
               <input
                 id="numero"
@@ -242,31 +264,9 @@ export default function UpdateFoam() {
                 onChange={handleChange}
               />
             </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Endereço</p>
-              <textarea
-                className={styles.Field}
-                id="venue"
-                value={foam?.venue || ""}
-                onChange={handleChange}
-              ></textarea>
-            </div>
           </div>
 
           <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>CEP</p>
-              <input
-                id="cep"
-                type="text"
-                className={styles.Field}
-                placeholder=""
-                value={foam?.cep || ""}
-                onChange={handleChange}
-              />
-            </div>
-
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Estado</p>
               <select
