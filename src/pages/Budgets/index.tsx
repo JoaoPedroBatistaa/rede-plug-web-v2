@@ -55,6 +55,7 @@ export default function Budgets() {
       "typeUser",
       "logo",
       "nome",
+      "adminPai",
     ];
     const todasAsChaves = Object.keys(localStorage);
     todasAsChaves.forEach((chave) => {

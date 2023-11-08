@@ -37,8 +37,27 @@ export default function TableFoam({
   }
 
   useEffect(() => {
+    let isComponentMounted = true;
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/lB2pGqkarGyq98VhMGM6/Foam`);
+      let userType, adminParentId, userId;
+
+      if (typeof window !== "undefined") {
+        userType = window.localStorage.getItem("typeUser");
+        adminParentId = window.localStorage.getItem("adminPai");
+        userId = window.localStorage.getItem("userId");
+      }
+
+      let path;
+      if (userType === "admin") {
+        path = `Login/${userId}/Foam`;
+      } else if (userType === "vendedor" && adminParentId) {
+        path = `Login/${adminParentId}/Foam`;
+      } else {
+        console.error("User type is not set correctly or adminPai is missing");
+        return;
+      }
+
+      const dbCollection = collection(db, path);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();

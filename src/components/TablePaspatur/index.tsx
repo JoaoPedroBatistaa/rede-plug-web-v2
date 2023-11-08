@@ -38,10 +38,27 @@ export default function TablePaspatur({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(
-        db,
-        `Login/lB2pGqkarGyq98VhMGM6/Paspatur`
-      );
+      let userType, adminParentId, currentUserId;
+
+      // Verifica se o código está rodando no lado do cliente onde o localStorage está disponível
+      if (typeof window !== "undefined") {
+        userType = window.localStorage.getItem("typeUser");
+        adminParentId = window.localStorage.getItem("adminPai");
+        currentUserId = window.localStorage.getItem("userId");
+      }
+
+      // Determina o caminho para a coleção baseado no tipo de usuário e adminPai
+      let path;
+      if (userType === "admin" && currentUserId) {
+        path = `Login/${currentUserId}/Paspatur`; // Caminho para admin
+      } else if (userType === "vendedor" && adminParentId) {
+        path = `Login/${adminParentId}/Paspatur`; // Caminho para vendedor
+      } else {
+        console.error("User type is not set correctly or adminPai is missing");
+        return; // Sai da função se as condições não forem atendidas
+      }
+
+      const dbCollection = collection(db, path);
       console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {

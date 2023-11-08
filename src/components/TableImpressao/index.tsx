@@ -38,10 +38,25 @@ export default function TableImpressao({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(
-        db,
-        `Login/lB2pGqkarGyq98VhMGM6/Impressao`
-      );
+      let userType, adminParentId, userId;
+
+      if (typeof window !== "undefined") {
+        userType = window.localStorage.getItem("typeUser");
+        adminParentId = window.localStorage.getItem("adminPai");
+        userId = window.localStorage.getItem("userId");
+      }
+
+      let path;
+      if (userType === "admin" && userId) {
+        path = `Login/${userId}/Impressao`; // Caminho para admin
+      } else if (userType === "vendedor" && adminParentId) {
+        path = `Login/${adminParentId}/Impressao`; // Caminho para vendedor
+      } else {
+        console.error("User type is not set correctly or adminPai is missing");
+        return; // Sai da função se as condições não forem atendidas
+      }
+
+      const dbCollection = collection(db, path);
       console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {

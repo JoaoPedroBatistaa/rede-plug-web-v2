@@ -38,7 +38,25 @@ export default function TablePaspatur({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/lB2pGqkarGyq98VhMGM6/Colagem`);
+      let userType, adminParentId;
+
+      if (typeof window !== "undefined") {
+        userType = window.localStorage.getItem("typeUser");
+        adminParentId = window.localStorage.getItem("adminPai");
+        userId = window.localStorage.getItem("userId");
+      }
+
+      let path = `Login/${userId}/Colagem`;
+
+      if (userType === "admin") {
+      } else if (userType === "vendedor" && adminParentId) {
+        path = `Login/${adminParentId}/Colagem`;
+      } else {
+        console.error("User type is not set correctly or adminPai is missing");
+        return;
+      }
+
+      const dbCollection = collection(db, path);
       console.log("Fetching from: ", dbCollection);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {

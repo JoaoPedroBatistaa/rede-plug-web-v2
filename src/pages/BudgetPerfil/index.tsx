@@ -67,7 +67,28 @@ export default function BudgetPerfil() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/lB2pGqkarGyq98VhMGM6/Perfil`);
+      let userType, adminParentId, currentUserId;
+
+      // Verifica se está no ambiente do navegador para acessar o localStorage
+      if (typeof window !== "undefined") {
+        userType = window.localStorage.getItem("typeUser");
+        adminParentId = window.localStorage.getItem("adminPai");
+        currentUserId = window.localStorage.getItem("userId");
+      }
+
+      // Determina o caminho da coleção com base no tipo de usuário e admin pai
+      let path;
+      if (userType === "admin" && currentUserId) {
+        path = `Login/${currentUserId}/Perfil`; // Caminho para usuários admin
+      } else if (userType === "vendedor" && adminParentId) {
+        path = `Login/${adminParentId}/Perfil`; // Caminho para usuários vendedores
+      } else {
+        // Se não houver userType definido ou não for admin/vendedor com um adminPai, loga um erro
+        console.error("User type is not set correctly or adminPai is missing");
+        return; // Encerra a função se as condições não forem atendidas
+      }
+
+      const dbCollection = collection(db, path);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();

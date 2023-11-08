@@ -103,7 +103,27 @@ export default function BudgetCollage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(db, `Login/lB2pGqkarGyq98VhMGM6/Colagem`);
+      let userType, adminParentId, currentUserId;
+
+      // Assegura que o código seja executado apenas no lado do cliente
+      if (typeof window !== "undefined") {
+        userType = window.localStorage.getItem("typeUser");
+        adminParentId = window.localStorage.getItem("adminPai");
+        currentUserId = window.localStorage.getItem("userId");
+      }
+
+      // Define o caminho da coleção com base no tipo de usuário e admin pai
+      let path;
+      if (userType === "admin" && currentUserId) {
+        path = `Login/${currentUserId}/Colagem`; // Caminho para usuários admin
+      } else if (userType === "vendedor" && adminParentId) {
+        path = `Login/${adminParentId}/Colagem`; // Caminho para usuários vendedores
+      } else {
+        console.error("User type is not set correctly or adminPai is missing");
+        return; // Encerra a execução se os valores necessários não estiverem presentes
+      }
+
+      const dbCollection = collection(db, path);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();

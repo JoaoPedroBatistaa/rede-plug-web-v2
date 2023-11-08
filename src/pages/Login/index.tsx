@@ -15,6 +15,7 @@ interface Login {
   Senha: string;
   Tipo: string;
   fileDownloadURL: string;
+  adminPai: string;
 }
 
 export default function Login() {
@@ -38,6 +39,7 @@ export default function Login() {
           Tipo: data.Tipo,
           fileDownloadURL: data.fileDownloadURL,
           Nome: data.Nome,
+          adminPai: data.adminPai,
         };
         return login;
       });
@@ -62,6 +64,7 @@ export default function Login() {
       localStorage.setItem("typeUser", user.Tipo);
       localStorage.setItem("logo", user.fileDownloadURL);
       localStorage.setItem("nome", user.Nome);
+      localStorage.setItem("adminPai", user.adminPai);
 
       router.push("/Home");
     } else {

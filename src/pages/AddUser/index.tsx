@@ -6,11 +6,22 @@ import HeaderNewProduct from "@/components/HeaderNewUser";
 import { ChangeEvent, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { addUserToLogin, storage } from "../../../firebase";
+import { addUserToLogin, db, storage } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import { uploadToFirebase } from "../../../firebase";
+
+interface AdminUser {
+  id: string;
+  Login: string;
+  Nome: string;
+  NomeEmpresa: string;
+  Senha: string;
+  Tipo: "admin";
+  fileDownloadURL: string;
+}
 
 export default function AddUser() {
   const router = useRouter();
@@ -38,6 +49,11 @@ export default function AddUser() {
 
     let userId = localStorage.getItem("userId");
 
+    if (Tipo === "vendedor" && !selectedAdminId) {
+      toast.error("Por favor, selecione um admin pai para o vendedor.");
+      return;
+    }
+
     const foam = {
       Nome,
       Login,
@@ -45,6 +61,7 @@ export default function AddUser() {
       Tipo,
       Senha,
       fileDownloadURL,
+      adminPai: Tipo === "vendedor" ? selectedAdminId : null,
     };
 
     if (!Nome) {
@@ -146,6 +163,28 @@ export default function AddUser() {
     }
     setIsFileSelected(false);
   };
+
+  // SELECT ADMIN
+
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [selectedAdminId, setSelectedAdminId] = useState("");
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      const querySnapshot = await getDocs(
+        query(collection(db, "Login"), where("Tipo", "==", "admin"))
+      );
+      const adminUsers: AdminUser[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as Omit<AdminUser, "id">;
+        adminUsers.push({ ...data, id: doc.id });
+      });
+
+      setAdmins(adminUsers);
+    };
+
+    fetchAdmins();
+  }, []);
 
   return (
     <>
@@ -249,6 +288,30 @@ export default function AddUser() {
                     onChange={(e) => setSenha(e.target.value)}
                   />
                 </div>
+
+                {Tipo === "vendedor" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Admin pai</p>
+                    <select
+                      id="adminPai"
+                      className={styles.SelectField}
+                      onChange={(e) => {
+                        console.log(e.target.value); // Para validar a seleção no console
+                        setSelectedAdminId(e.target.value);
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>
+                        Selecione o admin pai
+                      </option>
+                      {admins.map((admin) => (
+                        <option key={admin.id} value={admin.id}>
+                          {admin.Nome}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 

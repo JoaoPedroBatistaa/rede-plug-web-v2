@@ -31,6 +31,7 @@ export default function TableFoam({
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
   let userId: string | null;
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
@@ -38,10 +39,7 @@ export default function TableFoam({
 
   useEffect(() => {
     const fetchData = async () => {
-      const dbCollection = collection(
-        db,
-        `Login/lB2pGqkarGyq98VhMGM6/Supplier`
-      );
+      const dbCollection = collection(db, `Login/${userId}/Supplier`);
       const budgetSnapshot = await getDocs(dbCollection);
       const budgetList = budgetSnapshot.docs.map((doc) => {
         const data = doc.data();

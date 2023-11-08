@@ -62,6 +62,7 @@ export default function Requests() {
       "typeUser",
       "logo",
       "nome",
+      "adminPai",
     ];
     const todasAsChaves = Object.keys(localStorage);
     todasAsChaves.forEach((chave) => {
