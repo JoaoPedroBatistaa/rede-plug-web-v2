@@ -44,25 +44,33 @@ export default function AddUser() {
   const [Tipo, setTipo] = useState<string | null>(null);
   const [Senha, setSenha] = useState<string | null>(null);
 
-  const handleButtonFinish = async (event: any) => {
+  const handleButtonFinish = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
 
+    // Check if the user is already logged in
     let userId = localStorage.getItem("userId");
 
+    // Function to check if the login already exists in the database
+    const checkLoginExists = async () => {
+      const querySnapshot = await getDocs(
+        query(collection(db, "Login"), where("Login", "==", Login))
+      );
+      return !querySnapshot.empty; // Returns true if login exists
+    };
+
+    // Check if the login already exists
+    if (await checkLoginExists()) {
+      toast.error(
+        "Este email já foi cadastrado! Por favor, escolha um diferente."
+      );
+      return;
+    }
+
+    // Validation for other fields
     if (Tipo === "vendedor" && !selectedAdminId) {
       toast.error("Por favor, selecione um admin pai para o vendedor.");
       return;
     }
-
-    const foam = {
-      Nome,
-      Login,
-      NomeEmpresa,
-      Tipo,
-      Senha,
-      fileDownloadURL,
-      adminPai: Tipo === "vendedor" ? selectedAdminId : null,
-    };
 
     if (!Nome) {
       toast.error("Por favor, insira o nome.");
@@ -94,13 +102,27 @@ export default function AddUser() {
       return;
     }
 
+    // Preparing the user data for submission
+    const foam = {
+      Nome,
+      Login,
+      NomeEmpresa,
+      Tipo,
+      Senha,
+      fileDownloadURL,
+      adminPai: Tipo === "vendedor" ? selectedAdminId : null,
+    };
+
     try {
+      // Call function to add user to the login collection
       await addUserToLogin(foam, userId);
       toast.success("Usuário Cadastrado!");
     } catch (e) {
       toast.error("Erro ao cadastrar usuário.");
+      console.error(e);
     }
 
+    // Redirect after successful registration
     setTimeout(() => {
       router.push("/Users");
     }, 500);
