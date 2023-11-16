@@ -53,7 +53,6 @@ export default function AddUser() {
   const handleButtonFinish = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
 
-    // Function to check if the login already exists in the database
     const checkLoginExists = async () => {
       const querySnapshot = await getDocs(
         query(collection(db, "Login"), where("Login", "==", Login))
