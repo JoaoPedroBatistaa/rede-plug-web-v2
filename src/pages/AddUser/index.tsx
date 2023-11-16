@@ -28,7 +28,13 @@ export default function AddUser() {
 
   const [fileDownloadURL, setFileDownloadURL] = useState<string | null>(null);
 
-  const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserId(localStorage.getItem("userId"));
+    }
+  }, []);
 
   useEffect(() => {
     if (!userId) {
@@ -46,9 +52,6 @@ export default function AddUser() {
 
   const handleButtonFinish = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
-
-    // Check if the user is already logged in
-    let userId = localStorage.getItem("userId");
 
     // Function to check if the login already exists in the database
     const checkLoginExists = async () => {
