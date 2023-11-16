@@ -628,6 +628,10 @@ export default function BudgetPaspatur() {
               "valorPerfil",
               (valorP + perdaP + lucroP).toString()
             );
+            localStorage.setItem(
+              "valorPerfilUm",
+              (valorP + perdaP + lucroP).toString()
+            );
             setPrecoPerfil(valorP + perdaP + lucroP);
           }
 
