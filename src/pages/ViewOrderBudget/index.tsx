@@ -359,6 +359,8 @@ export default function ViewOrderBudget() {
 
     const rectangleWidth = 50; // Definindo largura do retângulo
 
+    // Subtotal é igual ao valorTotal em userData
+    let subtotal = parseFloat(userData?.valorTotal || "0");
     rectHeight = calculateHeight("Sub total", rectangleWidth);
     y = checkPageEnd(y + rectHeight + 2);
     doc.rect(10, y, rectangleWidth, rectHeight, "D");
@@ -366,11 +368,10 @@ export default function ViewOrderBudget() {
     doc.text("Sub total", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
-    let desconto = parseFloat(userData?.desconto || "0") / 100;
-    let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
-    doc.text(`R$ ${subTotal.toFixed(2)}`, 10 + rectangleWidth + 4, y + 5);
+    doc.text(`R$ ${subtotal.toFixed(2)}`, 10 + rectangleWidth + 4, y + 5);
     y += 2;
 
+    // Cálculo do desconto
     rectHeight = calculateHeight("Valor total", rectangleWidth);
     y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, rectangleWidth, rectHeight, "D");
@@ -378,9 +379,11 @@ export default function ViewOrderBudget() {
     doc.text("Desconto", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
-    doc.text(`${desconto * 100}%`, 10 + rectangleWidth + 4, y + 5);
+    let desconto = parseFloat(userData?.desconto || "0") / 100;
+    doc.text(`${(desconto * 100).toFixed(2)}%`, 10 + rectangleWidth + 4, y + 5);
     y += 2;
 
+    // Valor total é o subtotal menos o desconto aplicado sobre o subtotal
     rectHeight = calculateHeight("Valor total", rectangleWidth);
     y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, rectangleWidth, rectHeight, "D");
@@ -388,7 +391,7 @@ export default function ViewOrderBudget() {
     doc.text("Valor total", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
-    let valorTotal = parseFloat(userData?.valorTotal || "0");
+    let valorTotal = subtotal - subtotal * desconto;
     doc.text(`R$ ${valorTotal.toFixed(2)}`, 10 + rectangleWidth + 4, y + 5);
     y += 2;
 

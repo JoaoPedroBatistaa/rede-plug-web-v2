@@ -258,28 +258,28 @@ export default function ViewBudgetBudget() {
     y += 5;
     doc.setFontSize(10);
 
-    rectHeight = calculateHeight("Sub total", 70);
-    y = checkPageEnd(y + rectHeight + 2);
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Sub total", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
-    let desconto = parseFloat(userData?.desconto || "0") / 100;
-    let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
+    // rectHeight = calculateHeight("Sub total", 70);
+    // y = checkPageEnd(y + rectHeight + 2);
+    // doc.rect(10, y, 70, rectHeight, "D");
+    // doc.setFont("helvetica", "bold");
+    // doc.text("Sub total", 12, y + 5);
+    // doc.setFont("helvetica", "normal");
+    // doc.rect(82, y, 115, rectHeight, "D");
+    // let desconto = parseFloat(userData?.desconto || "0") / 100;
+    // let subTotal = parseFloat(userData?.valorTotal || "0") / (1 - desconto);
 
-    doc.text(`R$ ${subTotal.toFixed(2)}`, 87, y + 5);
-    y += 1;
+    // doc.text(`R$ ${subTotal.toFixed(2)}`, 87, y + 5);
+    // y += 1;
 
-    rectHeight = calculateHeight("Desconto", 70);
-    y = checkPageEnd(y + rectHeight);
-    doc.rect(10, y, 70, rectHeight, "D");
-    doc.setFont("helvetica", "bold");
-    doc.text("Desconto", 12, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.rect(82, y, 115, rectHeight, "D");
-    doc.text(`${desconto * 100}%`, 87, y + 5);
-    y += rectHeight; // Só adicione a altura do retângulo
+    // rectHeight = calculateHeight("Desconto", 70);
+    // y = checkPageEnd(y + rectHeight);
+    // doc.rect(10, y, 70, rectHeight, "D");
+    // doc.setFont("helvetica", "bold");
+    // doc.text("Desconto", 12, y + 5);
+    // doc.setFont("helvetica", "normal");
+    // doc.rect(82, y, 115, rectHeight, "D");
+    // doc.text(`${desconto * 100}%`, 87, y + 5);
+    // y += rectHeight; // Só adicione a altura do retângulo
 
     rectHeight = calculateHeight("Valor total", 70);
     y = checkPageEnd(y + rectHeight);

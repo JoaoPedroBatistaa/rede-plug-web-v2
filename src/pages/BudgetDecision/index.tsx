@@ -483,41 +483,6 @@ export default function BudgetDecision() {
     }
   }, [savedBudgets, valorTotal]);
 
-  const [desconto, setDesconto] = useState(0);
-
-  const handleInputChange = () => {
-    const descontoInput = document.getElementById(
-      "Desconto"
-    ) as HTMLInputElement;
-    const Desconto = parseFloat(descontoInput.value);
-
-    setDesconto(Desconto);
-    localStorage.setItem("desconto", Desconto.toString());
-  };
-
-  const [valorComDesconto, setValorComDesconto] = useState<number>(0); // preco após desconto
-
-  useEffect(() => {
-    let novoValorComDesconto = precoTotal;
-
-    if (
-      desconto !== null &&
-      !isNaN(desconto) &&
-      desconto >= 0 &&
-      desconto <= 100
-    ) {
-      novoValorComDesconto = precoTotal - precoTotal * (desconto / 100);
-    }
-
-    setValorComDesconto(novoValorComDesconto);
-    setGrandTotal(novoValorComDesconto);
-
-    // Se você realmente precisa salvar no localStorage a cada mudança:
-    if (typeof window !== "undefined") {
-      localStorage.setItem("grandTotal", novoValorComDesconto.toString());
-    }
-  }, [desconto, precoTotal]);
-
   return (
     <>
       <Head>
@@ -1046,19 +1011,7 @@ export default function BudgetDecision() {
                   </div>
                 </div>
 
-                <div className={styles.InputContainer}>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Desconto (%)</p>
-
-                    <input
-                      id="Desconto"
-                      type="number"
-                      className={styles.FieldSaveDes}
-                      placeholder=""
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
+                <div className={styles.InputContainer}></div>
 
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
