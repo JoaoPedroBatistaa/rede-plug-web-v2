@@ -32,15 +32,20 @@ export default function AddUser() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setUserId(localStorage.getItem("userId"));
+      const storedUserId = localStorage.getItem("userId");
+      if (storedUserId) {
+        setUserId(storedUserId);
+      }
     }
   }, []);
 
   useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
     if (!userId) {
       router.push("/Login");
     }
-  }, [userId]);
+  }, []);
 
   const { openMenu, setOpenMenu } = useMenu();
 
