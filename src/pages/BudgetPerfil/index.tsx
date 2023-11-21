@@ -9,6 +9,7 @@ import { useMenu } from "../../components/Context/context";
 import styles from "../../styles/BudgetPerfil.module.scss";
 
 import { getDocs } from "firebase/firestore";
+import Select from "react-select";
 import { collection, db } from "../../../firebase";
 
 interface Foam {
@@ -246,10 +247,30 @@ export default function BudgetPerfil() {
     }
   }, [selectedOption, espessura]);
 
-  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(event.target.value);
-    localStorage.setItem("codigoPerfil", event.target.value);
+  const [selectedOptionObject, setSelectedOptionObject] = useState(null);
+
+  const options = produtos.map((produto) => ({
+    value: produto.codigo,
+    label: `${produto.codigo} - ${produto.descricao}`,
+  }));
+
+  useEffect(() => {
+    const matchingOption = options.find(
+      (option) => option.value === selectedOption
+    );
+    // @ts-ignore
+    setSelectedOptionObject(matchingOption || null);
+  }, [options, selectedOption]);
+
+  const handleSelectChange = (option: any) => {
+    setSelectedOption(option ? option.value : "");
+    localStorage.setItem("codigoPerfil", option ? option.value : "");
   };
+
+  // Transforme 'selectedOption' de string para objeto para o componente Select
+  const valueForSelect = selectedOption
+    ? options.find((option) => option.value === selectedOption)
+    : null;
 
   const handleSelectChange2 = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption2(event.target.value);
@@ -389,25 +410,16 @@ export default function BudgetPerfil() {
           <div className={styles.InputContainer}>
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>Código</p>
-              <select
+              <Select
                 id="codigo"
                 className={styles.SelectField}
-                value={selectedOption}
+                value={selectedOptionObject}
                 onChange={handleSelectChange}
-              >
-                <option value="" disabled selected>
-                  Selecione um código
-                </option>
-                {[...produtos]
-                  .sort((a, b) => Number(a.codigo) - Number(b.codigo))
-                  .map((produto) => (
-                    <option key={produto.codigo} value={produto.codigo}>
-                      {produto.codigo} - {produto.descricao}
-                    </option>
-                  ))}
-              </select>
+                options={options}
+                placeholder="Selecione um código"
+                isSearchable={true}
+              />
             </div>
-
             <div className={styles.InputField}>
               <p className={styles.FieldLabel}>.</p>
 
