@@ -24,6 +24,11 @@ interface Foam {
   largura: number;
 }
 
+interface OptionType {
+  value: string;
+  label: string;
+}
+
 export default function BudgetPerfil() {
   const router = useRouter();
   const [hasBudgets, setHasBudgets] = useState(false);
@@ -247,7 +252,8 @@ export default function BudgetPerfil() {
     }
   }, [selectedOption, espessura]);
 
-  const [selectedOptionObject, setSelectedOptionObject] = useState(null);
+  const [selectedOptionObject, setSelectedOptionObject] =
+    useState<OptionType | null>(null);
 
   const options = produtos.map((produto) => ({
     value: produto.codigo,
@@ -255,11 +261,19 @@ export default function BudgetPerfil() {
   }));
 
   useEffect(() => {
-    const matchingOption = options.find(
-      (option) => option.value === selectedOption
-    );
-    // @ts-ignore
-    setSelectedOptionObject(matchingOption || null);
+    if (selectedOption) {
+      const matchingOption = options.find(
+        (option) => option.value === selectedOption
+      );
+      if (
+        matchingOption &&
+        matchingOption.value !== selectedOptionObject?.value
+      ) {
+        setSelectedOptionObject(matchingOption);
+      }
+    } else {
+      setSelectedOptionObject(null);
+    }
   }, [options, selectedOption]);
 
   const handleSelectChange = (option: any) => {
@@ -272,9 +286,33 @@ export default function BudgetPerfil() {
     ? options.find((option) => option.value === selectedOption)
     : null;
 
-  const handleSelectChange2 = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption2(event.target.value);
-    localStorage.setItem("codigoPerfil2", event.target.value);
+  const options2 = produtos.map((produto) => ({
+    value: produto.codigo,
+    label: `${produto.codigo} - ${produto.descricao}`,
+  }));
+
+  const [selectedOptionObject2, setSelectedOptionObject2] =
+    useState<OptionType | null>(null);
+
+  useEffect(() => {
+    if (selectedOption2) {
+      const matchingOption2 = options2.find(
+        (option) => option.value === selectedOption2
+      );
+      if (
+        matchingOption2 &&
+        matchingOption2.value !== selectedOptionObject2?.value
+      ) {
+        setSelectedOptionObject2(matchingOption2);
+      }
+    } else {
+      setSelectedOptionObject2(null);
+    }
+  }, [options2, selectedOption2]);
+
+  const handleSelectChange2 = (option: any) => {
+    setSelectedOption2(option ? option.value : "");
+    localStorage.setItem("codigoPerfil2", option ? option.value : "");
   };
 
   const handleEspessuraChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -450,23 +488,15 @@ export default function BudgetPerfil() {
               <>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Código 2</p>
-                  <select
+                  <Select
                     id="codigo2"
                     className={styles.SelectField}
-                    value={selectedOption2}
+                    value={selectedOptionObject2}
                     onChange={handleSelectChange2}
-                  >
-                    <option value="" disabled selected>
-                      Selecione um código
-                    </option>
-                    {[...produtos]
-                      .sort((a, b) => Number(a.codigo) - Number(b.codigo))
-                      .map((produto) => (
-                        <option key={produto.codigo} value={produto.codigo}>
-                          {produto.codigo} - {produto.descricao}
-                        </option>
-                      ))}
-                  </select>
+                    options={options2}
+                    placeholder="Selecione um código"
+                    isSearchable={true}
+                  />
                 </div>
 
                 <div className={styles.InputField}>
