@@ -395,6 +395,7 @@ export default function ViewOrderBudget() {
     doc.text(`R$ ${valorTotal.toFixed(2)}`, 10 + rectangleWidth + 4, y + 5);
     y += 2;
 
+    const dataVencimento = budgets[0].dataVencimento;
     rectHeight = calculateHeight("Prazo para entrega", rectangleWidth);
     y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, rectangleWidth, rectHeight, "D");
@@ -402,7 +403,7 @@ export default function ViewOrderBudget() {
     doc.text("Prazo para entrega", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
-    doc.text(`${dataEntrega}`, 10 + rectangleWidth + 4, y + 5);
+    doc.text(`${dataVencimento}`, 10 + rectangleWidth + 4, y + 5);
     y += 6;
 
     doc.setFontSize(8);
@@ -577,7 +578,7 @@ export default function ViewOrderBudget() {
     // if (budget.desconto) renderTwoItems("Desconto", `${budget.desconto}%`);
     if (budget.formaPagamento)
       renderTwoItems("Forma de pagamento", budget.formaPagamento);
-    if (budget.dataVencimento) setDataEntrega(budget.dataVencimento);
+    if (budget.Entrega) setDataEntrega(budget.Entrega);
 
     if (budget.observacoes) {
       renderTwoItems("Observação", budget.observacoes);
