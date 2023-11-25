@@ -395,7 +395,14 @@ export default function ViewOrderBudget() {
     doc.text(`R$ ${valorTotal.toFixed(2)}`, 10 + rectangleWidth + 4, y + 5);
     y += 2;
 
+    // Supondo que dataVencimento esteja no formato 'yyyy-mm-dd'
     const dataVencimento = budgets[0].dataVencimento;
+
+    // Separando a data em componentes e reformatando para 'dd/mm/yyyy'
+    const partesData = dataVencimento.split("-"); // Separa a data em [yyyy, mm, dd]
+    const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`; // Reorganiza para dd/mm/yyyy
+
+    // O restante do código permanece o mesmo
     rectHeight = calculateHeight("Prazo para entrega", rectangleWidth);
     y = checkPageEnd(y + rectHeight);
     doc.rect(10, y, rectangleWidth, rectHeight, "D");
@@ -403,7 +410,7 @@ export default function ViewOrderBudget() {
     doc.text("Prazo para entrega", 12, y + 5);
     doc.setFont("helvetica", "normal");
     doc.rect(10 + rectangleWidth + 2, y, rectangleWidth, rectHeight, "D");
-    doc.text(`${dataVencimento}`, 10 + rectangleWidth + 4, y + 5);
+    doc.text(`${dataFormatada}`, 10 + rectangleWidth + 4, y + 5);
     y += 6;
 
     doc.setFontSize(8);
