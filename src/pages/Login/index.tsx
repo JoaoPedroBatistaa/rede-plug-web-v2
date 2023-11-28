@@ -124,12 +124,12 @@ export default function Login() {
 
             <div className={styles.linha}></div>
 
-            <div className={styles.sign}>
+            {/* <div className={styles.sign}>
               <p className={styles.signNew}>Ainda não tem uma conta? </p>
               <a className={styles.create} href="">
                 Criar
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -29,27 +29,42 @@ export default function TableFoam({
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
   let userId: string | null;
+  let typeUser: string | null;
+  let adminPai: string | null;
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
+    typeUser = window.localStorage.getItem("typeUser");
+    adminPai = window.localStorage.getItem("adminPai");
   }
 
   useEffect(() => {
     const fetchData = async () => {
       const dbCollection = collection(db, "Login");
       const budgetSnapshot = await getDocs(dbCollection);
-      const budgetList = budgetSnapshot.docs.map((doc) => {
+      const budgetList: Foam[] = budgetSnapshot.docs.flatMap((doc) => {
         const data = doc.data();
-        const budget: Foam = {
-          id: doc.id,
 
-          Nome: data.Nome,
-          Login: data.Login,
-          NomeEmpresa: data.NomeEmpresa,
-          Tipo: data.Tipo,
-        };
-        return budget;
+        if (
+          userId === "lB2pGqkarGyq98VhMGM6" ||
+          (typeUser === "admin" && data.adminPai === userId) ||
+          (typeUser === "vendedor" && data.adminPai === adminPai)
+        ) {
+          return [
+            {
+              id: doc.id,
+              Nome: data.Nome,
+              Login: data.Login,
+              NomeEmpresa: data.NomeEmpresa,
+              Tipo: data.Tipo,
+            },
+          ];
+        } else {
+          return [];
+        }
       });
+
       setTeste(budgetList);
       setFilteredData(budgetList);
       console.log("Set data: ", budgetList);
@@ -120,6 +135,11 @@ export default function TableFoam({
   };
 
   const handleDeleteItem = async (itemId: string) => {
+    if (typeUser === "vendedor") {
+      toast.error("Você não tem permissão para excluir usuários.");
+      return;
+    }
+
     try {
       await deleteDoc(doc(db, "Login", itemId));
 
