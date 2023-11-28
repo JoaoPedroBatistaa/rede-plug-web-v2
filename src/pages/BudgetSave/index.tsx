@@ -58,10 +58,8 @@ interface Cliente {
 export default function BudgetSave() {
   const router = useRouter();
 
-  const [desconto, setDesconto] = useState("");
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    setDesconto(localStorage.getItem("desconto") || "");
 
     if (!userId) {
       router.push("/Login");
@@ -131,11 +129,18 @@ export default function BudgetSave() {
   const [Telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
 
-  let valorTotal: string | null;
+  let valorTotal = 0;
 
   if (typeof window !== "undefined") {
-    valorTotal = localStorage.getItem("grandTotal");
-    console.log("grandtotal: ", valorTotal);
+    const valorTotalString = localStorage.getItem("grandTotal");
+    console.log("grandtotal: ", valorTotalString);
+
+    if (valorTotalString) {
+      const valorTotalParsed = parseFloat(valorTotalString);
+      if (!isNaN(valorTotalParsed)) {
+        valorTotal = valorTotalParsed;
+      }
+    }
   }
 
   const formatarData = (data: Date) => {
@@ -420,6 +425,41 @@ export default function BudgetSave() {
     }
   }
 
+  const [desconto, setDesconto] = useState(0);
+
+  const handleInputChangeDesconto = () => {
+    const descontoInput = document.getElementById(
+      "Desconto"
+    ) as HTMLInputElement;
+    const Desconto = parseFloat(descontoInput.value);
+
+    const DescontoFormatado = parseFloat(Desconto.toFixed(2));
+
+    setDesconto(DescontoFormatado);
+  };
+
+  const [valorComDesconto, setValorComDesconto] = useState<number>(0); // valor após desconto
+
+  useEffect(() => {
+    let novoValorComDesconto = valorTotal;
+
+    if (
+      desconto !== null &&
+      !isNaN(desconto) &&
+      desconto >= 0 &&
+      desconto <= 100
+    ) {
+      novoValorComDesconto = valorTotal - valorTotal * (desconto / 100);
+    }
+
+    console.log("Valor original:", valorTotal); // Log para verificar o valor original
+    console.log("Desconto:", desconto); // Log para verificar o desconto aplicado
+    console.log("Valor com desconto:", novoValorComDesconto);
+
+    setValorComDesconto(novoValorComDesconto);
+    localStorage.setItem("valorComDesconto", desconto.toString());
+  }, [desconto, valorTotal]);
+
   return (
     <>
       <Head>
@@ -546,6 +586,27 @@ export default function BudgetSave() {
                 onChange={handleInputChange}
                 value={email}
               />
+            </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Desconto (%)</p>
+
+              <input
+                id="Desconto"
+                type="number"
+                className={styles.FieldSaveDes}
+                placeholder=""
+                onChange={handleInputChangeDesconto}
+              />
+
+              {!isNaN(desconto) && desconto !== null && (
+                <p className={styles.FieldLabelDiscount}>
+                  Valor original: {valorTotal.toFixed(2)} - Valor com desconto:{" "}
+                  {valorComDesconto.toFixed(2)}
+                </p>
+              )}
             </div>
           </div>
 
