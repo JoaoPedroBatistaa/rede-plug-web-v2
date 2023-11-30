@@ -239,7 +239,7 @@ export default function TableMontagem({
                         <button className={styles.buttonBlack}>
                           <Link
                             href={{
-                              pathname: `/ProductFoamEdit`,
+                              pathname: `/ProductMontagemEdit`,
                               query: { id: item.id },
                             }}
                           >

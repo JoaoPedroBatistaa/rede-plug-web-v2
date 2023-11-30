@@ -256,7 +256,7 @@ export default function TablePaspatur({
                         <button className={styles.buttonBlack}>
                           <Link
                             href={{
-                              pathname: `/ProductFoamEdit`,
+                              pathname: `/ProductPaspaturEdit`,
                               query: { id: item.id },
                             }}
                           >

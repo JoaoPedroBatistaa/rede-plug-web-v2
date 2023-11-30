@@ -253,7 +253,7 @@ export default function TableImpressao({
                         <button className={styles.buttonBlack}>
                           <Link
                             href={{
-                              pathname: `/ProductFoamEdit`,
+                              pathname: `/ProductImpressaoEdit`,
                               query: { id: item.id },
                             }}
                           >

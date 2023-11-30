@@ -257,7 +257,7 @@ export default function TableVidro({
                         <button className={styles.buttonBlack}>
                           <Link
                             href={{
-                              pathname: `/ProductFoamEdit`,
+                              pathname: `/ProductVidroEdit`,
                               query: { id: item.id },
                             }}
                           >
