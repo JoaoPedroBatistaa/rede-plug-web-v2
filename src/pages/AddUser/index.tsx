@@ -9,7 +9,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { addUserToLogin, db, storage } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import { uploadToFirebase } from "../../../firebase";
 
@@ -55,6 +62,40 @@ export default function AddUser() {
   const [Tipo, setTipo] = useState<string | null>(null);
   const [Senha, setSenha] = useState<string | null>(null);
 
+  const copyCollections = async (
+    sourceDocId: string,
+    targetDocId: string,
+    exclude: string[] = []
+  ) => {
+    const sourceDocRef = doc(db, "Login", sourceDocId);
+    const targetDocRef = doc(db, "Login", targetDocId);
+
+    const subcollections = [
+      "Perfil",
+      "Colagem",
+      "Vidro",
+      "Paspatur",
+      "Foam",
+      "Impressao",
+      "Instalacao",
+      "Montagem",
+    ];
+
+    for (const collectionName of subcollections) {
+      if (!exclude.includes(collectionName)) {
+        const sourceCollectionRef = collection(sourceDocRef, collectionName);
+        const querySnapshot = await getDocs(sourceCollectionRef);
+        querySnapshot.forEach(async (documentSnapshot) => {
+          const targetCollectionRef = collection(targetDocRef, collectionName);
+          await setDoc(
+            doc(targetCollectionRef, documentSnapshot.id),
+            documentSnapshot.data()
+          );
+        });
+      }
+    }
+  };
+
   const handleButtonFinish = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
 
@@ -62,55 +103,39 @@ export default function AddUser() {
       const querySnapshot = await getDocs(
         query(collection(db, "Login"), where("Login", "==", Login))
       );
-      return !querySnapshot.empty; // Returns true if login exists
+      return !querySnapshot.empty;
     };
 
-    // Check if the login already exists
-    if (await checkLoginExists()) {
-      toast.error(
-        "Este email já foi cadastrado! Por favor, escolha um diferente."
-      );
-      return;
-    }
-
-    // Validation for other fields
     if (Tipo === "vendedor" && !selectedAdminId) {
       toast.error("Por favor, selecione um admin pai para o vendedor.");
       return;
     }
-
     if (!Nome) {
       toast.error("Por favor, insira o nome.");
       return;
     }
-
     if (!Login) {
       toast.error("Por favor, insira o login.");
       return;
     }
-
     if (!NomeEmpresa) {
       toast.error("Por favor, insira o nome da empresa.");
       return;
     }
-
     if (!Tipo) {
       toast.error("Por favor, selecione o tipo.");
       return;
     }
-
     if (!Senha) {
       toast.error("Por favor, insira a senha.");
       return;
     }
-
     if (!fileDownloadURL) {
       toast.error("Por favor, insira um logo.");
       return;
     }
 
-    // Preparing the user data for submission
-    const foam = {
+    const userData = {
       Nome,
       Login,
       NomeEmpresa,
@@ -121,15 +146,20 @@ export default function AddUser() {
     };
 
     try {
-      // Call function to add user to the login collection
-      await addUserToLogin(foam, userId);
+      const newUserId = await addUserToLogin(userData, userId);
       toast.success("Usuário Cadastrado!");
+
+      if (Tipo === "admin") {
+        const sourceDocId = "lB2pGqkarGyq98VhMGM6";
+        await copyCollections(sourceDocId, newUserId);
+        toast.success("Collections copiadas com sucesso!");
+      }
     } catch (e) {
       toast.error("Erro ao cadastrar usuário.");
       console.error(e);
+      return;
     }
 
-    // Redirect after successful registration
     setTimeout(() => {
       router.push("/Users");
     }, 500);

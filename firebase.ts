@@ -74,10 +74,12 @@ async function updateFoamInLogin(foam: any, id: string, loginId: string) {
 
 async function addUserToLogin(foam: any, loginId: any) {
   try {
-    await addDoc(collection(db, "Login"), foam);
+    const docRef = await addDoc(collection(db, "Login"), foam);
     console.log("Usuário adicionado com sucesso!");
+    return docRef.id;
   } catch (e) {
-    console.error("Erro ao adicionar Foam: ", e);
+    console.error("Erro ao adicionar Usuário: ", e);
+    throw e;
   }
 }
 
