@@ -4,7 +4,15 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableBudgets.module.scss";
 
-import { deleteDoc, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  deleteDoc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../../components/Context/context";
 import { ITableBudgets } from "./type";
@@ -22,6 +30,8 @@ interface Budget {
   dataCadastro: string;
   formaPagamento: string;
   valorTotal: string;
+  email: string;
+  budgets: any;
 }
 
 export default function TableBudgets({
@@ -57,6 +67,8 @@ export default function TableBudgets({
             dataCadastro: data.dataCadastro,
             formaPagamento: data.formaPagamento,
             valorTotal: data.valorTotal,
+            email: data.email,
+            budgets: data.budgets,
           };
           return budget;
         });
@@ -247,6 +259,94 @@ export default function TableBudgets({
 
   const router = useRouter();
 
+  // EFETIVAR
+
+  const buscarDadosCliente = async (nomeCompleto: unknown, email: unknown) => {
+    const clientsRef = collection(db, `Login/${userId}/Clients`);
+
+    const q = query(
+      clientsRef,
+      where("NomeCompleto", "==", nomeCompleto),
+      where("email", "==", email)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const clientData = querySnapshot.docs[0].data();
+      const tipoPessoa =
+        clientData.cpf?.replace(/\D/g, "").length === 11
+          ? "FÍSICA"
+          : "JURÍDICA";
+
+      return {
+        cpf: clientData.cpf || "",
+        endereco: clientData.venue || "",
+        cidade: clientData.cidade || "",
+        bairro: clientData.bairro || "",
+        cep: clientData.cep || "",
+        numero: clientData.numero || "",
+        complemento: clientData.complemento || "",
+        tipoPessoa: tipoPessoa,
+        estado: clientData.estado || "",
+      };
+    } else {
+      return {};
+    }
+  };
+
+  const salvarOrcamento = async (orcamentoSelecionado: any) => {
+    console.log("Dados recebidos:", orcamentoSelecionado);
+
+    try {
+      const numeroDoPedidoRef = doc(
+        db,
+        `Login/${userId}/Orders`,
+        "NumeroDoPedido"
+      );
+      const numeroDoPedidoSnap = await getDoc(numeroDoPedidoRef);
+
+      let NumeroPedido;
+
+      if (!numeroDoPedidoSnap.exists()) {
+        await setDoc(numeroDoPedidoRef, {
+          numero: 0,
+        });
+        NumeroPedido = 1;
+      } else {
+        const numeroAtual = numeroDoPedidoSnap.data().numero;
+        NumeroPedido = Number(numeroAtual) + 1;
+        await setDoc(numeroDoPedidoRef, { numero: NumeroPedido });
+      }
+
+      const dadosCliente = await buscarDadosCliente(
+        orcamentoSelecionado.nomeCompleto,
+        orcamentoSelecionado.email
+      );
+
+      console.log(dadosCliente);
+
+      const orcamento = {
+        NumeroPedido: NumeroPedido,
+        Telefone: orcamentoSelecionado.Telefone || "",
+        dataCadastro:
+          orcamentoSelecionado.dataCadastro || new Date().toISOString(),
+        desconto: orcamentoSelecionado.desconto || 0,
+        email: orcamentoSelecionado.email || "",
+        nomeCompleto: orcamentoSelecionado.nomeCompleto || "",
+        valorTotal: orcamentoSelecionado.valorTotal || 0,
+        budgets: orcamentoSelecionado.budgets || {},
+        ...dadosCliente,
+      };
+
+      await addDoc(collection(db, `Login/${userId}/Orders`), orcamento);
+      toast.success("Orçamento efetivado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar orçamento: ", error);
+      toast.error("Erro ao efetivar orçamento.");
+    }
+  };
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -289,10 +389,17 @@ export default function TableBudgets({
                   <div className={styles.containerOptionsMore}>
                     <Link href="/ViewBudgetData">Vizualizar</Link>
 
-                    {/* <button>Editar</button>
-                    <button className={styles.buttonGren}>
+                    {/* <button>Editar</button> */}
+                    <button
+                      className={styles.buttonGren}
+                      onClick={(event) => {
+                        event.stopPropagation(); // Para evitar que o evento se propague
+                        salvarOrcamento(item);
+                      }}
+                    >
                       Efetivar orçamento
-                    </button> */}
+                    </button>
+
                     <button
                       className={styles.buttonRed}
                       onClick={(event) => handleDeleteItem(item.id, event)}
