@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import styles from "../../styles/Home.module.scss";
+import styles from "../styles/Home.module.scss";
 
 import HeaderHome from "@/components/HeaderHome";
 import SideMenuHome from "@/components/SideMenuHome";
@@ -14,7 +14,7 @@ export default function Home() {
     const userId = localStorage.getItem("userId");
 
     if (!userId) {
-      router.push("/Login");
+      router.push("/");
     }
   }, []);
 
@@ -40,6 +40,7 @@ export default function Home() {
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
         `}</style>
+        <title>Rede Plug</title>
       </Head>
 
       <div className={styles.Container}>
@@ -54,28 +55,28 @@ export default function Home() {
             <div className={styles.CardsMenus}>
               <Link href="/Budgets">
                 <div className={styles.CardMenu}>
-                  <img src="./homeMenuCardOrc.png"></img>
-                  <span className={styles.CardMenuText}>Orçamentos</span>
+                  <img src="./postosHome.svg"></img>
+                  <span className={styles.CardMenuText}>POSTOS</span>
                 </div>
               </Link>
 
               <Link href="/Requests">
                 <div className={styles.CardMenu}>
-                  <img src="./homeMenuCardNegocios.png"></img>
-                  <span className={styles.CardMenuText}>Pedidos</span>
+                  <img src="./supervisoresHome.svg"></img>
+                  <span className={styles.CardMenuText}>SUPERVISORES</span>
                 </div>
               </Link>
 
               <Link href="/Products">
                 <div className={styles.CardMenu}>
-                  <img src="./HomeMenuCardNotaFiscal.png"></img>
-                  <span className={styles.CardMenuText}>Produtos</span>
+                  <img src="./gerentesHome.svg"></img>
+                  <span className={styles.CardMenuText}>GERENTES</span>
                 </div>
               </Link>
 
               <div className={styles.CardMenu}>
-                <img src="./HomeMenuCardVendas.png"></img>
-                <span className={styles.CardMenuText}>Vendas</span>
+                <img src="./relatoriosHome.svg"></img>
+                <span className={styles.CardMenuText}>RELATÓRIOS</span>
               </div>
             </div>
           </div>

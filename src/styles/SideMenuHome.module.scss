@@ -2,16 +2,18 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  background-color: #faf8f6;
+  background-color: #000;
   width: 15rem;
   height: 73rem;
+
+  border-right: 1px solid #5c5c5c;
 }
 
 .Steps {
   margin-top: 16px;
   margin-left: 16px;
   margin-bottom: 16px;
-  color: rgb(0, 0, 0);
+  color: #cdcdcd;
   font-size: 14px;
   font-family: "DM Sans", sans-serif;
 }
@@ -34,18 +36,17 @@
   cursor: pointer;
 
   &.active {
-    background-color: #f0ebed;
+    background-color: #c6c6c617;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 
     .NavigateItem {
-      color: #7c0000;
+      color: #b5b5ba;
     }
 
-
-    .Pointer {
-      fill: #7c0000;
-    }
+    // .Pointer {
+    //   fill: #7c0000;
+    // }
   }
 }
 
@@ -53,7 +54,7 @@
   font-size: 16px;
   font-weight: medium;
   font-family: "Outfit", sans-serif;
-  color: #b5b5ba;
+  color: #b5b5ba79;
 }
 
 .NavigateItemEnd {
@@ -78,10 +79,11 @@
 }
 
 .Logo {
-  width: 140px;
+  width: 110px;
   height: 110px;
-  margin-left: 2rem;
-  margin-top: 1rem;
+  margin-left: 3rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 .topMenu {

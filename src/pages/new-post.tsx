@@ -1,0 +1,552 @@
+import Head from "next/head";
+import { useRouter } from "next/router";
+import styles from "../styles/ProductFoam.module.scss";
+
+import HeaderNewProduct from "@/components/HeaderNewPost";
+import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+
+export default function NewPost() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      router.push("/");
+    }
+  }, []);
+
+  const [name, setName] = useState("");
+  const [owner, setOwner] = useState("");
+  const [contact, setContact] = useState("");
+  const [location, setLocation] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [tanks, setTanks] = useState([
+    {
+      tankNumber: "",
+      capacity: "",
+      product: "",
+      saleDefense: "",
+      tableParam01: "",
+      tableParam02: "",
+    },
+  ]);
+  const [nozzles, setNozzles] = useState([{ nozzleNumber: "", product: "" }]);
+  const [managers, setManagers] = useState([{ managerName: "", contact: "" }]);
+
+  const addTank = () => {
+    setTanks([
+      ...tanks,
+      {
+        tankNumber: "",
+        capacity: "",
+        product: "",
+        saleDefense: "",
+        tableParam01: "",
+        tableParam02: "",
+      },
+    ]);
+  };
+
+  const removeTank = (indexToRemove: number) => {
+    setTanks(tanks.filter((_, index) => index !== indexToRemove));
+  };
+
+  const addNozzle = () => {
+    setNozzles([...nozzles, { nozzleNumber: "", product: "" }]);
+  };
+
+  const removeNozzle = (indexToRemove: number) => {
+    setNozzles(nozzles.filter((_, index) => index !== indexToRemove));
+  };
+
+  const addManager = () => {
+    setManagers([...managers, { managerName: "", contact: "" }]);
+  };
+
+  const removeManager = (indexToRemove: number) => {
+    setManagers(managers.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleTankChange = (index: number, field: any, value: any) => {
+    const newTanks = tanks.map((tank, i) => {
+      if (i === index) {
+        return { ...tank, [field]: value };
+      }
+      return tank;
+    });
+    setTanks(newTanks);
+  };
+
+  const handleNozzleChange = (index: number, field: any, value: any) => {
+    const newNozzles = nozzles.map((nozzle, i) => {
+      if (i === index) {
+        return { ...nozzle, [field]: value };
+      }
+      return nozzle;
+    });
+    setNozzles(newNozzles);
+  };
+
+  const handleManagerChange = (index: number, field: any, value: any) => {
+    const newManagers = managers.map((manager, i) => {
+      if (i === index) {
+        return { ...manager, [field]: value };
+      }
+      return manager;
+    });
+    setManagers(newManagers);
+  };
+
+  const addManagerToUsers = async (manager: {
+    managerName: any;
+    contact: any;
+  }) => {
+    try {
+      const docRef = await addDoc(collection(db, "USERS"), {
+        name: manager.managerName,
+        email,
+        senha: "",
+        postName: name,
+        contact: manager.contact,
+        type: "manager",
+      });
+
+      await updateDoc(doc(db, "USERS", docRef.id), {
+        senha: docRef.id,
+      });
+
+      return docRef.id;
+    } catch (error) {
+      console.error("Erro ao adicionar gerente a USERS:", error);
+      toast.error("Erro ao adicionar gerente.");
+      throw new Error("Erro ao adicionar gerente.");
+    }
+  };
+
+  const validateForm = () => {
+    const fields = [
+      name,
+      owner,
+      contact,
+      location,
+      email,
+      password,
+      ...tanks,
+      ...nozzles,
+      ...managers,
+    ];
+
+    return fields.every((field) => {
+      if (typeof field === "object") {
+        return Object.values(field).every((value) => value.trim() !== "");
+      }
+      return field.trim() !== "";
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast.error("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      for (const manager of managers) {
+        await addManagerToUsers(manager);
+      }
+
+      const postRef = await addDoc(collection(db, "POSTS"), {
+        name,
+        owner,
+        contact,
+        location,
+        email,
+        password,
+        tanks,
+        nozzles,
+      });
+
+      console.log("Post adicionado com ID:", postRef.id);
+      toast.success("Posto e gerentes adicionados com sucesso!");
+
+      router.push("/home");
+    } catch (error) {
+      console.error("Erro ao adicionar dados:", error);
+      toast.error("Erro ao completar o registro.");
+    }
+  };
+
+  return (
+    <>
+      <Head>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
+        `}</style>
+      </Head>
+
+      <HeaderNewProduct></HeaderNewProduct>
+      <ToastContainer />
+
+      <div className={styles.Container}>
+        <div className={styles.BudgetContainer}>
+          <div className={styles.BudgetHead}>
+            <p className={styles.BudgetTitle}>Novo posto</p>
+            <div className={styles.BudgetHeadS}>
+              <button className={styles.FinishButton}>
+                <img
+                  src="./finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
+                <span className={styles.buttonText} onClick={handleSubmit}>
+                  Cadastrar posto
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <p className={styles.Notes}>
+            Informe abaixo as informações do novo posto
+          </p>
+
+          <div className={styles.userContent}>
+            <div className={styles.userData}>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Nome do posto</p>
+                  <input
+                    id="name"
+                    type="text"
+                    className={styles.Field}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Proprietário</p>
+                  <input
+                    id="owner"
+                    type="text"
+                    className={styles.Field}
+                    value={owner}
+                    onChange={(e) => setOwner(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Contato</p>
+                  <input
+                    id="contact"
+                    type="text"
+                    className={styles.Field}
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Localização</p>
+                  <input
+                    id="location"
+                    type="text"
+                    className={styles.Field}
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Email</p>
+                  <input
+                    id="email"
+                    type="text"
+                    className={styles.Field}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Senha</p>
+                  <input
+                    id="password"
+                    type="text"
+                    className={styles.Field}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+              </div>
+
+              <div className={styles.BudgetHead}>
+                <p className={styles.BudgetTitle}>Tanques</p>
+                <div className={styles.BudgetHeadS}></div>
+              </div>
+
+              <p className={styles.Notes}>
+                Informe abaixo as informações dos tanques
+              </p>
+
+              {tanks.map((tank, index) => (
+                <>
+                  <div key={index} className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Número do tanque</p>
+                      <input
+                        type="number"
+                        className={styles.Field}
+                        value={tank.tankNumber}
+                        onChange={(e) =>
+                          handleTankChange(index, "tankNumber", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Capacidade</p>
+                      <input
+                        type="text"
+                        className={styles.Field}
+                        value={tank.capacity}
+                        onChange={(e) =>
+                          handleTankChange(index, "capacity", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Produto</p>
+                      <select
+                        className={styles.SelectField}
+                        value={tank.product}
+                        onChange={(e) =>
+                          handleTankChange(index, "product", e.target.value)
+                        }
+                      >
+                        <option value="" disabled>
+                          Selecione...
+                        </option>
+                        <option value="GC">GC</option>
+                        <option value="GA">GA</option>
+                        <option value="ET">ET</option>
+                        <option value="EA">EA</option>
+                        <option value="SECO">SECO</option>
+                        <option value="S10">S10</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Venda/Defesa</p>
+                      <select
+                        className={styles.SelectField}
+                        value={tank.saleDefense}
+                        onChange={(e) =>
+                          handleTankChange(index, "saleDefense", e.target.value)
+                        }
+                      >
+                        <option value="" disabled>
+                          Selecione
+                        </option>
+                        <option value="Venda">Venda</option>
+                        <option value="Defesa">Defesa</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Tabela Param 01</p>
+                      <input
+                        type="number"
+                        className={styles.Field}
+                        value={tank.tableParam01}
+                        onChange={(e) =>
+                          handleTankChange(
+                            index,
+                            "tableParam01",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Tabela Param 02</p>
+                      <input
+                        type="text"
+                        className={styles.Field}
+                        value={tank.tableParam02}
+                        onChange={(e) =>
+                          handleTankChange(
+                            index,
+                            "tableParam02",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+
+                    <button onClick={addTank} className={styles.NewButton}>
+                      <span className={styles.buttonText}>Novo tanque</span>
+                    </button>
+
+                    {index > 0 && (
+                      <button
+                        onClick={() => removeTank(index)}
+                        className={styles.DeleteButton}
+                      >
+                        <span className={styles.buttonText}>
+                          Excluir tanque
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                </>
+              ))}
+
+              <div className={styles.BudgetHead}>
+                <p className={styles.BudgetTitle}>Bicos</p>
+                <div className={styles.BudgetHeadS}></div>
+              </div>
+
+              <p className={styles.Notes}>
+                Informe abaixo as informações dos bicos
+              </p>
+
+              {nozzles.map((nozzle, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Número do Bico</p>
+                    <input
+                      type="number"
+                      className={styles.Field}
+                      value={nozzle.nozzleNumber}
+                      onChange={(e) =>
+                        handleNozzleChange(
+                          index,
+                          "nozzleNumber",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Produto</p>
+                    <select
+                      className={styles.SelectField}
+                      value={nozzle.product}
+                      onChange={(e) =>
+                        handleNozzleChange(index, "product", e.target.value)
+                      }
+                    >
+                      <option value="" disabled>
+                        Selecione...
+                      </option>
+                      <option value="GC">GC</option>
+                      <option value="GA">GA</option>
+                      <option value="ET">ET</option>
+                      <option value="EA">EA</option>
+                      <option value="SECO">SECO</option>
+                      <option value="S10">S10</option>
+                    </select>
+                  </div>
+
+                  <button onClick={addNozzle} className={styles.NewButton}>
+                    <span className={styles.buttonText}>Novo bico</span>
+                  </button>
+
+                  {index > 0 && (
+                    <button
+                      onClick={() => removeNozzle(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>Excluir bico</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              <div className={styles.BudgetHead}>
+                <p className={styles.BudgetTitle}>Gerentes</p>
+                <div className={styles.BudgetHeadS}></div>
+              </div>
+
+              <p className={styles.Notes}>
+                Informe abaixo as informações dos gerentes
+              </p>
+
+              {managers.map((manager, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Nome do Gerente</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={manager.managerName}
+                      onChange={(e) =>
+                        handleManagerChange(
+                          index,
+                          "managerName",
+                          e.target.value
+                        )
+                      }
+                      placeholder=""
+                    />
+                  </div>
+
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Contato</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={manager.contact}
+                      onChange={(e) =>
+                        handleManagerChange(index, "contact", e.target.value)
+                      }
+                      placeholder=""
+                    />
+                  </div>
+
+                  <button onClick={addManager} className={styles.NewButton}>
+                    <span className={styles.buttonText}>Novo gerente</span>
+                  </button>
+
+                  {index > 0 && (
+                    <button
+                      onClick={() => removeManager(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>Excluir gerente</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.Copyright}>
+            <p className={styles.Copy}>
+              © Rede Plug 2024, todos os direitos reservados
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

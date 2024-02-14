@@ -14,7 +14,7 @@ export default function HeaderHome() {
   };
 
   const nome =
-    typeof window !== "undefined" ? localStorage.getItem("nome") : null;
+    typeof window !== "undefined" ? localStorage.getItem("userName") : null;
 
   return (
     <>

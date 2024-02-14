@@ -30,8 +30,8 @@ export default function HeaderBudget() {
             onClick={handleOpenMenu}
           />
         </div>
-        <p className={styles.NewBudget}>NOVO USUÁRIO</p>
-        <Link href="/Users">
+        <p className={styles.NewBudget}>NOVO POSTO</p>
+        <Link href="/posts">
           <img src="./close.png" className={styles.Close} />
         </Link>
       </div>

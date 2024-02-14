@@ -21,21 +21,17 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCMnLVFKZSLI44XpQ-Lvxsxduo-VnJrR5Y",
-  authDomain: "totalmaxsystem.firebaseapp.com",
-  projectId: "totalmaxsystem",
-  storageBucket: "totalmaxsystem.appspot.com",
-  messagingSenderId: "206758787932",
-  appId: "1:206758787932:web:ff99633176f561bd981f99"
+  apiKey: "AIzaSyCpHry_TOFV-WNfi-Y1x5sR5Y-cgdkMfXo",
+  authDomain: "rede-plug.firebaseapp.com",
+  projectId: "rede-plug",
+  storageBucket: "rede-plug.appspot.com",
+  messagingSenderId: "333917255187",
+  appId: "1:333917255187:web:1ba66abea63fee6083b1e6",
+  measurementId: "G-EBF237HS1W"
 };
 
-// Initialize Firebase
 const firebase = initializeApp(firebaseConfig);
 const db = getFirestore();
 const auth = getAuth(firebase);
