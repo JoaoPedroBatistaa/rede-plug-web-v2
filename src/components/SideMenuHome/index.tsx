@@ -37,9 +37,6 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
   const typeUser =
     typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
 
-  const logo =
-    typeof window !== "undefined" ? localStorage.getItem("logo") : null;
-
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
@@ -110,13 +107,13 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
             <div
               className={`${styles.MenuNavigate} ${
-                activeRoute === "/Budgets" ? styles.active : ""
+                activeRoute === "/posts" ? styles.active : ""
               }`}
               onClick={handleOpenMenuDiv}
             >
               <img src="/postos.svg" className={styles.Pointer} alt="" />
 
-              <Link className={styles.NavigateItem} href="/Budgets">
+              <Link className={styles.NavigateItem} href="/posts">
                 Postos
               </Link>
             </div>

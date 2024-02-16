@@ -7,7 +7,14 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 
 export default function NewPost() {
@@ -37,7 +44,38 @@ export default function NewPost() {
     },
   ]);
   const [nozzles, setNozzles] = useState([{ nozzleNumber: "", product: "" }]);
-  const [managers, setManagers] = useState([{ managerName: "", contact: "" }]);
+  const [managers, setManagers] = useState([
+    { managerName: "", contact: "", password: "" },
+  ]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const docId = Array.isArray(router.query.id)
+        ? router.query.id[0]
+        : router.query.id;
+
+      if (docId) {
+        const docRef = doc(db, "POSTS", docId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const postData = docSnap.data();
+          setName(postData.name);
+          setOwner(postData.owner);
+          setContact(postData.contact);
+          setLocation(postData.location);
+          setEmail(postData.email);
+          setTanks(postData.tanks || []);
+          setNozzles(postData.nozzles || []);
+          setManagers(postData.managers || []);
+        } else {
+          console.log("No such document!");
+        }
+      }
+    };
+
+    fetchData();
+  }, [router.query.id]);
 
   const addTank = () => {
     setTanks([
@@ -66,11 +104,35 @@ export default function NewPost() {
   };
 
   const addManager = () => {
-    setManagers([...managers, { managerName: "", contact: "" }]);
+    setManagers([...managers, { managerName: "", contact: "", password: "" }]);
   };
 
-  const removeManager = (indexToRemove: number) => {
-    setManagers(managers.filter((_, index) => index !== indexToRemove));
+  const removeManager = async (indexToRemove: number) => {
+    const isConfirmed = confirm("Deseja realmente excluir este gerente?");
+
+    if (isConfirmed) {
+      const managerToRemove = managers[indexToRemove];
+
+      if (managerToRemove && managerToRemove.password) {
+        try {
+          await deleteDoc(doc(db, "USERS", managerToRemove.password));
+
+          setManagers(managers.filter((_, index) => index !== indexToRemove));
+
+          toast.success("Gerente excluído com sucesso!");
+        } catch (error) {
+          console.error("Erro ao excluir gerente:", error);
+          toast.error("Erro ao excluir gerente.");
+        }
+      } else {
+        console.error(
+          "Gerente não encontrado ou sem identificador válido para exclusão."
+        );
+        toast.error("Erro ao excluir gerente: Identificador inválido.");
+      }
+    } else {
+      console.log("Exclusão cancelada pelo usuário.");
+    }
   };
 
   const handleTankChange = (index: number, field: any, value: any) => {
@@ -103,32 +165,59 @@ export default function NewPost() {
     setManagers(newManagers);
   };
 
-  const addManagerToUsers = async (manager: {
+  const addOrUpdateManagerToUsers = async (manager: {
     managerName: string;
     contact: string;
+    password: string;
   }) => {
     try {
-      const docRef = await addDoc(collection(db, "USERS"), {
-        name: manager.managerName,
-        email,
-        password: "",
-        postName: name,
-        contact: manager.contact,
-        type: "manager",
-      });
+      let docRef;
 
-      const password = docRef.id;
-      await updateDoc(doc(db, "USERS", password), { password });
+      if (manager.password) {
+        docRef = doc(db, "USERS", manager.password);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          await updateDoc(docRef, {
+            email,
+            postName: name,
+            name: manager.managerName,
+            contact: manager.contact,
+          });
+        } else {
+          console.error("Gerente não encontrado para atualização.");
+          toast.error("Gerente não encontrado.");
+          return null;
+        }
+      } else {
+        docRef = await addDoc(collection(db, "USERS"), {
+          name: manager.managerName,
+          email,
+          password: "",
+          postName: name,
+          contact: manager.contact,
+          type: "manager",
+        });
+
+        const password = docRef.id;
+        await updateDoc(docRef, { password });
+
+        return {
+          managerName: manager.managerName,
+          contact: manager.contact,
+          password,
+        };
+      }
 
       return {
         managerName: manager.managerName,
         contact: manager.contact,
-        password,
+        password: docRef.id,
       };
     } catch (error) {
-      console.error("Erro ao adicionar gerente a USERS:", error);
-      toast.error("Erro ao adicionar gerente.");
-      throw new Error("Erro ao adicionar gerente.");
+      console.error("Erro ao adicionar/atualizar gerente em USERS:", error);
+      toast.error("Erro ao adicionar/atualizar gerente.");
+      throw new Error("Erro ao adicionar/atualizar gerente.");
     }
   };
 
@@ -146,7 +235,10 @@ export default function NewPost() {
 
     return fields.every((field) => {
       if (typeof field === "object") {
-        return Object.values(field).every((value) => value.trim() !== "");
+        return Object.entries(field).every(([key, value]) => {
+          if (key === "password") return true;
+          return value.trim() !== "";
+        });
       }
       return field.trim() !== "";
     });
@@ -158,14 +250,23 @@ export default function NewPost() {
       return;
     }
 
+    const docId = Array.isArray(router.query.id)
+      ? router.query.id[0]
+      : router.query.id;
+
+    if (!docId) {
+      toast.error("ID do documento não fornecido.");
+      return;
+    }
+
     try {
-      const updatedManagers = [];
+      const updatedManagersWithPasswords = [];
       for (const manager of managers) {
-        const managerWithSenha = await addManagerToUsers(manager);
-        updatedManagers.push(managerWithSenha);
+        const updatedManager = await addOrUpdateManagerToUsers(manager);
+        updatedManagersWithPasswords.push(updatedManager);
       }
 
-      const postRef = await addDoc(collection(db, "POSTS"), {
+      const updateData = {
         name,
         owner,
         contact,
@@ -173,16 +274,19 @@ export default function NewPost() {
         email,
         tanks,
         nozzles,
-        managers: updatedManagers,
-      });
+        managers: updatedManagersWithPasswords,
+      };
 
-      console.log("Post adicionado com ID:", postRef.id);
-      toast.success("Posto e gerentes adicionados com sucesso!");
+      const postRef = doc(db, "POSTS", docId);
+      await updateDoc(postRef, updateData);
+
+      console.log("Post atualizado com sucesso. ID:", docId);
+      toast.success("Posto e gerentes atualizados com sucesso!");
 
       router.push("/posts");
     } catch (error) {
-      console.error("Erro ao adicionar dados:", error);
-      toast.error("Erro ao completar o registro.");
+      console.error("Erro ao atualizar dados:", error);
+      toast.error("Erro ao completar a atualização.");
     }
   };
 
@@ -201,7 +305,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Novo posto</p>
+            <p className={styles.BudgetTitle}>Editar posto</p>
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton}>
                 <img
@@ -210,15 +314,13 @@ export default function NewPost() {
                   className={styles.buttonImage}
                 />
                 <span className={styles.buttonText} onClick={handleSubmit}>
-                  Cadastrar posto
+                  Atualizar posto
                 </span>
               </button>
             </div>
           </div>
 
-          <p className={styles.Notes}>
-            Informe abaixo as informações do novo posto
-          </p>
+          <p className={styles.Notes}>Edite abaixo as informações do posto</p>
 
           <div className={styles.userContent}>
             <div className={styles.userData}>
@@ -515,18 +617,30 @@ export default function NewPost() {
                     />
                   </div>
 
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Senha</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={manager.password}
+                      disabled
+                      onChange={(e) =>
+                        handleManagerChange(index, "password", e.target.value)
+                      }
+                      placeholder=""
+                    />
+                  </div>
+
                   <button onClick={addManager} className={styles.NewButton}>
                     <span className={styles.buttonText}>Novo gerente</span>
                   </button>
 
-                  {index > 0 && (
-                    <button
-                      onClick={() => removeManager(index)}
-                      className={styles.DeleteButton}
-                    >
-                      <span className={styles.buttonText}>Excluir gerente</span>
-                    </button>
-                  )}
+                  <button
+                    onClick={() => removeManager(index)}
+                    className={styles.DeleteButton}
+                  >
+                    <span className={styles.buttonText}>Excluir gerente</span>
+                  </button>
                 </div>
               ))}
             </div>

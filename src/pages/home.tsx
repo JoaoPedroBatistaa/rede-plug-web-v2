@@ -53,7 +53,7 @@ export default function Home() {
           <HeaderHome></HeaderHome>
           <div className={styles.CardsMenusContainer}>
             <div className={styles.CardsMenus}>
-              <Link href="/Budgets">
+              <Link href="/posts">
                 <div className={styles.CardMenu}>
                   <img src="./postosHome.svg"></img>
                   <span className={styles.CardMenuText}>POSTOS</span>
