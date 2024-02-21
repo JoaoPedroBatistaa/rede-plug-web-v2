@@ -163,7 +163,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
             <div
               className={`${styles.MenuNavigate} ${
-                activeRoute === "/Products" ? styles.active : ""
+                activeRoute === "/discharges" ? styles.active : ""
               }`}
             >
               <svg
@@ -191,7 +191,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 </defs>
               </svg>
 
-              <Link className={styles.NavigateItem} href="/Products">
+              <Link className={styles.NavigateItem} href="/discharges">
                 Descargas
               </Link>
             </div>

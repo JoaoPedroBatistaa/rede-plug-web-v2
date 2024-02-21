@@ -15,7 +15,7 @@ interface User {
   email: string;
   password: string;
   type: string;
-  post: string;
+  postName: string;
 }
 
 export default function Login() {
@@ -38,7 +38,7 @@ export default function Login() {
           email: data.email,
           password: data.password,
           type: data.type,
-          post: data.post,
+          postName: data.postName,
         };
         return user;
       });
@@ -58,7 +58,7 @@ export default function Login() {
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userType", user.type);
-      localStorage.setItem("userPost", user.post);
+      localStorage.setItem("userPost", user.postName);
 
       // Exibir toast de sucesso
       toast.success("Login realizado com sucesso!", {
