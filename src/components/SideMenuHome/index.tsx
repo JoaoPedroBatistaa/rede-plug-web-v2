@@ -133,7 +133,14 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
             <div
               className={`${styles.MenuNavigate} ${
-                activeRoute === "/Users" ? styles.active : ""
+                [
+                  "/managers",
+                  "/manager-six-routine",
+                  "/manager-eighteen-routine",
+                  "/manager-twenty-two-routine",
+                ].includes(activeRoute)
+                  ? styles.active
+                  : ""
               }`}
               onClick={handleOpenMenuDiv}
             >
