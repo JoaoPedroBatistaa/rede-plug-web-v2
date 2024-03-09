@@ -146,7 +146,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
             >
               <img src="/gerentes.svg" className={styles.Pointer} alt="" />
 
-              <Link className={styles.NavigateItem} href="/Users">
+              <Link className={styles.NavigateItem} href="/managers">
                 Gerentes
               </Link>
             </div>

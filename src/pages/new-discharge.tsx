@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
 
 interface Tank {
@@ -26,7 +26,6 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [driverName, setDriverName] = useState("");
-  const [truckPlate, setTruckPlate] = useState("");
   const [observations, setObservations] = useState("");
   const [initialMeasurementCm, setInitialMeasurementCm] = useState("");
   const [finalMeasurementCm, setFinalMeasurementCm] = useState("");
@@ -51,29 +50,35 @@ export default function NewPost() {
   const sealRef = useRef<HTMLInputElement>(null);
 
   const [arrowSelection, setArrowSelection] = useState("");
-  const [arrowImage, setArrowImage] = useState("");
-  const [arrowFileName, setArrowFileName] = useState("");
-  const arrowRef = useRef<HTMLInputElement>(null);
+  const [arrowPosition, setArrowPosition] = useState("");
+
+  const [truckPlateImage, setTruckPlateImage] = useState("");
+  const [truckPlateFileName, setTruckPlateFileName] = useState("");
+  const truckPlateRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const tank = tanks.find((t) => t.tankNumber === selectedTank);
     if (tank) {
+      let options: SetStateAction<string[]> = [];
       switch (tank.product) {
         case "GC":
-          setProductOptions(["GC", "SECO"]);
+          options = ["GC"];
+          if (tank.saleDefense !== "Defesa") options.push("SECO");
           break;
         case "GA":
-          setProductOptions(["GC", "GA"]);
+          options = ["GC", "GA"];
           break;
         case "ET":
-          setProductOptions(["ET", "SECO"]);
+          options = ["ET"];
+          if (tank.saleDefense !== "Defesa") options.push("SECO");
           break;
         case "S10":
-          setProductOptions(["S10"]);
+          options = ["S10"];
           break;
         default:
-          setProductOptions([]);
+          options = [];
       }
+      setProductOptions(options);
     } else {
       setProductOptions([]);
     }
@@ -120,32 +125,38 @@ export default function NewPost() {
   };
 
   const saveDischarge = async () => {
-    if (
-      !date ||
-      !time ||
-      !driverName ||
-      !truckPlate ||
-      !selectedTank ||
-      !selectedProduct ||
-      !initialMeasurementCm ||
-      !finalMeasurementCm ||
-      // @ts-ignore
-      (sealSelection === "SIM" && !sealRef.current?.files[0]) ||
-      // @ts-ignore
-      (arrowSelection === "SIM" && !arrowRef.current?.files[0])
-    ) {
-      toast.error("Por favor, preencha todos os campos obrigatórios.");
+    let missingField = "";
+    if (!date) missingField = "Data";
+    else if (!time) missingField = "Hora";
+    else if (!driverName) missingField = "Nome do Motorista";
+    // @ts-ignore
+    else if (!truckPlateRef.current?.files[0])
+      missingField = "Imagem da Placa do Caminhão";
+    else if (!selectedTank) missingField = "Tanque";
+    else if (!selectedProduct) missingField = "Produto";
+    else if (!initialMeasurementCm) missingField = "Medição Inicial";
+    else if (!finalMeasurementCm) missingField = "Medição Final";
+    // @ts-ignore
+    else if (sealSelection === "SIM" && !sealRef.current?.files[0])
+      missingField = "Imagem do Lacre";
+    else if (arrowSelection === "SIM" && !arrowPosition)
+      missingField = "Posição da Seta";
+
+    if (missingField) {
+      toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       return;
     }
 
     const makerName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
+    // @ts-ignore
+    const truckPlateImage = truckPlateRef.current?.files[0];
 
     const dischargeData = {
       date,
       time,
       driverName,
-      truckPlate,
+      truckPlate: truckPlateImage,
       tankNumber: selectedTank,
       product: selectedProduct,
       initialMeasurement: {
@@ -165,8 +176,7 @@ export default function NewPost() {
       },
       arrow: {
         selection: arrowSelection,
-        // @ts-ignore
-        image: arrowSelection === "SIM" ? arrowRef.current?.files[0] : null,
+        position: arrowPosition,
       },
       observations,
       makerName,
@@ -190,17 +200,19 @@ export default function NewPost() {
     date?: string;
     time?: string;
     driverName?: string;
-    truckPlate?: string;
+    truckPlate: any;
     tankNumber?: string;
     product?: string;
     initialMeasurement: any;
     finalMeasurement: any;
     seal: any;
-    arrow: any;
+    arrow?: { selection: string; position: string };
     observations?: string;
+    makerName?: string | null;
+    postName?: string | null;
   }) => {
     const uploadImageAndGetUrl = async (
-      imageFile: Blob | Uint8Array | ArrayBuffer,
+      imageFile: Blob | ArrayBuffer,
       path: string | undefined
     ) => {
       if (!imageFile) return "";
@@ -243,15 +255,12 @@ export default function NewPost() {
       data.seal.fileUrl = "";
     }
 
-    if (data.arrow.image instanceof File && data.arrow.selection === "SIM") {
+    if (data.truckPlate instanceof File) {
       const fileUrl = await uploadImageAndGetUrl(
-        data.arrow.image,
-        `dischargeImages/arrow/${data.arrow.image.name}_${Date.now()}`
+        data.truckPlate,
+        `dischargeImages/truckPlate/${data.truckPlate.name}_${Date.now()}`
       );
-      data.arrow.fileUrl = fileUrl;
-      delete data.arrow.image;
-    } else {
-      data.arrow.fileUrl = "";
+      data.truckPlate = fileUrl;
     }
 
     return data;
@@ -332,17 +341,43 @@ export default function NewPost() {
                 </div>
 
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Placa do caminhão</p>
+                  <p className={styles.FieldLabel}>Placa do caminhão (mídia)</p>
                   <input
-                    id="truckPlate"
-                    type="text"
-                    className={styles.Field}
-                    value={truckPlate}
-                    onChange={(e) => setTruckPlate(e.target.value)}
-                    placeholder=""
+                    ref={truckPlateRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(event) =>
+                      handleFileChange(
+                        event,
+                        setTruckPlateImage,
+                        setTruckPlateFileName
+                      )
+                    }
                   />
+                  <button
+                    onClick={() => triggerFileInput(truckPlateRef)}
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua foto
+                  </button>
                 </div>
               </div>
+              {truckPlateImage && (
+                <div>
+                  <img
+                    src={truckPlateImage}
+                    alt="Visualização da imagem da placa do caminhão"
+                    style={{
+                      maxWidth: "17.5rem",
+                      height: "auto",
+                      border: "1px solid #939393",
+                      borderRadius: "20px",
+                    }}
+                  />
+                  <p className={styles.fileName}>{truckPlateFileName}</p>
+                </div>
+              )}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
@@ -370,6 +405,8 @@ export default function NewPost() {
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
                   >
+                    <option value="">Selecione um Produto</option>
+
                     {productOptions.map((product, index) => (
                       <option key={index} value={product}>
                         {product}
@@ -556,41 +593,20 @@ export default function NewPost() {
 
                 {arrowSelection === "SIM" && (
                   <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Carregar imagem da seta</p>
-                    <input
-                      ref={arrowRef}
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={(event) =>
-                        handleFileChange(event, setArrowImage, setArrowFileName)
-                      }
-                    />
-                    <button
-                      onClick={() => triggerFileInput(arrowRef)}
-                      className={styles.MidiaField}
+                    <p className={styles.FieldLabel}>Posição da Seta</p>
+                    <select
+                      value={arrowPosition}
+                      onChange={(e) => setArrowPosition(e.target.value)}
+                      className={styles.SelectField}
                     >
-                      Carregue sua foto
-                    </button>
+                      <option value="">Selecione a posição...</option>
+                      <option value="PRIMEIRA">PRIMEIRA</option>
+                      <option value="SEGUNDA">SEGUNDA</option>
+                      <option value="TERCEIRA">TERCEIRA</option>
+                    </select>
                   </div>
                 )}
               </div>
-
-              {arrowImage && (
-                <div>
-                  <img
-                    src={arrowImage}
-                    alt="Visualização da imagem da seta"
-                    style={{
-                      maxWidth: "17.5rem",
-                      height: "auto",
-                      border: "1px solid #939393",
-                      borderRadius: "20px",
-                    }}
-                  />
-                  <p className={styles.fileName}>{arrowFileName}</p>
-                </div>
-              )}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

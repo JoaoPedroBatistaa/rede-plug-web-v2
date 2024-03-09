@@ -480,6 +480,17 @@
   border-radius: 10px;
 }
 
+.titleTank {
+  font-size: 18px;
+  font-weight: medium;
+  font-family: "Outfit", sans-serif;
+  color: #404049;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+
+  text-align: start;
+}
+
 @media (max-width: 430px) {
   .userContent {
     flex-direction: column;

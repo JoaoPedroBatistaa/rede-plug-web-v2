@@ -55,8 +55,7 @@ export default function NewPost() {
   const [sealFileName, setSealFileName] = useState("");
 
   const [arrowSelection, setArrowSelection] = useState("");
-  const [arrowImage, setArrowImage] = useState("");
-  const [arrowFileName, setArrowFileName] = useState("");
+  const [arrowPosition, setArrowPosition] = useState("");
 
   useEffect(() => {
     const fetchDischargeData = async () => {
@@ -83,7 +82,7 @@ export default function NewPost() {
           setSealSelection(data.seal.selection);
           setSealImage(data.seal.fileUrl);
           setArrowSelection(data.arrow.selection);
-          setArrowImage(data.arrow.fileUrl);
+          setArrowPosition(data.arrow.position);
         } else {
           console.log("No such document!");
           toast.error("Descarga não encontrada.");
@@ -212,15 +211,20 @@ export default function NewPost() {
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Placa do caminhão</p>
-                  <input
-                    id="truckPlate"
-                    type="text"
-                    className={styles.Field}
-                    value={truckPlate}
-                    onChange={(e) => setTruckPlate(e.target.value)}
-                    placeholder=""
-                    disabled
-                  />
+                  {truckPlate && (
+                    <div>
+                      <img
+                        src={truckPlate}
+                        alt="Visualização da imagem da placa do caminhão"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -356,18 +360,24 @@ export default function NewPost() {
                     <option value="NAO">NÃO</option>
                   </select>
                 </div>
-              </div>
 
-              {arrowImage && (
-                <div>
-                  <img
-                    src={arrowImage}
-                    alt="Visualização da imagem da seta"
-                    className={styles.imageStyle}
-                  />
-                  <p className={styles.fileName}>{arrowFileName}</p>
-                </div>
-              )}
+                {arrowPosition && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Posição da Seta</p>
+                    <select
+                      value={arrowPosition}
+                      onChange={(e) => setArrowPosition(e.target.value)}
+                      className={styles.SelectField}
+                      disabled
+                    >
+                      <option value="">Selecione a posição...</option>
+                      <option value="PRIMEIRA">PRIMEIRA</option>
+                      <option value="SEGUNDA">SEGUNDA</option>
+                      <option value="TERCEIRA">TERCEIRA</option>
+                    </select>
+                  </div>
+                )}
+              </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

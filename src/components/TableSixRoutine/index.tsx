@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableProducts.module.scss";
 
-import { deleteDoc, getDoc, getDocs } from "firebase/firestore";
-import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
-import { toast } from "react-toastify";
+import { Url } from "next/dist/shared/lib/router/router";
+import { useRouter } from "next/router";
 
 interface Tank {
   tankNumber: string;
@@ -44,6 +43,12 @@ export default function TablePosts({
   orderValue,
   filterValue,
 }: ITableBudgets) {
+  const router = useRouter();
+
+  const navigateTo = (path: Url) => {
+    router.push(path);
+  };
+
   const [filteredData, setFilteredData] = useState<Post[]>([]);
   const [teste, setTeste] = useState<Post[]>([]);
 
@@ -53,41 +58,6 @@ export default function TablePosts({
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
   }
-
-  useEffect(() => {
-    let isComponentMounted = true;
-    const fetchData = async () => {
-      const path = "POSTS";
-
-      const dbCollection = collection(db, path);
-      const postsSnapshot = await getDocs(dbCollection);
-      const postsList = postsSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: data.name,
-          owner: data.owner,
-          contact: data.contact,
-          location: data.location,
-          email: data.email,
-          tanks: data.tanks,
-          nozzles: data.nozzles,
-          managers: data.managers,
-        };
-      });
-
-      if (isComponentMounted) {
-        setTeste(postsList);
-        setFilteredData(postsList);
-        console.log("Set data: ", postsList);
-      }
-    };
-    fetchData();
-
-    return () => {
-      isComponentMounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (searchValue !== "") {
@@ -147,51 +117,6 @@ export default function TablePosts({
     }));
   };
 
-  const handleDeleteItem = async (itemId: string) => {
-    const isConfirmed = confirm(
-      "Tem certeza que deseja excluir este posto e todos os seus gerentes associados?"
-    );
-
-    if (isConfirmed) {
-      try {
-        const postRef = doc(db, "POSTS", itemId);
-        const postSnap = await getDoc(postRef);
-
-        if (postSnap.exists()) {
-          const postData = postSnap.data();
-
-          if (postData.managers && postData.managers.length > 0) {
-            for (const manager of postData.managers) {
-              if (manager.password) {
-                await deleteDoc(doc(db, "USERS", manager.password));
-              }
-            }
-          }
-        }
-
-        await deleteDoc(postRef);
-
-        const updatedData = filteredData.filter((item) => item.id !== itemId);
-        setFilteredData(updatedData);
-
-        toast.success("Posto e gerentes excluídos com sucesso!", {
-          style: {
-            fontSize: "12px",
-            fontWeight: 600,
-          },
-        });
-      } catch (error) {
-        console.error(
-          "Ocorreu um erro ao excluir o posto e seus gerentes:",
-          error
-        );
-        toast.error("Ocorreu um erro ao excluir o posto e seus gerentes.");
-      }
-    } else {
-      console.log("Exclusão cancelada pelo usuário.");
-    }
-  };
-
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
@@ -237,6 +162,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: false,
+              link: "/tank-measurement-six",
             },
             {
               id: "foto-maquininhas-6h",
@@ -244,6 +170,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: true,
+              link: "/manager-six-routine",
             },
             {
               id: "encerrante-bico-6h",
@@ -251,6 +178,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: false,
+              link: "/manager-six-routine",
             },
             {
               id: "teste-combustiveis-6h",
@@ -258,6 +186,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: false,
+              link: "/manager-six-routine",
             },
             {
               id: "teste-game-proveta-6h",
@@ -265,13 +194,16 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: false,
+              link: "/manager-six-routine",
             },
-          ].map((item, index) => (
+          ].map((item) => (
             <tr
               className={`${styles.budgetItem} ${
                 item.finished ? styles.finished : styles.notFinished
               }`}
               key={item.id}
+              onClick={() => navigateTo(item.link)} // Use a função navigateTo para redirecionar
+              style={{ cursor: "pointer" }} // Opcional: Altera o cursor para indicar que é clicável
             >
               <td className={styles.tdWithRelative}>
                 <img
@@ -279,47 +211,15 @@ export default function TablePosts({
                   width={5}
                   height={20}
                   className={styles.MarginRight}
-                  onClick={(event) => handleClickImg(event, item.id)}
+                  onClick={(event) => {
+                    event.stopPropagation(); // Previne que o evento de clique da linha seja disparado
+                    handleClickImg(event, item.id);
+                  }}
                 />
-                {openMenus[item.id] && (
-                  <div className={styles.containerMore}>
-                    <div
-                      className={styles.containerX}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleClickImg(event, item.id);
-                      }}
-                    >
-                      X
-                    </div>
-                    <div className={styles.containerOptionsMore}>
-                      {/* <button className={styles.buttonBlack}>
-                        <Link
-                          href={{
-                            pathname: `/edit-post`,
-                            query: { id: item.id },
-                          }}
-                        >
-                          Editar
-                        </Link>
-                      </button>
-                      <button
-                        className={styles.buttonRed}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleDeleteItem(item.id);
-                        }}
-                      >
-                        Deletar
-                      </button> */}
-                    </div>
-                  </div>
-                )}
               </td>
               <td className={styles.td}>
                 <b>{item.name}</b>
               </td>
-
               <td className={styles.td}>
                 <b>{item.manager}</b>
               </td>

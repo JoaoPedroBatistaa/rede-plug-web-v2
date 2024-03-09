@@ -10,6 +10,8 @@ import { ITableBudgets } from "./type";
 
 import Link from "next/link";
 
+import { format } from "date-fns";
+
 interface Measurement {
   cm: string;
   fileUrl: string;
@@ -198,7 +200,7 @@ export default function TablePosts({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>Nome do posto</th>
-            <th>Data</th>
+            <th>Data / Hora</th>
             <th>Tanque</th>
           </tr>
         </thead>
@@ -252,7 +254,9 @@ export default function TablePosts({
               </td>
 
               <td className={styles.td}>
-                <b>{item.date}</b>
+                <b>
+                  {format(new Date(item.date), "dd/MM/yyyy")} - {item.time}
+                </b>
               </td>
               <td className={styles.td}>
                 <b>Tanque {item.tankNumber}</b>

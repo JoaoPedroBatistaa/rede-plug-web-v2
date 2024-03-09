@@ -6,6 +6,8 @@ import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
+import { Url } from "next/dist/shared/lib/router/router";
+import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
 interface Tank {
@@ -44,6 +46,12 @@ export default function TablePosts({
   orderValue,
   filterValue,
 }: ITableBudgets) {
+  const router = useRouter();
+
+  const navigateTo = (path: Url) => {
+    router.push(path);
+  };
+
   const [filteredData, setFilteredData] = useState<Post[]>([]);
   const [teste, setTeste] = useState<Post[]>([]);
 
@@ -232,11 +240,12 @@ export default function TablePosts({
         <tbody>
           {[
             {
-              id: "revisao-tanques-14h",
-              name: "Revisão de Tanques",
+              id: "medicao-tanques-14h",
+              name: "Medição de Tanques",
               manager: "-",
               time: "-",
               finished: false,
+              link: "/tank-measurement-fourteen",
             },
             {
               id: "checagem-maquininhas-14h",
@@ -244,6 +253,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: false,
+              link: "/manager-fourteen-routine",
             },
             {
               id: "encerrante-bico-14h",
@@ -251,6 +261,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: true,
+              link: "/manager-fourteen-routine",
             },
             {
               id: "analise-combustiveis-14h",
@@ -258,6 +269,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: false,
+              link: "/manager-fourteen-routine",
             },
             {
               id: "verificacao-cavaletes-14h",
@@ -265,6 +277,7 @@ export default function TablePosts({
               manager: "-",
               time: "-",
               finished: true,
+              link: "/manager-fourteen-routine",
             },
           ].map((item, index) => (
             <tr
@@ -272,6 +285,8 @@ export default function TablePosts({
                 item.finished ? styles.finished : styles.notFinished
               }`}
               key={item.id}
+              onClick={() => navigateTo(item.link)} // Use a função navigateTo para redirecionar
+              style={{ cursor: "pointer" }} // Opcional: Altera o cursor para indicar que é clicável
             >
               <td className={styles.tdWithRelative}>
                 <img
