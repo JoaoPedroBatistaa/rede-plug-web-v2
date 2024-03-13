@@ -20,6 +20,30 @@ interface Tank {
   tableParam02: string;
 }
 
+interface TankMeasurement {
+  tankNumber: string;
+  measurement: string;
+  imageUrl: string;
+}
+
+interface MeasurementData {
+  date: string;
+  time: string;
+  managerName: string;
+  userName: string | null;
+  postName: string | null;
+  measurements: TankMeasurement[];
+  id: string;
+}
+
+interface TankMeasurements {
+  [key: string]: string;
+}
+
+interface TankImages {
+  [key: string]: File;
+}
+
 export default function NewPost() {
   const router = useRouter();
 
@@ -27,8 +51,10 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
   const [tanks, setTanks] = useState<Tank[]>([]);
-  const [tankMeasurements, setTankMeasurements] = useState({});
-  const [tankImages, setTankImages] = useState({});
+  const [tankMeasurements, setTankMeasurements] = useState<TankMeasurements>(
+    {}
+  );
+  const [tankImages, setTankImages] = useState<TankImages>({});
   const [tankFileNames, setTankFileNames] = useState({});
   const [fileInputRefs, setFileInputRefs] = useState({});
 
@@ -37,15 +63,15 @@ export default function NewPost() {
   };
 
   const handleImageChange = (
-    event: { target: { files: any } },
-    tankNumber: any
+    event: React.ChangeEvent<HTMLInputElement>,
+    tankNumber: string
   ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
       setTankImages((prev) => ({
         ...prev,
-        [tankNumber]: URL.createObjectURL(file),
+        [tankNumber]: file, // Armazenando o objeto File
       }));
       setTankFileNames((prev) => ({ ...prev, [tankNumber]: file.name }));
     }
@@ -83,126 +109,96 @@ export default function NewPost() {
     }
   }, []);
 
-  const triggerFileInput = (ref: React.RefObject<HTMLInputElement>) => {
-    ref.current?.click();
-  };
-
-  const handleFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    setImage: React.Dispatch<React.SetStateAction<string>>,
-    setFileName: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setImage(URL.createObjectURL(file));
-      setFileName(file.name);
-    }
-  };
-
-  const saveDischarge = async () => {
+  const saveMeasurement = async () => {
     let missingField = "";
+    const today = new Date().toISOString().slice(0, 10);
+
     if (!date) missingField = "Data";
-    else if (!time) missingField = "Hora";
+    else if (date !== today) {
+      toast.error("Você deve cadastrar a data correta de hoje!");
+      return;
+    } else if (!time) missingField = "Hora";
     else if (!managerName) missingField = "Nome do Gerente";
+
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       return;
     }
 
-    const makerName = localStorage.getItem("userName");
+    const userName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
 
-    const dischargeData = {
+    const managersRef = collection(db, "MANAGERS");
+    const q = query(
+      managersRef,
+      where("date", "==", date),
+      where("id", "==", "medicao-tanques-6h"),
+      where("userName", "==", userName)
+    );
+
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      toast.error("A medição dos tanques das 6h já foi feita hoje!");
+      return;
+    }
+
+    const measurementData: MeasurementData = {
       date,
       time,
       managerName,
-      makerName,
+      userName,
       postName,
+      measurements: [],
+      id: "medicao-tanques-6h",
     };
 
-    await uploadImagesAndUpdateData(dischargeData);
+    for (const tank of tanks) {
+      const tankData = {
+        tankNumber: tank.tankNumber,
+        measurement: tankMeasurements[tank.tankNumber] || "",
+        imageUrl: "",
+      };
+
+      const imageFile = tankImages[tank.tankNumber];
+      if (imageFile instanceof File) {
+        try {
+          const imageUrl = await uploadImageAndGetUrl(
+            imageFile,
+            `tankMeasurements/${tank.tankNumber}/${
+              imageFile.name
+            }_${Date.now()}`
+          );
+          tankData.imageUrl = imageUrl;
+        } catch (error) {
+          console.error("Erro ao fazer upload da imagem do tanque: ", error);
+          toast.error(`Erro ao salvar a imagem do tanque ${tank.tankNumber}.`);
+          return;
+        }
+      }
+
+      measurementData.measurements.push(tankData);
+    }
 
     try {
-      const docRef = await addDoc(collection(db, "DISCHARGES"), dischargeData);
-      console.log("Documento salvo com ID: ", docRef.id);
-      toast.success("Descarga salva com sucesso!");
-      router.push("/discharges");
+      const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
+      console.log("Medição salva com ID: ", docRef.id);
+      toast.success("Medição salva com sucesso!");
+      router.push("/manager-six-routine");
     } catch (error) {
-      console.error("Erro ao salvar os dados da descarga: ", error);
-      toast.error("Erro ao salvar a descarga.");
+      console.error("Erro ao salvar os dados da medição: ", error);
+      toast.error("Erro ao salvar a medição.");
     }
   };
 
-  const uploadImagesAndUpdateData = async (data: {
-    date?: string;
-    time?: string;
-    driverName?: string;
-    truckPlate: any;
-    tankNumber?: string;
-    product?: string;
-    initialMeasurement: any;
-    finalMeasurement: any;
-    seal: any;
-    arrow?: { selection: string; position: string };
-    observations?: string;
-    makerName?: string | null;
-    postName?: string | null;
-  }) => {
-    const uploadImageAndGetUrl = async (
-      imageFile: Blob | ArrayBuffer,
-      path: string | undefined
-    ) => {
-      if (!imageFile) return "";
-      const storageRef = ref(storage, path);
-      await uploadBytes(storageRef, imageFile);
-      const downloadUrl = await getDownloadURL(storageRef);
-      return downloadUrl;
-    };
-
-    if (data.initialMeasurement.image instanceof File) {
-      const fileUrl = await uploadImageAndGetUrl(
-        data.initialMeasurement.image,
-        `dischargeImages/initialMeasurement/${
-          data.initialMeasurement.image.name
-        }_${Date.now()}`
-      );
-      data.initialMeasurement.fileUrl = fileUrl;
-      delete data.initialMeasurement.image;
-    }
-
-    if (data.finalMeasurement.image instanceof File) {
-      const fileUrl = await uploadImageAndGetUrl(
-        data.finalMeasurement.image,
-        `dischargeImages/finalMeasurement/${
-          data.finalMeasurement.image.name
-        }_${Date.now()}`
-      );
-      data.finalMeasurement.fileUrl = fileUrl;
-      delete data.finalMeasurement.image;
-    }
-
-    if (data.seal.image instanceof File && data.seal.selection === "SIM") {
-      const fileUrl = await uploadImageAndGetUrl(
-        data.seal.image,
-        `dischargeImages/seal/${data.seal.image.name}_${Date.now()}`
-      );
-      data.seal.fileUrl = fileUrl;
-      delete data.seal.image;
-    } else {
-      data.seal.fileUrl = "";
-    }
-
-    if (data.truckPlate instanceof File) {
-      const fileUrl = await uploadImageAndGetUrl(
-        data.truckPlate,
-        `dischargeImages/truckPlate/${data.truckPlate.name}_${Date.now()}`
-      );
-      data.truckPlate = fileUrl;
-    }
-
-    return data;
-  };
+  async function uploadImageAndGetUrl(
+    imageFile: Blob | ArrayBuffer,
+    path: string | undefined
+  ) {
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, imageFile);
+    const downloadUrl = await getDownloadURL(storageRef);
+    return downloadUrl;
+  }
 
   return (
     <>
@@ -227,7 +223,7 @@ export default function NewPost() {
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={saveDischarge}>
+                <span className={styles.buttonText} onClick={saveMeasurement}>
                   Cadastrar medição
                 </span>
               </button>
@@ -329,30 +325,30 @@ export default function NewPost() {
                       </button>
                     </div>
                   </div>
-                  {
-                    //@ts-ignore
-                    tankImages[tank.tankNumber] && (
-                      <div>
-                        <img
+                  {tankImages[tank.tankNumber] && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(tankImages[tank.tankNumber])}
+                        alt="Visualização da imagem"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        onLoad={() =>
                           // @ts-ignore
-                          src={tankImages[tank.tankNumber]}
-                          alt="Visualização da imagem"
-                          style={{
-                            maxWidth: "17.5rem",
-                            height: "auto",
-                            border: "1px solid #939393",
-                            borderRadius: "20px",
-                          }}
-                        />
-                        <p className={styles.fileName}>
-                          {
-                            // @ts-ignore
-                            tankFileNames[tank.tankNumber]
-                          }
-                        </p>
-                      </div>
-                    )
-                  }
+                          URL.revokeObjectURL(tankImages[tank.tankNumber])
+                        }
+                      />
+                      <p className={styles.fileName}>
+                        {
+                          //@ts-ignore
+                          tankFileNames[tank.tankNumber]
+                        }
+                      </p>
+                    </div>
+                  )}
                 </>
               ))}
             </div>

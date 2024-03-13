@@ -4,8 +4,10 @@ import styles from "../../styles/TableProducts.module.scss";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { Url } from "next/dist/shared/lib/router/router";
 import { useRouter } from "next/router";
+import { db } from "../../../firebase";
 
 interface Tank {
   tankNumber: string;
@@ -54,10 +56,35 @@ export default function TablePosts({
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  let userId: string | null;
-  if (typeof window !== "undefined") {
-    userId = window.localStorage.getItem("userId");
-  }
+
+  const [todayTasks, setTodayTasks] = useState([]);
+
+  useEffect(() => {
+    const fetchTodayTasks = async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const managersRef = collection(db, "MANAGERS");
+      const userName = localStorage.getItem("userName");
+      const q = query(
+        managersRef,
+        where("date", "==", today),
+        where("userName", "==", userName)
+      );
+      try {
+        const querySnapshot = await getDocs(q);
+        const tasks = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        // @ts-ignore
+        setTodayTasks(tasks);
+      } catch (error) {
+        console.error("Erro ao buscar as tarefas de hoje:", error);
+      }
+    };
+
+    fetchTodayTasks();
+  }, []);
 
   useEffect(() => {
     if (searchValue !== "") {
@@ -135,13 +162,6 @@ export default function TablePosts({
     filterData();
   }, [searchValue, teste]);
 
-  const [openFilter, setOpenFilter] = useState(false);
-
-  const combinedData = [...filteredData, ...currentData];
-
-  const typeUser =
-    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
-
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -159,75 +179,77 @@ export default function TablePosts({
             {
               id: "medicao-tanques-6h",
               name: "Medição de Tanques",
-              manager: "-",
-              time: "-",
-              finished: false,
               link: "/tank-measurement-six",
             },
             {
               id: "foto-maquininhas-6h",
               name: "Foto das Maquininhas",
-              manager: "-",
-              time: "-",
-              finished: true,
-              link: "/manager-six-routine",
+              link: "/photo-machines-six",
             },
             {
               id: "encerrante-bico-6h",
               name: "Tirar o Encerrante de Cada Bico",
-              manager: "-",
-              time: "-",
-              finished: false,
-              link: "/manager-six-routine",
+              link: "/nozzle-closure-six",
             },
             {
               id: "teste-combustiveis-6h",
               name: "Teste dos Combustíveis",
-              manager: "-",
-              time: "-",
-              finished: false,
-              link: "/manager-six-routine",
+              link: "/fuel-test-six",
             },
             {
               id: "teste-game-proveta-6h",
               name: "Teste do Game na Proveta de 1L",
-              manager: "-",
-              time: "-",
-              finished: false,
-              link: "/manager-six-routine",
+              link: "/game-test-six",
             },
-          ].map((item) => (
-            <tr
-              className={`${styles.budgetItem} ${
-                item.finished ? styles.finished : styles.notFinished
-              }`}
-              key={item.id}
-              onClick={() => navigateTo(item.link)} // Use a função navigateTo para redirecionar
-              style={{ cursor: "pointer" }} // Opcional: Altera o cursor para indicar que é clicável
-            >
-              <td className={styles.tdWithRelative}>
-                <img
-                  src="./More.png"
-                  width={5}
-                  height={20}
-                  className={styles.MarginRight}
-                  onClick={(event) => {
-                    event.stopPropagation(); // Previne que o evento de clique da linha seja disparado
-                    handleClickImg(event, item.id);
-                  }}
-                />
-              </td>
-              <td className={styles.td}>
-                <b>{item.name}</b>
-              </td>
-              <td className={styles.td}>
-                <b>{item.manager}</b>
-              </td>
-              <td className={styles.td}>
-                <b>{item.time}</b>
-              </td>
-            </tr>
-          ))}
+          ].map((task) => {
+            // @ts-ignore
+            const taskRecord = todayTasks.find((t) => t.id === task.id);
+            const isFinished = taskRecord !== undefined;
+            // @ts-ignore
+            const managerName = taskRecord ? taskRecord.managerName : "-";
+            // @ts-ignore
+            const time = taskRecord ? taskRecord.time : "-";
+
+            // Função modificada para navegar apenas se a tarefa não estiver finalizada
+            const handleTaskClick = () => {
+              if (!isFinished) {
+                navigateTo(task.link);
+              }
+            };
+
+            return (
+              <tr
+                className={`${styles.budgetItem} ${
+                  isFinished ? styles.finished : styles.notFinished
+                }`}
+                key={task.id}
+                onClick={handleTaskClick} // Usando a nova função que verifica se a tarefa está finalizada
+                style={{ cursor: isFinished ? "default" : "pointer" }} // Cursor default para tarefas finalizadas
+              >
+                <td className={styles.tdWithRelative}>
+                  <img
+                    src="./More.png"
+                    width={5}
+                    height={20}
+                    className={styles.MarginRight}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleClickImg(event, task.id);
+                    }}
+                  />
+                </td>
+                <td className={styles.td}>
+                  <b>{task.name}</b>
+                </td>
+                <td className={styles.td}>
+                  <b>{managerName}</b>
+                </td>
+                <td className={styles.td}>
+                  <b>{time}</b>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <div className={styles.RodapeContainer}></div>
