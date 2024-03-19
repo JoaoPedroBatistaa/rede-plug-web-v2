@@ -210,7 +210,6 @@ export default function TablePosts({
             // @ts-ignore
             const time = taskRecord ? taskRecord.time : "-";
 
-            // Função modificada para navegar apenas se a tarefa não estiver finalizada
             const handleTaskClick = () => {
               if (!isFinished) {
                 navigateTo(task.link);
@@ -223,8 +222,8 @@ export default function TablePosts({
                   isFinished ? styles.finished : styles.notFinished
                 }`}
                 key={task.id}
-                onClick={handleTaskClick} // Usando a nova função que verifica se a tarefa está finalizada
-                style={{ cursor: isFinished ? "default" : "pointer" }} // Cursor default para tarefas finalizadas
+                onClick={handleTaskClick}
+                style={{ cursor: isFinished ? "default" : "pointer" }}
               >
                 <td className={styles.tdWithRelative}>
                   <img

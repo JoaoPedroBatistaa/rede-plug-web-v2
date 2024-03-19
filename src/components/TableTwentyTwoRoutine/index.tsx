@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableProducts.module.scss";
 
-import { deleteDoc, getDoc, getDocs } from "firebase/firestore";
+import { deleteDoc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
+import { Url } from "next/dist/shared/lib/router/router";
+import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
 interface Tank {
@@ -49,6 +51,36 @@ export default function TablePosts({
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const [todayTasks, setTodayTasks] = useState([]);
+
+  useEffect(() => {
+    const fetchTodayTasks = async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const managersRef = collection(db, "MANAGERS");
+      const userName = localStorage.getItem("userName");
+      const q = query(
+        managersRef,
+        where("date", "==", today),
+        where("userName", "==", userName)
+      );
+      try {
+        const querySnapshot = await getDocs(q);
+        const tasks = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        // @ts-ignore
+        setTodayTasks(tasks);
+      } catch (error) {
+        console.error("Erro ao buscar as tarefas de hoje:", error);
+      }
+    };
+
+    fetchTodayTasks();
+  }, []);
+
   let userId: string | null;
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
@@ -217,6 +249,12 @@ export default function TablePosts({
   const typeUser =
     typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
 
+  const router = useRouter();
+
+  const navigateTo = (path: Url) => {
+    router.push(path);
+  };
+
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -234,135 +272,102 @@ export default function TablePosts({
             {
               id: "medicao-tanques-22h",
               name: "Medição de Tanques",
-              manager: "-",
-              time: "-",
-              finished: false,
+              link: "/tank-measurement-twenty-two",
             },
             {
               id: "foto-maquininhas-22h",
               name: "Foto das Maquininhas",
-              manager: "-",
-              time: "-",
-              finished: true,
+              link: "/photo-machines-twenty-two",
             },
             {
               id: "encerrante-bico-22h",
               name: "Tirar o Encerrante de Cada Bico",
-              manager: "-",
-              time: "-",
-              finished: false,
+              link: "/nozzle-closure-twenty-two",
             },
             {
               id: "teste-game-proveta-22h",
               name: "Teste do Game na Proveta de 1L",
-              manager: "-",
-              time: "-",
-              finished: false,
+              link: "/game-test-twenty-two",
             },
             {
               id: "quarto-caixa-22h",
               name: "4° Caixa",
-              manager: "-",
-              time: "-",
-              finished: false,
+              link: "/fourth-cashier-twenty-two",
             },
             {
               id: "controle-tanque-22h",
               name: "Controle de Tanque",
-              manager: "-",
-              time: "-",
-              finished: false,
+              link: "/tank-control-twenty-two",
             },
             {
               id: "recolhe-22h",
               name: "Recolhe",
-              manager: "-",
-              time: "-",
-              finished: true,
+              link: "/collect-twenty-two",
             },
             {
               id: "quantidade-vendida-dia-anterior-22h",
               name: "Quantidade Vendida no Dia Anterior",
-              manager: "-",
-              time: "-",
-              finished: false,
+              link: "/yesterday-sales-volume-twenty-two",
             },
             {
-              id: "cavaletes-22h",
-              name: "Cavaletes",
-              manager: "-",
-              time: "-",
-              finished: false,
+              id: "verificacao-cavaletes-22h",
+              name: "Verificação dos Cavaletes",
+              link: "/easel-twenty-two",
             },
             {
               id: "preco-concorrentes-22h",
               name: "Preço dos Concorrentes",
-              manager: "-",
-              time: "-",
-              finished: true,
+              link: "/competitors-price-twenty-two",
             },
-          ].map((item, index) => (
-            <tr
-              className={`${styles.budgetItem} ${
-                item.finished ? styles.finished : styles.notFinished
-              }`}
-              key={item.id}
-            >
-              <td className={styles.tdWithRelative}>
-                <img
-                  src="./More.png"
-                  width={5}
-                  height={20}
-                  className={styles.MarginRight}
-                  onClick={(event) => handleClickImg(event, item.id)}
-                />
-                {openMenus[item.id] && (
-                  <div className={styles.containerMore}>
-                    <div
-                      className={styles.containerX}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleClickImg(event, item.id);
-                      }}
-                    >
-                      X
-                    </div>
-                    <div className={styles.containerOptionsMore}>
-                      {/* <button className={styles.buttonBlack}>
-                        <Link
-                          href={{
-                            pathname: `/edit-post`,
-                            query: { id: item.id },
-                          }}
-                        >
-                          Editar
-                        </Link>
-                      </button>
-                      <button
-                        className={styles.buttonRed}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleDeleteItem(item.id);
-                        }}
-                      >
-                        Deletar
-                      </button> */}
-                    </div>
-                  </div>
-                )}
-              </td>
-              <td className={styles.td}>
-                <b>{item.name}</b>
-              </td>
+          ].map((task) => {
+            // @ts-ignore
+            const taskRecord = todayTasks.find((t) => t.id === task.id);
+            const isFinished = taskRecord !== undefined;
+            // @ts-ignore
+            const managerName = taskRecord ? taskRecord.managerName : "-";
+            // @ts-ignore
+            const time = taskRecord ? taskRecord.time : "-";
 
-              <td className={styles.td}>
-                <b>{item.manager}</b>
-              </td>
-              <td className={styles.td}>
-                <b>{item.time}</b>
-              </td>
-            </tr>
-          ))}
+            const handleTaskClick = () => {
+              if (!isFinished) {
+                navigateTo(task.link);
+              }
+            };
+
+            return (
+              <tr
+                className={`${styles.budgetItem} ${
+                  isFinished ? styles.finished : styles.notFinished
+                }`}
+                key={task.id}
+                onClick={handleTaskClick}
+                style={{ cursor: isFinished ? "default" : "pointer" }}
+              >
+                <td className={styles.tdWithRelative}>
+                  <img
+                    src="./More.png"
+                    width={5}
+                    height={20}
+                    className={styles.MarginRight}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      // Suposição de implementação de handleClickImg
+                      handleClickImg(event, task.id);
+                    }}
+                  />
+                </td>
+                <td className={styles.td}>
+                  <b>{task.name}</b>
+                </td>
+                <td className={styles.td}>
+                  <b>{managerName}</b>
+                </td>
+                <td className={styles.td}>
+                  <b>{time}</b>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <div className={styles.RodapeContainer}></div>

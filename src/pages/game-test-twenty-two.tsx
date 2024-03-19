@@ -8,40 +8,12 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
 
-interface Tank {
-  tankNumber: string;
-  capacity: string;
+interface Nozzle {
+  nozzleNumber: string;
   product: string;
-  saleDefense: string;
-  tableParam01: string;
-  tableParam02: string;
-}
-
-interface TankMeasurement {
-  tankNumber: string;
-  measurement: string;
-  imageUrl: string;
-}
-
-interface MeasurementData {
-  date: string;
-  time: string;
-  managerName: string;
-  userName: string | null;
-  postName: string | null;
-  measurements: TankMeasurement[];
-  id: string;
-}
-
-interface TankMeasurements {
-  [key: string]: string;
-}
-
-interface TankImages {
-  [key: string]: File;
 }
 
 export default function NewPost() {
@@ -50,41 +22,32 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
-  const [tanks, setTanks] = useState<Tank[]>([]);
-  const [tankMeasurements, setTankMeasurements] = useState<TankMeasurements>(
-    {}
-  );
-  const [tankImages, setTankImages] = useState<TankImages>({});
-  const [tankFileNames, setTankFileNames] = useState({});
-  const [fileInputRefs, setFileInputRefs] = useState({});
+  const [nozzles, setNozzles] = useState<Nozzle[]>([]);
+  const [encerranteImages, setEncerranteImages] = useState<File[]>([]);
+  const [encerranteFileNames, setEncerranteFileNames] = useState<string[]>([]);
 
-  const handleMeasurementChange = (tankNumber: string, value: string) => {
-    setTankMeasurements((prev) => ({ ...prev, [tankNumber]: value }));
-  };
+  const encerranteRefs = useRef([]);
 
   const handleImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    tankNumber: string
+    index: number,
+    event: { target: { files: any } } | undefined
   ) => {
+    // @ts-ignore
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setTankImages((prev) => ({
-        ...prev,
-        [tankNumber]: file, // Armazenando o objeto File
-      }));
-      setTankFileNames((prev) => ({ ...prev, [tankNumber]: file.name }));
+      setEncerranteImages((prev) => {
+        const newImages = [...prev];
+        newImages[index] = file;
+        return newImages;
+      });
+      setEncerranteFileNames((prev) => {
+        const newFileNames = [...prev];
+        newFileNames[index] = file.name;
+        return newFileNames;
+      });
     }
   };
-
-  useEffect(() => {
-    const refs = tanks.reduce((acc, tank) => {
-      // @ts-ignore
-      acc[tank.tankNumber] = React.createRef();
-      return acc;
-    }, {});
-    setFileInputRefs(refs);
-  }, [tanks]);
 
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
@@ -98,7 +61,7 @@ export default function NewPost() {
 
           querySnapshot.forEach((doc) => {
             const postData = doc.data();
-            setTanks(postData.tanks || []);
+            setNozzles(postData.nozzles || []);
           });
         } catch (error) {
           console.error("Error fetching post details:", error);
@@ -109,7 +72,7 @@ export default function NewPost() {
     }
   }, []);
 
-  const saveMeasurement = async () => {
+  const saveGameTest = async () => {
     let missingField = "";
     const today = new Date().toISOString().slice(0, 10);
 
@@ -119,6 +82,9 @@ export default function NewPost() {
       return;
     } else if (!time) missingField = "Hora";
     else if (!managerName) missingField = "Nome do Gerente";
+    // @ts-ignore
+    else if (encerranteImages.length === 0)
+      missingField = "Fotos do teste do game";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -132,61 +98,57 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "medicao-tanques-14h"),
-      where("userName", "==", userName)
+      where("userName", "==", userName),
+      where("id", "==", "teste-game-proveta-22h")
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A medição dos tanques das 14h já foi feita hoje!");
+      toast.error("O teste do game das 22h já foi cadastrado hoje!");
       return;
     }
 
-    const measurementData: MeasurementData = {
+    const nozzleClosureData = {
       date,
       time,
       managerName,
       userName,
       postName,
-      measurements: [],
-      id: "medicao-tanques-14h",
+      images: [],
+      id: "teste-game-proveta-22h",
     };
 
-    for (const tank of tanks) {
-      const tankData = {
-        tankNumber: tank.tankNumber,
-        measurement: tankMeasurements[tank.tankNumber] || "",
-        imageUrl: "",
-      };
-
-      const imageFile = tankImages[tank.tankNumber];
-      if (imageFile instanceof File) {
-        try {
-          const imageUrl = await uploadImageAndGetUrl(
-            imageFile,
-            `tankMeasurements/${tank.tankNumber}/${
-              imageFile.name
-            }_${Date.now()}`
-          );
-          tankData.imageUrl = imageUrl;
-        } catch (error) {
-          console.error("Erro ao fazer upload da imagem do tanque: ", error);
-          toast.error(`Erro ao salvar a imagem do tanque ${tank.tankNumber}.`);
-          return;
-        }
-      }
-
-      measurementData.measurements.push(tankData);
-    }
+    // @ts-ignore
+    const uploadPromises = encerranteImages.map(
+      (imageFile: Blob | ArrayBuffer, index: string | number) =>
+        uploadImageAndGetUrl(
+          imageFile,
+          // @ts-ignore
+          `gameTest/${date}/${imageFile.name}_${Date.now()}`
+        ).then((imageUrl) => {
+          return {
+            // @ts-ignore
+            fileName: encerranteFileNames[index],
+            imageUrl,
+          };
+        })
+    );
 
     try {
-      const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
-      console.log("Medição salva com ID: ", docRef.id);
-      toast.success("Medição salva com sucesso!");
-      router.push("/manager-fourteen-routine");
+      const images = await Promise.all(uploadPromises);
+      // @ts-ignore
+      nozzleClosureData.images = images;
+
+      const docRef = await addDoc(
+        collection(db, "MANAGERS"),
+        nozzleClosureData
+      );
+      console.log("Teste do game salvo com ID: ", docRef.id);
+      toast.success("Teste do game salvo com sucesso!");
+      router.push("/manager-twenty-two-routine");
     } catch (error) {
-      console.error("Erro ao salvar os dados da medição: ", error);
-      toast.error("Erro ao salvar a medição.");
+      console.error("Erro ao salvar o teste do game: ", error);
+      toast.error("Erro ao salvar o teste do game.");
     }
   };
 
@@ -215,7 +177,9 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Medição de tanques 14h</p>
+            <p className={styles.BudgetTitle}>
+              Teste do game na proveta de 1L 22h
+            </p>
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton}>
                 <img
@@ -223,16 +187,14 @@ export default function NewPost() {
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={saveMeasurement}>
-                  Cadastrar medição
+                <span className={styles.buttonText} onClick={saveGameTest}>
+                  Cadastrar teste
                 </span>
               </button>
             </div>
           </div>
 
-          <p className={styles.Notes}>
-            Informe abaixo as informações da medição
-          </p>
+          <p className={styles.Notes}>Informe abaixo as informações do teste</p>
 
           <div className={styles.userContent}>
             <div className={styles.userData}>
@@ -275,61 +237,32 @@ export default function NewPost() {
                 </div>
               </div>
 
-              {tanks.map((tank) => (
-                <>
+              {nozzles.map((nozzle, index) => (
+                <div key={nozzle.nozzleNumber} className={styles.InputField}>
                   <p className={styles.titleTank}>
-                    Tanque {tank.tankNumber} - {tank.capacity}L ({tank.product})
+                    Bico {nozzle.nozzleNumber} - {nozzle.product}{" "}
                   </p>
-
-                  <div key={tank.tankNumber} className={styles.InputContainer}>
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>Medição em cm</p>
-                      <input
-                        type="number"
-                        // @ts-ignore
-                        value={tankMeasurements[tank.tankNumber] || ""}
-                        onChange={(e) =>
-                          handleMeasurementChange(
-                            tank.tankNumber,
-                            e.target.value
-                          )
-                        }
-                        className={styles.Field}
-                      />
-                    </div>
-
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>Foto da medição</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        // @ts-ignore
-                        ref={fileInputRefs[tank.tankNumber]}
-                        onChange={(event) =>
-                          handleImageChange(event, tank.tankNumber)
-                        }
-                      />
-                      <button
-                        onClick={() =>
-                          // @ts-ignore
-
-                          fileInputRefs[tank.tankNumber].current &&
-                          // @ts-ignore
-
-                          fileInputRefs[tank.tankNumber].current.click()
-                        }
-                        className={styles.MidiaField}
-                      >
-                        Carregue sua foto
-                      </button>
-                    </div>
-                  </div>
-                  {tankImages[tank.tankNumber] && (
+                  <p className={styles.FieldLabel}>Imagem do teste</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    // @ts-ignore
+                    ref={(el) => (encerranteRefs.current[index] = el)}
+                    onChange={(event) => handleImageChange(index, event)}
+                  />
+                  <button
+                    // @ts-ignore
+                    onClick={() => encerranteRefs.current[index]?.click()}
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua foto
+                  </button>
+                  {encerranteImages[index] && (
                     <div>
                       <img
-                        src={URL.createObjectURL(tankImages[tank.tankNumber])}
-                        alt="Visualização da imagem"
+                        src={URL.createObjectURL(encerranteImages[index])}
+                        alt={`Preview do encerrante do bico ${nozzle.nozzleNumber}`}
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
@@ -338,18 +271,15 @@ export default function NewPost() {
                         }}
                         onLoad={() =>
                           // @ts-ignore
-                          URL.revokeObjectURL(tankImages[tank.tankNumber])
+                          URL.revokeObjectURL(encerranteImages[index])
                         }
                       />
                       <p className={styles.fileName}>
-                        {
-                          //@ts-ignore
-                          tankFileNames[tank.tankNumber]
-                        }
+                        {encerranteFileNames[index]}
                       </p>
                     </div>
                   )}
-                </>
+                </div>
               ))}
             </div>
           </div>

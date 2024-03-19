@@ -8,41 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { useEffect, useState } from "react";
+import React, { createRef, useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
-
-interface Tank {
-  tankNumber: string;
-  capacity: string;
-  product: string;
-  saleDefense: string;
-  tableParam01: string;
-  tableParam02: string;
-}
-
-interface TankMeasurement {
-  tankNumber: string;
-  measurement: string;
-  imageUrl: string;
-}
-
-interface MeasurementData {
-  date: string;
-  time: string;
-  managerName: string;
-  userName: string | null;
-  postName: string | null;
-  measurements: TankMeasurement[];
-  id: string;
-}
-
-interface TankMeasurements {
-  [key: string]: string;
-}
-
-interface TankImages {
-  [key: string]: File;
-}
 
 export default function NewPost() {
   const router = useRouter();
@@ -50,41 +17,45 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
-  const [tanks, setTanks] = useState<Tank[]>([]);
-  const [tankMeasurements, setTankMeasurements] = useState<TankMeasurements>(
-    {}
+  const [numMaquininhas, setNumMaquininhas] = useState(2);
+  const [maquininhasImages, setMaquininhasImages] = useState<File[]>([]);
+  const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
+    []
   );
-  const [tankImages, setTankImages] = useState<TankImages>({});
-  const [tankFileNames, setTankFileNames] = useState({});
-  const [fileInputRefs, setFileInputRefs] = useState({});
 
-  const handleMeasurementChange = (tankNumber: string, value: string) => {
-    setTankMeasurements((prev) => ({ ...prev, [tankNumber]: value }));
-  };
+  const maquininhasRefs = useRef([]);
+  maquininhasRefs.current = Array(numMaquininhas)
+    .fill(null)
+    .map((_, i) => maquininhasRefs.current[i] || createRef());
 
-  const handleImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    tankNumber: string
+  const handleNumMaquininhasChange = (
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setTankImages((prev) => ({
-        ...prev,
-        [tankNumber]: file, // Armazenando o objeto File
-      }));
-      setTankFileNames((prev) => ({ ...prev, [tankNumber]: file.name }));
-    }
+    let value = parseInt(event.target.value, 10);
+    value = isNaN(value) ? 2 : value;
+    value = value < 2 ? 2 : value;
+    setNumMaquininhas(value);
   };
 
-  useEffect(() => {
-    const refs = tanks.reduce((acc, tank) => {
-      // @ts-ignore
-      acc[tank.tankNumber] = React.createRef();
-      return acc;
-    }, {});
-    setFileInputRefs(refs);
-  }, [tanks]);
+  const handleImageChange =
+    (index: string | number | undefined) =>
+    (event: { target: { files: any[] } }) => {
+      const file = event.target.files[0];
+      if (file) {
+        setMaquininhasImages((prev) => {
+          const newImages = [...prev];
+          // @ts-ignore
+          newImages[index] = file;
+          return newImages;
+        });
+        setMaquininhasFileNames((prev) => {
+          const newFileNames = [...prev];
+          // @ts-ignore
+          newFileNames[index] = file.name;
+          return newFileNames;
+        });
+      }
+    };
 
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
@@ -98,7 +69,6 @@ export default function NewPost() {
 
           querySnapshot.forEach((doc) => {
             const postData = doc.data();
-            setTanks(postData.tanks || []);
           });
         } catch (error) {
           console.error("Error fetching post details:", error);
@@ -109,7 +79,7 @@ export default function NewPost() {
     }
   }, []);
 
-  const saveMeasurement = async () => {
+  const savePhotoMachines = async () => {
     let missingField = "";
     const today = new Date().toISOString().slice(0, 10);
 
@@ -119,6 +89,8 @@ export default function NewPost() {
       return;
     } else if (!time) missingField = "Hora";
     else if (!managerName) missingField = "Nome do Gerente";
+    else if (maquininhasImages.length === 0)
+      missingField = "Preço dos concorrentes";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -132,61 +104,54 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "medicao-tanques-14h"),
+      where("id", "==", "preco-concorrentes-22h"),
       where("userName", "==", userName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A medição dos tanques das 14h já foi feita hoje!");
+      toast.error("O preço dos concorrentes das 22h já foi feito hoje!");
       return;
     }
 
-    const measurementData: MeasurementData = {
+    const photoMachinesData = {
       date,
       time,
       managerName,
       userName,
       postName,
-      measurements: [],
-      id: "medicao-tanques-14h",
+      images: [],
+      id: "preco-concorrentes-22h",
     };
 
-    for (const tank of tanks) {
-      const tankData = {
-        tankNumber: tank.tankNumber,
-        measurement: tankMeasurements[tank.tankNumber] || "",
-        imageUrl: "",
-      };
-
-      const imageFile = tankImages[tank.tankNumber];
-      if (imageFile instanceof File) {
-        try {
-          const imageUrl = await uploadImageAndGetUrl(
-            imageFile,
-            `tankMeasurements/${tank.tankNumber}/${
-              imageFile.name
-            }_${Date.now()}`
-          );
-          tankData.imageUrl = imageUrl;
-        } catch (error) {
-          console.error("Erro ao fazer upload da imagem do tanque: ", error);
-          toast.error(`Erro ao salvar a imagem do tanque ${tank.tankNumber}.`);
-          return;
-        }
-      }
-
-      measurementData.measurements.push(tankData);
-    }
+    // Processamento paralelo dos uploads de imagens
+    const uploadPromises = maquininhasImages.map((imageFile, index) =>
+      uploadImageAndGetUrl(
+        imageFile,
+        `competitorsPrice/${date}/${imageFile.name}_${Date.now()}`
+      ).then((imageUrl) => {
+        return {
+          fileName: maquininhasFileNames[index],
+          imageUrl,
+        };
+      })
+    );
 
     try {
-      const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
-      console.log("Medição salva com ID: ", docRef.id);
-      toast.success("Medição salva com sucesso!");
-      router.push("/manager-fourteen-routine");
+      const images = await Promise.all(uploadPromises);
+      // @ts-ignore
+      photoMachinesData.images = images;
+
+      const docRef = await addDoc(
+        collection(db, "MANAGERS"),
+        photoMachinesData
+      );
+      console.log("Preço dos concorrentes salvo com ID: ", docRef.id);
+      toast.success("Preço dos concorrentes salvo com sucesso!");
+      router.push("/manager-twenty-two-routine");
     } catch (error) {
-      console.error("Erro ao salvar os dados da medição: ", error);
-      toast.error("Erro ao salvar a medição.");
+      console.error("Erro ao salvar o preço dos concorrentes: ", error);
+      toast.error("Erro ao salvar o preço dos concorrentes.");
     }
   };
 
@@ -215,7 +180,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Medição de tanques 14h</p>
+            <p className={styles.BudgetTitle}>Preço dos concorrentes 22h</p>
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton}>
                 <img
@@ -223,15 +188,15 @@ export default function NewPost() {
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={saveMeasurement}>
-                  Cadastrar medição
+                <span className={styles.buttonText} onClick={savePhotoMachines}>
+                  Cadastrar preços
                 </span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações da medição
+            Informe abaixo as informações dos preços dos concorrentes
           </p>
 
           <div className={styles.userContent}>
@@ -273,63 +238,45 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Número de imagens</p>
+                  <input
+                    type="number"
+                    className={styles.Field}
+                    value={numMaquininhas}
+                    onChange={handleNumMaquininhasChange}
+                    placeholder=""
+                  />
+                </div>
               </div>
 
-              {tanks.map((tank) => (
-                <>
-                  <p className={styles.titleTank}>
-                    Tanque {tank.tankNumber} - {tank.capacity}L ({tank.product})
+              {Array.from({ length: numMaquininhas }, (_, index) => (
+                <div key={index} className={styles.InputField}>
+                  <p className={styles.FieldLabel}>
+                    Imagem dos preços {index + 1}
                   </p>
-
-                  <div key={tank.tankNumber} className={styles.InputContainer}>
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>Medição em cm</p>
-                      <input
-                        type="number"
-                        // @ts-ignore
-                        value={tankMeasurements[tank.tankNumber] || ""}
-                        onChange={(e) =>
-                          handleMeasurementChange(
-                            tank.tankNumber,
-                            e.target.value
-                          )
-                        }
-                        className={styles.Field}
-                      />
-                    </div>
-
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>Foto da medição</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        // @ts-ignore
-                        ref={fileInputRefs[tank.tankNumber]}
-                        onChange={(event) =>
-                          handleImageChange(event, tank.tankNumber)
-                        }
-                      />
-                      <button
-                        onClick={() =>
-                          // @ts-ignore
-
-                          fileInputRefs[tank.tankNumber].current &&
-                          // @ts-ignore
-
-                          fileInputRefs[tank.tankNumber].current.click()
-                        }
-                        className={styles.MidiaField}
-                      >
-                        Carregue sua foto
-                      </button>
-                    </div>
-                  </div>
-                  {tankImages[tank.tankNumber] && (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    // @ts-ignore
+                    ref={(el) => (maquininhasRefs.current[index] = el)}
+                    // @ts-ignore
+                    onChange={handleImageChange(index)}
+                  />
+                  <button
+                    // @ts-ignore
+                    onClick={() => maquininhasRefs.current[index]?.click()}
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua foto
+                  </button>
+                  {maquininhasImages[index] && (
                     <div>
                       <img
-                        src={URL.createObjectURL(tankImages[tank.tankNumber])}
-                        alt="Visualização da imagem"
+                        src={URL.createObjectURL(maquininhasImages[index])}
+                        alt={`Preview da maquininha ${index + 1}`}
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
@@ -338,18 +285,15 @@ export default function NewPost() {
                         }}
                         onLoad={() =>
                           // @ts-ignore
-                          URL.revokeObjectURL(tankImages[tank.tankNumber])
+                          URL.revokeObjectURL(maquininhasImages[index])
                         }
                       />
                       <p className={styles.fileName}>
-                        {
-                          //@ts-ignore
-                          tankFileNames[tank.tankNumber]
-                        }
+                        {maquininhasFileNames[index]}
                       </p>
                     </div>
                   )}
-                </>
+                </div>
               ))}
             </div>
           </div>

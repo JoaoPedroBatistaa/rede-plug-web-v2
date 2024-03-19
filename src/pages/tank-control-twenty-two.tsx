@@ -32,23 +32,13 @@ export default function NewPost() {
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
 
-  const handleEtanolImageChange = (
+  const handleEtanolFileChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files ? event.target.files[0] : null;
     if (file) {
-      setEtanolImage(file);
+      setEtanolImage(file); // Consider renaming this state to setEtanolFile
       setEtanolFileName(file.name);
-    }
-  };
-
-  const handleGcImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setGcImage(file);
-      setGcFileName(file.name);
     }
   };
 
@@ -74,7 +64,7 @@ export default function NewPost() {
     }
   }, []);
 
-  const saveFuelTest = async () => {
+  const saveFourthCashier = async () => {
     let missingField = "";
     const today = new Date().toISOString().slice(0, 10);
 
@@ -84,8 +74,7 @@ export default function NewPost() {
       return;
     } else if (!time) missingField = "Hora";
     else if (!managerName) missingField = "Nome do Gerente";
-    else if (!etanolImage && !gcImage)
-      missingField = "Fotos do Teste dos Combustíveis";
+    else if (!etanolImage) missingField = "Arquivo do controle de tanque"; // Consider changing the name to etanolFile for clarity
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -95,70 +84,66 @@ export default function NewPost() {
     const userName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
 
-    const managersRef = collection(db, "MANAGERS");
+    const fourthCashierRef = collection(db, "MANAGERS");
     const q = query(
-      managersRef,
+      fourthCashierRef,
       where("date", "==", date),
       where("userName", "==", userName),
-      where("id", "==", "teste-combustiveis-6h")
+      where("id", "==", "controle-tanque-22h")
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("O teste dos combustíveis das 6h já foi cadastrado hoje!");
+      toast.error("O controle de tanque das 22h já foi cadastrado hoje!");
       return;
     }
 
-    const fuelTestData = {
+    const fourthCashierData = {
       date,
       time,
       managerName,
       userName,
       postName,
-      images: [],
-      id: "teste-combustiveis-6h",
+      files: [], // Changed from images to files
+      id: "controle-tanque-22h",
     };
 
-    // Preparar os uploads das imagens
+    // Preparar os uploads dos arquivos
     const uploadPromises = [];
     if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `fuelTests/${date}/etanol_${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
+      // Consider changing the name to etanolFile for clarity
+      const etanolPromise = uploadFileAndGetUrl(
+        etanolImage, // Consider changing the name to etanolFile
+        `fourthCashier/${date}/etanol_${etanolFileName}_${Date.now()}`
+      ).then((fileUrl) => ({
         type: "Etanol",
-        imageUrl,
+        fileUrl,
         fileName: etanolFileName,
       }));
       uploadPromises.push(etanolPromise);
     }
 
-    if (gcImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        gcImage,
-        `fuelTests/${date}/gc_${gcFileName}_${Date.now()}`
-      ).then((imageUrl) => ({ type: "GC", imageUrl, fileName: gcFileName }));
-      uploadPromises.push(gcPromise);
-    }
-
     try {
-      const images = await Promise.all(uploadPromises);
+      const files = await Promise.all(uploadPromises);
       // @ts-ignore
-      fuelTestData.images = images;
+      fourthCashierData.files = files;
 
-      const docRef = await addDoc(collection(db, "MANAGERS"), fuelTestData);
-      console.log("Teste dos combustíveis salvo com ID: ", docRef.id);
-      toast.success("Teste dos combustíveis salvo com sucesso!");
-      router.push("/manager-six-routine");
+      const docRef = await addDoc(
+        collection(db, "MANAGERS"),
+        fourthCashierData
+      );
+      console.log("Controle de tanque salvo com ID: ", docRef.id);
+      toast.success("Controle de tanque salvo com sucesso!");
+      router.push("/manager-twenty-two-routine");
     } catch (error) {
-      console.error("Erro ao salvar o teste dos combustíveis: ", error);
-      toast.error("Erro ao salvar o teste dos combustíveis.");
+      console.error("Erro ao salvar o controle de tanque: ", error);
+      toast.error("Erro ao salvar o controle de tanque.");
     }
   };
 
-  async function uploadImageAndGetUrl(imageFile: File, path: string) {
+  async function uploadFileAndGetUrl(file: File, path: string) {
     const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, imageFile);
+    const uploadResult = await uploadBytes(storageRef, file);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
   }
@@ -178,7 +163,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Teste dos combustíveis 6h</p>
+            <p className={styles.BudgetTitle}>Controle de tanque 22h</p>
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton}>
                 <img
@@ -186,15 +171,15 @@ export default function NewPost() {
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={saveFuelTest}>
-                  Cadastrar teste
+                <span className={styles.buttonText} onClick={saveFourthCashier}>
+                  Cadastrar controle
                 </span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações dos testes dos combustíveis
+            Informe abaixo as informações do controle de tanque
           </p>
 
           <div className={styles.userContent}>
@@ -239,73 +224,27 @@ export default function NewPost() {
               </div>
 
               <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Imagem do teste de Etanol</p>
+                <p className={styles.FieldLabel}>
+                  Arquivo do controle de tanque
+                </p>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept=".pdf,.xlsx"
                   style={{ display: "none" }}
                   ref={etanolRef}
-                  onChange={handleEtanolImageChange}
+                  onChange={handleEtanolFileChange}
                 />
+
                 <button
                   // @ts-ignore
                   onClick={() => etanolRef.current && etanolRef.current.click()}
                   className={styles.MidiaField}
                 >
-                  Carregue sua foto
+                  Carregue seu arquivo
                 </button>
                 {etanolImage && (
                   <div>
-                    <img
-                      src={URL.createObjectURL(etanolImage)}
-                      alt="Preview do teste de Etanol"
-                      style={{
-                        maxWidth: "17.5rem",
-                        height: "auto",
-                        border: "1px solid #939393",
-                        borderRadius: "20px",
-                      }}
-                      // @ts-ignore
-                      onLoad={() => URL.revokeObjectURL(etanolImage)}
-                    />
                     <p className={styles.fileName}>{etanolFileName}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>
-                  Imagem do teste de Gasolina Comum (GC)
-                </p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  ref={gcRef}
-                  onChange={handleGcImageChange}
-                />
-                <button
-                  // @ts-ignore
-                  onClick={() => gcRef.current && gcRef.current.click()}
-                  className={styles.MidiaField}
-                >
-                  Carregue sua foto
-                </button>
-                {gcImage && (
-                  <div>
-                    <img
-                      src={URL.createObjectURL(gcImage)}
-                      alt="Preview do teste de Gasolina Comum"
-                      style={{
-                        maxWidth: "17.5rem",
-                        height: "auto",
-                        border: "1px solid #939393",
-                        borderRadius: "20px",
-                      }}
-                      // @ts-ignore
-                      onLoad={() => URL.revokeObjectURL(gcImage)}
-                    />
-                    <p className={styles.fileName}>{gcFileName}</p>
                   </div>
                 )}
               </div>

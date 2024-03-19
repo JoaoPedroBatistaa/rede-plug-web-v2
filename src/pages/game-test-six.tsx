@@ -98,7 +98,7 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "medicao-tanques-6h"),
+      where("userName", "==", userName),
       where("id", "==", "teste-game-proveta-6h")
     );
 

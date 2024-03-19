@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { createRef, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { db, storage } from "../../firebase";
 
 export default function NewPost() {
@@ -17,43 +17,22 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
-  const [numMaquininhas, setNumMaquininhas] = useState(0);
+  const [numMaquininhas, setNumMaquininhas] = useState("");
   const [maquininhasImages, setMaquininhasImages] = useState<File[]>([]);
   const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
     []
   );
 
-  const maquininhasRefs = useRef([]);
-  maquininhasRefs.current = Array(numMaquininhas)
-    .fill(null)
-    .map((_, i) => maquininhasRefs.current[i] || createRef());
-
   const handleNumMaquininhasChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = parseInt(event.target.value, 10);
-    setNumMaquininhas(isNaN(value) ? 0 : value);
+    const value = event.target.value;
+    // Permite apenas números, pontos e vírgulas
+    if (/^[0-9.,]*$/.test(value)) {
+      // @ts-ignore
+      setNumMaquininhas(value); // Atualiza o estado com o valor permitido
+    }
   };
-
-  const handleImageChange =
-    (index: string | number | undefined) =>
-    (event: { target: { files: any[] } }) => {
-      const file = event.target.files[0];
-      if (file) {
-        setMaquininhasImages((prev) => {
-          const newImages = [...prev];
-          // @ts-ignore
-          newImages[index] = file;
-          return newImages;
-        });
-        setMaquininhasFileNames((prev) => {
-          const newFileNames = [...prev];
-          // @ts-ignore
-          newFileNames[index] = file.name;
-          return newFileNames;
-        });
-      }
-    };
 
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
@@ -87,8 +66,7 @@ export default function NewPost() {
       return;
     } else if (!time) missingField = "Hora";
     else if (!managerName) missingField = "Nome do Gerente";
-    else if (maquininhasImages.length === 0)
-      missingField = "Fotos das Maquininhas";
+    else if (!numMaquininhas) missingField = "Quantidade vendida";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -102,13 +80,15 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "medicao-tanques-6h"),
+      where("id", "==", "quantidade-vendida-dia-anterior-22h"),
       where("userName", "==", userName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A foto das maquininhas das 6h já foi feita hoje!");
+      toast.error(
+        "A quantidade vendida do dia anterior das 22h já foi feita hoje!"
+      );
       return;
     }
 
@@ -118,15 +98,15 @@ export default function NewPost() {
       managerName,
       userName,
       postName,
-      images: [],
-      id: "foto-maquininhas-6h",
+      qtd: numMaquininhas,
+      id: "quantidade-vendida-dia-anterior-22h",
     };
 
     // Processamento paralelo dos uploads de imagens
     const uploadPromises = maquininhasImages.map((imageFile, index) =>
       uploadImageAndGetUrl(
         imageFile,
-        `photoMachines/${date}/${imageFile.name}_${Date.now()}`
+        `competitorsPrice/${date}/${imageFile.name}_${Date.now()}`
       ).then((imageUrl) => {
         return {
           fileName: maquininhasFileNames[index],
@@ -144,12 +124,12 @@ export default function NewPost() {
         collection(db, "MANAGERS"),
         photoMachinesData
       );
-      console.log("Fotos das maquininhas salvas com ID: ", docRef.id);
-      toast.success("Fotos das maquininhas salvas com sucesso!");
-      router.push("/manager-six-routine");
+      console.log("Preço dos concorrentes salvo com ID: ", docRef.id);
+      toast.success("Preço dos concorrentes salvo com sucesso!");
+      router.push("/manager-twenty-two-routine");
     } catch (error) {
-      console.error("Erro ao salvar as fotos das maquininhas: ", error);
-      toast.error("Erro ao salvar as fotos das maquininhas.");
+      console.error("Erro ao salvar o preço dos concorrentes: ", error);
+      toast.error("Erro ao salvar o preço dos concorrentes.");
     }
   };
 
@@ -178,7 +158,9 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Foto das maquininhas 6h</p>
+            <p className={styles.BudgetTitle}>
+              Quantidade vendida no dia anterior 22h
+            </p>
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton}>
                 <img
@@ -187,14 +169,14 @@ export default function NewPost() {
                   className={styles.buttonImage}
                 />
                 <span className={styles.buttonText} onClick={savePhotoMachines}>
-                  Cadastrar fotos
+                  Cadastrar quantidade
                 </span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações das maquininhas
+            Informe abaixo as informações da quantidade vendida no dia anterior
           </p>
 
           <div className={styles.userContent}>
@@ -238,9 +220,9 @@ export default function NewPost() {
                 </div>
 
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Número de maquininhas</p>
+                  <p className={styles.FieldLabel}>Quantidade vendida</p>
                   <input
-                    type="number"
+                    type="text"
                     className={styles.Field}
                     value={numMaquininhas}
                     onChange={handleNumMaquininhasChange}
@@ -248,51 +230,6 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-
-              {Array.from({ length: numMaquininhas }, (_, index) => (
-                <div key={index} className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Foto da maquininha {index + 1}
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    // @ts-ignore
-                    ref={(el) => (maquininhasRefs.current[index] = el)}
-                    // @ts-ignore
-                    onChange={handleImageChange(index)}
-                  />
-                  <button
-                    // @ts-ignore
-                    onClick={() => maquininhasRefs.current[index]?.click()}
-                    className={styles.MidiaField}
-                  >
-                    Carregue sua foto
-                  </button>
-                  {maquininhasImages[index] && (
-                    <div>
-                      <img
-                        src={URL.createObjectURL(maquininhasImages[index])}
-                        alt={`Preview da maquininha ${index + 1}`}
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                        onLoad={() =>
-                          // @ts-ignore
-                          URL.revokeObjectURL(maquininhasImages[index])
-                        }
-                      />
-                      <p className={styles.fileName}>
-                        {maquininhasFileNames[index]}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
             </div>
           </div>
 

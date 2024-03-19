@@ -4,7 +4,7 @@ import styles from "../styles/Requests.module.scss";
 
 import HeaderPosts from "@/components/HeaderTwentyOneRoutine";
 import SideMenuHome from "@/components/SideMenuHome";
-import TablePosts from "@/components/TableTwentyOneRoutine";
+import TablePosts from "@/components/TableTwentyTwoRoutine";
 
 import { ChangeEvent, useEffect, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
