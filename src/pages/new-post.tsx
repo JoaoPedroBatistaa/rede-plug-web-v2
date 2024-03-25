@@ -10,8 +10,12 @@ import "react-toastify/dist/ReactToastify.css";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
+import LoadingOverlay from "@/components/Loading";
+
 export default function NewPost() {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -32,12 +36,38 @@ export default function NewPost() {
       capacity: "",
       product: "",
       saleDefense: "",
-      tableParam01: "",
-      tableParam02: "",
+      tankOption: "",
     },
   ]);
   const [nozzles, setNozzles] = useState([{ nozzleNumber: "", product: "" }]);
   const [managers, setManagers] = useState([{ managerName: "", contact: "" }]);
+  const [tankOptions, setTankOptions] = useState([]);
+
+  useEffect(() => {
+    const loadConversionData = async () => {
+      const filePath = `/data/conversion.json`;
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        console.error(
+          "Falha ao carregar o arquivo de conversão",
+          response.statusText
+        );
+        return;
+      }
+      const conversionData = await response.json();
+
+      const tankSet = new Set(
+        conversionData.map((item: { Tanque: any }) => item.Tanque)
+      );
+      // @ts-ignore
+      const uniqueTanks = Array.from(tankSet).sort((a, b) => a - b);
+
+      // @ts-ignore
+      setTankOptions(uniqueTanks);
+    };
+
+    loadConversionData();
+  }, []);
 
   const addTank = () => {
     setTanks([
@@ -47,8 +77,7 @@ export default function NewPost() {
         capacity: "",
         product: "",
         saleDefense: "",
-        tableParam01: "",
-        tableParam02: "",
+        tankOption: "",
       },
     ]);
   };
@@ -153,8 +182,11 @@ export default function NewPost() {
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     if (!validateForm()) {
       toast.error("Por favor, preencha todos os campos obrigatórios.");
+      setIsLoading(false);
+
       return;
     }
 
@@ -197,6 +229,7 @@ export default function NewPost() {
 
       <HeaderNewProduct></HeaderNewProduct>
       <ToastContainer />
+      <LoadingOverlay isLoading={isLoading} />
 
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
@@ -362,35 +395,21 @@ export default function NewPost() {
 
                   <div className={styles.InputContainer}>
                     <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>Tabela Param 01</p>
-                      <input
-                        type="number"
-                        className={styles.Field}
-                        value={tank.tableParam01}
+                      <p className={styles.FieldLabel}>Opção de Tanque</p>
+                      <select
+                        className={styles.SelectField}
+                        value={tank.tankOption}
                         onChange={(e) =>
-                          handleTankChange(
-                            index,
-                            "tableParam01",
-                            e.target.value
-                          )
+                          handleTankChange(index, "tankOption", e.target.value)
                         }
-                      />
-                    </div>
-
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>Tabela Param 02</p>
-                      <input
-                        type="text"
-                        className={styles.Field}
-                        value={tank.tableParam02}
-                        onChange={(e) =>
-                          handleTankChange(
-                            index,
-                            "tableParam02",
-                            e.target.value
-                          )
-                        }
-                      />
+                      >
+                        <option value="">Selecione um tanque</option>
+                        {tankOptions.map((option) => (
+                          <option key={option} value={option}>
+                            Tanque {option}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <button onClick={addTank} className={styles.NewButton}>

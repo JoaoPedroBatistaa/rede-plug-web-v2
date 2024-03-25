@@ -11,17 +11,20 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
 
+import LoadingOverlay from "@/components/Loading";
+
 interface Tank {
   tankNumber: string;
   capacity: string;
   product: string;
   saleDefense: string;
-  tableParam01: string;
-  tableParam02: string;
+  tankOption: string;
 }
 
 export default function NewPost() {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -55,6 +58,55 @@ export default function NewPost() {
   const [truckPlateImage, setTruckPlateImage] = useState("");
   const [truckPlateFileName, setTruckPlateFileName] = useState("");
   const truckPlateRef = useRef<HTMLInputElement>(null);
+
+  const [conversionData, setConversionData] = useState([]);
+  const [initialLiters, setInitialLiters] = useState(null);
+  const [finalLiters, setFinalLiters] = useState(null);
+  const [totalDescarregado, setTotalDescarregado] = useState("");
+
+  const [hydrationValue, setHydrationValue] = useState("");
+  const [hydrationImage, setHydrationImage] = useState("");
+  const [hydrationFileName, setHydrationFileName] = useState("");
+  const hydrationRef = useRef(null);
+
+  const [showHydrationField, setShowHydrationField] = useState(false);
+
+  useEffect(() => {
+    const tank = tanks.find((t) => t.tankNumber === selectedTank);
+    if (
+      tank &&
+      selectedProduct === "SECO" &&
+      tank.product !== "GC" &&
+      tank.product !== "GA"
+    ) {
+      setShowHydrationField(true);
+    } else {
+      setShowHydrationField(false);
+    }
+  }, [selectedProduct, selectedTank, tanks]);
+
+  useEffect(() => {
+    const loadConversionData = async () => {
+      const filePath = `/data/conversion.json`;
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        console.error(
+          "Falha ao carregar o arquivo de conversão",
+          response.statusText
+        );
+        return;
+      }
+      const data = await response.json();
+
+      setConversionData(data);
+    };
+
+    loadConversionData();
+  }, []);
+
+  useEffect(() => {
+    updateLitersAndTotal();
+  }, [selectedTank, initialMeasurementCm, finalMeasurementCm, conversionData]);
 
   useEffect(() => {
     const tank = tanks.find((t) => t.tankNumber === selectedTank);
@@ -107,6 +159,57 @@ export default function NewPost() {
     }
   }, []);
 
+  const findLitersForMeasurement = (
+    tankOption: string,
+    measurementCm: string
+  ) => {
+    const measurementCmNumber = Number(measurementCm);
+
+    const tankConversionData = conversionData.filter(
+      // @ts-ignore
+      (data) => data.Tanque === tankOption
+    );
+
+    const conversionRecord = tankConversionData.find(
+      (data) => data["Regua (cm)"] === measurementCmNumber
+    );
+
+    // @ts-ignore
+    return conversionRecord ? conversionRecord.Litros : null;
+  };
+
+  const updateLitersAndTotal = () => {
+    const selectedTankObject = tanks.find(
+      (tank) => tank.tankNumber === selectedTank
+    );
+    if (!selectedTankObject) {
+      setTotalDescarregado("Tanque não selecionado ou não encontrado.");
+      return;
+    }
+
+    const tankOption = selectedTankObject.tankOption;
+    console.log(tankOption);
+
+    const initialLitersValue = findLitersForMeasurement(
+      tankOption,
+      initialMeasurementCm
+    );
+    const finalLitersValue = findLitersForMeasurement(
+      tankOption,
+      finalMeasurementCm
+    );
+
+    setInitialLiters(initialLitersValue);
+    setFinalLiters(finalLitersValue);
+
+    if (initialLitersValue !== null && finalLitersValue !== null) {
+      const diff = finalLitersValue - initialLitersValue;
+      setTotalDescarregado(`Total descarregado: ${diff} litros`);
+    } else {
+      setTotalDescarregado("Medições incompletas ou tanque não selecionado.");
+    }
+  };
+
   const triggerFileInput = (ref: React.RefObject<HTMLInputElement>) => {
     ref.current?.click();
   };
@@ -125,6 +228,8 @@ export default function NewPost() {
   };
 
   const saveDischarge = async () => {
+    setIsLoading(true);
+
     let missingField = "";
     if (!date) missingField = "Data";
     else if (!time) missingField = "Hora";
@@ -144,6 +249,7 @@ export default function NewPost() {
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
+      setIsLoading(false);
       return;
     }
 
@@ -181,6 +287,11 @@ export default function NewPost() {
       observations,
       makerName,
       postName,
+      hydration: {
+        value: hydrationValue,
+        // @ts-ignore
+        image: hydrationRef.current?.files[0],
+      },
     };
 
     await uploadImagesAndUpdateData(dischargeData);
@@ -201,6 +312,7 @@ export default function NewPost() {
     time?: string;
     driverName?: string;
     truckPlate: any;
+    hydration: any;
     tankNumber?: string;
     product?: string;
     initialMeasurement: any;
@@ -263,6 +375,15 @@ export default function NewPost() {
       data.truckPlate = fileUrl;
     }
 
+    if (data.hydration && data.hydration.image instanceof File) {
+      const fileUrl = await uploadImageAndGetUrl(
+        data.hydration.image,
+        `dischargeImages/hydration/${data.hydration.image.name}_${Date.now()}`
+      );
+      data.hydration.fileUrl = fileUrl;
+      delete data.hydration.image;
+    }
+
     return data;
   };
 
@@ -277,6 +398,7 @@ export default function NewPost() {
 
       <HeaderNewProduct></HeaderNewProduct>
       <ToastContainer />
+      <LoadingOverlay isLoading={isLoading} />
 
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
@@ -415,6 +537,61 @@ export default function NewPost() {
                   </select>
                 </div>
               </div>
+
+              {showHydrationField && (
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Hidratação (Número)</p>
+                    <input
+                      type="number"
+                      className={styles.Field}
+                      value={hydrationValue}
+                      onChange={(e) => setHydrationValue(e.target.value)}
+                      placeholder=""
+                    />
+                  </div>
+
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Hidratação (Mídia)</p>
+                    <input
+                      ref={hydrationRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(event) =>
+                        handleFileChange(
+                          event,
+                          setHydrationImage,
+                          setHydrationFileName
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() => triggerFileInput(hydrationRef)}
+                      className={styles.MidiaField}
+                    >
+                      Carregue sua foto
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {hydrationImage && (
+                <div>
+                  <img
+                    src={hydrationImage}
+                    alt="Visualização da imagem de hidratação"
+                    style={{
+                      maxWidth: "17.5rem",
+                      height: "auto",
+                      border: "1px solid #939393",
+                      borderRadius: "20px",
+                    }}
+                  />
+                  <p className={styles.fileName}>{hydrationFileName}</p>
+                </div>
+              )}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Medição inicial (cm)</p>
@@ -522,6 +699,8 @@ export default function NewPost() {
                   <p className={styles.fileName}>{finalMeasurementFileName}</p>
                 </div>
               )}
+
+              <div className={styles.totalDischarge}>{totalDescarregado}</div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

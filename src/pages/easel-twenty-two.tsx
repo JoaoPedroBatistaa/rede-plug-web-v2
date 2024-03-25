@@ -11,8 +11,12 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { createRef, useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
 
+import LoadingOverlay from "@/components/Loading";
+
 export default function NewPost() {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -80,12 +84,16 @@ export default function NewPost() {
   }, []);
 
   const savePhotoMachines = async () => {
+    setIsLoading(true);
+
     let missingField = "";
     const today = new Date().toISOString().slice(0, 10);
 
     if (!date) missingField = "Data";
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
+      setIsLoading(false);
+
       return;
     } else if (!time) missingField = "Hora";
     else if (!managerName) missingField = "Nome do Gerente";
@@ -94,6 +102,8 @@ export default function NewPost() {
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
+      setIsLoading(false);
+
       return;
     }
 
@@ -111,6 +121,8 @@ export default function NewPost() {
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       toast.error("A verificação dos cavaletes das 22h já foi feita hoje!");
+      setIsLoading(false);
+
       return;
     }
 
@@ -176,6 +188,7 @@ export default function NewPost() {
 
       <HeaderNewProduct></HeaderNewProduct>
       <ToastContainer />
+      <LoadingOverlay isLoading={isLoading} />
 
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>

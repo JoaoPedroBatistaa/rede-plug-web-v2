@@ -51,6 +51,21 @@
   font-weight: medium;
 }
 
+.totalDischarge {
+  font-family: "Outfit", sans-serif;
+  font-size: 20px;
+  color: #0bb07b;
+  font-weight: medium;
+
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    margin-top: 1.5rem;
+    max-width: 16rem;
+    font-size: 18px;
+  }
+}
+
 .FinishButton {
   width: 23em;
   height: 2.7rem;
@@ -91,7 +106,7 @@
   border: none;
   cursor: pointer;
 
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 
   .buttonText {
     display: block; // Mostra o texto por padrão

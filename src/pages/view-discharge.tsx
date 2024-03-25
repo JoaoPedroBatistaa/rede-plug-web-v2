@@ -14,7 +14,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db } from "../../firebase";
 
 interface Tank {
@@ -22,8 +22,7 @@ interface Tank {
   capacity: string;
   product: string;
   saleDefense: string;
-  tableParam01: string;
-  tableParam02: string;
+  tankOption: string;
 }
 
 export default function NewPost() {
@@ -57,6 +56,55 @@ export default function NewPost() {
   const [arrowSelection, setArrowSelection] = useState("");
   const [arrowPosition, setArrowPosition] = useState("");
 
+  const [conversionData, setConversionData] = useState([]);
+  const [initialLiters, setInitialLiters] = useState(null);
+  const [finalLiters, setFinalLiters] = useState(null);
+  const [totalDescarregado, setTotalDescarregado] = useState("");
+
+  const [hydrationValue, setHydrationValue] = useState("");
+  const [hydrationImage, setHydrationImage] = useState("");
+  const [hydrationFileName, setHydrationFileName] = useState("");
+  const hydrationRef = useRef(null);
+
+  const [showHydrationField, setShowHydrationField] = useState(false);
+
+  useEffect(() => {
+    const tank = tanks.find((t) => t.tankNumber === selectedTank);
+    if (
+      tank &&
+      selectedProduct === "SECO" &&
+      tank.product !== "GC" &&
+      tank.product !== "GA"
+    ) {
+      setShowHydrationField(true);
+    } else {
+      setShowHydrationField(false);
+    }
+  }, [selectedProduct, selectedTank, tanks]);
+
+  useEffect(() => {
+    const loadConversionData = async () => {
+      const filePath = `/data/conversion.json`;
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        console.error(
+          "Falha ao carregar o arquivo de conversão",
+          response.statusText
+        );
+        return;
+      }
+      const data = await response.json();
+
+      setConversionData(data);
+    };
+
+    loadConversionData();
+  }, []);
+
+  useEffect(() => {
+    updateLitersAndTotal();
+  }, [selectedTank, initialMeasurementCm, finalMeasurementCm, conversionData]);
+
   useEffect(() => {
     const fetchDischargeData = async () => {
       if (!id) return;
@@ -83,6 +131,8 @@ export default function NewPost() {
           setSealImage(data.seal.fileUrl);
           setArrowSelection(data.arrow.selection);
           setArrowPosition(data.arrow.position);
+          setHydrationValue(data.hydration.value);
+          setHydrationImage(data.hydration.fileUrl);
         } else {
           console.log("No such document!");
           toast.error("Descarga não encontrada.");
@@ -142,6 +192,57 @@ export default function NewPost() {
       fetchPostDetails();
     }
   }, []);
+
+  const findLitersForMeasurement = (
+    tankOption: string,
+    measurementCm: string
+  ) => {
+    const measurementCmNumber = Number(measurementCm);
+
+    const tankConversionData = conversionData.filter(
+      // @ts-ignore
+      (data) => data.Tanque === tankOption
+    );
+
+    const conversionRecord = tankConversionData.find(
+      (data) => data["Regua (cm)"] === measurementCmNumber
+    );
+
+    // @ts-ignore
+    return conversionRecord ? conversionRecord.Litros : null;
+  };
+
+  const updateLitersAndTotal = () => {
+    const selectedTankObject = tanks.find(
+      (tank) => tank.tankNumber === selectedTank
+    );
+    if (!selectedTankObject) {
+      setTotalDescarregado("Tanque não selecionado ou não encontrado.");
+      return;
+    }
+
+    const tankOption = selectedTankObject.tankOption;
+    console.log(tankOption);
+
+    const initialLitersValue = findLitersForMeasurement(
+      tankOption,
+      initialMeasurementCm
+    );
+    const finalLitersValue = findLitersForMeasurement(
+      tankOption,
+      finalMeasurementCm
+    );
+
+    setInitialLiters(initialLitersValue);
+    setFinalLiters(finalLitersValue);
+
+    if (initialLitersValue !== null && finalLitersValue !== null) {
+      const diff = finalLitersValue - initialLitersValue;
+      setTotalDescarregado(`Total descarregado: ${diff} litros`);
+    } else {
+      setTotalDescarregado("Medições incompletas ou tanque não selecionado.");
+    }
+  };
 
   return (
     <>
@@ -265,6 +366,38 @@ export default function NewPost() {
                   </select>
                 </div>
               </div>
+
+              {showHydrationField && (
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Hidratação (Número)</p>
+                    <input
+                      type="number"
+                      className={styles.Field}
+                      value={hydrationValue}
+                      onChange={(e) => setHydrationValue(e.target.value)}
+                      placeholder=""
+                    />
+                  </div>
+                </div>
+              )}
+
+              {hydrationImage && (
+                <div>
+                  <img
+                    src={hydrationImage}
+                    alt="Visualização da imagem de hidratação"
+                    style={{
+                      maxWidth: "17.5rem",
+                      height: "auto",
+                      border: "1px solid #939393",
+                      borderRadius: "20px",
+                    }}
+                  />
+                  <p className={styles.fileName}>{hydrationFileName}</p>
+                </div>
+              )}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Medição inicial (cm)</p>
@@ -318,6 +451,8 @@ export default function NewPost() {
                   <p className={styles.fileName}>{finalMeasurementFileName}</p>
                 </div>
               )}
+
+              <div className={styles.totalDischarge}>{totalDescarregado}</div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
