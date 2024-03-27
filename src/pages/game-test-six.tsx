@@ -194,15 +194,13 @@ export default function NewPost() {
               Teste do game na proveta de 1L 6h
             </p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton}>
+              <button className={styles.FinishButton} onClick={saveGameTest}>
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={saveGameTest}>
-                  Cadastrar teste
-                </span>
+                <span className={styles.buttonText}>Cadastrar teste</span>
               </button>
             </div>
           </div>

@@ -195,15 +195,16 @@ export default function NewPost() {
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Verificação dos cavaletes 14h</p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton}>
+              <button
+                className={styles.FinishButton}
+                onClick={savePhotoMachines}
+              >
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={savePhotoMachines}>
-                  Cadastrar fotos
-                </span>
+                <span className={styles.buttonText}>Cadastrar fotos</span>
               </button>
             </div>
           </div>

@@ -193,20 +193,31 @@ export default function NewPost() {
     }
   }, []);
 
-  const findLitersForMeasurement = (
-    tankOption: string,
-    measurementCm: string
-  ) => {
+  // @ts-ignore
+  const findLitersForMeasurement = (tankOption, measurementCm) => {
     const measurementCmNumber = Number(measurementCm);
 
     const tankConversionData = conversionData.filter(
       // @ts-ignore
-      (data) => data.Tanque === tankOption
+      (data) => data.Tanque.toString() === tankOption.toString()
+    );
+
+    console.log(
+      `Dados de conversão filtrados para Tanque ${tankOption}:`,
+      tankConversionData
     );
 
     const conversionRecord = tankConversionData.find(
-      (data) => data["Regua (cm)"] === measurementCmNumber
+      (data) => Number(data["Regua (cm)"]) === measurementCmNumber
     );
+
+    if (conversionRecord) {
+      console.log(`Registro de conversão encontrado:`, conversionRecord);
+    } else {
+      console.log(
+        `Nenhum registro de conversão encontrado para Tanque ${tankOption} e Medição ${measurementCmNumber}`
+      );
+    }
 
     // @ts-ignore
     return conversionRecord ? conversionRecord.Litros : null;
@@ -238,7 +249,7 @@ export default function NewPost() {
 
     if (initialLitersValue !== null && finalLitersValue !== null) {
       const diff = finalLitersValue - initialLitersValue;
-      setTotalDescarregado(`Total descarregado: ${diff} litros`);
+      setTotalDescarregado(`Total descarregado: ${diff.toFixed(2)} litros`);
     } else {
       setTotalDescarregado("Medições incompletas ou tanque não selecionado.");
     }
@@ -343,7 +354,7 @@ export default function NewPost() {
                     {tanks.map((tank, index) => (
                       <option key={index} value={tank.tankNumber}>
                         Tanque {tank.tankNumber} - {tank.capacity}L (
-                        {tank.product})
+                        {tank.product}) - {tank.saleDefense}
                       </option>
                     ))}
                   </select>

@@ -342,15 +342,13 @@ export default function NewPost() {
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Editar posto</p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton}>
+              <button className={styles.FinishButton} onClick={handleSubmit}>
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={handleSubmit}>
-                  Atualizar posto
-                </span>
+                <span className={styles.buttonText}>Atualizar posto</span>
               </button>
             </div>
           </div>

@@ -85,7 +85,7 @@ export default function Home() {
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>
-              © Total Maxx 2023, todos os direitos reservados
+              © Rede Plug 2024, todos os direitos reservados
             </p>
           </div>
         </div>

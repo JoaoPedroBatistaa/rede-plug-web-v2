@@ -175,15 +175,16 @@ export default function NewPost() {
               Quantidade vendida no dia anterior 22h
             </p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton}>
+              <button
+                className={styles.FinishButton}
+                onClick={savePhotoMachines}
+              >
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={savePhotoMachines}>
-                  Cadastrar quantidade
-                </span>
+                <span className={styles.buttonText}>Cadastrar quantidade</span>
               </button>
             </div>
           </div>

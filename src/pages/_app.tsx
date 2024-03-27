@@ -10,7 +10,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MenuProvider>
       <Head>
-        <title>Total Maxx System</title>
+        <title>Rede Plug</title>
         <link rel="icon" href="/fav.png" />
       </Head>
       <SafeComponent {...pageProps} />

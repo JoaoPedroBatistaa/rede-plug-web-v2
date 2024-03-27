@@ -62,8 +62,82 @@ export default function NewPost() {
   const [tankFileNames, setTankFileNames] = useState({});
   const [fileInputRefs, setFileInputRefs] = useState({});
 
-  const handleMeasurementChange = (tankNumber: string, value: string) => {
-    setTankMeasurements((prev) => ({ ...prev, [tankNumber]: value }));
+  const [conversionData, setConversionData] = useState([]);
+  const [tankLiters, setTankLiters] = useState({});
+
+  useEffect(() => {
+    const loadConversionData = async () => {
+      const filePath = `/data/conversion.json`;
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        console.error(
+          "Falha ao carregar o arquivo de conversão",
+          response.statusText
+        );
+        return;
+      }
+      const data = await response.json();
+
+      setConversionData(data);
+      console.log(conversionData);
+    };
+
+    loadConversionData();
+  }, []);
+
+  // @ts-ignore
+  const findLitersForMeasurement = (tankOption, measurementCm) => {
+    const measurementCmNumber = Number(measurementCm);
+
+    const tankConversionData = conversionData.filter(
+      // @ts-ignore
+      (data) => data.Tanque.toString() === tankOption.toString()
+    );
+
+    console.log(
+      `Dados de conversão filtrados para Tanque ${tankOption}:`,
+      tankConversionData
+    );
+
+    const conversionRecord = tankConversionData.find(
+      (data) => Number(data["Regua (cm)"]) === measurementCmNumber
+    );
+
+    if (conversionRecord) {
+      console.log(`Registro de conversão encontrado:`, conversionRecord);
+    } else {
+      console.log(
+        `Nenhum registro de conversão encontrado para Tanque ${tankOption} e Medição ${measurementCmNumber}`
+      );
+    }
+
+    // @ts-ignore
+    return conversionRecord ? conversionRecord.Litros : null;
+  };
+
+  // @ts-ignore
+  const handleMeasurementChange = (tankNumber, measurementCm) => {
+    const selectedTankObject = tanks.find(
+      (tank) => tank.tankNumber === tankNumber
+    );
+    if (!selectedTankObject) {
+      console.error("Tanque não selecionado ou não encontrado.");
+      return;
+    }
+
+    const liters = findLitersForMeasurement(
+      // @ts-ignore
+      selectedTankObject.tankOption,
+      measurementCm
+    );
+
+    setTankMeasurements((prev) => ({
+      ...prev,
+      [tankNumber]: {
+        cm: measurementCm,
+        liters: liters ?? null,
+      },
+    }));
   };
 
   const handleImageChange = (
@@ -75,7 +149,7 @@ export default function NewPost() {
       const file = files[0];
       setTankImages((prev) => ({
         ...prev,
-        [tankNumber]: file, // Armazenando o objeto File
+        [tankNumber]: file,
       }));
       setTankFileNames((prev) => ({ ...prev, [tankNumber]: file.name }));
     }
@@ -230,15 +304,13 @@ export default function NewPost() {
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Medição de tanques 6h</p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton}>
+              <button className={styles.FinishButton} onClick={saveMeasurement}>
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={saveMeasurement}>
-                  Cadastrar medição
-                </span>
+                <span className={styles.buttonText}>Cadastrar medição</span>
               </button>
             </div>
           </div>
@@ -292,6 +364,7 @@ export default function NewPost() {
                 <>
                   <p className={styles.titleTank}>
                     Tanque {tank.tankNumber} - {tank.capacity}L ({tank.product})
+                    - {tank.saleDefense}
                   </p>
 
                   <div key={tank.tankNumber} className={styles.InputContainer}>
@@ -300,7 +373,7 @@ export default function NewPost() {
                       <input
                         type="number"
                         // @ts-ignore
-                        value={tankMeasurements[tank.tankNumber] || ""}
+                        value={tankMeasurements[tank.tankNumber]?.cm || ""}
                         onChange={(e) =>
                           handleMeasurementChange(
                             tank.tankNumber,
@@ -338,6 +411,29 @@ export default function NewPost() {
                       </button>
                     </div>
                   </div>
+
+                  {
+                    // @ts-ignore
+                    tankMeasurements[tank.tankNumber]?.liters !== undefined && (
+                      <div className={styles.InputField}>
+                        <p className={styles.totalDischarge}>
+                          {
+                            // @ts-ignore
+                            tankMeasurements[tank.tankNumber]?.liters !==
+                              undefined &&
+                            // @ts-ignore
+                            tankMeasurements[tank.tankNumber].liters !== null
+                              ? `Medição atual em litros: ${
+                                  // @ts-ignore
+                                  tankMeasurements[tank.tankNumber].liters
+                                }`
+                              : "A régua deste tanque não contém este valor"
+                          }
+                        </p>
+                      </div>
+                    )
+                  }
+
                   {tankImages[tank.tankNumber] && (
                     <div>
                       <img

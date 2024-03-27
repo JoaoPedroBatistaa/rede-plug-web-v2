@@ -193,15 +193,13 @@ export default function NewPost() {
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Teste dos combustíveis 6h</p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton}>
+              <button className={styles.FinishButton} onClick={saveFuelTest}>
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText} onClick={saveFuelTest}>
-                  Cadastrar teste
-                </span>
+                <span className={styles.buttonText}>Cadastrar teste</span>
               </button>
             </div>
           </div>
