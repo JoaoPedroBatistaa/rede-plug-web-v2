@@ -7,10 +7,28 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+
+interface Supervisor {
+  id: string;
+  name: string;
+
+  contact: string;
+  email: string;
+  password: string;
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -42,6 +60,64 @@ export default function NewPost() {
   const [nozzles, setNozzles] = useState([{ nozzleNumber: "", product: "" }]);
   const [managers, setManagers] = useState([{ managerName: "", contact: "" }]);
   const [tankOptions, setTankOptions] = useState([]);
+
+  const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
+  const [selectedSupervisors, setSelectedSupervisors] = useState([
+    { selectedSupervisorId: "" },
+  ]);
+
+  const addSupervisor = () => {
+    setSelectedSupervisors([
+      ...selectedSupervisors,
+      { selectedSupervisorId: "" },
+    ]);
+  };
+
+  const removeSupervisor = (indexToRemove: number) => {
+    setSelectedSupervisors(
+      selectedSupervisors.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
+  const handleSupervisorChange = (index: number, supervisorId: string) => {
+    const newSelectedSupervisors = selectedSupervisors.map((item, i) => {
+      if (i === index) {
+        return { ...item, selectedSupervisorId: supervisorId };
+      }
+      return item;
+    });
+    setSelectedSupervisors(newSelectedSupervisors);
+  };
+
+  useEffect(() => {
+    let isComponentMounted = true;
+    const fetchData = async () => {
+      const path = "USERS";
+
+      const dbQuery = query(
+        collection(db, path),
+        where("type", "==", "supervisor")
+      );
+      const querySnapshot = await getDocs(dbQuery);
+      const postsList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        email: doc.data().email,
+        contact: doc.data().contact,
+        password: doc.data().password,
+      }));
+
+      if (isComponentMounted) {
+        setSupervisors(postsList);
+        console.log("Set data: ", postsList);
+      }
+    };
+    fetchData();
+
+    return () => {
+      isComponentMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const loadConversionData = async () => {
@@ -161,6 +237,16 @@ export default function NewPost() {
     }
   };
 
+  const updateSupervisorPosts = async (
+    supervisorId: string,
+    postName: unknown
+  ) => {
+    const supervisorRef = doc(db, "USERS", supervisorId);
+    await updateDoc(supervisorRef, {
+      posts: arrayUnion(postName),
+    });
+  };
+
   const validateForm = () => {
     const fields = [
       name,
@@ -191,6 +277,20 @@ export default function NewPost() {
     }
 
     try {
+      const supervisorsList = selectedSupervisors.map((supervisor) => {
+        const supervisorData = supervisors.find(
+          (sup) => sup.id === supervisor.selectedSupervisorId
+        );
+        return {
+          id: supervisor.selectedSupervisorId,
+          name: supervisorData?.name || "",
+        };
+      });
+
+      for (const supervisor of supervisorsList) {
+        await updateSupervisorPosts(supervisor.id, name);
+      }
+
       const updatedManagers = [];
       for (const manager of managers) {
         const managerWithSenha = await addManagerToUsers(manager);
@@ -206,10 +306,11 @@ export default function NewPost() {
         tanks,
         nozzles,
         managers: updatedManagers,
+        supervisors: supervisorsList,
       });
 
       console.log("Post adicionado com ID:", postRef.id);
-      toast.success("Posto e gerentes adicionados com sucesso!");
+      toast.success("Posto supervisores e gerentes adicionados com sucesso!");
 
       router.push("/posts");
     } catch (error) {
@@ -542,6 +643,57 @@ export default function NewPost() {
                       className={styles.DeleteButton}
                     >
                       <span className={styles.buttonText}>Excluir gerente</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              <div className={styles.BudgetHead}>
+                <p className={styles.BudgetTitle}>Supervisores</p>
+                <div className={styles.BudgetHeadS}></div>
+              </div>
+
+              <p className={styles.Notes}>
+                Informe abaixo as informações dos supervisores
+              </p>
+
+              {selectedSupervisors.map((supervisor, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Nome do Supervisor</p>
+                    <select
+                      className={styles.SelectField}
+                      value={supervisor.selectedSupervisorId || ""}
+                      onChange={(e) =>
+                        handleSupervisorChange(index, e.target.value)
+                      }
+                    >
+                      <option value="">Selecione um supervisor</option>
+                      {supervisors.map((sup) => (
+                        <option key={sup.id} value={sup.id}>
+                          {sup.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {index === selectedSupervisors.length - 1 && (
+                    <button
+                      onClick={addSupervisor}
+                      className={styles.NewButton}
+                    >
+                      <span className={styles.buttonText}>Novo supervisor</span>
+                    </button>
+                  )}
+
+                  {index > 0 && (
+                    <button
+                      onClick={() => removeSupervisor(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>
+                        Excluir supervisor
+                      </span>
                     </button>
                   )}
                 </div>

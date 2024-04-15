@@ -7,16 +7,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useEffect, useRef, useState } from "react";
-import { db, storage } from "../../firebase";
+import { useRef, useState } from "react";
+import { db, getDownloadURL, ref, storage } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
-
-interface Nozzle {
-  nozzleNumber: string;
-  product: string;
-}
+import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
@@ -26,57 +21,27 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
-  const [nozzles, setNozzles] = useState<Nozzle[]>([]);
-  const [encerranteImages, setEncerranteImages] = useState<File[]>([]);
-  const [encerranteFileNames, setEncerranteFileNames] = useState<string[]>([]);
 
-  const encerranteRefs = useRef([]);
+  const [isOk, setIsOk] = useState("");
+  const [observations, setObservations] = useState("");
 
-  const handleImageChange = (
-    index: number,
-    event: { target: { files: any } } | undefined
+  const etanolRef = useRef(null);
+
+  const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolFileName, setEtanolFileName] = useState("");
+
+  const handleEtanolImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setEncerranteImages((prev) => {
-        const newImages = [...prev];
-        newImages[index] = file;
-        return newImages;
-      });
-      setEncerranteFileNames((prev) => {
-        const newFileNames = [...prev];
-        newFileNames[index] = file.name;
-        return newFileNames;
-      });
+    const file = event.target.files[0];
+    if (file) {
+      setEtanolImage(file);
+      setEtanolFileName(file.name);
     }
   };
 
-  useEffect(() => {
-    const postName = localStorage.getItem("userPost");
-
-    if (postName) {
-      const fetchPostDetails = async () => {
-        try {
-          const postsRef = collection(db, "POSTS");
-          const q = query(postsRef, where("name", "==", postName));
-          const querySnapshot = await getDocs(q);
-
-          querySnapshot.forEach((doc) => {
-            const postData = doc.data();
-            setNozzles(postData.nozzles || []);
-          });
-        } catch (error) {
-          console.error("Error fetching post details:", error);
-        }
-      };
-
-      fetchPostDetails();
-    }
-  }, []);
-
-  const saveGameTest = async () => {
+  const saveMeasurement = async () => {
     setIsLoading(true);
 
     let missingField = "";
@@ -89,10 +54,9 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
-    // @ts-ignore
-    else if (encerranteImages.length === 0)
-      missingField = "Fotos do teste do game";
+    else if (!managerName) missingField = "Nome do supervisor";
+    else if (!isOk) missingField = "Está ok?";
+    else if (!etanolImage) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -104,73 +68,68 @@ export default function NewPost() {
     const userName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
 
-    const managersRef = collection(db, "MANAGERS");
+    const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("userName", "==", userName),
-      where("id", "==", "teste-game-proveta-22h")
+      where("id", "==", "limpeza-banheiros"),
+      where("userName", "==", userName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("O teste do game das 22h já foi cadastrado hoje!");
+      toast.error(
+        "A tarefa limpeza e organização dos banheiros já foi feita hoje!"
+      );
       setIsLoading(false);
 
       return;
     }
 
-    const nozzleClosureData = {
+    const taskData = {
       date,
       time,
-      managerName,
+      supervisorName: managerName,
       userName,
       postName,
+      isOk,
+      observations,
       images: [],
-      id: "teste-game-proveta-22h",
+      id: "limpeza-banheiros",
     };
 
-    // @ts-ignore
-    const uploadPromises = encerranteImages.map(
-      (imageFile: Blob | ArrayBuffer, index: string | number) =>
-        uploadImageAndGetUrl(
-          imageFile,
-          // @ts-ignore
-          `gameTest/${date}/${imageFile.name}_${Date.now()}`
-        ).then((imageUrl) => {
-          return {
-            // @ts-ignore
-            fileName: encerranteFileNames[index],
-            imageUrl,
-          };
-        })
-    );
+    const uploadPromises = [];
+    if (etanolImage) {
+      const etanolPromise = uploadImageAndGetUrl(
+        etanolImage,
+        `supervisors/${date}/${etanolFileName}_${Date.now()}`
+      ).then((imageUrl) => ({
+        type: "Imagem da tarefa",
+        imageUrl,
+        fileName: etanolFileName,
+      }));
+      uploadPromises.push(etanolPromise);
+    }
 
     try {
       const images = await Promise.all(uploadPromises);
       // @ts-ignore
-      nozzleClosureData.images = images;
+      taskData.images = images;
 
-      const docRef = await addDoc(
-        collection(db, "MANAGERS"),
-        nozzleClosureData
-      );
-      console.log("Teste do game salvo com ID: ", docRef.id);
-      toast.success("Teste do game salvo com sucesso!");
-      router.push("/manager-twenty-two-routine");
+      const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
+      console.log("Tarefa salva com ID: ", docRef.id);
+      toast.success("Tarefa salva com sucesso!");
+      router.push("/supervisors-routine");
     } catch (error) {
-      console.error("Erro ao salvar o teste do game: ", error);
-      toast.error("Erro ao salvar o teste do game.");
+      console.error("Erro ao salvar os dados da tarefa: ", error);
+      toast.error("Erro ao salvar a medição.");
     }
   };
 
-  async function uploadImageAndGetUrl(
-    imageFile: Blob | ArrayBuffer,
-    path: string | undefined
-  ) {
+  async function uploadImageAndGetUrl(imageFile: File, path: string) {
     const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, imageFile);
-    const downloadUrl = await getDownloadURL(storageRef);
+    const uploadResult = await uploadBytes(storageRef, imageFile);
+    const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
   }
 
@@ -191,21 +150,23 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>
-              Teste do game na proveta de 1L 22h
+              Limpeza e organização dos banheiros
             </p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton} onClick={saveGameTest}>
+              <button className={styles.FinishButton} onClick={saveMeasurement}>
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText}>Cadastrar teste</span>
+                <span className={styles.buttonText}>Cadastrar tarefa</span>
               </button>
             </div>
           </div>
 
-          <p className={styles.Notes}>Informe abaixo as informações do teste</p>
+          <p className={styles.Notes}>
+            Informe abaixo as informações da limpeza e organização dos banheiros
+          </p>
 
           <div className={styles.userContent}>
             <div className={styles.userData}>
@@ -236,7 +197,7 @@ export default function NewPost() {
               </div>
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do gerente</p>
+                  <p className={styles.FieldLabel}>Nome do supervisor</p>
                   <input
                     id="driverName"
                     type="text"
@@ -247,51 +208,69 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-
-              {nozzles.map((nozzle, index) => (
-                <div key={nozzle.nozzleNumber} className={styles.InputField}>
-                  <p className={styles.titleTank}>
-                    Bico {nozzle.nozzleNumber} - {nozzle.product}{" "}
-                  </p>
-                  <p className={styles.FieldLabel}>Imagem do teste</p>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>OK?</p>
+                  <select
+                    id="isOk"
+                    className={styles.SelectField}
+                    value={isOk}
+                    onChange={(e) => setIsOk(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    <option value="yes">Sim</option>
+                    <option value="no">Não</option>
+                  </select>
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Observações</p>
+                  <textarea
+                    id="observations"
+                    className={styles.Field}
+                    value={observations}
+                    onChange={(e) => setObservations(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
                   <input
                     type="file"
                     accept="image/*"
                     style={{ display: "none" }}
-                    // @ts-ignore
-                    ref={(el) => (encerranteRefs.current[index] = el)}
-                    onChange={(event) => handleImageChange(index, event)}
+                    ref={etanolRef}
+                    onChange={handleEtanolImageChange}
                   />
                   <button
-                    // @ts-ignore
-                    onClick={() => encerranteRefs.current[index]?.click()}
+                    onClick={() =>
+                      // @ts-ignore
+                      etanolRef.current && etanolRef.current.click()
+                    }
                     className={styles.MidiaField}
                   >
                     Carregue sua foto
                   </button>
-                  {encerranteImages[index] && (
+                  {etanolImage && (
                     <div>
                       <img
-                        src={URL.createObjectURL(encerranteImages[index])}
-                        alt={`Preview do encerrante do bico ${nozzle.nozzleNumber}`}
+                        src={URL.createObjectURL(etanolImage)}
+                        alt="Preview do teste de Etanol"
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        onLoad={() =>
-                          // @ts-ignore
-                          URL.revokeObjectURL(encerranteImages[index])
-                        }
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(etanolImage)}
                       />
-                      <p className={styles.fileName}>
-                        {encerranteFileNames[index]}
-                      </p>
+                      <p className={styles.fileName}>{etanolFileName}</p>
                     </div>
                   )}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
 

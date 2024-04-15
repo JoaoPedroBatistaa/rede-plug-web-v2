@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableProducts.module.scss";
 
-import { deleteDoc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { Url } from "next/dist/shared/lib/router/router";
 import { useRouter } from "next/router";
-import { toast } from "react-toastify";
+import { db } from "../../../firebase";
 
 interface Tank {
   tankNumber: string;
@@ -46,6 +45,12 @@ export default function TablePosts({
   orderValue,
   filterValue,
 }: ITableBudgets) {
+  const router = useRouter();
+
+  const navigateTo = (path: Url) => {
+    router.push(path);
+  };
+
   const [filteredData, setFilteredData] = useState<Post[]>([]);
   const [teste, setTeste] = useState<Post[]>([]);
 
@@ -57,7 +62,7 @@ export default function TablePosts({
   useEffect(() => {
     const fetchTodayTasks = async () => {
       const today = new Date().toISOString().slice(0, 10);
-      const managersRef = collection(db, "MANAGERS");
+      const managersRef = collection(db, "SUPERVISORS");
       const userName = localStorage.getItem("userName");
       const q = query(
         managersRef,
@@ -79,46 +84,6 @@ export default function TablePosts({
     };
 
     fetchTodayTasks();
-  }, []);
-
-  let userId: string | null;
-  if (typeof window !== "undefined") {
-    userId = window.localStorage.getItem("userId");
-  }
-
-  useEffect(() => {
-    let isComponentMounted = true;
-    const fetchData = async () => {
-      const path = "POSTS";
-
-      const dbCollection = collection(db, path);
-      const postsSnapshot = await getDocs(dbCollection);
-      const postsList = postsSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: data.name,
-          owner: data.owner,
-          contact: data.contact,
-          location: data.location,
-          email: data.email,
-          tanks: data.tanks,
-          nozzles: data.nozzles,
-          managers: data.managers,
-        };
-      });
-
-      if (isComponentMounted) {
-        setTeste(postsList);
-        setFilteredData(postsList);
-        console.log("Set data: ", postsList);
-      }
-    };
-    fetchData();
-
-    return () => {
-      isComponentMounted = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -179,51 +144,6 @@ export default function TablePosts({
     }));
   };
 
-  const handleDeleteItem = async (itemId: string) => {
-    const isConfirmed = confirm(
-      "Tem certeza que deseja excluir este posto e todos os seus gerentes associados?"
-    );
-
-    if (isConfirmed) {
-      try {
-        const postRef = doc(db, "POSTS", itemId);
-        const postSnap = await getDoc(postRef);
-
-        if (postSnap.exists()) {
-          const postData = postSnap.data();
-
-          if (postData.managers && postData.managers.length > 0) {
-            for (const manager of postData.managers) {
-              if (manager.password) {
-                await deleteDoc(doc(db, "USERS", manager.password));
-              }
-            }
-          }
-        }
-
-        await deleteDoc(postRef);
-
-        const updatedData = filteredData.filter((item) => item.id !== itemId);
-        setFilteredData(updatedData);
-
-        toast.success("Posto e gerentes excluídos com sucesso!", {
-          style: {
-            fontSize: "12px",
-            fontWeight: 600,
-          },
-        });
-      } catch (error) {
-        console.error(
-          "Ocorreu um erro ao excluir o posto e seus gerentes:",
-          error
-        );
-        toast.error("Ocorreu um erro ao excluir o posto e seus gerentes.");
-      }
-    } else {
-      console.log("Exclusão cancelada pelo usuário.");
-    }
-  };
-
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
@@ -242,19 +162,6 @@ export default function TablePosts({
     filterData();
   }, [searchValue, teste]);
 
-  const [openFilter, setOpenFilter] = useState(false);
-
-  const combinedData = [...filteredData, ...currentData];
-
-  const typeUser =
-    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
-
-  const router = useRouter();
-
-  const navigateTo = (path: Url) => {
-    router.push(path);
-  };
-
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
       <table className={styles.table}>
@@ -270,26 +177,166 @@ export default function TablePosts({
         <tbody>
           {[
             {
-              id: "medicao-tanques-22h",
-              name: "Medição de Tanques",
-              link: "/tank-measurement-twenty-two",
+              id: "uniformes",
+              name: "Uniformes",
+              link: "/uniforms",
             },
             {
-              id: "foto-maquininhas-22h",
-              name: "Foto das Maquininhas",
-              link: "/photo-machines-twenty-two",
+              id: "atendimento",
+              name: "Atendimento",
+              link: "/service",
             },
             {
-              id: "encerrante-bico-22h",
-              name: "Tirar o Encerrante de Cada Bico",
-              link: "/nozzle-closure-twenty-two",
+              id: "extintores",
+              name: "Extintores",
+              link: "/extinguishers",
+            },
+            {
+              id: "placas-sinalizacao",
+              name: "Placas de sinalização",
+              link: "/traffic-signs",
+            },
+            {
+              id: "placas-faixa-preco",
+              name: "Placas de faixa de preço",
+              link: "/price-signs",
+            },
+            {
+              id: "bicos",
+              name: "Bicos",
+              link: "/nozzles",
+            },
+            {
+              id: "mangueiras",
+              name: "Mangueiras",
+              link: "/hoses",
+            },
+            {
+              id: "limpeza-testeiras",
+              name: "Limpeza testeira",
+              link: "/front-cleaning",
+            },
+            {
+              id: "canaletas",
+              name: "Canaletas",
+              link: "/channels",
+            },
+            {
+              id: "pintura-posto",
+              name: "Pintura do posto",
+              link: "/post-painting",
+            },
+            {
+              id: "canetas",
+              name: "Canetas",
+              link: "/pens",
+            },
+            {
+              id: "bicos-parados",
+              name: "Bicos parados",
+              link: "/nozzles-stopped",
+            },
+            {
+              id: "limpeza-pista",
+              name: "Limpeza e organização da písta",
+              link: "/track-cleaning",
+            },
+            {
+              id: "aferidores",
+              name: "Aferidores",
+              link: "/gauges",
+            },
+            {
+              id: "limpeza-banheiros",
+              name: "Limpeza e organização dos banheiros",
+              link: "/bathroom-cleaning",
+            },
+            {
+              id: "iluminacao-pista",
+              name: "Iluminação da pista",
+              link: "/runway-lightning",
+            },
+            {
+              id: "iluminacao-testeiras",
+              name: "Iluminação das testeiras",
+              link: "/front-lightning",
+            },
+            {
+              id: "vestiario",
+              name: "Vestiário",
+              link: "/locker-room",
+            },
+            {
+              id: "troca-oleo",
+              name: "Troca de óleo",
+              link: "/oil-change",
+            },
+            {
+              id: "compressor",
+              name: "Compressor",
+              link: "/compressor",
+            },
+            {
+              id: "calibrador",
+              name: "Calibrador",
+              link: "/calibrator",
+            },
+            {
+              id: "notas-fiscais",
+              name: "Notas fiscais",
+              link: "/fiscal-notes",
+            },
+            {
+              id: "maquininhas-uso",
+              name: "Maquininhas em uso",
+              link: "/use-machines",
+            },
+            {
+              id: "maquininhas-reservas",
+              name: "Maquininhas reservas",
+              link: "/reserve-machines",
+            },
+            {
+              id: "escala-trabalho",
+              name: "Escala de trabalho",
+              link: "/work-schedule",
+            },
+            {
+              id: "vira",
+              name: "Vira",
+              link: "/turn",
+            },
+            {
+              id: "teste-combustiveis-venda",
+              name: "Teste dos combustíveis de venda",
+              link: "/fuel-sell-test",
+            },
+            {
+              id: "limpeza-bombas",
+              name: "Limpeza das bombas",
+              link: "/bombs-cleaning",
+            },
+            {
+              id: "identificacao-fornecedor",
+              name: "Identificação de fornecedor",
+              link: "/supplier-identification",
+            },
+            {
+              id: "lacre-bombas",
+              name: "Lacre das bombas",
+              link: "/bomb-seal",
+            },
+            {
+              id: "passagem-bomba",
+              name: "Passagem de bomba",
+              link: "/bomb-passage",
             },
           ].map((task) => {
             // @ts-ignore
             const taskRecord = todayTasks.find((t) => t.id === task.id);
             const isFinished = taskRecord !== undefined;
             // @ts-ignore
-            const managerName = taskRecord ? taskRecord.managerName : "-";
+            const managerName = taskRecord ? taskRecord.supervisorName : "-";
             // @ts-ignore
             const time = taskRecord ? taskRecord.time : "-";
 
@@ -316,7 +363,6 @@ export default function TablePosts({
                     className={styles.MarginRight}
                     onClick={(event) => {
                       event.stopPropagation();
-                      // Suposição de implementação de handleClickImg
                       handleClickImg(event, task.id);
                     }}
                   />

@@ -60,7 +60,6 @@ export default function Login() {
       localStorage.setItem("userType", user.type);
       localStorage.setItem("userPost", user.postName);
 
-      // Exibir toast de sucesso
       toast.success("Login realizado com sucesso!", {
         position: "top-right",
         autoClose: 5000,
@@ -71,9 +70,15 @@ export default function Login() {
         progress: undefined,
       });
 
-      setTimeout(() => {
-        router.push("/home");
-      }, 2000);
+      if (user.type === "manager") {
+        setTimeout(() => {
+          router.push("/managers");
+        }, 2000);
+      } else {
+        setTimeout(() => {
+          router.push("/home");
+        }, 2000);
+      }
     } else {
       setError("Email ou senha incorretos");
     }

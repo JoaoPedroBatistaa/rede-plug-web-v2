@@ -35,7 +35,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
   };
 
   const typeUser =
-    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
+    typeof window !== "undefined" ? localStorage.getItem("userType") : null;
 
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
@@ -68,68 +68,113 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
             <p className={styles.Steps}>Menu Principal</p>
 
-            <div
-              className={`${styles.MenuNavigate} ${
-                activeRoute === "/home" ? styles.active : ""
-              }`}
-              onClick={handleOpenMenuDiv}
-            >
-              <svg
-                className={styles.Pointer}
-                width="16"
-                height="17"
-                viewBox="0 0 16 17"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clip-path="url(#clip0_1809_1480)">
-                  <path
-                    d="M15.414 7.03334L10.3573 1.976C9.7315 1.352 8.88378 1.00159 8.00001 1.00159C7.11623 1.00159 6.26851 1.352 5.64267 1.976L0.586008 7.03334C0.399625 7.21853 0.251855 7.43887 0.151263 7.6816C0.0506715 7.92432 -0.000740267 8.1846 8.05299e-06 8.44734V14.992C8.05299e-06 15.5224 0.210722 16.0311 0.585795 16.4062C0.960867 16.7813 1.46958 16.992 2.00001 16.992H14C14.5304 16.992 15.0391 16.7813 15.4142 16.4062C15.7893 16.0311 16 15.5224 16 14.992V8.44734C16.0008 8.1846 15.9493 7.92432 15.8488 7.6816C15.7482 7.43887 15.6004 7.21853 15.414 7.03334ZM10 15.6587H6.00001V13.036C6.00001 12.5056 6.21072 11.9969 6.58579 11.6218C6.96087 11.2467 7.46958 11.036 8.00001 11.036C8.53044 11.036 9.03915 11.2467 9.41422 11.6218C9.7893 11.9969 10 12.5056 10 13.036V15.6587ZM14.6667 14.992C14.6667 15.1688 14.5964 15.3384 14.4714 15.4634C14.3464 15.5884 14.1768 15.6587 14 15.6587H11.3333V13.036C11.3333 12.1519 10.9822 11.3041 10.357 10.679C9.73191 10.0539 8.88406 9.70267 8.00001 9.70267C7.11595 9.70267 6.26811 10.0539 5.64299 10.679C5.01786 11.3041 4.66667 12.1519 4.66667 13.036V15.6587H2.00001C1.8232 15.6587 1.65363 15.5884 1.5286 15.4634C1.40358 15.3384 1.33334 15.1688 1.33334 14.992V8.44734C1.33396 8.27066 1.40413 8.10133 1.52867 7.976L6.58534 2.92067C6.96114 2.54662 7.46978 2.33663 8.00001 2.33663C8.53023 2.33663 9.03888 2.54662 9.41468 2.92067L14.4713 7.978C14.5954 8.10284 14.6655 8.27135 14.6667 8.44734V14.992Z"
-                    fill=""
+            {typeUser !== "manager" && (
+              <>
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    activeRoute === "/home" ? styles.active : ""
+                  }`}
+                  onClick={handleOpenMenuDiv}
+                >
+                  <svg
+                    className={styles.Pointer}
+                    width="16"
+                    height="17"
+                    viewBox="0 0 16 17"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_1809_1480)">
+                      <path
+                        d="M15.414 7.03334L10.3573 1.976C9.7315 1.352 8.88378 1.00159 8.00001 1.00159C7.11623 1.00159 6.26851 1.352 5.64267 1.976L0.586008 7.03334C0.399625 7.21853 0.251855 7.43887 0.151263 7.6816C0.0506715 7.92432 -0.000740267 8.1846 8.05299e-06 8.44734V14.992C8.05299e-06 15.5224 0.210722 16.0311 0.585795 16.4062C0.960867 16.7813 1.46958 16.992 2.00001 16.992H14C14.5304 16.992 15.0391 16.7813 15.4142 16.4062C15.7893 16.0311 16 15.5224 16 14.992V8.44734C16.0008 8.1846 15.9493 7.92432 15.8488 7.6816C15.7482 7.43887 15.6004 7.21853 15.414 7.03334ZM10 15.6587H6.00001V13.036C6.00001 12.5056 6.21072 11.9969 6.58579 11.6218C6.96087 11.2467 7.46958 11.036 8.00001 11.036C8.53044 11.036 9.03915 11.2467 9.41422 11.6218C9.7893 11.9969 10 12.5056 10 13.036V15.6587ZM14.6667 14.992C14.6667 15.1688 14.5964 15.3384 14.4714 15.4634C14.3464 15.5884 14.1768 15.6587 14 15.6587H11.3333V13.036C11.3333 12.1519 10.9822 11.3041 10.357 10.679C9.73191 10.0539 8.88406 9.70267 8.00001 9.70267C7.11595 9.70267 6.26811 10.0539 5.64299 10.679C5.01786 11.3041 4.66667 12.1519 4.66667 13.036V15.6587H2.00001C1.8232 15.6587 1.65363 15.5884 1.5286 15.4634C1.40358 15.3384 1.33334 15.1688 1.33334 14.992V8.44734C1.33396 8.27066 1.40413 8.10133 1.52867 7.976L6.58534 2.92067C6.96114 2.54662 7.46978 2.33663 8.00001 2.33663C8.53023 2.33663 9.03888 2.54662 9.41468 2.92067L14.4713 7.978C14.5954 8.10284 14.6655 8.27135 14.6667 8.44734V14.992Z"
+                        fill=""
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_1809_1480">
+                        <rect
+                          width="16"
+                          height="16"
+                          fill="white"
+                          transform="translate(0 0.987305)"
+                        />
+                      </clipPath>
+                    </defs>
+                  </svg>
+
+                  <Link className={styles.NavigateItem} href="/home">
+                    Home
+                  </Link>
+                </div>
+
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    activeRoute === "/posts" ? styles.active : ""
+                  }`}
+                  onClick={handleOpenMenuDiv}
+                >
+                  <img src="/postos.svg" className={styles.Pointer} alt="" />
+
+                  <Link className={styles.NavigateItem} href="/posts">
+                    Postos
+                  </Link>
+                </div>
+
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    activeRoute === "/supervisors" ? styles.active : ""
+                  }`}
+                  onClick={handleOpenMenuDiv}
+                >
+                  <img
+                    src="/supervisores.svg"
+                    className={styles.Pointer}
+                    alt=""
                   />
-                </g>
-                <defs>
-                  <clipPath id="clip0_1809_1480">
-                    <rect
-                      width="16"
-                      height="16"
-                      fill="white"
-                      transform="translate(0 0.987305)"
-                    />
-                  </clipPath>
-                </defs>
-              </svg>
 
-              <Link className={styles.NavigateItem} href="/home">
-                Home
-              </Link>
-            </div>
+                  <Link className={styles.NavigateItem} href="/supervisors">
+                    Supervisores
+                  </Link>
+                </div>
 
-            <div
-              className={`${styles.MenuNavigate} ${
-                activeRoute === "/posts" ? styles.active : ""
-              }`}
-              onClick={handleOpenMenuDiv}
-            >
-              <img src="/postos.svg" className={styles.Pointer} alt="" />
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    activeRoute === "/supervisors-routine" ? styles.active : ""
+                  }`}
+                  onClick={handleOpenMenuDiv}
+                >
+                  <img
+                    src="/supervisores.svg"
+                    className={styles.Pointer}
+                    alt=""
+                  />
 
-              <Link className={styles.NavigateItem} href="/posts">
-                Postos
-              </Link>
-            </div>
+                  <Link
+                    className={styles.NavigateItem}
+                    href="/supervisors-routine"
+                  >
+                    Supervisores +
+                  </Link>
+                </div>
 
-            <div
-              className={`${styles.MenuNavigate} ${
-                activeRoute === "/Requests" ? styles.active : ""
-              }`}
-              onClick={handleOpenMenuDiv}
-            >
-              <img src="/supervisores.svg" className={styles.Pointer} alt="" />
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    activeRoute === "/Supplier" ? styles.active : ""
+                  }`}
+                  onClick={handleOpenMenuDiv}
+                >
+                  <img
+                    src="/relatorios.svg"
+                    className={styles.Pointer}
+                    alt=""
+                  />
 
-              <Link className={styles.NavigateItem} href="/Requests">
-                Supervisores
-              </Link>
-            </div>
+                  <Link className={styles.NavigateItem} href="/Supplier">
+                    Relatórios
+                  </Link>
+                </div>
+              </>
+            )}
 
             <div
               className={`${styles.MenuNavigate} ${
@@ -150,23 +195,16 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 Gerentes
               </Link>
             </div>
-
-            <div
-              className={`${styles.MenuNavigate} ${
-                activeRoute === "/Supplier" ? styles.active : ""
-              }`}
-              onClick={handleOpenMenuDiv}
-            >
-              <img src="/relatorios.svg" className={styles.Pointer} alt="" />
-
-              <Link className={styles.NavigateItem} href="/Supplier">
-                Relatórios
-              </Link>
-            </div>
           </div>
 
           <div className={styles.MenuContainer}>
             <p className={styles.Steps}>Parâmetros</p>
+
+            {/* {typeUser !== "manager" && (
+              <>
+
+              </>
+            )} */}
 
             <div
               className={`${styles.MenuNavigate} ${

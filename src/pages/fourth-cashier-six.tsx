@@ -8,10 +8,15 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { createRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+
+interface Nozzle {
+  nozzleNumber: string;
+  product: string;
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -21,45 +26,25 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
-  const [numMaquininhas, setNumMaquininhas] = useState(3);
-  const [maquininhasImages, setMaquininhasImages] = useState<File[]>([]);
-  const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
-    []
-  );
 
-  const maquininhasRefs = useRef([]);
-  maquininhasRefs.current = Array(numMaquininhas)
-    .fill(null)
-    .map((_, i) => maquininhasRefs.current[i] || createRef());
+  const etanolRef = useRef(null);
+  const gcRef = useRef(null);
 
-  const handleNumMaquininhasChange = (
+  const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolFileName, setEtanolFileName] = useState("");
+
+  const [gcImage, setGcImage] = useState<File | null>(null);
+  const [gcFileName, setGcFileName] = useState("");
+
+  const handleEtanolFileChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    let value = parseInt(event.target.value, 10);
-    value = isNaN(value) ? 3 : value;
-    value = value < 3 ? 3 : value;
-    setNumMaquininhas(value);
+    const file = event.target.files ? event.target.files[0] : null;
+    if (file) {
+      setEtanolImage(file); // Consider renaming this state to setEtanolFile
+      setEtanolFileName(file.name);
+    }
   };
-
-  const handleImageChange =
-    (index: string | number | undefined) =>
-    (event: { target: { files: any[] } }) => {
-      const file = event.target.files[0];
-      if (file) {
-        setMaquininhasImages((prev) => {
-          const newImages = [...prev];
-          // @ts-ignore
-          newImages[index] = file;
-          return newImages;
-        });
-        setMaquininhasFileNames((prev) => {
-          const newFileNames = [...prev];
-          // @ts-ignore
-          newFileNames[index] = file.name;
-          return newFileNames;
-        });
-      }
-    };
 
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
@@ -83,9 +68,8 @@ export default function NewPost() {
     }
   }, []);
 
-  const savePhotoMachines = async () => {
+  const saveFourthCashier = async () => {
     setIsLoading(true);
-
     let missingField = "";
     const today = new Date().toISOString().slice(0, 10);
 
@@ -97,8 +81,7 @@ export default function NewPost() {
       return;
     } else if (!time) missingField = "Hora";
     else if (!managerName) missingField = "Nome do Gerente";
-    else if (maquininhasImages.length === 0)
-      missingField = "Verficação dos cavaletes";
+    else if (!etanolImage) missingField = "Arquivo do quarto caixa"; // Consider changing the name to etanolFile for clarity
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -110,70 +93,78 @@ export default function NewPost() {
     const userName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
 
-    const managersRef = collection(db, "MANAGERS");
+    const fourthCashierRef = collection(db, "MANAGERS");
     const q = query(
-      managersRef,
+      fourthCashierRef,
       where("date", "==", date),
-      where("id", "==", "verificacao-cavaletes-22h"),
-      where("userName", "==", userName)
+      where("userName", "==", userName),
+      where("id", "==", "quarto-caixa-6h")
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A verificação dos cavaletes das 22h já foi feita hoje!");
+      toast.error("O quarto caixa das 6h já foi cadastrado hoje!");
       setIsLoading(false);
 
       return;
     }
 
-    const photoMachinesData = {
+    const fourthCashierData = {
       date,
       time,
       managerName,
       userName,
       postName,
-      images: [],
-      id: "verificacao-cavaletes-22h",
+      files: [], // Changed from images to files
+      id: "quarto-caixa-6h",
     };
 
-    // Processamento paralelo dos uploads de imagens
-    const uploadPromises = maquininhasImages.map((imageFile, index) =>
-      uploadImageAndGetUrl(
-        imageFile,
-        `photoMachines/${date}/${imageFile.name}_${Date.now()}`
-      ).then((imageUrl) => {
-        return {
-          fileName: maquininhasFileNames[index],
-          imageUrl,
-        };
-      })
-    );
+    // Preparar os uploads dos arquivos
+    const uploadPromises = [];
+    if (etanolImage) {
+      // Consider changing the name to etanolFile for clarity
+      const etanolPromise = uploadFileAndGetUrl(
+        etanolImage, // Consider changing the name to etanolFile
+        `fourthCashier/${date}/etanol_${etanolFileName}_${Date.now()}`
+      ).then((fileUrl) => ({
+        type: "Etanol",
+        fileUrl,
+        fileName: etanolFileName,
+      }));
+      uploadPromises.push(etanolPromise);
+    }
+
+    if (gcImage) {
+      // This section can be adjusted or removed depending on the requirement
+      const gcPromise = uploadFileAndGetUrl(
+        gcImage,
+        `fourthCashier/${date}/gc_${gcFileName}_${Date.now()}`
+      ).then((fileUrl) => ({ type: "GC", fileUrl, fileName: gcFileName }));
+      uploadPromises.push(gcPromise);
+    }
 
     try {
-      const images = await Promise.all(uploadPromises);
+      const files = await Promise.all(uploadPromises);
       // @ts-ignore
-      photoMachinesData.images = images;
+      fourthCashierData.files = files;
 
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
-        photoMachinesData
+        fourthCashierData
       );
-      console.log("Verificação dos cavaletes salvo com ID: ", docRef.id);
-      toast.success("Verificação dos cavaletes salva com sucesso!");
+      console.log("Quarto caixa salvo com ID: ", docRef.id);
+      toast.success("Quarto caixa salvo com sucesso!");
       router.push("/manager-twenty-two-routine");
     } catch (error) {
-      console.error("Erro ao salvar a verificação dos cavaletes: ", error);
-      toast.error("Erro ao salvar a verificação dos cavaletes.");
+      console.error("Erro ao salvar o quarto caixa: ", error);
+      toast.error("Erro ao salvar o quarto caixa.");
     }
   };
 
-  async function uploadImageAndGetUrl(
-    imageFile: Blob | ArrayBuffer,
-    path: string | undefined
-  ) {
+  async function uploadFileAndGetUrl(file: File, path: string) {
     const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, imageFile);
-    const downloadUrl = await getDownloadURL(storageRef);
+    const uploadResult = await uploadBytes(storageRef, file);
+    const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
   }
 
@@ -193,24 +184,24 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Verificação dos cavaletes 22h</p>
+            <p className={styles.BudgetTitle}>Quarto caixa 6h</p>
             <div className={styles.BudgetHeadS}>
               <button
                 className={styles.FinishButton}
-                onClick={savePhotoMachines}
+                onClick={saveFourthCashier}
               >
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText}>Cadastrar fotos</span>
+                <span className={styles.buttonText}>Cadastrar caixa</span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações das maquininhas
+            Informe abaixo as informações do quarto caixa
           </p>
 
           <div className={styles.userContent}>
@@ -252,63 +243,31 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Número de cavaletes</p>
-                  <input
-                    type="number"
-                    className={styles.Field}
-                    value={numMaquininhas}
-                    onChange={handleNumMaquininhasChange}
-                    placeholder=""
-                  />
-                </div>
               </div>
 
-              {Array.from({ length: numMaquininhas }, (_, index) => (
-                <div key={index} className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Foto do cavalete {index + 1}
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    // @ts-ignore
-                    ref={(el) => (maquininhasRefs.current[index] = el)}
-                    // @ts-ignore
-                    onChange={handleImageChange(index)}
-                  />
-                  <button
-                    // @ts-ignore
-                    onClick={() => maquininhasRefs.current[index]?.click()}
-                    className={styles.MidiaField}
-                  >
-                    Carregue sua foto
-                  </button>
-                  {maquininhasImages[index] && (
-                    <div>
-                      <img
-                        src={URL.createObjectURL(maquininhasImages[index])}
-                        alt={`Preview da maquininha ${index + 1}`}
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                        onLoad={() =>
-                          // @ts-ignore
-                          URL.revokeObjectURL(maquininhasImages[index])
-                        }
-                      />
-                      <p className={styles.fileName}>
-                        {maquininhasFileNames[index]}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Arquivo do quarto caixa</p>
+                <input
+                  type="file"
+                  accept=".pdf,.xlsx"
+                  style={{ display: "none" }}
+                  ref={etanolRef}
+                  onChange={handleEtanolFileChange}
+                />
+
+                <button
+                  // @ts-ignore
+                  onClick={() => etanolRef.current && etanolRef.current.click()}
+                  className={styles.MidiaField}
+                >
+                  Carregue seu arquivo
+                </button>
+                {etanolImage && (
+                  <div>
+                    <p className={styles.fileName}>{etanolFileName}</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

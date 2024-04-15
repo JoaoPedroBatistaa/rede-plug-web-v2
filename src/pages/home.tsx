@@ -60,7 +60,7 @@ export default function Home() {
                 </div>
               </Link>
 
-              <Link href="/Requests">
+              <Link href="/supervisors">
                 <div className={styles.CardMenu}>
                   <img src="./supervisoresHome.svg"></img>
                   <span className={styles.CardMenuText}>SUPERVISORES</span>

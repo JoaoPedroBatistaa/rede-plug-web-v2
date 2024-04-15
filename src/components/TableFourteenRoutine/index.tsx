@@ -288,6 +288,11 @@ export default function TablePosts({
               name: "Verificação dos Cavaletes",
               link: "/easel-fourteen",
             },
+            {
+              id: "teste-game-proveta-14h",
+              name: "Teste do Game na Proveta de 1L",
+              link: "/game-test-fourteen",
+            },
           ].map((task) => {
             // @ts-ignore
             const taskRecord = todayTasks.find((t) => t.id === task.id);

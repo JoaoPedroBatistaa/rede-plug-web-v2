@@ -7,16 +7,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useEffect, useRef, useState } from "react";
-import { db, storage } from "../../firebase";
+import { useRef, useState } from "react";
+import { db, getDownloadURL, ref, storage } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
-
-interface Nozzle {
-  nozzleNumber: string;
-  product: string;
-}
+import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
@@ -27,49 +22,30 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
+  const [stuckMachines, setStuckMachines] = useState(0);
+  const [useMachines, setUseMachines] = useState(0);
+
+  const [observations, setObservations] = useState("");
+
   const etanolRef = useRef(null);
-  const gcRef = useRef(null);
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
 
-  const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcFileName, setGcFileName] = useState("");
-
-  const handleEtanolFileChange = (
+  const handleEtanolImageChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files ? event.target.files[0] : null;
+    // @ts-ignore
+    const file = event.target.files[0];
     if (file) {
-      setEtanolImage(file); // Consider renaming this state to setEtanolFile
+      setEtanolImage(file);
       setEtanolFileName(file.name);
     }
   };
 
-  useEffect(() => {
-    const postName = localStorage.getItem("userPost");
-
-    if (postName) {
-      const fetchPostDetails = async () => {
-        try {
-          const postsRef = collection(db, "POSTS");
-          const q = query(postsRef, where("name", "==", postName));
-          const querySnapshot = await getDocs(q);
-
-          querySnapshot.forEach((doc) => {
-            const postData = doc.data();
-          });
-        } catch (error) {
-          console.error("Error fetching post details:", error);
-        }
-      };
-
-      fetchPostDetails();
-    }
-  }, []);
-
-  const saveFourthCashier = async () => {
+  const saveMeasurement = async () => {
     setIsLoading(true);
+
     let missingField = "";
     const today = new Date().toISOString().slice(0, 10);
 
@@ -80,8 +56,8 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
-    else if (!etanolImage) missingField = "Arquivo do controle de tanque"; // Consider changing the name to etanolFile for clarity
+    else if (!managerName) missingField = "Nome do supervisor";
+    else if (!useMachines) missingField = "Quantidade";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -93,68 +69,47 @@ export default function NewPost() {
     const userName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
 
-    const fourthCashierRef = collection(db, "MANAGERS");
+    const managersRef = collection(db, "SUPERVISORS");
     const q = query(
-      fourthCashierRef,
+      managersRef,
       where("date", "==", date),
-      where("userName", "==", userName),
-      where("id", "==", "controle-tanque-22h")
+      where("id", "==", "maquininhas-reservas"),
+      where("userName", "==", userName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("O controle de tanque das 22h já foi cadastrado hoje!");
+      toast.error("A tarefa maquininhas reservas já foi feita hoje!");
       setIsLoading(false);
 
       return;
     }
 
-    const fourthCashierData = {
+    const taskData = {
       date,
       time,
-      managerName,
+      supervisorName: managerName,
       userName,
       postName,
-      files: [], // Changed from images to files
-      id: "controle-tanque-22h",
+      observations,
+      qtd: useMachines,
+      id: "maquininhas-reservas",
     };
 
-    // Preparar os uploads dos arquivos
-    const uploadPromises = [];
-    if (etanolImage) {
-      // Consider changing the name to etanolFile for clarity
-      const etanolPromise = uploadFileAndGetUrl(
-        etanolImage, // Consider changing the name to etanolFile
-        `fourthCashier/${date}/etanol_${etanolFileName}_${Date.now()}`
-      ).then((fileUrl) => ({
-        type: "Etanol",
-        fileUrl,
-        fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
     try {
-      const files = await Promise.all(uploadPromises);
-      // @ts-ignore
-      fourthCashierData.files = files;
-
-      const docRef = await addDoc(
-        collection(db, "MANAGERS"),
-        fourthCashierData
-      );
-      console.log("Controle de tanque salvo com ID: ", docRef.id);
-      toast.success("Controle de tanque salvo com sucesso!");
-      router.push("/manager-twenty-two-routine");
+      const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
+      console.log("Tarefa salva com ID: ", docRef.id);
+      toast.success("Tarefa salva com sucesso!");
+      router.push("/supervisors-routine");
     } catch (error) {
-      console.error("Erro ao salvar o controle de tanque: ", error);
-      toast.error("Erro ao salvar o controle de tanque.");
+      console.error("Erro ao salvar os dados da tarefa: ", error);
+      toast.error("Erro ao salvar a medição.");
     }
   };
 
-  async function uploadFileAndGetUrl(file: File, path: string) {
+  async function uploadImageAndGetUrl(imageFile: File, path: string) {
     const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, file);
+    const uploadResult = await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
   }
@@ -175,24 +130,21 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Controle de tanque 22h</p>
+            <p className={styles.BudgetTitle}>Maquininhas reservas</p>
             <div className={styles.BudgetHeadS}>
-              <button
-                className={styles.FinishButton}
-                onClick={saveFourthCashier}
-              >
+              <button className={styles.FinishButton} onClick={saveMeasurement}>
                 <img
                   src="./finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText}>Cadastrar controle</span>
+                <span className={styles.buttonText}>Cadastrar tarefa</span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações do controle de tanque
+            Informe abaixo as informações das maquininhas reservas
           </p>
 
           <div className={styles.userContent}>
@@ -224,7 +176,7 @@ export default function NewPost() {
               </div>
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do gerente</p>
+                  <p className={styles.FieldLabel}>Nome do supervisor</p>
                   <input
                     id="driverName"
                     type="text"
@@ -235,31 +187,30 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>
-                  Arquivo do controle de tanque
-                </p>
-                <input
-                  type="file"
-                  accept=".pdf,.xlsx"
-                  style={{ display: "none" }}
-                  ref={etanolRef}
-                  onChange={handleEtanolFileChange}
-                />
-
-                <button
-                  // @ts-ignore
-                  onClick={() => etanolRef.current && etanolRef.current.click()}
-                  className={styles.MidiaField}
-                >
-                  Carregue seu arquivo
-                </button>
-                {etanolImage && (
-                  <div>
-                    <p className={styles.fileName}>{etanolFileName}</p>
-                  </div>
-                )}
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Quantidade de maquininhas</p>
+                  <input
+                    id="useMachines"
+                    type="number"
+                    className={styles.Field}
+                    value={useMachines}
+                    // @ts-ignore
+                    onChange={(e) => setUseMachines(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Observações</p>
+                  <textarea
+                    id="observations"
+                    className={styles.Field}
+                    value={observations}
+                    onChange={(e) => setObservations(e.target.value)}
+                    rows={3}
+                  />
+                </div>
               </div>
             </div>
           </div>

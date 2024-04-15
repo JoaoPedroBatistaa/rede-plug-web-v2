@@ -11,13 +11,27 @@ import LoadingOverlay from "@/components/Loading";
 
 import {
   addDoc,
+  arrayRemove,
+  arrayUnion,
   collection,
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
+
+interface Supervisor {
+  id: string;
+  name: string;
+
+  contact: string;
+  email: string;
+  password: string;
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -53,6 +67,95 @@ export default function NewPost() {
 
   const [tankOptions, setTankOptions] = useState([]);
 
+  const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
+  const [selectedSupervisors, setSelectedSupervisors] = useState([
+    { selectedSupervisorId: "" },
+  ]);
+
+  const addSupervisor = () => {
+    setSelectedSupervisors([
+      ...selectedSupervisors,
+      { selectedSupervisorId: "" },
+    ]);
+  };
+
+  const updateSupervisorToRemovePost = async (
+    supervisorId: string,
+    postName: any
+  ) => {
+    const supervisorRef = doc(db, "USERS", supervisorId);
+
+    await updateDoc(supervisorRef, {
+      posts: arrayRemove(postName),
+    });
+  };
+
+  const removeSupervisor = async (indexToRemove: number) => {
+    const supervisorIdToRemove =
+      selectedSupervisors[indexToRemove]?.selectedSupervisorId;
+
+    if (supervisorIdToRemove) {
+      try {
+        await updateSupervisorToRemovePost(supervisorIdToRemove, name);
+
+        setSelectedSupervisors(
+          selectedSupervisors.filter((_, index) => index !== indexToRemove)
+        );
+
+        toast.success("Supervisor removido com sucesso!");
+      } catch (error) {
+        console.error("Erro ao remover o nome do posto do supervisor:", error);
+        toast.error("Erro ao remover o supervisor. Tente novamente.");
+      }
+    } else {
+      console.error(
+        "Supervisor ID não encontrado para o índice fornecido:",
+        indexToRemove
+      );
+      toast.error("ID do Supervisor não encontrado.");
+    }
+  };
+
+  const handleSupervisorChange = (index: number, supervisorId: string) => {
+    const newSelectedSupervisors = selectedSupervisors.map((item, i) => {
+      if (i === index) {
+        return { ...item, selectedSupervisorId: supervisorId };
+      }
+      return item;
+    });
+    setSelectedSupervisors(newSelectedSupervisors);
+  };
+
+  useEffect(() => {
+    let isComponentMounted = true;
+    const fetchData = async () => {
+      const path = "USERS";
+
+      const dbQuery = query(
+        collection(db, path),
+        where("type", "==", "supervisor")
+      );
+      const querySnapshot = await getDocs(dbQuery);
+      const postsList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        email: doc.data().email,
+        contact: doc.data().contact,
+        password: doc.data().password,
+      }));
+
+      if (isComponentMounted) {
+        setSupervisors(postsList);
+        console.log("Set data: ", postsList);
+      }
+    };
+    fetchData();
+
+    return () => {
+      isComponentMounted = false;
+    };
+  }, []);
+
   useEffect(() => {
     const loadConversionData = async () => {
       const filePath = `/data/conversion.json`;
@@ -85,11 +188,14 @@ export default function NewPost() {
         ? router.query.id[0]
         : router.query.id;
 
+      console.log("Fetching data for docId:", docId); // Log para depuração
+
       if (docId) {
         const docRef = doc(db, "POSTS", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
+          console.log("Document data:", docSnap.data()); // Log para depuração
           const postData = docSnap.data();
           setName(postData.name);
           setOwner(postData.owner);
@@ -99,6 +205,18 @@ export default function NewPost() {
           setTanks(postData.tanks || []);
           setNozzles(postData.nozzles || []);
           setManagers(postData.managers || []);
+
+          if (postData.supervisors) {
+            console.log("Supervisors data:", postData.supervisors); // Log para depuração
+          }
+
+          const loadedSupervisors = postData.supervisors?.map(
+            (supervisor: { id: any }) => ({
+              selectedSupervisorId: supervisor.id,
+            })
+          ) || [{ selectedSupervisorId: "" }];
+
+          setSelectedSupervisors(loadedSupervisors);
         } else {
           console.log("No such document!");
         }
@@ -274,6 +392,16 @@ export default function NewPost() {
     });
   };
 
+  const updateSupervisorPosts = async (
+    supervisorId: string,
+    postName: unknown
+  ) => {
+    const supervisorRef = doc(db, "USERS", supervisorId);
+    await updateDoc(supervisorRef, {
+      posts: arrayUnion(postName),
+    });
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Por favor, preencha todos os campos obrigatórios.");
@@ -300,6 +428,20 @@ export default function NewPost() {
         updatedManagersWithPasswords.push(updatedManager);
       }
 
+      const supervisorsList = selectedSupervisors.map((supervisor) => {
+        const supervisorData = supervisors.find(
+          (sup) => sup.id === supervisor.selectedSupervisorId
+        );
+        return {
+          id: supervisor.selectedSupervisorId,
+          name: supervisorData?.name || "",
+        };
+      });
+
+      for (const supervisor of supervisorsList) {
+        await updateSupervisorPosts(supervisor.id, name);
+      }
+
       const updateData = {
         name,
         owner,
@@ -309,6 +451,7 @@ export default function NewPost() {
         tanks,
         nozzles,
         managers: updatedManagersWithPasswords,
+        supervisors: supervisorsList,
       };
 
       const postRef = doc(db, "POSTS", docId);
@@ -660,6 +803,57 @@ export default function NewPost() {
                   >
                     <span className={styles.buttonText}>Excluir gerente</span>
                   </button>
+                </div>
+              ))}
+
+              <div className={styles.BudgetHead}>
+                <p className={styles.BudgetTitle}>Supervisores</p>
+                <div className={styles.BudgetHeadS}></div>
+              </div>
+
+              <p className={styles.Notes}>
+                Informe abaixo as informações dos supervisores
+              </p>
+
+              {selectedSupervisors.map((supervisor, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Nome do Supervisor</p>
+                    <select
+                      className={styles.SelectField} // Confirme se esta classe existe
+                      value={supervisor.selectedSupervisorId || ""}
+                      onChange={(e) =>
+                        handleSupervisorChange(index, e.target.value)
+                      }
+                    >
+                      <option value="">Selecione um supervisor</option>
+                      {supervisors.map((sup) => (
+                        <option key={sup.id} value={sup.id}>
+                          {sup.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {index === selectedSupervisors.length - 1 && (
+                    <button
+                      onClick={addSupervisor}
+                      className={styles.NewButton}
+                    >
+                      <span className={styles.buttonText}>Novo supervisor</span>
+                    </button>
+                  )}
+
+                  {index >= 0 && (
+                    <button
+                      onClick={() => removeSupervisor(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>
+                        Excluir supervisor
+                      </span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

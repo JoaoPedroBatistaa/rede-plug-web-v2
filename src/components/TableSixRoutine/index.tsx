@@ -201,6 +201,31 @@ export default function TablePosts({
               name: "Teste do Game na Proveta de 1L",
               link: "/game-test-six",
             },
+            {
+              id: "quarto-caixa-6h",
+              name: "4° Caixa",
+              link: "/fourth-cashier-six",
+            },
+            {
+              id: "recolhe-6h",
+              name: "Recolhe",
+              link: "/collect-six",
+            },
+            {
+              id: "quantidade-vendida-dia-anterior-6h",
+              name: "Quantidade Vendida no Dia Anterior",
+              link: "/yesterday-sales-volume-six",
+            },
+            {
+              id: "preco-concorrentes-6h",
+              name: "Preço dos Concorrentes",
+              link: "/competitors-price-six",
+            },
+            {
+              id: "controle-tanque-6h",
+              name: "Controle de Tanque",
+              link: "/tank-control-six",
+            },
           ].map((task) => {
             // @ts-ignore
             const taskRecord = todayTasks.find((t) => t.id === task.id);

@@ -3,41 +3,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableProducts.module.scss";
 
-import { getDocs } from "firebase/firestore";
-import { collection, db } from "../../../firebase";
+import { deleteDoc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
-import Link from "next/link";
+import { toast } from "react-toastify";
 
-import { format } from "date-fns";
-
-interface Measurement {
-  cm: string;
-  fileUrl: string;
-}
-
-interface SelectionWithFile {
-  selection: string;
-  fileUrl: string;
-  image: null;
-}
-
-interface Discharge {
+interface Supervisor {
   id: string;
-  date: string;
-  time: string;
-  driverName: string;
-  truckPlate: string;
-  tankNumber: string;
-  product: string;
-  initialMeasurement: Measurement;
-  finalMeasurement: Measurement;
-  seal: SelectionWithFile;
-  arrow: SelectionWithFile;
-  observations: string;
-  makerName: string;
-  postName: string;
+  name: string;
+
+  contact: string;
+  email: string;
+  password: string;
 }
 
 export default function TablePosts({
@@ -45,8 +24,8 @@ export default function TablePosts({
   orderValue,
   filterValue,
 }: ITableBudgets) {
-  const [filteredData, setFilteredData] = useState<Discharge[]>([]);
-  const [teste, setTeste] = useState<Discharge[]>([]);
+  const [filteredData, setFilteredData] = useState<Supervisor[]>([]);
+  const [teste, setTeste] = useState<Supervisor[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -58,55 +37,31 @@ export default function TablePosts({
   useEffect(() => {
     let isComponentMounted = true;
     const fetchData = async () => {
-      const path = "DISCHARGES"; // Caminho da coleção de descargas
+      const path = "USERS";
 
-      const dbCollection = collection(db, path);
-      const dischargesSnapshot = await getDocs(dbCollection);
-      const dischargesList = dischargesSnapshot.docs.map((doc) => {
-        const data = doc.data() as Discharge; // Garante a tipagem correta dos dados
-        return {
-          id: doc.id,
-          date: data.date,
-          time: data.time,
-          driverName: data.driverName,
-          truckPlate: data.truckPlate,
-          tankNumber: data.tankNumber,
-          product: data.product,
-          initialMeasurement: {
-            cm: data.initialMeasurement.cm,
-            fileUrl: data.initialMeasurement.fileUrl,
-          },
-          finalMeasurement: {
-            cm: data.finalMeasurement.cm,
-            fileUrl: data.finalMeasurement.fileUrl,
-          },
-          seal: {
-            selection: data.seal.selection,
-            fileUrl: data.seal.fileUrl,
-            image: null,
-          },
-          arrow: {
-            selection: data.arrow.selection,
-            fileUrl: data.arrow.fileUrl,
-            image: null,
-          },
-          observations: data.observations,
-          makerName: data.makerName,
-          postName: data.postName,
-        };
-      });
+      const dbQuery = query(
+        collection(db, path),
+        where("type", "==", "supervisor")
+      );
+      const querySnapshot = await getDocs(dbQuery);
+      const postsList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        email: doc.data().email,
+        contact: doc.data().contact,
+        password: doc.data().password,
+      }));
 
       if (isComponentMounted) {
-        setTeste(dischargesList);
-        setFilteredData(dischargesList); // Aqui você pode aplicar filtros ou ordenações
-        console.log("Set data: ", dischargesList);
+        setTeste(postsList);
+        setFilteredData(postsList);
+        console.log("Set data: ", postsList);
       }
     };
-
     fetchData();
 
     return () => {
-      isComponentMounted = false; // Limpeza ao desmontar o componente
+      isComponentMounted = false;
     };
   }, []);
 
@@ -114,7 +69,7 @@ export default function TablePosts({
     if (searchValue !== "") {
       const lowerCaseSearchValue = searchValue.toLowerCase();
       const newData = teste.filter((item) =>
-        item.postName.toLowerCase().includes(lowerCaseSearchValue)
+        item.name.toLowerCase().includes(lowerCaseSearchValue)
       );
       setFilteredData(newData);
     } else {
@@ -129,12 +84,12 @@ export default function TablePosts({
       switch (orderValue) {
         case "codigoCrescente":
           sortedData.sort((a, b) =>
-            a.postName.toUpperCase() < b.postName.toUpperCase() ? -1 : 1
+            a.name.toUpperCase() < b.name.toUpperCase() ? -1 : 1
           );
           break;
         case "codigoDescrescente":
           sortedData.sort((a, b) =>
-            a.postName.toUpperCase() > b.postName.toUpperCase() ? -1 : 1
+            a.name.toUpperCase() > b.name.toUpperCase() ? -1 : 1
           );
           break;
       }
@@ -168,6 +123,36 @@ export default function TablePosts({
     }));
   };
 
+  const handleDeleteItem = async (itemId: string) => {
+    const isConfirmed = confirm(
+      "Tem certeza que deseja excluir este supervisor?"
+    );
+
+    if (isConfirmed) {
+      try {
+        const postRef = doc(db, "USERS", itemId);
+        const postSnap = await getDoc(postRef);
+
+        await deleteDoc(postRef);
+
+        const updatedData = filteredData.filter((item) => item.id !== itemId);
+        setFilteredData(updatedData);
+
+        toast.success("Supervisor excluído com sucesso!", {
+          style: {
+            fontSize: "12px",
+            fontWeight: 600,
+          },
+        });
+      } catch (error) {
+        console.error("Ocorreu um erro ao excluir o supervisor:", error);
+        toast.error("Ocorreu um erro ao excluir o supervisor.");
+      }
+    } else {
+      console.log("Exclusão cancelada pelo usuário.");
+    }
+  };
+
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenuDiv = () => {
@@ -178,7 +163,7 @@ export default function TablePosts({
   useEffect(() => {
     const filterData = () => {
       const filteredItems = teste.filter((item) =>
-        item.postName?.toLowerCase().includes(searchValue.toLowerCase())
+        item.name?.toLowerCase().includes(searchValue.toLowerCase())
       );
 
       setFilteredData(filteredItems);
@@ -191,7 +176,7 @@ export default function TablePosts({
   const combinedData = [...filteredData, ...currentData];
 
   const typeUser =
-    typeof window !== "undefined" ? localStorage.getItem("userType") : null;
+    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
 
   return (
     <div className={styles.tableContianer} onClick={handleOpenMenuDiv}>
@@ -199,9 +184,10 @@ export default function TablePosts({
         <thead>
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
-            <th>Nome do posto</th>
-            <th>Data / Hora</th>
-            <th>Tanque</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Contato</th>
+            <th>Senha</th>
           </tr>
         </thead>
 
@@ -234,15 +220,14 @@ export default function TablePosts({
                       X
                     </div>
                     <div className={styles.containerOptionsMore}>
-                      <button className={styles.buttonBlack}>
-                        <Link
-                          href={{
-                            pathname: `/view-discharge`,
-                            query: { id: item.id },
-                          }}
-                        >
-                          Visualizar
-                        </Link>
+                      <button
+                        className={styles.buttonRed}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDeleteItem(item.id);
+                        }}
+                      >
+                        Deletar
                       </button>
                     </div>
                   </div>
@@ -250,16 +235,16 @@ export default function TablePosts({
               </td>
 
               <td className={styles.td}>
-                <b>{item.postName}</b>
-              </td>
-
-              <td className={styles.td}>
-                <b>
-                  {format(new Date(item.date), "dd/MM/yyyy")} - {item.time}
-                </b>
+                <b>{item.name}</b>
               </td>
               <td className={styles.td}>
-                <b>Tanque {item.tankNumber}</b>
+                <b>{item.email}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.contact}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.password}</b>
               </td>
             </tr>
           ))}
