@@ -46,6 +46,7 @@ export default function TablePosts({
   filterValue,
 }: ITableBudgets) {
   const router = useRouter();
+  const postName = router.query.post;
 
   const navigateTo = (path: Url) => {
     router.push(path);
@@ -346,13 +347,18 @@ export default function TablePosts({
               }
             };
 
+            const urlWithPostName = `${task.link}?postName=${encodeURIComponent(
+              // @ts-ignore
+              postName
+            )}`;
+
             return (
               <tr
                 className={`${styles.budgetItem} ${
                   isFinished ? styles.finished : styles.notFinished
                 }`}
                 key={task.id}
-                onClick={handleTaskClick}
+                onClick={() => navigateTo(urlWithPostName)}
                 style={{ cursor: isFinished ? "default" : "pointer" }}
               >
                 <td className={styles.tdWithRelative}>

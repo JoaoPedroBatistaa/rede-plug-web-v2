@@ -15,6 +15,7 @@ import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
+  const postName = router.query.postName;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,7 +43,7 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do supervisor";
+    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!useMachinesTurn1) missingField = "Quantidade turno 1";
     else if (!useMachinesTurn2) missingField = "Quantidade turno 2";
     else if (!useMachinesTurn3) missingField = "Quantidade turno 3";
@@ -57,7 +58,7 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    const postName = localStorage.getItem("userPost");
+    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -78,7 +79,7 @@ export default function NewPost() {
     const taskData = {
       date,
       time,
-      supervisorName: managerName,
+      supervisorName: userName,
       userName,
       postName,
       observations,
@@ -93,7 +94,8 @@ export default function NewPost() {
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
       toast.success("Tarefa salva com sucesso!");
-      router.push("/supervisors-routine");
+      // @ts-ignore
+      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
@@ -167,7 +169,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome do supervisor</p>
                   <input
@@ -179,7 +181,7 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-              </div>
+              </div> */}
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Turno 1</p>

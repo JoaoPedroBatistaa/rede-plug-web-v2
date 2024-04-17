@@ -16,6 +16,7 @@ interface User {
   password: string;
   type: string;
   postName: string;
+  posts: any;
 }
 
 export default function Login() {
@@ -39,6 +40,7 @@ export default function Login() {
           password: data.password,
           type: data.type,
           postName: data.postName,
+          posts: data.posts,
         };
         return user;
       });
@@ -59,6 +61,7 @@ export default function Login() {
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userType", user.type);
       localStorage.setItem("userPost", user.postName);
+      localStorage.setItem("posts", user.posts);
 
       toast.success("Login realizado com sucesso!", {
         position: "top-right",
@@ -73,6 +76,10 @@ export default function Login() {
       if (user.type === "manager") {
         setTimeout(() => {
           router.push("/managers");
+        }, 2000);
+      } else if (user.type === "supervisor") {
+        setTimeout(() => {
+          router.push("/supervisors-home");
         }, 2000);
       } else {
         setTimeout(() => {
