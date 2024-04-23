@@ -272,7 +272,6 @@ export default function NewPost() {
     if (!validateForm()) {
       toast.error("Por favor, preencha todos os campos obrigatórios.");
       setIsLoading(false);
-
       return;
     }
 
@@ -312,10 +311,21 @@ export default function NewPost() {
       console.log("Post adicionado com ID:", postRef.id);
       toast.success("Posto supervisores e gerentes adicionados com sucesso!");
 
+      const userRef = await addDoc(collection(db, "USERS"), {
+        email: email,
+        name: name,
+        type: "post",
+        password: postRef.id,
+      });
+
+      console.log("Usuário adicionado com ID:", userRef.id);
+
       router.push("/posts");
     } catch (error) {
       console.error("Erro ao adicionar dados:", error);
       toast.error("Erro ao completar o registro.");
+    } finally {
+      setIsLoading(false);
     }
   };
 

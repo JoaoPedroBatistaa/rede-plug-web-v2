@@ -77,7 +77,8 @@ export default function NewPost() {
       managersRef,
       where("date", "==", date),
       where("id", "==", "maquininhas-uso"),
-      where("userName", "==", userName)
+      where("userName", "==", userName),
+      where("postName", "==", postName)
     );
 
     const querySnapshot = await getDocs(q);

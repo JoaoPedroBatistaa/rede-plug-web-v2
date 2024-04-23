@@ -46,7 +46,8 @@ export default function TablePosts({
   filterValue,
 }: ITableBudgets) {
   const router = useRouter();
-  const postName = router.query.post;
+
+  const [postName, setPostName] = useState("");
 
   const navigateTo = (path: Url) => {
     router.push(path);
@@ -63,15 +64,15 @@ export default function TablePosts({
   useEffect(() => {
     const fetchTodayTasks = async () => {
       const today = new Date().toISOString().slice(0, 10);
-      const managersRef = collection(db, "SUPERVISORS");
+      const managersRef = collection(db, "ATTENDANTS");
       const userName = localStorage.getItem("userName");
-      const postName = router.query.post; // Ensure postName is fetched inside useEffect to capture latest value
+      // @ts-ignore
+      setPostName(userName);
 
       // Query updated to include postName condition
       const q = query(
         managersRef,
         where("date", "==", today),
-        where("userName", "==", userName),
         where("postName", "==", postName) // Adding this line to filter by postName
       );
 
@@ -89,11 +90,8 @@ export default function TablePosts({
       }
     };
 
-    if (router.query.post) {
-      // Only run the fetch if postName is not undefined
-      fetchTodayTasks();
-    }
-  }, [router.query.post]); // Adding router.query.post as a dependency to re-run useEffect when it changes
+    fetchTodayTasks();
+  }, [postName]);
 
   useEffect(() => {
     if (searchValue !== "") {
@@ -186,166 +184,26 @@ export default function TablePosts({
         <tbody>
           {[
             {
-              id: "uniformes",
-              name: "Uniformes",
-              link: "/uniforms",
+              id: "turno-1",
+              name: "Relatório Turno 1",
+              link: "/shift-1",
             },
             {
-              id: "atendimento",
-              name: "Atendimento",
-              link: "/service",
+              id: "turno-2",
+              name: "Relatório Turno 2",
+              link: "/shift-2",
             },
             {
-              id: "extintores",
-              name: "Extintores",
-              link: "/extinguishers",
-            },
-            {
-              id: "placas-sinalizacao",
-              name: "Placas de sinalização",
-              link: "/traffic-signs",
-            },
-            {
-              id: "placas-faixa-preco",
-              name: "Placas de faixa de preço",
-              link: "/price-signs",
-            },
-            {
-              id: "bicos",
-              name: "Bicos",
-              link: "/nozzles",
-            },
-            {
-              id: "mangueiras",
-              name: "Mangueiras",
-              link: "/hoses",
-            },
-            {
-              id: "limpeza-testeiras",
-              name: "Limpeza testeira",
-              link: "/front-cleaning",
-            },
-            {
-              id: "canaletas",
-              name: "Canaletas",
-              link: "/channels",
-            },
-            {
-              id: "pintura-posto",
-              name: "Pintura do posto",
-              link: "/post-painting",
-            },
-            {
-              id: "canetas",
-              name: "Canetas",
-              link: "/pens",
-            },
-            {
-              id: "bicos-parados",
-              name: "Bicos parados",
-              link: "/nozzles-stopped",
-            },
-            {
-              id: "limpeza-pista",
-              name: "Limpeza e organização da písta",
-              link: "/track-cleaning",
-            },
-            {
-              id: "aferidores",
-              name: "Aferidores",
-              link: "/gauges",
-            },
-            {
-              id: "limpeza-banheiros",
-              name: "Limpeza e organização dos banheiros",
-              link: "/bathroom-cleaning",
-            },
-            {
-              id: "iluminacao-pista",
-              name: "Iluminação da pista",
-              link: "/runway-lightning",
-            },
-            {
-              id: "iluminacao-testeiras",
-              name: "Iluminação das testeiras",
-              link: "/front-lightning",
-            },
-            {
-              id: "vestiario",
-              name: "Vestiário",
-              link: "/locker-room",
-            },
-            {
-              id: "troca-oleo",
-              name: "Troca de óleo",
-              link: "/oil-change",
-            },
-            {
-              id: "compressor",
-              name: "Compressor",
-              link: "/compressor",
-            },
-            {
-              id: "calibrador",
-              name: "Calibrador",
-              link: "/calibrator",
-            },
-            {
-              id: "notas-fiscais",
-              name: "Notas fiscais",
-              link: "/fiscal-notes",
-            },
-            {
-              id: "maquininhas-uso",
-              name: "Maquininhas em uso",
-              link: "/use-machines",
-            },
-            {
-              id: "maquininhas-reservas",
-              name: "Maquininhas reservas",
-              link: "/reserve-machines",
-            },
-            {
-              id: "escala-trabalho",
-              name: "Escala de trabalho",
-              link: "/work-schedule",
-            },
-            {
-              id: "vira",
-              name: "Vira",
-              link: "/turn",
-            },
-            {
-              id: "teste-combustiveis-venda",
-              name: "Teste dos combustíveis de venda",
-              link: "/fuel-sell-test",
-            },
-            {
-              id: "limpeza-bombas",
-              name: "Limpeza das bombas",
-              link: "/bombs-cleaning",
-            },
-            {
-              id: "identificacao-fornecedor",
-              name: "Identificação de fornecedor",
-              link: "/supplier-identification",
-            },
-            {
-              id: "lacre-bombas",
-              name: "Lacre das bombas",
-              link: "/bomb-seal",
-            },
-            {
-              id: "passagem-bomba",
-              name: "Passagem de bomba",
-              link: "/bomb-passage",
+              id: "turno-3",
+              name: "Relatório Turno 3",
+              link: "/shift-3",
             },
           ].map((task) => {
             // @ts-ignore
             const taskRecord = todayTasks.find((t) => t.id === task.id);
             const isFinished = taskRecord !== undefined;
             // @ts-ignore
-            const managerName = taskRecord ? taskRecord.supervisorName : "-";
+            const managerName = taskRecord ? taskRecord.attendant : "-";
             // @ts-ignore
             const time = taskRecord ? taskRecord.time : "-";
 

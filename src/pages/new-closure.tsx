@@ -6,7 +6,7 @@ import HeaderNewProduct from "@/components/HeaderNewTask";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../firebase";
 
@@ -23,7 +23,9 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
-  const [isOk, setIsOk] = useState("");
+  const [type, setType] = useState("");
+  const [value, setValue] = useState("");
+  const [post, setPost] = useState("");
   const [observations, setObservations] = useState("");
 
   const etanolRef = useRef(null);
@@ -49,14 +51,12 @@ export default function NewPost() {
     const today = new Date().toISOString().slice(0, 10);
 
     if (!date) missingField = "Data";
-    else if (date !== today) {
-      toast.error("Você deve cadastrar a data correta de hoje!");
-      setIsLoading(false);
-
-      return;
-    } else if (!time) missingField = "Hora";
+    // else if (date !== today) {
+    //   toast.error("Você deve cadastrar a data correta de hoje!");
+    //   setIsLoading(false);
+    //   return;
+    // } else if (!time) missingField = "Hora";
     // else if (!managerName) missingField = "Nome do supervisor";
-    else if (!isOk) missingField = "Está ok?";
     else if (!etanolImage) missingField = "Fotos da tarefa";
 
     if (missingField) {
@@ -69,40 +69,40 @@ export default function NewPost() {
     const userName = localStorage.getItem("userName");
     // const postName = localStorage.getItem("userPost");
 
-    const managersRef = collection(db, "SUPERVISORS");
-    const q = query(
-      managersRef,
-      where("date", "==", date),
-      where("id", "==", "compressor"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
-    );
+    // const managersRef = collection(db, "CLOSURES");
+    // const q = query(
+    //   managersRef,
+    //   where("date", "==", date),
+    //   where("id", "==", "iluminacao-pista"),
+    //   where("userName", "==", userName),
+    //   where("postName", "==", postName)
+    // );
 
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error("A tarefa compressor já foi feita hoje!");
-      setIsLoading(false);
+    // const querySnapshot = await getDocs(q);
+    // if (!querySnapshot.empty) {
+    //   toast.error("A tarefa iluminação da pista já foi feita hoje!");
+    //   setIsLoading(false);
 
-      return;
-    }
+    //   return;
+    // }
 
     const taskData = {
       date,
       time,
-      supervisorName: userName,
       userName,
-      postName,
-      isOk,
+      post,
+      value,
+      type,
       observations,
       images: [],
-      id: "compressor",
+      id: "closure",
     };
 
     const uploadPromises = [];
     if (etanolImage) {
       const etanolPromise = uploadImageAndGetUrl(
         etanolImage,
-        `supervisors/${date}/${etanolFileName}_${Date.now()}`
+        `closures/${date}/${etanolFileName}_${Date.now()}`
       ).then((imageUrl) => ({
         type: "Imagem da tarefa",
         imageUrl,
@@ -116,11 +116,11 @@ export default function NewPost() {
       // @ts-ignore
       taskData.images = images;
 
-      const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
+      const docRef = await addDoc(collection(db, "CLOSURES"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
-      toast.success("Tarefa salva com sucesso!");
+      toast.success("Fechamento salvo com sucesso!");
       // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
+      router.push(`/closures`);
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
@@ -150,7 +150,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Compressor</p>
+            <p className={styles.BudgetTitle}>Novo fechamento</p>
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton} onClick={saveMeasurement}>
                 <img
@@ -158,13 +158,13 @@ export default function NewPost() {
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />
-                <span className={styles.buttonText}>Cadastrar tarefa</span>
+                <span className={styles.buttonText}>Cadastrar fechamento</span>
               </button>
             </div>
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações do compressor
+            Informe abaixo as informações do fechamento
           </p>
 
           <div className={styles.userContent}>
@@ -194,33 +194,42 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
+              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do supervisor</p>
+                  <p className={styles.FieldLabel}>Tipo de fechamento</p>
                   <input
                     id="driverName"
                     type="text"
                     className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
                     placeholder=""
                   />
                 </div>
-              </div> */}
-              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>OK?</p>
-                  <select
-                    id="isOk"
-                    className={styles.SelectField}
-                    value={isOk}
-                    onChange={(e) => setIsOk(e.target.value)}
-                  >
-                    <option value="">Selecione</option>
-                    <option value="yes">Sim</option>
-                    <option value="no">Não</option>
-                  </select>
+                  <p className={styles.FieldLabel}>Valor do fechamento</p>
+                  <input
+                    id="driverName"
+                    type="text"
+                    className={styles.Field}
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    placeholder=""
+                  />
                 </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Posto do fechamento</p>
+                  <input
+                    id="driverName"
+                    type="text"
+                    className={styles.Field}
+                    value={post}
+                    onChange={(e) => setPost(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>
                   <textarea
@@ -234,7 +243,7 @@ export default function NewPost() {
               </div>
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
+                  <p className={styles.FieldLabel}>Imagem do fechamento</p>
                   <input
                     type="file"
                     accept="image/*"

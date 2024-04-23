@@ -68,7 +68,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
             <p className={styles.Steps}>Menu Principal</p>
 
-            {typeUser !== "manager" && (
+            {typeUser !== "manager" && typeUser !== "post" && (
               <>
                 {typeUser !== "supervisor" && (
                   <>
@@ -145,64 +145,113 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                   </>
                 )}
 
+                {typeUser !== "post" && (
+                  <>
+                    <div
+                      className={`${styles.MenuNavigate} ${
+                        activeRoute === "/supervisors-routine"
+                          ? styles.active
+                          : ""
+                      }`}
+                      onClick={handleOpenMenuDiv}
+                    >
+                      <img
+                        src="/supervisores.svg"
+                        className={styles.Pointer}
+                        alt=""
+                      />
+
+                      <Link
+                        className={styles.NavigateItem}
+                        href="/supervisors-home"
+                      >
+                        Supervisores +
+                      </Link>
+                    </div>
+
+                    <div
+                      className={`${styles.MenuNavigate} ${
+                        activeRoute === "/Supplier" ? styles.active : ""
+                      }`}
+                      onClick={handleOpenMenuDiv}
+                    >
+                      <img
+                        src="/relatorios.svg"
+                        className={styles.Pointer}
+                        alt=""
+                      />
+
+                      <Link className={styles.NavigateItem} href="/Supplier">
+                        Relatórios
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {typeUser !== "post" && (
+              <>
                 <div
                   className={`${styles.MenuNavigate} ${
-                    activeRoute === "/supervisors-routine" ? styles.active : ""
+                    [
+                      "/managers",
+                      "/manager-six-routine",
+                      "/manager-eighteen-routine",
+                      "/manager-twenty-two-routine",
+                    ].includes(activeRoute)
+                      ? styles.active
+                      : ""
                   }`}
                   onClick={handleOpenMenuDiv}
                 >
-                  <img
-                    src="/supervisores.svg"
-                    className={styles.Pointer}
-                    alt=""
-                  />
+                  <img src="/gerentes.svg" className={styles.Pointer} alt="" />
 
-                  <Link
-                    className={styles.NavigateItem}
-                    href="/supervisors-routine"
-                  >
-                    Supervisores +
-                  </Link>
-                </div>
-
-                <div
-                  className={`${styles.MenuNavigate} ${
-                    activeRoute === "/Supplier" ? styles.active : ""
-                  }`}
-                  onClick={handleOpenMenuDiv}
-                >
-                  <img
-                    src="/relatorios.svg"
-                    className={styles.Pointer}
-                    alt=""
-                  />
-
-                  <Link className={styles.NavigateItem} href="/Supplier">
-                    Relatórios
+                  <Link className={styles.NavigateItem} href="/managers">
+                    Gerentes
                   </Link>
                 </div>
               </>
             )}
 
-            <div
-              className={`${styles.MenuNavigate} ${
-                [
-                  "/managers",
-                  "/manager-six-routine",
-                  "/manager-eighteen-routine",
-                  "/manager-twenty-two-routine",
-                ].includes(activeRoute)
-                  ? styles.active
-                  : ""
-              }`}
-              onClick={handleOpenMenuDiv}
-            >
-              <img src="/gerentes.svg" className={styles.Pointer} alt="" />
+            {typeUser === "post" ||
+              (typeUser === "admin" && (
+                <>
+                  <div
+                    className={`${styles.MenuNavigate} ${
+                      ["/attendants"].includes(activeRoute) ? styles.active : ""
+                    }`}
+                    onClick={handleOpenMenuDiv}
+                  >
+                    <img
+                      src="/gerentes.svg"
+                      className={styles.Pointer}
+                      alt=""
+                    />
 
-              <Link className={styles.NavigateItem} href="/managers">
-                Gerentes
-              </Link>
-            </div>
+                    <Link className={styles.NavigateItem} href="/attendants">
+                      Frentistas
+                    </Link>
+                  </div>
+                </>
+              ))}
+
+            {typeUser === "admin" && (
+              <>
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    ["/closures"].includes(activeRoute) ? styles.active : ""
+                  }`}
+                  onClick={handleOpenMenuDiv}
+                >
+                  <img src="/gerentes.svg" className={styles.Pointer} alt="" />
+
+                  <Link className={styles.NavigateItem} href="/closures">
+                    Fechamentos
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
 
           <div className={styles.MenuContainer}>
@@ -214,40 +263,44 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               </>
             )} */}
 
-            <div
-              className={`${styles.MenuNavigate} ${
-                activeRoute === "/discharges" ? styles.active : ""
-              }`}
-            >
-              <svg
-                className={styles.Pointer}
-                width="16"
-                height="17"
-                viewBox="0 0 16 17"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clip-path="url(#clip0_1809_1500)">
-                  <path
-                    d="M13 11.654C13 12.0226 12.702 12.3206 12.3333 12.3206H11C10.6313 12.3206 10.3333 12.0226 10.3333 11.654C10.3333 11.2853 10.6313 10.9873 11 10.9873H12.3333C12.702 10.9873 13 11.2853 13 11.654ZM16 10.9873V14.3206C16 15.7913 14.804 16.9873 13.3333 16.9873H2.66667C1.196 16.9873 0 15.7913 0 14.3206V10.9873C0 9.51664 1.196 8.32064 2.66667 8.32064H3.33333V3.65397C3.33333 2.1833 4.52933 0.987305 6 0.987305H10C11.4707 0.987305 12.6667 2.1833 12.6667 3.65397V8.32064H13.3333C14.804 8.32064 16 9.51664 16 10.9873ZM4.66667 8.32064H11.3333V3.65397C11.3333 2.91864 10.7353 2.32064 10 2.32064H6C5.26467 2.32064 4.66667 2.91864 4.66667 3.65397V8.32064ZM2.66667 15.654H7.33333V9.65397H2.66667C1.93133 9.65397 1.33333 10.252 1.33333 10.9873V14.3206C1.33333 15.056 1.93133 15.654 2.66667 15.654ZM14.6667 10.9873C14.6667 10.252 14.0687 9.65397 13.3333 9.65397H8.66667V15.654H13.3333C14.0687 15.654 14.6667 15.056 14.6667 14.3206V10.9873ZM5 10.9873H3.66667C3.298 10.9873 3 11.2853 3 11.654C3 12.0226 3.298 12.3206 3.66667 12.3206H5C5.36867 12.3206 5.66667 12.0226 5.66667 11.654C5.66667 11.2853 5.36867 10.9873 5 10.9873ZM9.33333 4.32064C9.33333 3.95197 9.03533 3.65397 8.66667 3.65397H7.33333C6.96467 3.65397 6.66667 3.95197 6.66667 4.32064C6.66667 4.6893 6.96467 4.9873 7.33333 4.9873H8.66667C9.03533 4.9873 9.33333 4.6893 9.33333 4.32064Z"
-                    fill=""
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_1809_1500">
-                    <rect
-                      width="16"
-                      height="16"
-                      fill="white"
-                      transform="translate(0 0.987305)"
-                    />
-                  </clipPath>
-                </defs>
-              </svg>
+            {typeUser !== "post" && (
+              <>
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    activeRoute === "/discharges" ? styles.active : ""
+                  }`}
+                >
+                  <svg
+                    className={styles.Pointer}
+                    width="16"
+                    height="17"
+                    viewBox="0 0 16 17"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_1809_1500)">
+                      <path
+                        d="M13 11.654C13 12.0226 12.702 12.3206 12.3333 12.3206H11C10.6313 12.3206 10.3333 12.0226 10.3333 11.654C10.3333 11.2853 10.6313 10.9873 11 10.9873H12.3333C12.702 10.9873 13 11.2853 13 11.654ZM16 10.9873V14.3206C16 15.7913 14.804 16.9873 13.3333 16.9873H2.66667C1.196 16.9873 0 15.7913 0 14.3206V10.9873C0 9.51664 1.196 8.32064 2.66667 8.32064H3.33333V3.65397C3.33333 2.1833 4.52933 0.987305 6 0.987305H10C11.4707 0.987305 12.6667 2.1833 12.6667 3.65397V8.32064H13.3333C14.804 8.32064 16 9.51664 16 10.9873ZM4.66667 8.32064H11.3333V3.65397C11.3333 2.91864 10.7353 2.32064 10 2.32064H6C5.26467 2.32064 4.66667 2.91864 4.66667 3.65397V8.32064ZM2.66667 15.654H7.33333V9.65397H2.66667C1.93133 9.65397 1.33333 10.252 1.33333 10.9873V14.3206C1.33333 15.056 1.93133 15.654 2.66667 15.654ZM14.6667 10.9873C14.6667 10.252 14.0687 9.65397 13.3333 9.65397H8.66667V15.654H13.3333C14.0687 15.654 14.6667 15.056 14.6667 14.3206V10.9873ZM5 10.9873H3.66667C3.298 10.9873 3 11.2853 3 11.654C3 12.0226 3.298 12.3206 3.66667 12.3206H5C5.36867 12.3206 5.66667 12.0226 5.66667 11.654C5.66667 11.2853 5.36867 10.9873 5 10.9873ZM9.33333 4.32064C9.33333 3.95197 9.03533 3.65397 8.66667 3.65397H7.33333C6.96467 3.65397 6.66667 3.95197 6.66667 4.32064C6.66667 4.6893 6.96467 4.9873 7.33333 4.9873H8.66667C9.03533 4.9873 9.33333 4.6893 9.33333 4.32064Z"
+                        fill=""
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_1809_1500">
+                        <rect
+                          width="16"
+                          height="16"
+                          fill="white"
+                          transform="translate(0 0.987305)"
+                        />
+                      </clipPath>
+                    </defs>
+                  </svg>
 
-              <Link className={styles.NavigateItem} href="/discharges">
-                Descargas
-              </Link>
-            </div>
+                  <Link className={styles.NavigateItem} href="/discharges">
+                    Descargas
+                  </Link>
+                </div>
+              </>
+            )}
 
             <div
               className={`${styles.MenuNavigate} ${

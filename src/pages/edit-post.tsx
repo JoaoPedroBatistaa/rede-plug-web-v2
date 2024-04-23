@@ -51,6 +51,7 @@ export default function NewPost() {
   const [contact, setContact] = useState("");
   const [location, setLocation] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [tanks, setTanks] = useState([
     {
       tankNumber: "",
@@ -202,6 +203,7 @@ export default function NewPost() {
           setContact(postData.contact);
           setLocation(postData.location);
           setEmail(postData.email);
+          setPassword(docId);
           setTanks(postData.tanks || []);
           setNozzles(postData.nozzles || []);
           setManagers(postData.managers || []);
@@ -559,6 +561,18 @@ export default function NewPost() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder=""
+                  />
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Senha para frentistas</p>
+                  <input
+                    id="password"
+                    type="text"
+                    className={styles.Field}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder=""
+                    disabled
                   />
                 </div>
               </div>

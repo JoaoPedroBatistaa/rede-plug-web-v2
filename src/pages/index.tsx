@@ -81,6 +81,10 @@ export default function Login() {
         setTimeout(() => {
           router.push("/supervisors-home");
         }, 2000);
+      } else if (user.type === "post") {
+        setTimeout(() => {
+          router.push("/attendants");
+        }, 2000);
       } else {
         setTimeout(() => {
           router.push("/home");
