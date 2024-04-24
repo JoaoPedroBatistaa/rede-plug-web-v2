@@ -33,6 +33,7 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [driverName, setDriverName] = useState("");
   const [truckPlate, setTruckPlate] = useState("");
+  const [truckPlateImage, setTruckPlateImage] = useState("");
   const [observations, setObservations] = useState("");
   const [initialMeasurementCm, setInitialMeasurementCm] = useState("");
   const [finalMeasurementCm, setFinalMeasurementCm] = useState("");
@@ -120,6 +121,7 @@ export default function NewPost() {
           setTime(data.time);
           setDriverName(data.driverName);
           setTruckPlate(data.truckPlate);
+          setTruckPlateImage(data.truckPlateImage);
           setSelectedTank(data.tankNumber);
           setSelectedProduct(data.product);
           setInitialMeasurementCm(data.initialMeasurement.cm);
@@ -323,10 +325,23 @@ export default function NewPost() {
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Placa do caminhão</p>
-                  {truckPlate && (
+                  <input
+                    id="driverName"
+                    type="text"
+                    className={styles.Field}
+                    value={truckPlate}
+                    onChange={(e) => setTruckPlate(e.target.value)}
+                    placeholder=""
+                    disabled
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Placa do caminhão</p>
+                  {truckPlateImage && (
                     <div>
                       <img
-                        src={truckPlate}
+                        src={truckPlateImage}
                         alt="Visualização da imagem da placa do caminhão"
                         style={{
                           maxWidth: "17.5rem",

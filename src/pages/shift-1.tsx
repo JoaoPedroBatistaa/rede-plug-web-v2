@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -51,6 +51,53 @@ export default function NewPost() {
   const [totalOutput, setTotalOutput] = useState("");
   const [totalInput, setTotalInput] = useState("");
   const [difference, setDifference] = useState("");
+
+  useEffect(() => {
+    const total =
+      Number(gcPrice) * Number(gcSales) +
+      Number(etPrice) * Number(etSales) +
+      Number(gaPrice) * Number(gaSales) +
+      Number(s10Price) * Number(s10Sales);
+
+    // @ts-ignore
+    setTotalOutput(total);
+  }, [
+    gcPrice,
+    gcSales,
+    etPrice,
+    etSales,
+    gaPrice,
+    gaSales,
+    s10Price,
+    s10Sales,
+  ]);
+
+  useEffect(() => {
+    const total =
+      Number(cash) +
+      Number(debit) +
+      Number(credit) +
+      Number(pix) +
+      Number(expenses);
+
+    // @ts-ignore
+    setTotalInput(total);
+  }, [cash, debit, credit, pix, expenses]);
+
+  useEffect(() => {
+    let total = 0;
+
+    if (totalInput > totalOutput) {
+      // @ts-ignore
+      total = totalInput - totalOutput;
+    } else {
+      // @ts-ignore
+      total = totalOutput - totalInput;
+    }
+
+    // @ts-ignore
+    setDifference(total);
+  }, [totalInput, totalOutput]);
 
   const saveMeasurement = async () => {
     setIsLoading(true);
@@ -388,6 +435,7 @@ export default function NewPost() {
                     value={totalOutput}
                     onChange={(e) => setTotalOutput(e.target.value)}
                     placeholder=""
+                    disabled
                   />
                 </div>
                 <div className={styles.InputField}>
@@ -399,6 +447,7 @@ export default function NewPost() {
                     value={totalInput}
                     onChange={(e) => setTotalInput(e.target.value)}
                     placeholder=""
+                    disabled
                   />
                 </div>
                 <div className={styles.InputField}>
@@ -410,6 +459,7 @@ export default function NewPost() {
                     value={difference}
                     onChange={(e) => setDifference(e.target.value)}
                     placeholder=""
+                    disabled
                   />
                 </div>
               </div>

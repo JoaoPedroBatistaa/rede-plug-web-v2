@@ -29,6 +29,7 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [driverName, setDriverName] = useState("");
+  const [truckPlate, setTruckPLate] = useState("");
   const [observations, setObservations] = useState("");
   const [initialMeasurementCm, setInitialMeasurementCm] = useState("");
   const [finalMeasurementCm, setFinalMeasurementCm] = useState("");
@@ -74,10 +75,12 @@ export default function NewPost() {
   useEffect(() => {
     const tank = tanks.find((t) => t.tankNumber === selectedTank);
     if (
-      tank &&
-      selectedProduct === "SECO" &&
-      tank.product !== "GC" &&
-      tank.product !== "GA"
+      (tank && selectedProduct === "SECO") ||
+      (selectedProduct === "ANIDRO" &&
+        // @ts-ignore
+        tank.product !== "GC" &&
+        // @ts-ignore
+        tank.product !== "GA")
     ) {
       setShowHydrationField(true);
     } else {
@@ -106,7 +109,13 @@ export default function NewPost() {
 
   useEffect(() => {
     updateLitersAndTotal();
-  }, [selectedTank, initialMeasurementCm, finalMeasurementCm, conversionData]);
+  }, [
+    selectedTank,
+    initialMeasurementCm,
+    finalMeasurementCm,
+    conversionData,
+    selectedProduct,
+  ]);
 
   useEffect(() => {
     const tank = tanks.find((t) => t.tankNumber === selectedTank);
@@ -116,6 +125,7 @@ export default function NewPost() {
         case "GC":
           options = ["GC"];
           if (tank.saleDefense !== "Defesa") options.push("SECO");
+          if (tank.saleDefense !== "Defesa") options.push("ET");
           break;
         case "GA":
           options = ["GC", "GA"];
@@ -123,6 +133,7 @@ export default function NewPost() {
         case "ET":
           options = ["ET"];
           if (tank.saleDefense !== "Defesa") options.push("SECO");
+          if (tank.saleDefense !== "Defesa") options.push("ANIDRO");
           break;
         case "S10":
           options = ["S10"];
@@ -216,6 +227,12 @@ export default function NewPost() {
     if (initialLitersValue !== null && finalLitersValue !== null) {
       const diff = finalLitersValue - initialLitersValue;
       setTotalDescarregado(`Total descarregado: ${diff.toFixed(2)} litros`);
+
+      if (showHydrationField === true && selectedProduct === "SECO") {
+        setHydrationValue(((diff / 100) * 5).toFixed(2).toString());
+      } else if (showHydrationField === true && selectedProduct === "ANIDRO") {
+        setHydrationValue(((diff / 100) * 7).toFixed(2).toString());
+      }
     } else {
       setTotalDescarregado("Medições incompletas ou tanque não selecionado.");
     }
@@ -245,6 +262,7 @@ export default function NewPost() {
     if (!date) missingField = "Data";
     else if (!time) missingField = "Hora";
     else if (!driverName) missingField = "Nome do Motorista";
+    else if (!truckPlate) missingField = "Placa do caminhão";
     // @ts-ignore
     else if (!truckPlateRef.current?.files[0])
       missingField = "Imagem da Placa do Caminhão";
@@ -273,7 +291,8 @@ export default function NewPost() {
       date,
       time,
       driverName,
-      truckPlate: truckPlateImage,
+      truckPlate,
+      truckPlateImage,
       tankNumber: selectedTank,
       product: selectedProduct,
       initialMeasurement: {
@@ -301,7 +320,7 @@ export default function NewPost() {
       hydration: {
         value: hydrationValue,
         // @ts-ignore
-        image: hydrationRef.current?.files[0],
+        image: hydrationRef.current?.files[0] || null,
       },
     };
 
@@ -322,7 +341,7 @@ export default function NewPost() {
     date?: string;
     time?: string;
     driverName?: string;
-    truckPlate: any;
+    truckPlateImage: any;
     hydration: any;
     tankNumber?: string;
     product?: string;
@@ -378,21 +397,23 @@ export default function NewPost() {
       data.seal.fileUrl = "";
     }
 
-    if (data.truckPlate instanceof File) {
+    if (data.truckPlateImage instanceof File) {
       const fileUrl = await uploadImageAndGetUrl(
-        data.truckPlate,
-        `dischargeImages/truckPlate/${data.truckPlate.name}_${Date.now()}`
+        data.truckPlateImage,
+        `dischargeImages/truckPlate/${data.truckPlateImage.name}_${Date.now()}`
       );
-      data.truckPlate = fileUrl;
+      data.truckPlateImage = fileUrl;
     }
 
-    if (data.hydration && data.hydration.image instanceof File) {
+    if (data.hydration.image instanceof File) {
       const fileUrl = await uploadImageAndGetUrl(
         data.hydration.image,
         `dischargeImages/hydration/${data.hydration.image.name}_${Date.now()}`
       );
       data.hydration.fileUrl = fileUrl;
       delete data.hydration.image;
+    } else {
+      data.hydration.fileUrl = null;
     }
 
     return data;
@@ -472,6 +493,18 @@ export default function NewPost() {
                 </div>
 
                 <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Placa do caminhão</p>
+                  <input
+                    id="driverName"
+                    type="text"
+                    className={styles.Field}
+                    value={truckPlate}
+                    onChange={(e) => setTruckPLate(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Placa do caminhão (mídia)</p>
                   <input
                     ref={truckPlateRef}
@@ -546,60 +579,6 @@ export default function NewPost() {
                   </select>
                 </div>
               </div>
-
-              {showHydrationField && (
-                <div className={styles.InputContainer}>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Hidratação (Número)</p>
-                    <input
-                      type="number"
-                      className={styles.Field}
-                      value={hydrationValue}
-                      onChange={(e) => setHydrationValue(e.target.value)}
-                      placeholder=""
-                    />
-                  </div>
-
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Hidratação (Mídia)</p>
-                    <input
-                      ref={hydrationRef}
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={(event) =>
-                        handleFileChange(
-                          event,
-                          setHydrationImage,
-                          setHydrationFileName
-                        )
-                      }
-                    />
-                    <button
-                      onClick={() => triggerFileInput(hydrationRef)}
-                      className={styles.MidiaField}
-                    >
-                      Carregue sua foto
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {hydrationImage && (
-                <div>
-                  <img
-                    src={hydrationImage}
-                    alt="Visualização da imagem de hidratação"
-                    style={{
-                      maxWidth: "17.5rem",
-                      height: "auto",
-                      border: "1px solid #939393",
-                      borderRadius: "20px",
-                    }}
-                  />
-                  <p className={styles.fileName}>{hydrationFileName}</p>
-                </div>
-              )}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
@@ -710,6 +689,61 @@ export default function NewPost() {
               )}
 
               <div className={styles.totalDischarge}>{totalDescarregado}</div>
+
+              {showHydrationField && (
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Hidratação (Número)</p>
+                    <input
+                      type="number"
+                      className={styles.Field}
+                      value={hydrationValue}
+                      onChange={(e) => setHydrationValue(e.target.value)}
+                      placeholder=""
+                      disabled
+                    />
+                  </div>
+
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Hidratação (Mídia)</p>
+                    <input
+                      ref={hydrationRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(event) =>
+                        handleFileChange(
+                          event,
+                          setHydrationImage,
+                          setHydrationFileName
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() => triggerFileInput(hydrationRef)}
+                      className={styles.MidiaField}
+                    >
+                      Carregue sua foto
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {hydrationImage && (
+                <div>
+                  <img
+                    src={hydrationImage}
+                    alt="Visualização da imagem de hidratação"
+                    style={{
+                      maxWidth: "17.5rem",
+                      height: "auto",
+                      border: "1px solid #939393",
+                      borderRadius: "20px",
+                    }}
+                  />
+                  <p className={styles.fileName}>{hydrationFileName}</p>
+                </div>
+              )}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

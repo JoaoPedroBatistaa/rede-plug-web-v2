@@ -61,6 +61,8 @@ export default function NewPost() {
       tankOption: "",
     },
   ]);
+  const [bombs, setBombs] = useState([{ bombNumber: 1, model: "" }]);
+
   const [nozzles, setNozzles] = useState([{ nozzleNumber: "", product: "" }]);
   const [managers, setManagers] = useState([
     { managerName: "", contact: "", password: "" },
@@ -205,6 +207,7 @@ export default function NewPost() {
           setEmail(postData.email);
           setPassword(docId);
           setTanks(postData.tanks || []);
+          setBombs(postData.bombs || []);
           setNozzles(postData.nozzles || []);
           setManagers(postData.managers || []);
 
@@ -243,6 +246,18 @@ export default function NewPost() {
 
   const removeTank = (indexToRemove: number) => {
     setTanks(tanks.filter((_, index) => index !== indexToRemove));
+  };
+
+  const addBomb = () => {
+    const newBombNumber = bombs.length + 1;
+    setBombs([...bombs, { bombNumber: newBombNumber, model: "" }]);
+  };
+
+  const removeBomb = (indexToRemove: number) => {
+    const updatedBombs = bombs
+      .filter((_, index) => index !== indexToRemove)
+      .map((bomb, index) => ({ ...bomb, bombNumber: index + 1 }));
+    setBombs(updatedBombs);
   };
 
   const addNozzle = () => {
@@ -293,6 +308,16 @@ export default function NewPost() {
       return tank;
     });
     setTanks(newTanks);
+  };
+
+  const handleBombChange = (index: number, field: any, value: any) => {
+    const newBombs = bombs.map((bomb, i) => {
+      if (i === index) {
+        return { ...bomb, [field]: value };
+      }
+      return bomb;
+    });
+    setBombs(newBombs);
   };
 
   const handleNozzleChange = (index: number, field: any, value: any) => {
@@ -687,6 +712,64 @@ export default function NewPost() {
                     )}
                   </div>
                 </>
+              ))}
+
+              <div className={styles.BudgetHead}>
+                <p className={styles.BudgetTitle}>Bombas</p>
+                <div className={styles.BudgetHeadS}></div>
+              </div>
+
+              <p className={styles.Notes}>
+                Informe abaixo as informações das bombas
+              </p>
+
+              {bombs.map((bomb, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Número da bomba</p>
+                    <input
+                      type="number"
+                      className={styles.Field}
+                      value={bomb.bombNumber}
+                      onChange={(e) =>
+                        handleBombChange(index, "bombNumber", e.target.value)
+                      }
+                      disabled
+                    />
+                  </div>
+
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Modelo</p>
+                    <select
+                      className={styles.SelectField}
+                      value={bomb.model}
+                      onChange={(e) =>
+                        handleBombChange(index, "model", e.target.value)
+                      }
+                    >
+                      <option value="" disabled>
+                        Selecione...
+                      </option>
+                      <option value="Dupla">Dupla</option>
+                      <option value="Quadrupla">Quadrupla</option>
+                      <option value="Sextupla">Sextupla</option>
+                      <option value="Octupla">Octupla</option>
+                    </select>
+                  </div>
+
+                  <button onClick={addBomb} className={styles.NewButton}>
+                    <span className={styles.buttonText}>Nova bomba</span>
+                  </button>
+
+                  {index > 0 && (
+                    <button
+                      onClick={() => removeBomb(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>Excluir bomba</span>
+                    </button>
+                  )}
+                </div>
               ))}
 
               <div className={styles.BudgetHead}>
