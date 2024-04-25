@@ -27,9 +27,13 @@ export default function NewPost() {
   const [observations, setObservations] = useState("");
 
   const etanolRef = useRef(null);
+  const gcRef = useRef(null);
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+
+  const [gcImage, setGcImage] = useState<File | null>(null);
+  const [gcFileName, setGcFileName] = useState("");
 
   const handleEtanolImageChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -39,6 +43,15 @@ export default function NewPost() {
     if (file) {
       setEtanolImage(file);
       setEtanolFileName(file.name);
+    }
+  };
+
+  const handleGcImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // @ts-ignore
+    const file = event.target.files[0];
+    if (file) {
+      setGcImage(file);
+      setGcFileName(file.name);
     }
   };
 
@@ -57,8 +70,8 @@ export default function NewPost() {
     } else if (!time) missingField = "Hora";
     // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
-    else if (!etanolImage) missingField = "Fotos da tarefa";
-
+    else if (!etanolImage && !gcImage)
+      missingField = "Fotos do Teste dos Combustíveis";
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
@@ -109,6 +122,18 @@ export default function NewPost() {
         fileName: etanolFileName,
       }));
       uploadPromises.push(etanolPromise);
+    }
+
+    if (gcImage) {
+      const gcPromise = uploadImageAndGetUrl(
+        gcImage,
+        `fuelTests/${date}/gc_${gcFileName}_${Date.now()}`
+      ).then((imageUrl) => ({
+        type: "Imagem 02 da tarefa",
+        imageUrl,
+        fileName: gcFileName,
+      }));
+      uploadPromises.push(gcPromise);
     }
 
     try {
@@ -266,6 +291,41 @@ export default function NewPost() {
                         onLoad={() => URL.revokeObjectURL(etanolImage)}
                       />
                       <p className={styles.fileName}>{etanolFileName}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem 2 da tarefa</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    ref={gcRef}
+                    onChange={handleGcImageChange}
+                  />
+                  <button
+                    // @ts-ignore
+                    onClick={() => gcRef.current && gcRef.current.click()}
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua foto
+                  </button>
+                  {gcImage && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(gcImage)}
+                        alt="Preview do teste de Gasolina Comum"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(gcImage)}
+                      />
+                      <p className={styles.fileName}>{gcFileName}</p>
                     </div>
                   )}
                 </div>

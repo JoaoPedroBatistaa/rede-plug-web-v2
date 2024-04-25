@@ -23,7 +23,8 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
-  const [isOk, setIsOk] = useState("");
+  const [isEtanolOk, setIsEtanolOk] = useState("");
+  const [isGasolinaOk, setIsGasolinaOk] = useState("");
   const [observations, setObservations] = useState("");
 
   const etanolRef = useRef(null);
@@ -69,7 +70,8 @@ export default function NewPost() {
       return;
     } else if (!time) missingField = "Hora";
     // else if (!managerName) missingField = "Nome do supervisor";
-    else if (!isOk) missingField = "Está ok?";
+    else if (!isEtanolOk) missingField = "Etanol está ok?";
+    else if (!isGasolinaOk) missingField = "Gasolina está ok?";
     else if (!etanolImage && !gcImage)
       missingField = "Fotos do Teste dos Combustíveis";
     if (missingField) {
@@ -105,7 +107,8 @@ export default function NewPost() {
       supervisorName: userName,
       userName,
       postName,
-      isOk,
+      isEtanolOk,
+      isGasolinaOk,
       observations,
       images: [],
       id: "teste-combustiveis-venda",
@@ -230,18 +233,34 @@ export default function NewPost() {
               </div> */}
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>OK?</p>
+                  <p className={styles.FieldLabel}>Etanol OK?</p>
                   <select
                     id="isOk"
                     className={styles.SelectField}
-                    value={isOk}
-                    onChange={(e) => setIsOk(e.target.value)}
+                    value={isEtanolOk}
+                    onChange={(e) => setIsEtanolOk(e.target.value)}
                   >
                     <option value="">Selecione</option>
                     <option value="yes">Sim</option>
                     <option value="no">Não</option>
                   </select>
                 </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Gasolina OK?</p>
+                  <select
+                    id="isOk"
+                    className={styles.SelectField}
+                    value={isGasolinaOk}
+                    onChange={(e) => setIsGasolinaOk(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    <option value="yes">Sim</option>
+                    <option value="no">Não</option>
+                  </select>
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>
                   <textarea

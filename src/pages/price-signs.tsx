@@ -23,6 +23,7 @@ export default function NewPost() {
   const [managerName, setManagerName] = useState("");
 
   const [isOk, setIsOk] = useState("");
+  const [qtd, setQtd] = useState(0);
   const [observations, setObservations] = useState("");
 
   const saveMeasurement = async () => {
@@ -40,6 +41,7 @@ export default function NewPost() {
     } else if (!time) missingField = "Hora";
     // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
+    else if (!qtd) missingField = "Quantidade";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -75,6 +77,7 @@ export default function NewPost() {
       userName,
       postName,
       isOk,
+      qtd,
       observations,
       id: "placas-faixa-preco",
     };
@@ -178,6 +181,19 @@ export default function NewPost() {
                     <option value="no">Não</option>
                   </select>
                 </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Quantidade</p>
+                  <input
+                    id="observations"
+                    type="number"
+                    className={styles.Field}
+                    value={qtd}
+                    // @ts-ignore
+                    onChange={(e) => setQtd(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>
                   <textarea

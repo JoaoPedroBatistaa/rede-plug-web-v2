@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -48,6 +48,28 @@ export default function NewPost() {
 
   const [numberOfPumps, setNumberOfPumps] = useState(0);
   const [pumps, setPumps] = useState([]);
+
+  useEffect(() => {
+    if (postName) {
+      const fetchPostDetails = async () => {
+        try {
+          const postsRef = collection(db, "POSTS");
+          const q = query(postsRef, where("name", "==", postName));
+          const querySnapshot = await getDocs(q);
+
+          querySnapshot.forEach((doc) => {
+            const postData = doc.data();
+            setNumberOfPumps(postData.bombs.length || []);
+            initializePumps(postData.bombs.length || []);
+          });
+        } catch (error) {
+          console.error("Error fetching post details:.", error);
+        }
+      };
+
+      fetchPostDetails();
+    }
+  }, [postName]);
 
   const updatePumps = (num: number) => {
     setPumps(
@@ -328,7 +350,7 @@ export default function NewPost() {
                   />
                 </div>
               </div> */}
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Quantidade de Bombas</p>
                   <input
@@ -342,7 +364,7 @@ export default function NewPost() {
                     }}
                   />
                 </div>
-              </div>
+              </div> */}
               {pumps.map((pump, index) => (
                 <div key={index} className={styles.InputContainer}>
                   {["image1", "image2"].map((imageKey, idx) => (

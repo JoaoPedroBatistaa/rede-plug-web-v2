@@ -7,10 +7,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { useState } from "react";
-import { db } from "../../firebase";
+import { useRef, useState } from "react";
+import { db, getDownloadURL, ref, storage } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
@@ -24,6 +25,22 @@ export default function NewPost() {
 
   const [isOk, setIsOk] = useState("");
   const [observations, setObservations] = useState("");
+
+  const etanolRef = useRef(null);
+
+  const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolFileName, setEtanolFileName] = useState("");
+
+  const handleEtanolImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    // @ts-ignore
+    const file = event.target.files[0];
+    if (file) {
+      setEtanolImage(file);
+      setEtanolFileName(file.name);
+    }
+  };
 
   const saveMeasurement = async () => {
     setIsLoading(true);
@@ -40,6 +57,7 @@ export default function NewPost() {
     } else if (!time) missingField = "Hora";
     // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
+    else if (!etanolImage) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -76,10 +94,28 @@ export default function NewPost() {
       postName,
       isOk,
       observations,
+      images: [],
       id: "pintura-posto",
     };
 
+    const uploadPromises = [];
+    if (etanolImage) {
+      const etanolPromise = uploadImageAndGetUrl(
+        etanolImage,
+        `supervisors/${date}/${etanolFileName}_${Date.now()}`
+      ).then((imageUrl) => ({
+        type: "Imagem da tarefa",
+        imageUrl,
+        fileName: etanolFileName,
+      }));
+      uploadPromises.push(etanolPromise);
+    }
+
     try {
+      const images = await Promise.all(uploadPromises);
+      // @ts-ignore
+      taskData.images = images;
+
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
       toast.success("Tarefa salva com sucesso!");
@@ -90,6 +126,13 @@ export default function NewPost() {
       toast.error("Erro ao salvar a medição.");
     }
   };
+
+  async function uploadImageAndGetUrl(imageFile: File, path: string) {
+    const storageRef = ref(storage, path);
+    const uploadResult = await uploadBytes(storageRef, imageFile);
+    const downloadUrl = await getDownloadURL(uploadResult.ref);
+    return downloadUrl;
+  }
 
   return (
     <>
@@ -187,6 +230,45 @@ export default function NewPost() {
                     onChange={(e) => setObservations(e.target.value)}
                     rows={3}
                   />
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    ref={etanolRef}
+                    onChange={handleEtanolImageChange}
+                  />
+                  <button
+                    onClick={() =>
+                      // @ts-ignore
+                      etanolRef.current && etanolRef.current.click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua foto
+                  </button>
+                  {etanolImage && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(etanolImage)}
+                        alt="Preview do teste de Etanol"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(etanolImage)}
+                      />
+                      <p className={styles.fileName}>{etanolFileName}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

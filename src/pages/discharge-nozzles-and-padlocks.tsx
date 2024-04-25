@@ -59,8 +59,8 @@ export default function NewPost() {
 
           querySnapshot.forEach((doc) => {
             const postData = doc.data();
-            setNumberOfPumps(postData.bombs.length || []);
-            initializePumps(postData.bombs.length || []);
+            setNumberOfPumps(postData.tanks.length || []);
+            initializePumps(postData.tanks.length || []);
           });
         } catch (error) {
           console.error("Error fetching post details:.", error);
@@ -78,9 +78,6 @@ export default function NewPost() {
         image1File: null,
         image1Preview: "",
         image1Name: "",
-        image2File: null,
-        image2Preview: "",
-        image2Name: "",
         ok: "",
       }))
     );
@@ -149,7 +146,6 @@ export default function NewPost() {
   const initializePumps = (num: any) => {
     const newPumps = Array.from({ length: num }, () => ({
       image1File: null,
-      image2File: null,
     }));
     // @ts-ignore
     setPumps(newPumps);
@@ -193,7 +189,7 @@ export default function NewPost() {
       }
       // @ts-ignore
       if (!pump.image1File && !pump.image2File) {
-        missingField = "Cada bomba deve ter pelo menos uma imagem";
+        missingField = "Cada tanque deve ter pelo menos uma imagem";
         break;
       }
     }
@@ -211,21 +207,21 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "limpeza-bombas"),
+      where("id", "==", "bocas-descarga-e-cadeados"),
       where("userName", "==", userName),
       where("postName", "==", postName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A tarefa limpeza das bombas já foi feita hoje!");
+      toast.error("A tarefa bocas de descarga e cadeados já foi feita hoje!");
       setIsLoading(false);
       return;
     }
 
     const uploadPromises = pumps.map((pump, index) =>
       Promise.all(
-        ["image1", "image2"].map((key) =>
+        ["image1"].map((key) =>
           pump[`${key}File`]
             ? uploadImageAndGetUrl(
                 pump[`${key}File`],
@@ -240,7 +236,6 @@ export default function NewPost() {
         // @ts-ignore
         ok: pump.ok,
         image1: results[0],
-        image2: results[1],
       }))
     );
 
@@ -254,8 +249,8 @@ export default function NewPost() {
         userName,
         postName,
         observations,
-        pumps: pumpsData,
-        id: "limpeza-bombas",
+        tanks: pumpsData,
+        id: "bocas-descarga-e-cadeados",
       };
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
@@ -265,7 +260,7 @@ export default function NewPost() {
       router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
-      toast.error("Erro ao salvar a medição.");
+      toast.error("Erro ao salvar a tarefa.");
       setIsLoading(false);
     }
   };
@@ -293,7 +288,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Limpeza das bombas</p>
+            <p className={styles.BudgetTitle}>Bocas de descarga e cadeados</p>
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton} onClick={saveMeasurement}>
                 <img
@@ -307,7 +302,7 @@ export default function NewPost() {
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações da limpeza das bombas
+            Informe abaixo as informações das bocas de descarga e cadeados
           </p>
 
           <div className={styles.userContent}>
@@ -367,10 +362,10 @@ export default function NewPost() {
               </div> */}
               {pumps.map((pump, index) => (
                 <div key={index} className={styles.InputContainer}>
-                  {["image1", "image2"].map((imageKey, idx) => (
+                  {["image1"].map((imageKey, idx) => (
                     <div key={idx} className={styles.InputField}>
                       <p className={styles.FieldLabel}>
-                        Imagem {idx + 1} da Bomba {index + 1}
+                        Imagem {idx + 1} do tanque {index + 1}
                       </p>
                       <input
                         id={`file-input-${index}-${idx}`}
@@ -393,7 +388,7 @@ export default function NewPost() {
                       {pump[`${imageKey}File`] && (
                         <img
                           src={pump[`${imageKey}Preview`]}
-                          alt={`Preview da Imagem ${idx + 1} da Bomba ${
+                          alt={`Preview da Imagem ${idx + 1} do tanque ${
                             index + 1
                           }`}
                           style={{

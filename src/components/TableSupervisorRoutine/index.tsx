@@ -340,6 +340,31 @@ export default function TablePosts({
               name: "Passagem de bomba",
               link: "/bomb-passage",
             },
+            {
+              id: "bocas-visita",
+              name: "Bocas de visita",
+              link: "/manholes",
+            },
+            {
+              id: "bocas-descarga-e-cadeados",
+              name: "Bocas de descarga e cadeados",
+              link: "/discharge-nozzles-and-padlocks",
+            },
+            {
+              id: "game",
+              name: "Game",
+              link: "/game",
+            },
+            {
+              id: "calibragem-bombas",
+              name: "Calibragem das bombas",
+              link: "/pump-calibration",
+            },
+            {
+              id: "documentos",
+              name: "Documentos",
+              link: "/documents",
+            },
           ].map((task) => {
             // @ts-ignore
             const taskRecord = todayTasks.find((t) => t.id === task.id);
