@@ -196,29 +196,14 @@ export default function TablePosts({
               link: "/service",
             },
             {
-              id: "extintores",
-              name: "Extintores",
-              link: "/extinguishers",
+              id: "limpeza-pista",
+              name: "Limpeza e organização da pista",
+              link: "/track-cleaning",
             },
             {
-              id: "placas-sinalizacao",
-              name: "Placas de sinalização",
-              link: "/traffic-signs",
-            },
-            {
-              id: "placas-faixa-preco",
-              name: "Placas de faixa de preço",
-              link: "/price-signs",
-            },
-            {
-              id: "bicos",
-              name: "Bicos",
-              link: "/nozzles",
-            },
-            {
-              id: "mangueiras",
-              name: "Mangueiras",
-              link: "/hoses",
+              id: "limpeza-bombas",
+              name: "Limpeza das bombas",
+              link: "/bombs-cleaning",
             },
             {
               id: "limpeza-testeiras",
@@ -226,9 +211,19 @@ export default function TablePosts({
               link: "/front-cleaning",
             },
             {
-              id: "canaletas",
-              name: "Canaletas",
-              link: "/channels",
+              id: "limpeza-banheiros",
+              name: "Limpeza e organização dos banheiros",
+              link: "/bathroom-cleaning",
+            },
+            {
+              id: "vestiario",
+              name: "Limpeza do vestiário",
+              link: "/locker-room",
+            },
+            {
+              id: "troca-oleo",
+              name: "Limpeza da troca de óleo",
+              link: "/oil-change",
             },
             {
               id: "pintura-posto",
@@ -236,30 +231,11 @@ export default function TablePosts({
               link: "/post-painting",
             },
             {
-              id: "canetas",
-              name: "Canetas",
-              link: "/pens",
+              id: "canaletas",
+              name: "Canaletas",
+              link: "/channels",
             },
-            {
-              id: "bicos-parados",
-              name: "Bicos parados",
-              link: "/nozzles-stopped",
-            },
-            {
-              id: "limpeza-pista",
-              name: "Limpeza e organização da písta",
-              link: "/track-cleaning",
-            },
-            {
-              id: "aferidores",
-              name: "Aferidores",
-              link: "/gauges",
-            },
-            {
-              id: "limpeza-banheiros",
-              name: "Limpeza e organização dos banheiros",
-              link: "/bathroom-cleaning",
-            },
+
             {
               id: "iluminacao-pista",
               name: "Iluminação da pista",
@@ -271,14 +247,29 @@ export default function TablePosts({
               link: "/front-lightning",
             },
             {
-              id: "vestiario",
-              name: "Vestiário",
-              link: "/locker-room",
+              id: "placas-sinalizacao",
+              name: "Placas de sinalização",
+              link: "/traffic-signs",
             },
             {
-              id: "troca-oleo",
-              name: "Troca de óleo",
-              link: "/oil-change",
+              id: "identificacao-fornecedor",
+              name: "Identificação de fornecedor",
+              link: "/supplier-identification",
+            },
+            {
+              id: "placas-faixa-preco",
+              name: "Placas e faixa de preço",
+              link: "/price-signs",
+            },
+            {
+              id: "extintores",
+              name: "Extintores",
+              link: "/extinguishers",
+            },
+            {
+              id: "aferidores",
+              name: "Aferidores",
+              link: "/gauges",
             },
             {
               id: "compressor",
@@ -291,9 +282,64 @@ export default function TablePosts({
               link: "/calibrator",
             },
             {
-              id: "notas-fiscais",
-              name: "Notas fiscais",
-              link: "/fiscal-notes",
+              id: "bocas-visita",
+              name: "Bocas de visita",
+              link: "/manholes",
+            },
+            {
+              id: "bocas-descarga-e-cadeados",
+              name: "Bocas de descarga e cadeados",
+              link: "/discharge-nozzles-and-padlocks",
+            },
+            {
+              id: "canetas",
+              name: "Canetas",
+              link: "/pens",
+            },
+            {
+              id: "bicos",
+              name: "Bicos",
+              link: "/nozzles",
+            },
+            {
+              id: "bicos-parados",
+              name: "Bicos parados",
+              link: "/nozzles-stopped",
+            },
+            {
+              id: "mangueiras",
+              name: "Mangueiras",
+              link: "/hoses",
+            },
+            {
+              id: "lacre-bombas",
+              name: "Lacre das bombas",
+              link: "/bomb-seal",
+            },
+            {
+              id: "passagem-bomba",
+              name: "Passagem de bomba",
+              link: "/bomb-passage",
+            },
+            {
+              id: "game",
+              name: "Game",
+              link: "/game",
+            },
+            {
+              id: "calibragem-bombas",
+              name: "Calibragem das bombas",
+              link: "/pump-calibration",
+            },
+            {
+              id: "teste-combustiveis-venda",
+              name: "Teste dos combustíveis de venda",
+              link: "/fuel-sell-test",
+            },
+            {
+              id: "vira",
+              name: "Vira e teste dos combustíveis de defesa",
+              link: "/turn",
             },
             {
               id: "maquininhas-uso",
@@ -311,54 +357,9 @@ export default function TablePosts({
               link: "/work-schedule",
             },
             {
-              id: "vira",
-              name: "Vira",
-              link: "/turn",
-            },
-            {
-              id: "teste-combustiveis-venda",
-              name: "Teste dos combustíveis de venda",
-              link: "/fuel-sell-test",
-            },
-            {
-              id: "limpeza-bombas",
-              name: "Limpeza das bombas",
-              link: "/bombs-cleaning",
-            },
-            {
-              id: "identificacao-fornecedor",
-              name: "Identificação de fornecedor",
-              link: "/supplier-identification",
-            },
-            {
-              id: "lacre-bombas",
-              name: "Lacre das bombas",
-              link: "/bomb-seal",
-            },
-            {
-              id: "passagem-bomba",
-              name: "Passagem de bomba",
-              link: "/bomb-passage",
-            },
-            {
-              id: "bocas-visita",
-              name: "Bocas de visita",
-              link: "/manholes",
-            },
-            {
-              id: "bocas-descarga-e-cadeados",
-              name: "Bocas de descarga e cadeados",
-              link: "/discharge-nozzles-and-padlocks",
-            },
-            {
-              id: "game",
-              name: "Game",
-              link: "/game",
-            },
-            {
-              id: "calibragem-bombas",
-              name: "Calibragem das bombas",
-              link: "/pump-calibration",
+              id: "notas-fiscais",
+              name: "Notas fiscais",
+              link: "/fiscal-notes",
             },
             {
               id: "documentos",
