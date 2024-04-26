@@ -57,7 +57,7 @@ export default function NewPost() {
       tankOption: "",
     },
   ]);
-  const [nozzles, setNozzles] = useState([{ nozzleNumber: "", product: "" }]);
+  const [nozzles, setNozzles] = useState([{ nozzleNumber: 1, product: "" }]);
   const [bombs, setBombs] = useState([{ bombNumber: 1, model: "" }]);
   const [managers, setManagers] = useState([{ managerName: "", contact: "" }]);
   const [tankOptions, setTankOptions] = useState([]);
@@ -164,7 +164,8 @@ export default function NewPost() {
   };
 
   const addNozzle = () => {
-    setNozzles([...nozzles, { nozzleNumber: "", product: "" }]);
+    const newNozzleNumber = nozzles.length + 1;
+    setNozzles([...nozzles, { nozzleNumber: newNozzleNumber, product: "" }]);
   };
 
   const removeNozzle = (indexToRemove: number) => {
@@ -660,6 +661,7 @@ export default function NewPost() {
                           e.target.value
                         )
                       }
+                      disabled
                     />
                   </div>
 

@@ -27,6 +27,20 @@ export default function NewPost() {
     []
   );
 
+  const [etSales, setEtSales] = useState("");
+  const [gcSales, setGcSales] = useState("");
+  const [gaSales, setGaSales] = useState("");
+  const [s10Sales, setS10Sales] = useState("");
+  const [totalOutput, setTotalOutput] = useState("");
+
+  useEffect(() => {
+    const total =
+      Number(gcSales) + Number(etSales) + Number(gaSales) + Number(s10Sales);
+
+    // @ts-ignore
+    setTotalOutput(total);
+  }, [gcSales, etSales, gaSales, s10Sales]);
+
   const handleNumMaquininhasChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -73,8 +87,7 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
-    else if (!numMaquininhas) missingField = "Quantidade vendida";
+    // else if (!managerName) missingField = "Nome do Gerente";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -107,10 +120,14 @@ export default function NewPost() {
     const photoMachinesData = {
       date,
       time,
-      managerName,
+      managerName: userName,
       userName,
       postName,
-      qtd: numMaquininhas,
+      etSales,
+      gcSales,
+      gaSales,
+      s10Sales,
+      totalOutput,
       id: "quantidade-vendida-dia-anterior-6h",
     };
 
@@ -138,7 +155,7 @@ export default function NewPost() {
       );
       console.log("Preço dos concorrentes salvo com ID: ", docRef.id);
       toast.success("Preço dos concorrentes salvo com sucesso!");
-      router.push("/manager-twenty-two-routine");
+      router.push("/manager-six-routine");
     } catch (error) {
       console.error("Erro ao salvar o preço dos concorrentes: ", error);
       toast.error("Erro ao salvar o preço dos concorrentes.");
@@ -220,7 +237,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome do gerente</p>
                   <input
@@ -232,17 +249,71 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
+              </div> */}
 
+              <p className={styles.BudgetTitle}>Vendas Combústiveis</p>
+              <p className={styles.Notes}>
+                Informe abaixo as informações das vendas
+              </p>
+
+              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Quantidade vendida</p>
+                  <p className={styles.FieldLabel}>Vendas GC</p>
                   <input
+                    id="attendant"
                     type="text"
                     className={styles.Field}
-                    value={numMaquininhas}
-                    onChange={handleNumMaquininhasChange}
+                    value={gcSales}
+                    onChange={(e) => setGcSales(e.target.value)}
                     placeholder=""
                   />
                 </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Vendas ET</p>
+                  <input
+                    id="attendant"
+                    type="text"
+                    className={styles.Field}
+                    value={etSales}
+                    onChange={(e) => setEtSales(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Vendas GA</p>
+                  <input
+                    id="attendant"
+                    type="text"
+                    className={styles.Field}
+                    value={gaSales}
+                    onChange={(e) => setGaSales(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Vendas S10</p>
+                  <input
+                    id="attendant"
+                    type="text"
+                    className={styles.Field}
+                    value={s10Sales}
+                    onChange={(e) => setS10Sales(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Total Saída</p>
+                <input
+                  id="attendant"
+                  type="text"
+                  className={styles.Field}
+                  value={totalOutput}
+                  onChange={(e) => setTotalOutput(e.target.value)}
+                  placeholder=""
+                  disabled
+                />
               </div>
             </div>
           </div>

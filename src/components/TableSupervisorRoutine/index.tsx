@@ -326,15 +326,16 @@ export default function TablePosts({
               name: "Game",
               link: "/game",
             },
-            {
-              id: "calibragem-bombas",
-              name: "Calibragem das bombas",
-              link: "/pump-calibration",
-            },
+
             {
               id: "teste-combustiveis-venda",
               name: "Teste dos combustíveis de venda",
               link: "/fuel-sell-test",
+            },
+            {
+              id: "calibragem-bombas",
+              name: "Calibragem das bombas",
+              link: "/pump-calibration",
             },
             {
               id: "vira",

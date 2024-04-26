@@ -91,7 +91,7 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
+    // else if (!managerName) missingField = "Nome do Gerente";
     else if (!etanolImage && !gcImage)
       missingField = "Fotos do Teste dos Combustíveis";
 
@@ -124,7 +124,7 @@ export default function NewPost() {
     const fuelTestData = {
       date,
       time,
-      managerName,
+      managerName: userName,
       userName,
       postName,
       images: [],
@@ -235,7 +235,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome do gerente</p>
                   <input
@@ -247,7 +247,7 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-              </div>
+              </div> */}
 
               <div className={styles.InputField}>
                 <p className={styles.FieldLabel}>Imagem do teste de Etanol</p>

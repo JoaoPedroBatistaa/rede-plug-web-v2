@@ -271,18 +271,18 @@ export default function TablePosts({
           {[
             {
               id: "medicao-tanques-22h",
-              name: "Medição de Tanques",
+              name: "Medição dos Tanques",
               link: "/tank-measurement-twenty-two",
             },
             {
-              id: "foto-maquininhas-22h",
-              name: "Foto das Maquininhas",
-              link: "/photo-machines-twenty-two",
+              id: "encerrante-bico-22h",
+              name: "Encerrantes",
+              link: "/nozzle-closure-twenty-two",
             },
             {
-              id: "encerrante-bico-22h",
-              name: "Tirar o Encerrante de Cada Bico",
-              link: "/nozzle-closure-twenty-two",
+              id: "foto-maquininhas-22h",
+              name: "Maquininhas",
+              link: "/photo-machines-twenty-two",
             },
           ].map((task) => {
             // @ts-ignore

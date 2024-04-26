@@ -96,7 +96,7 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
+    // else if (!managerName) missingField = "Nome do Gerente";
     else if (maquininhasImages.length === 0)
       missingField = "Verficação dos cavaletes";
 
@@ -129,7 +129,7 @@ export default function NewPost() {
     const photoMachinesData = {
       date,
       time,
-      managerName,
+      managerName: userName,
       userName,
       postName,
       images: [],
@@ -193,7 +193,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Verificação dos cavaletes 14h</p>
+            <p className={styles.BudgetTitle}>Verificação dos cavaletes</p>
             <div className={styles.BudgetHeadS}>
               <button
                 className={styles.FinishButton}
@@ -241,7 +241,7 @@ export default function NewPost() {
                 </div>
               </div>
               <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
+                {/* <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome do gerente</p>
                   <input
                     id="driverName"
@@ -251,7 +251,7 @@ export default function NewPost() {
                     onChange={(e) => setManagerName(e.target.value)}
                     placeholder=""
                   />
-                </div>
+                </div> */}
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Número de cavaletes</p>

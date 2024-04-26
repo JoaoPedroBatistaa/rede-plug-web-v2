@@ -200,7 +200,7 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
+    // else if (!managerName) missingField = "Nome do Gerente";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -231,7 +231,8 @@ export default function NewPost() {
     const measurementData: MeasurementData = {
       date,
       time,
-      managerName,
+      // @ts-ignore
+      managerName: userName,
       userName,
       postName,
       measurements: [],
@@ -346,7 +347,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome do gerente</p>
                   <input
@@ -358,7 +359,7 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-              </div>
+              </div> */}
 
               {tanks.map((tank) => (
                 <>

@@ -178,17 +178,12 @@ export default function TablePosts({
           {[
             {
               id: "medicao-tanques-6h",
-              name: "Medição de Tanques",
+              name: "Medição dos Tanques",
               link: "/tank-measurement-six",
             },
             {
-              id: "foto-maquininhas-6h",
-              name: "Foto das Maquininhas",
-              link: "/photo-machines-six",
-            },
-            {
               id: "encerrante-bico-6h",
-              name: "Tirar o Encerrante de Cada Bico",
+              name: "Encerrantes",
               link: "/nozzle-closure-six",
             },
             {
@@ -198,13 +193,24 @@ export default function TablePosts({
             },
             {
               id: "teste-game-proveta-6h",
-              name: "Teste do Game na Proveta de 1L",
+              name: "Teste do Game",
               link: "/game-test-six",
             },
+            {
+              id: "foto-maquininhas-6h",
+              name: "Maquininhas",
+              link: "/photo-machines-six",
+            },
+
             {
               id: "quarto-caixa-6h",
               name: "4° Caixa",
               link: "/fourth-cashier-six",
+            },
+            {
+              id: "controle-tanque-6h",
+              name: "Controle de Tanque",
+              link: "/tank-control-six",
             },
             {
               id: "recolhe-6h",
@@ -213,7 +219,7 @@ export default function TablePosts({
             },
             {
               id: "quantidade-vendida-dia-anterior-6h",
-              name: "Quantidade Vendida no Dia Anterior",
+              name: "Vendas do Dia Anterior",
               link: "/yesterday-sales-volume-six",
             },
             {
@@ -221,10 +227,11 @@ export default function TablePosts({
               name: "Preço dos Concorrentes",
               link: "/competitors-price-six",
             },
+
             {
-              id: "controle-tanque-6h",
-              name: "Controle de Tanque",
-              link: "/tank-control-six",
+              id: "verificacao-cavaletes-14h",
+              name: "Cavaletes",
+              link: "/easel-fourteen",
             },
           ].map((task) => {
             // @ts-ignore

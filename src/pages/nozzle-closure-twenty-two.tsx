@@ -89,7 +89,7 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
+    // else if (!managerName) missingField = "Nome do Gerente";
     // @ts-ignore
     else if (encerranteImages.length === 0)
       missingField = "Fotos dos Encerrantes dos Bicos";
@@ -123,7 +123,7 @@ export default function NewPost() {
     const nozzleClosureData = {
       date,
       time,
-      managerName,
+      managerName: userName,
       userName,
       postName,
       images: [],
@@ -237,7 +237,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome do gerente</p>
                   <input
@@ -249,7 +249,7 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-              </div>
+              </div> */}
 
               {nozzles.map((nozzle, index) => (
                 <div key={nozzle.nozzleNumber} className={styles.InputField}>

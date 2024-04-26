@@ -80,7 +80,7 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    else if (!managerName) missingField = "Nome do Gerente";
+    // else if (!managerName) missingField = "Nome do Gerente";
     else if (!etanolImage) missingField = "Arquivo do quarto caixa"; // Consider changing the name to etanolFile for clarity
 
     if (missingField) {
@@ -112,7 +112,7 @@ export default function NewPost() {
     const fourthCashierData = {
       date,
       time,
-      managerName,
+      managerName: userName,
       userName,
       postName,
       files: [], // Changed from images to files
@@ -231,7 +231,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Nome do gerente</p>
                   <input
@@ -243,13 +243,13 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-              </div>
+              </div> */}
 
               <div className={styles.InputField}>
                 <p className={styles.FieldLabel}>Arquivo do quarto caixa</p>
                 <input
                   type="file"
-                  accept=".pdf,.xlsx"
+                  accept=".jpeg, .png, .jpg"
                   style={{ display: "none" }}
                   ref={etanolRef}
                   onChange={handleEtanolFileChange}
@@ -260,7 +260,7 @@ export default function NewPost() {
                   onClick={() => etanolRef.current && etanolRef.current.click()}
                   className={styles.MidiaField}
                 >
-                  Carregue seu arquivo
+                  Carregue sua imagem
                 </button>
                 {etanolImage && (
                   <div>

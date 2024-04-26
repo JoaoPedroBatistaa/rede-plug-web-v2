@@ -95,10 +95,29 @@ export default function NewPost() {
       postName,
       observations,
       qtd: useMachines,
+      images: [],
+
       id: "maquininhas-reservas",
     };
 
+    const uploadPromises = [];
+    if (etanolImage) {
+      const etanolPromise = uploadImageAndGetUrl(
+        etanolImage,
+        `supervisors/${date}/${etanolFileName}_${Date.now()}`
+      ).then((imageUrl) => ({
+        type: "Imagem da tarefa",
+        imageUrl,
+        fileName: etanolFileName,
+      }));
+      uploadPromises.push(etanolPromise);
+    }
+
     try {
+      const images = await Promise.all(uploadPromises);
+      // @ts-ignore
+      taskData.images = images;
+
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
       toast.success("Tarefa salva com sucesso!");
@@ -201,6 +220,44 @@ export default function NewPost() {
                     // @ts-ignore
                     onChange={(e) => setUseMachines(e.target.value)}
                   />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    ref={etanolRef}
+                    onChange={handleEtanolImageChange}
+                  />
+                  <button
+                    onClick={() =>
+                      // @ts-ignore
+                      etanolRef.current && etanolRef.current.click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua foto
+                  </button>
+                  {etanolImage && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(etanolImage)}
+                        alt="Preview do teste de Etanol"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(etanolImage)}
+                      />
+                      <p className={styles.fileName}>{etanolFileName}</p>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className={styles.InputContainer}>
