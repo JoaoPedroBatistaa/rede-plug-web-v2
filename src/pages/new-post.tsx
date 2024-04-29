@@ -50,7 +50,7 @@ export default function NewPost() {
   const [email, setEmail] = useState("");
   const [tanks, setTanks] = useState([
     {
-      tankNumber: "",
+      tankNumber: 1,
       capacity: "",
       product: "",
       saleDefense: "",
@@ -147,10 +147,11 @@ export default function NewPost() {
   }, []);
 
   const addTank = () => {
+    const newTankNumber = tanks.length + 1;
     setTanks([
       ...tanks,
       {
-        tankNumber: "",
+        tankNumber: newTankNumber,
         capacity: "",
         product: "",
         saleDefense: "",
@@ -488,6 +489,7 @@ export default function NewPost() {
                         onChange={(e) =>
                           handleTankChange(index, "tankNumber", e.target.value)
                         }
+                        disabled
                       />
                     </div>
 

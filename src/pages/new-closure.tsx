@@ -6,8 +6,8 @@ import HeaderNewProduct from "@/components/HeaderNewTask";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { addDoc, collection } from "firebase/firestore";
-import { useRef, useState } from "react";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -15,7 +15,6 @@ import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,13 +24,70 @@ export default function NewPost() {
 
   const [type, setType] = useState("");
   const [value, setValue] = useState("");
+  const [liters, setLiters] = useState("");
+  const [price, setPrice] = useState("");
+  const [payment, setPayment] = useState("");
   const [post, setPost] = useState("");
   const [observations, setObservations] = useState("");
+  const [detailObservations, setDetailObservations] = useState("");
 
   const etanolRef = useRef(null);
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+
+  const [posts, setPosts] = useState([]);
+  const [selectedPosts, setSelectedPosts] = useState([]);
+  const [selectedPostsIndices, setSelectedPostsIndices] = useState([0]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const postsRef = collection(db, "POSTS");
+      const q = query(postsRef, where("name", "!=", ""));
+      const querySnapshot = await getDocs(q);
+      const postData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      // @ts-ignore
+      setPosts(postData);
+    };
+    fetchPosts();
+  }, []);
+
+  const handleSelectChange = (
+    index: number,
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = event.target.value;
+    if (value && value !== "placeholder") {
+      const newSelectedPosts = [...selectedPosts];
+      // @ts-ignore
+      const selectedPost = posts.find((post) => post.id === value);
+
+      if (selectedPost) {
+        // @ts-ignore
+        newSelectedPosts[index] = selectedPost.name;
+      } else {
+        console.error("Posto não encontrado!");
+      }
+
+      setSelectedPosts(newSelectedPosts);
+    }
+  };
+
+  const addNewPost = () => {
+    setSelectedPostsIndices((prevIndices) => [
+      ...prevIndices,
+      prevIndices.length,
+    ]);
+  };
+
+  const removePost = (index: number) => {
+    setSelectedPostsIndices((prevIndices) =>
+      prevIndices.filter((i) => i !== index)
+    );
+  };
 
   const handleEtanolImageChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -90,10 +146,16 @@ export default function NewPost() {
       date,
       time,
       userName,
-      post,
+      makerName: managerName,
+      posts: selectedPosts,
       value,
       type,
       observations,
+      detailObservations,
+      price,
+      liters,
+      payment,
+
       images: [],
       id: "closure",
     };
@@ -193,21 +255,69 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-              </div>
-              <div className={styles.InputContainer}>
+
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Tipo de fechamento</p>
+                  <p className={styles.FieldLabel}>Nome do operador</p>
                   <input
-                    id="driverName"
+                    id="time"
                     type="text"
                     className={styles.Field}
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
+                    value={managerName}
+                    onChange={(e) => setManagerName(e.target.value)}
                     placeholder=""
                   />
                 </div>
+              </div>
+
+              <p className={styles.BudgetTitle}>Posto</p>
+              <p className={styles.Notes}>
+                Selecione abaixo o(s) postos referentes ao fechamento
+              </p>
+
+              {selectedPostsIndices.map((index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Posto</p>
+                    <select
+                      className={styles.SelectField}
+                      onChange={(e) => handleSelectChange(index, e)}
+                    >
+                      <option value="" defaultChecked>
+                        Selecione o posto
+                      </option>
+                      {posts.map((post) => (
+                        // @ts-ignore
+                        <option key={post.id} value={post.id}>
+                          {
+                            // @ts-ignore
+                            post.name
+                          }
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {selectedPostsIndices.length > 1 && (
+                    <button
+                      onClick={() => removePost(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>Excluir posto</span>
+                    </button>
+                  )}
+                  <button onClick={addNewPost} className={styles.NewButton}>
+                    <span className={styles.buttonText}>Novo posto</span>
+                  </button>
+                </div>
+              ))}
+
+              <p className={styles.BudgetTitle}>Despesa</p>
+              <p className={styles.Notes}>
+                Informe abaixo os valores da despesa
+              </p>
+
+              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Valor do fechamento</p>
+                  <p className={styles.FieldLabel}>Valor da despesa</p>
                   <input
                     id="driverName"
                     type="text"
@@ -218,32 +328,111 @@ export default function NewPost() {
                   />
                 </div>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Posto do fechamento</p>
-                  <input
+                  <p className={styles.FieldLabel}>Classificação da despesa</p>
+                  <select
                     id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={post}
-                    onChange={(e) => setPost(e.target.value)}
-                    placeholder=""
-                  />
+                    className={styles.SelectField}
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                  >
+                    <option value="">Selecione uma opção</option>
+                    <option value="Compra de combustíveis">
+                      Compra de combustíveis
+                    </option>
+                    <option value="Prestação de serviços">
+                      Prestação de serviços
+                    </option>
+                    <option value="Manutenção posto">Manutenção posto</option>
+                    <option value="Aluguel">Aluguel</option>
+                    <option value="Salários">Salários</option>
+                    <option value="Materiais diversos">
+                      Materiais diversos
+                    </option>
+                    <option value="Despesas Operacionais">
+                      Despesas Operacionais
+                    </option>
+                    <option value="Internet/Água/Energia">
+                      Internet/Água/Energia
+                    </option>
+                    <option value="Parcela Postos">Parcela Postos</option>
+                    <option value="Venda de Filtros">Venda de Filtros</option>
+                    <option value="Dividendos">Dividendos</option>
+                    <option value="Receita de Aluguéis">
+                      Receita de Aluguéis
+                    </option>
+                    <option value="Benefícios">Benefícios</option>
+                  </select>
                 </div>
+
+                {type === "Compra de combustíveis" ? (
+                  <>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Litros</p>
+                      <input
+                        id="driverName"
+                        type="text"
+                        className={styles.Field}
+                        value={liters}
+                        onChange={(e) => setLiters(e.target.value)}
+                        placeholder=""
+                      />
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Preço</p>
+                      <input
+                        id="driverName"
+                        type="text"
+                        className={styles.Field}
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        placeholder=""
+                      />
+                    </div>
+                  </>
+                ) : null}
               </div>
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Observações</p>
+                  <p className={styles.FieldLabel}>
+                    Descrição detalhada da despesa
+                  </p>
                   <textarea
                     id="observations"
                     className={styles.Field}
-                    value={observations}
-                    onChange={(e) => setObservations(e.target.value)}
+                    value={detailObservations}
+                    onChange={(e) => setDetailObservations(e.target.value)}
                     rows={3}
                   />
                 </div>
               </div>
+
+              <p className={styles.BudgetTitle}>Pagamento</p>
+              <p className={styles.Notes}>
+                Informe abaixo os valores do pagamento
+              </p>
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem do fechamento</p>
+                  <p className={styles.FieldLabel}>Forma de pagamento</p>
+                  <select
+                    id="driverName"
+                    className={styles.SelectField}
+                    value={payment}
+                    onChange={(e) => setPayment(e.target.value)}
+                  >
+                    <option value="">Selecione uma opção</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Ted">Ted</option>
+                    <option value="Boleto">Boleto</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Cartão">Cartão</option>
+                  </select>
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem do comprovante</p>
                   <input
                     type="file"
                     accept="image/*"
@@ -277,6 +466,19 @@ export default function NewPost() {
                       <p className={styles.fileName}>{etanolFileName}</p>
                     </div>
                   )}
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Observações</p>
+                  <textarea
+                    id="observations"
+                    className={styles.Field}
+                    value={observations}
+                    onChange={(e) => setObservations(e.target.value)}
+                    rows={3}
+                  />
                 </div>
               </div>
             </div>

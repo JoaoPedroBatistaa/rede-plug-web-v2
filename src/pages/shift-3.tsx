@@ -45,12 +45,36 @@ export default function NewPost() {
   const [debit, setDebit] = useState("");
   const [credit, setCredit] = useState("");
   const [pix, setPix] = useState("");
-  const [expenses, setExpenses] = useState("");
 
   // States para total de entrada e saída
   const [totalOutput, setTotalOutput] = useState("");
   const [totalInput, setTotalInput] = useState("");
   const [difference, setDifference] = useState("");
+
+  const [expenses, setExpenses] = useState([
+    { expenseValue: "", expenseType: "" }, // Estado inicial com um item, se necessário
+  ]);
+
+  const handleExpenseChange = (
+    index: string | number,
+    field: string | number,
+    value: any
+  ) => {
+    const newExpenses = [...expenses];
+    // @ts-ignore
+    newExpenses[index][field] = value;
+    setExpenses(newExpenses);
+  };
+
+  const addExpense = () => {
+    setExpenses([...expenses, { expenseValue: "", expenseType: "" }]);
+  };
+
+  const removeExpense = (index: number) => {
+    const newExpenses = [...expenses];
+    newExpenses.splice(index, 1);
+    setExpenses(newExpenses);
+  };
 
   const saveMeasurement = async () => {
     setIsLoading(true);
@@ -360,18 +384,59 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Despesas</p>
-                  <input
-                    id="attendant"
-                    type="text"
-                    className={styles.Field}
-                    value={expenses}
-                    onChange={(e) => setExpenses(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
               </div>
+
+              <p className={styles.BudgetTitle}>Despesas</p>
+              <p className={styles.Notes}>
+                Informe abaixo as informações das despesas
+              </p>
+
+              {expenses.map((expense, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Valor da despesa</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={expense.expenseValue}
+                      onChange={(e) =>
+                        handleExpenseChange(
+                          index,
+                          "expenseValue",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Tipo de Despesa</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={expense.expenseType}
+                      onChange={(e) =>
+                        handleExpenseChange(
+                          index,
+                          "expenseType",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  {expenses.length > 1 && (
+                    <button
+                      onClick={() => removeExpense(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>Excluir despesa</span>
+                    </button>
+                  )}
+
+                  <button onClick={addExpense} className={styles.NewButton}>
+                    <span className={styles.buttonText}>Nova despesa</span>
+                  </button>
+                </div>
+              ))}
 
               <p className={styles.BudgetTitle}>Total</p>
               <p className={styles.Notes}>

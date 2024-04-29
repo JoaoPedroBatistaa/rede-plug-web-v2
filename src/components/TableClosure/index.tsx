@@ -14,6 +14,7 @@ interface Supervisor {
   type: string;
   date: string;
   value: string;
+  makerName: string;
 }
 
 export default function TablePosts({
@@ -46,6 +47,7 @@ export default function TablePosts({
         type: doc.data().type,
         date: doc.data().date,
         value: doc.data().value,
+        makerName: doc.data().makerName,
       }));
 
       if (isComponentMounted) {
@@ -183,6 +185,7 @@ export default function TablePosts({
             <th>Tipo</th>
             <th>Data</th>
             <th>Valor</th>
+            <th>Feito por</th>
           </tr>
         </thead>
 
@@ -237,6 +240,9 @@ export default function TablePosts({
               </td>
               <td className={styles.td}>
                 <b>{item.value}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.makerName}</b>
               </td>
             </tr>
           ))}

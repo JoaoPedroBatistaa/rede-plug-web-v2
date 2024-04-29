@@ -284,6 +284,11 @@ export default function TablePosts({
               link: "/game-test-fourteen",
             },
             {
+              id: "teste-combustiveis-14h",
+              name: "Teste dos combustíveis (fazer somente antes de ir embora!)",
+              link: "/fuel-test-fourteen",
+            },
+            {
               id: "foto-maquininhas-14h",
               name: "Maquininhas",
               link: "/photo-machines-fourteen",
