@@ -34,6 +34,39 @@
   margin-top: 30px;
 }
 
+.CardMenuDate {
+  height: 80px;
+  width: 320px;
+  box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background-color: white;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 50px;
+  margin-top: 30px;
+}
+
+.CardMenuTextDate {
+  font-family: "DM Sans";
+  font-size: 1rem;
+  color: #404049;
+  text-transform: uppercase;
+  font-weight: 700;
+
+  text-align: center;
+
+  &.GreenText {
+    color: #00ca43;
+  }
+
+  &.RedText {
+    color: #e40000;
+  }
+}
+
 .CardMenuText {
   font-family: "DM Sans";
   font-size: 1rem;
@@ -546,6 +579,31 @@
       text-align: center;
 
       .CardMenuText {
+        height: 50%;
+        text-align: center;
+        justify-content: start;
+        text-align: start;
+        display: flex;
+        margin-left: 30px;
+
+        width: 35%;
+      }
+      img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+      }
+    }
+
+    .CardMenuDate {
+      width: 350px;
+      height: 110px;
+      flex-direction: row;
+      align-self: center;
+      justify-content: center;
+      text-align: center;
+
+      .CardMenuTextDate {
         height: 50%;
         text-align: center;
         justify-content: start;

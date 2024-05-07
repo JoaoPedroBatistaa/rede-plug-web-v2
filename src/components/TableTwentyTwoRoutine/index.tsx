@@ -272,17 +272,17 @@ export default function TablePosts({
             {
               id: "medicao-tanques-22h",
               name: "Medição dos Tanques",
-              link: "/tank-measurement-twenty-two",
+              link: "/managers/tank-measurement-twenty-two",
             },
             {
               id: "encerrante-bico-22h",
               name: "Encerrantes",
-              link: "/nozzle-closure-twenty-two",
+              link: "/managers/nozzle-closure-twenty-two",
             },
             {
               id: "foto-maquininhas-22h",
               name: "Maquininhas",
-              link: "/photo-machines-twenty-two",
+              link: "/managers/photo-machines-twenty-two",
             },
           ].map((task) => {
             // @ts-ignore

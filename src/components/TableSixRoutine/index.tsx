@@ -179,59 +179,59 @@ export default function TablePosts({
             {
               id: "medicao-tanques-6h",
               name: "Medição dos Tanques",
-              link: "/tank-measurement-six",
+              link: "/managers/tank-measurement-six",
             },
             {
               id: "encerrante-bico-6h",
               name: "Encerrantes",
-              link: "/nozzle-closure-six",
+              link: "/managers/nozzle-closure-six",
             },
             {
               id: "teste-combustiveis-6h",
               name: "Teste dos Combustíveis",
-              link: "/fuel-test-six",
+              link: "/managers/fuel-test-six",
             },
             {
               id: "teste-game-proveta-6h",
               name: "Teste do Game",
-              link: "/game-test-six",
+              link: "/managers/game-test-six",
             },
             {
               id: "foto-maquininhas-6h",
               name: "Maquininhas",
-              link: "/photo-machines-six",
+              link: "/managers/photo-machines-six",
             },
 
             {
               id: "quarto-caixa-6h",
               name: "4° Caixa",
-              link: "/fourth-cashier-six",
+              link: "/managers/fourth-cashier-six",
             },
             {
               id: "controle-tanque-6h",
               name: "Controle de Tanque",
-              link: "/tank-control-six",
+              link: "/managers/tank-control-six",
             },
             {
               id: "recolhe-6h",
               name: "Recolhe",
-              link: "/collect-six",
+              link: "/managers/collect-six",
             },
             {
               id: "quantidade-vendida-dia-anterior-6h",
               name: "Vendas do Dia Anterior",
-              link: "/yesterday-sales-volume-six",
+              link: "/managers/yesterday-sales-volume-six",
             },
             {
               id: "preco-concorrentes-6h",
               name: "Preço dos Concorrentes",
-              link: "/competitors-price-six",
+              link: "/managers/competitors-price-six",
             },
 
             {
               id: "verificacao-cavaletes-14h",
               name: "Cavaletes",
-              link: "/easel-fourteen",
+              link: "/managers/easel-fourteen",
             },
           ].map((task) => {
             // @ts-ignore

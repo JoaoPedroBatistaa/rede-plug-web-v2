@@ -28,7 +28,7 @@ export default function HeaderBudget() {
       <div className={styles.HeaderContainer}>
         <div className={styles.menuSamduba}>
           <img
-            src="./menuSamduba.svg"
+            src="/menuSamduba.svg"
             height={20}
             width={20}
             alt="Menu"
@@ -36,7 +36,7 @@ export default function HeaderBudget() {
           />
         </div>
         <p className={styles.NewBudget}>NOVA TAREFA</p>
-        <img src="./close.png" className={styles.Close} onClick={handleBack} />
+        <img src="/close.png" className={styles.Close} onClick={handleBack} />
       </div>
     </>
   );

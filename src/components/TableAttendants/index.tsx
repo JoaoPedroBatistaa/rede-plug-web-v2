@@ -186,17 +186,32 @@ export default function TablePosts({
             {
               id: "turno-1",
               name: "Relatório Turno 1",
-              link: "/shift-1",
+              link: "/attendants/shift-1",
             },
             {
               id: "turno-2",
               name: "Relatório Turno 2",
-              link: "/shift-2",
+              link: "/attendants/shift-2",
             },
             {
               id: "turno-3",
               name: "Relatório Turno 3",
-              link: "/shift-3",
+              link: "/attendants/shift-3",
+            },
+            {
+              id: "turno-4",
+              name: "Relatório Turno 4",
+              link: "/attendants/shift-4",
+            },
+            {
+              id: "turno-5",
+              name: "Relatório Turno 5",
+              link: "/attendants/shift-5",
+            },
+            {
+              id: "turno-6",
+              name: "Relatório Turno 6",
+              link: "/attendants/shift-6",
             },
           ].map((task) => {
             // @ts-ignore

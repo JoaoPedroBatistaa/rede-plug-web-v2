@@ -57,13 +57,13 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           <div className={styles.MenuContainer}>
             <div className={styles.topMenu}>
               <img
-                src="./closeMenu.png"
+                src="/closeMenu.png"
                 alt=""
                 className={styles.closeMenu}
                 onClick={handleOpenMenuDiv}
               />
 
-              <img src={"./LogoMenu.png"} className={styles.Logo} />
+              <img src={"/LogoMenu.png"} className={styles.Logo} />
             </div>
 
             <p className={styles.Steps}>Menu Principal</p>
@@ -168,23 +168,6 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                         Supervisores +
                       </Link>
                     </div>
-
-                    <div
-                      className={`${styles.MenuNavigate} ${
-                        activeRoute === "/Supplier" ? styles.active : ""
-                      }`}
-                      onClick={handleOpenMenuDiv}
-                    >
-                      <img
-                        src="/relatorios.svg"
-                        className={styles.Pointer}
-                        alt=""
-                      />
-
-                      <Link className={styles.NavigateItem} href="/Supplier">
-                        Relatórios
-                      </Link>
-                    </div>
                   </>
                 )}
               </>
@@ -257,11 +240,26 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           <div className={styles.MenuContainer}>
             <p className={styles.Steps}>Parâmetros</p>
 
-            {/* {typeUser !== "manager" && (
+            {typeUser === "admin" && (
               <>
+                <div
+                  className={`${styles.MenuNavigate} ${
+                    activeRoute === "/reports" ? styles.active : ""
+                  }`}
+                  onClick={handleOpenMenuDiv}
+                >
+                  <img
+                    src="/relatorios.svg"
+                    className={styles.Pointer}
+                    alt=""
+                  />
 
+                  <Link className={styles.NavigateItem} href="/reports">
+                    Relatórios
+                  </Link>
+                </div>
               </>
-            )} */}
+            )}
 
             {typeUser !== "post" && (
               <>
@@ -307,7 +305,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 activeRoute === "/BudgetPerfil" ? styles.active : ""
               }`}
             >
-              <img src="./configIcon.svg" className={styles.Pointer}></img>
+              <img src="/configIcon.svg" className={styles.Pointer}></img>
               <p className={styles.NavigateItem}>Configurações</p>
             </div>
 
@@ -316,7 +314,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 activeRoute === "/BudgetGlass" ? styles.active : ""
               }`}
             >
-              <img src="./contaIcon.svg" className={styles.Pointer}></img>
+              <img src="/contaIcon.svg" className={styles.Pointer}></img>
               <p className={styles.NavigateItem}>Conta</p>
             </div>
           </div>
@@ -329,10 +327,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 activeRoute === "/BudgetSize" ? styles.active : ""
               }`}
             >
-              <img
-                src="./centralAjudaIcon.svg"
-                className={styles.Pointer}
-              ></img>
+              <img src="/centralAjudaIcon.svg" className={styles.Pointer}></img>
               <p className={styles.NavigateItem}>Central de Ajuda</p>
             </div>
           </div>
@@ -344,7 +339,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               }`}
             >
               <p className={styles.NavigateItemEnd}>Encerrar sessão</p>
-              <img src="./Logout.svg" className={styles.PointerEnd}></img>
+              <img src="/Logout.svg" className={styles.PointerEnd}></img>
             </div>
           </div>
         </div>

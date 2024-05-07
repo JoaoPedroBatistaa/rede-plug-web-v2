@@ -271,27 +271,27 @@ export default function TablePosts({
             {
               id: "medicao-tanques-14h",
               name: "Medição dos Tanques",
-              link: "/tank-measurement-fourteen",
+              link: "/managers/tank-measurement-fourteen",
             },
             {
               id: "encerrante-bico-14h",
               name: "Encerrantes",
-              link: "/nozzle-closure-fourteen",
+              link: "/managers/nozzle-closure-fourteen",
             },
             {
               id: "teste-game-proveta-14h",
               name: "Teste do game. (fazer somente antes de ir embora do posto!) ",
-              link: "/game-test-fourteen",
+              link: "/managers/game-test-fourteen",
             },
             {
               id: "teste-combustiveis-14h",
               name: "Teste dos combustíveis (fazer somente antes de ir embora!)",
-              link: "/fuel-test-fourteen",
+              link: "/managers/fuel-test-fourteen",
             },
             {
               id: "foto-maquininhas-14h",
               name: "Maquininhas",
-              link: "/photo-machines-fourteen",
+              link: "/managers/photo-machines-fourteen",
             },
           ].map((task) => {
             // @ts-ignore

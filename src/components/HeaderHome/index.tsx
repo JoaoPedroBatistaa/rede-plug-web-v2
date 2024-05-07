@@ -28,7 +28,7 @@ export default function HeaderHome() {
         <div className={styles.HeaderSearch}>
           <div className={styles.menuSamduba} onClick={handleOpenMenu}>
             {" "}
-            <img src="./menuSamduba.svg" height={20} width={26} alt="" />
+            <img src="/menuSamduba.svg" height={20} width={26} alt="" />
           </div>
 
           {/* <Link href="/HomeResults">
@@ -36,19 +36,19 @@ export default function HeaderHome() {
           </Link> */}
           <div className={styles.HeaderContainerIcons}>
             <img
-              src="./iconSino.png"
+              src="/iconSino.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}
             />
             <img
-              src="./iconProfile.png"
+              src="/iconProfile.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}
             />
             <img
-              src="./iconInterro.png"
+              src="/iconInterro.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}

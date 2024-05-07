@@ -23,7 +23,7 @@ export default function HeaderRequests() {
           <div className={styles.menuSamduba}>
             {" "}
             <img
-              src="./menuSamduba.svg"
+              src="/menuSamduba.svg"
               height={20}
               width={26}
               alt=""
@@ -35,19 +35,19 @@ export default function HeaderRequests() {
           </div>
           <div className={styles.HeaderContainerIcons}>
             <img
-              src="./iconSino.png"
+              src="/iconSino.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}
             />
             <img
-              src="./iconProfile.png"
+              src="/iconProfile.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}
             />
             <img
-              src="./iconInterro.png"
+              src="/iconInterro.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}

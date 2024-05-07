@@ -23,7 +23,7 @@ export default function HeaderBudget() {
         <div className={styles.menuSamduba}>
           {" "}
           <img
-            src="./menuSamduba.svg"
+            src="/menuSamduba.svg"
             height={20}
             width={20}
             alt=""
@@ -32,7 +32,7 @@ export default function HeaderBudget() {
         </div>
         <p className={styles.NewBudget}>NOVO POSTO</p>
         <Link href="/posts">
-          <img src="./close.png" className={styles.Close} />
+          <img src="/close.png" className={styles.Close} />
         </Link>
       </div>
     </>
