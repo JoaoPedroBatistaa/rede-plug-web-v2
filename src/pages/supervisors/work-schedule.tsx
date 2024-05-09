@@ -140,6 +140,9 @@ export default function NewPost() {
     try {
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
+
+      sendMessage(taskData);
+
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore
       router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
@@ -154,6 +157,66 @@ export default function NewPost() {
     const uploadResult = await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function sendMessage(data: {
+    date: string | number | Date;
+    time: any;
+    postName: any;
+    supervisorName: any;
+    qtdTurn1: any;
+    qtdTurn2: any;
+    qtdTurn3: any;
+    qtdIntermediate: any;
+    observations: any;
+  }) {
+    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+
+    // Montar o corpo da mensagem
+    const messageBody = `*Escala de Trabalho
+    *\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${
+      data.supervisorName
+    }\n\n*Detalhes dos turnos*\n\nTurno 1: ${data.qtdTurn1}\nTurno 2: ${
+      data.qtdTurn2
+    }\nTurno 3: ${data.qtdTurn3}\nIntermediário: ${
+      data.qtdIntermediate
+    }\n\nObservações: ${data.observations || "Sem observações adicionais"}`;
+
+    // Enviar a mensagem via Twilio
+    const response = await fetch(
+      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            "Basic " +
+            btoa(
+              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
+            ),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: "whatsapp:+553899624092", // Substitua pelo número correto
+          From: "whatsapp:+14155238886",
+          Body: messageBody,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    }
+
+    console.log("Mensagem de escala de trabalho enviada com sucesso!");
   }
 
   return (

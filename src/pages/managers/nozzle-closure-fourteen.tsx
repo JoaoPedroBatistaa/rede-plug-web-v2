@@ -197,6 +197,9 @@ export default function NewPost() {
         nozzleClosureData
       );
       console.log("Encerrante dos bicos salvo com ID: ", docRef.id);
+
+      await sendMessage(nozzleClosureData);
+
       toast.success("Encerrante dos bicos salvo com sucesso!");
       router.push("/manager-fourteen-routine");
     } catch (error) {
@@ -213,6 +216,87 @@ export default function NewPost() {
     await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(storageRef);
     return downloadUrl;
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function shortenUrl(originalUrl: string): Promise<string> {
+    const payload = {
+      originalURL: originalUrl,
+      domain: "ewja.short.gy", // Substitua pelo seu domínio personalizado
+    };
+
+    const response = await fetch("https://api.short.io/links", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "sk_4rwgIKnBOzJxbwC7",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error("Falha ao encurtar URL:", data);
+      throw new Error(`Erro ao encurtar URL: ${data.message}`);
+    }
+
+    return data.secureShortURL || data.shortURL; // Usa o campo correto conforme a resposta da API
+  }
+
+  async function sendMessage(data: {
+    date: any;
+    time: any;
+    managerName: any;
+    userName?: string | null;
+    postName: any;
+    images: any;
+    id?: string;
+  }) {
+    const formattedDate = formatDate(data.date);
+    const imagesDetails = await Promise.all(
+      data.images.map(async (img: { imageUrl: string }, index: number) => {
+        const shortUrl = await shortenUrl(img.imageUrl);
+        return `*Bico ${index + 1}:* ${shortUrl}`;
+      })
+    ).then((descriptions) => descriptions.join("\n\n"));
+
+    const messageBody = `*Novo Encerrante dos Bicos às 14h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nResponsável: ${data.managerName}\n\n*Imagens dos Encerrantes*\n\n${imagesDetails}`;
+
+    const response = await fetch(
+      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            "Basic " +
+            btoa(
+              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
+            ),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: "whatsapp:+553899624092",
+          From: "whatsapp:+14155238886",
+          Body: messageBody,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorDetail = await response.text();
+      console.error("Detalhes do erro:", errorDetail);
+      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    }
+
+    console.log("Mensagem enviada com sucesso!");
   }
 
   return (

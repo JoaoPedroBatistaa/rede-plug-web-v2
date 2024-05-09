@@ -311,6 +311,9 @@ export default function NewPost() {
     try {
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);
+
+      await sendMessage(measurementData);
+
       toast.success("Medição salva com sucesso!");
       router.push("/manager-six-routine");
     } catch (error) {
@@ -327,6 +330,84 @@ export default function NewPost() {
     await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(storageRef);
     return downloadUrl;
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function shortenUrl(originalUrl: string): Promise<string> {
+    const payload = {
+      originalURL: originalUrl,
+      domain: "ewja.short.gy", // Use seu domínio personalizado se tiver um
+    };
+
+    const response = await fetch("https://api.short.io/links", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "sk_4rwgIKnBOzJxbwC7",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`Erro ao encurtar URL: ${data.message}`);
+    }
+
+    return data.secureShortURL || data.shortURL;
+  }
+
+  async function sendMessage(data: {
+    date: string | number | Date;
+    measurements: any[];
+    time: any;
+    postName: any;
+    managerName: any;
+  }) {
+    const formattedDate = formatDate(data.date); // Formatando a data
+    const shortUrls = await Promise.all(
+      data.measurements.map((measurement) => shortenUrl(measurement.imageUrl))
+    );
+    const measurements = data.measurements
+      .map(
+        (measurement, index) =>
+          `*Tanque ${measurement.tankNumber}:* ${measurement.measurement.cm} cm, ${measurement.measurement.liters} litros, Imagem: ${shortUrls[index]}\n\n`
+      )
+      .join("\n");
+    const messageBody = `*Nova Medição dos Tanques às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes das Medições*\n\n${measurements}`;
+
+    const response = await fetch(
+      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            "Basic " +
+            btoa(
+              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
+            ),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: "whatsapp:+553899624092",
+          From: "whatsapp:+14155238886",
+          Body: messageBody,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    }
+
+    console.log("Mensagem enviada com sucesso!");
   }
 
   return (

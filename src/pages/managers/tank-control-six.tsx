@@ -185,6 +185,9 @@ export default function NewPost() {
         fourthCashierData
       );
       console.log("Controle de tanque salvo com ID: ", docRef.id);
+
+      await sendMessage(fourthCashierData);
+
       toast.success("Controle de tanque salvo com sucesso!");
       router.push("/manager-six-routine");
     } catch (error) {
@@ -198,6 +201,87 @@ export default function NewPost() {
     const uploadResult = await uploadBytes(storageRef, file);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function shortenUrl(originalUrl: string): Promise<string> {
+    const payload = {
+      originalURL: originalUrl,
+      domain: "ewja.short.gy", // Substitua pelo seu domínio personalizado
+    };
+
+    const response = await fetch("https://api.short.io/links", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "sk_4rwgIKnBOzJxbwC7",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error("Falha ao encurtar URL:", data);
+      throw new Error(`Erro ao encurtar URL: ${data.message}`);
+    }
+
+    return data.secureShortURL || data.shortURL; // Usa o campo correto conforme a resposta da API
+  }
+
+  async function sendMessage(data: {
+    date: string | number | Date;
+    files: any[];
+    time: any;
+    postName: any;
+    managerName: any;
+  }) {
+    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+
+    // Encurtar URLs dos arquivos e construir a descrição
+    const filesDescription = await Promise.all(
+      data.files.map(async (file, index) => {
+        const shortUrl = await shortenUrl(file.fileUrl);
+        return `Arquivo ${index + 1}: ${shortUrl}\n`;
+      })
+    ).then((descriptions) => descriptions.join("\n"));
+
+    // Montar o corpo da mensagem
+    const messageBody = `*Novo Controle de tanque às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes dos Arquivos*\n\n${filesDescription}`;
+
+    // Enviar a mensagem via Twilio
+    const response = await fetch(
+      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            "Basic " +
+            btoa(
+              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
+            ),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: "whatsapp:+553899624092", // Substitua pelo número correto
+          From: "whatsapp:+14155238886",
+          Body: messageBody,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    }
+
+    console.log("Mensagem da atualização do quarto caixa enviada com sucesso!");
   }
 
   return (

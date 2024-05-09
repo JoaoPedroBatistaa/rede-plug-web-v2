@@ -296,6 +296,9 @@ export default function NewPost() {
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
+
+      sendMessage(taskData);
+
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore
       router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
@@ -311,6 +314,71 @@ export default function NewPost() {
     const uploadResult = await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function sendMessage(data: {
+    date: string | number | Date;
+    pumps: any[];
+    time: any;
+    postName: any;
+    supervisorName: any;
+    observations: any;
+  }) {
+    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+
+    // Encurtar URLs das imagens e construir a descrição dos estados e imagens de cada bomba
+    let pumpDescriptions = await Promise.all(
+      data.pumps.map(async (pump, index) => {
+        const status = pump.ok ? "Conforme" : "Não conforme";
+
+        return `*Bomba ${index + 1}:* ${status}\n`;
+      })
+    ).then((descriptions) => descriptions.join("\n"));
+
+    // Montar o corpo da mensagem
+    const messageBody = `*Passagem de bomba*\n\nData: ${formattedDate}\nPosto: ${
+      data.postName
+    }\nSupervisor: ${
+      data.supervisorName
+    }\n\n*Detalhes das Bocas de Visita*\n\n${pumpDescriptions}\nObservações: ${
+      data.observations || "Sem observações adicionais"
+    }`;
+
+    // Enviar a mensagem via Twilio
+    const response = await fetch(
+      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            "Basic " +
+            btoa(
+              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
+            ),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: "whatsapp:+553899624092", // Substitua pelo número correto
+          From: "whatsapp:+14155238886",
+          Body: messageBody,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    }
+
+    console.log("Mensagem de inspeção de bocas de visita enviada com sucesso!");
   }
 
   return (

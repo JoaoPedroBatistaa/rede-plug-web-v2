@@ -142,6 +142,10 @@ export default function NewPost() {
       Number(gaPrice) * Number(gaSales) +
       Number(s10Price) * Number(s10Sales);
 
+    setTotalLiters(
+      // @ts-ignore
+      Number(gcSales) + Number(etSales) + Number(gaSales) + Number(s10Sales)
+    );
     // @ts-ignore
     setTotalOutput(total);
   }, [
@@ -267,6 +271,9 @@ export default function NewPost() {
       const docRef = await addDoc(collection(db, "ATTENDANTS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
       toast.success("Tarefa salva com sucesso!");
+
+      await sendMessage(taskData);
+
       // @ts-ignore
       router.push(`/attendants?post=${encodeURIComponent(postName)}`);
     } catch (error) {
@@ -274,6 +281,99 @@ export default function NewPost() {
       toast.error("Erro ao salvar a medição.");
     }
   };
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function sendMessage(data: {
+    date: any;
+    time: any;
+    postName: any;
+    attendant: any;
+    etPrice: any;
+    etSales: any;
+    gcPrice: any;
+    gcSales: any;
+    gaPrice: any;
+    gaSales: any;
+    s10Price: any;
+    s10Sales: any;
+    totalLiters: any;
+    cash: any;
+    debit: any;
+    credit: any;
+    pix: any;
+    totalInput: any;
+    totalOutput: any;
+    difference: any;
+    observations: any;
+    expenses: any;
+  }) {
+    const formattedDate = formatDate(data.date);
+    // @ts-ignore
+    const formattedExpenses = data.expenses
+      .map(
+        (exp: { expenseType: any; expenseValue: any }) =>
+          `Tipo: ${exp.expenseType}, Valor: R$ ${exp.expenseValue}`
+      )
+      .join("\n");
+
+    const messageBody = `*Novo Relatório de Turno 01:*\n\nData: ${formattedDate}\nHora: ${
+      data.time
+    }\nPosto: ${data.postName}\nResponsável: ${
+      data.attendant
+    }\n\n*Vendas*\n\nET: R$ ${Number(data.etPrice) * Number(data.etSales)} (${
+      data.etSales
+    } litros)\nGC: R$ ${Number(data.gcPrice) * Number(data.gcSales)} (${
+      data.gcSales
+    } litros)\nGA: R$ ${Number(data.gaPrice) * Number(data.gaSales)} (${
+      data.gaSales
+    } litros)\nS10: R$ ${Number(data.s10Price) * Number(data.s10Sales)} (${
+      data.s10Sales
+    } litros)\n\n*Totais*\n\nLitros Vendidos: ${
+      data.totalLiters
+    }\nDinheiro: R$ ${data.cash}\nDébito: R$ ${data.debit}\nCrédito: R$ ${
+      data.credit
+    }\nPix: R$ ${data.pix}\nTotal de Entradas: R$ ${
+      data.totalInput
+    }\nTotal de Saídas: R$ ${data.totalOutput}\nDiferença: R$ ${
+      data.difference
+    }\n\n*Despesas*\n\n ${formattedExpenses}\n\n\Observações: ${
+      data.observations
+    }\n`;
+
+    const response = await fetch(
+      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            "Basic " +
+            btoa(
+              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
+            ),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: "whatsapp:+553899624092",
+          From: "whatsapp:+14155238886",
+          Body: messageBody,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    }
+
+    console.log("Mensagem enviada com sucesso!");
+  }
 
   return (
     <>

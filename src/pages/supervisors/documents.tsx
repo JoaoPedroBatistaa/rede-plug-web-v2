@@ -452,6 +452,9 @@ export default function NewPost() {
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
+
+      sendMessage(taskData);
+
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore
       router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
@@ -466,6 +469,132 @@ export default function NewPost() {
     const uploadResult = await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function shortenUrl(originalUrl: string): Promise<string> {
+    const payload = {
+      originalURL: originalUrl,
+      domain: "ewja.short.gy", // Substitua pelo seu domínio personalizado
+    };
+
+    const response = await fetch("https://api.short.io/links", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "sk_4rwgIKnBOzJxbwC7",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error("Falha ao encurtar URL:", data);
+      throw new Error(`Erro ao encurtar URL: ${data.message}`);
+    }
+
+    return data.secureShortURL || data.shortURL; // Usa o campo correto conforme a resposta da API
+  }
+
+  async function sendMessage(data: {
+    date: any;
+    time?: string;
+    supervisorName: any;
+    userName?: string | null;
+    postName: any;
+    isANPOk: any;
+    isLicencaOperacaoOk: any;
+    isAlvaraFuncionamentoOk: any;
+    isBombeirosOk: any;
+    isBrigadaOk: any;
+    isContratoSocialOk: any;
+    isEpaeOk: any;
+    isLaudoCompressorOk: any;
+    isLaudoEstanqueidadeOk: any;
+    isLaudoEletricaOk: any;
+    observations: any;
+    images: any;
+    id?: string;
+  }) {
+    const formattedDate = formatDate(data.date);
+
+    // Montar a descrição da conformidade de cada item
+    const complianceList = [
+      `ANP: ${data.isANPOk ? "Conforme" : "Não conforme"}`,
+      `Licença de Operação: ${
+        data.isLicencaOperacaoOk ? "Conforme" : "Não conforme"
+      }`,
+      `Alvará de Funcionamento: ${
+        data.isAlvaraFuncionamentoOk ? "Conforme" : "Não conforme"
+      }`,
+      `Alvará dos Bombeiros: ${
+        data.isBombeirosOk ? "Conforme" : "Não conforme"
+      }`,
+      `Brigada: ${data.isBrigadaOk ? "Conforme" : "Não conforme"}`,
+      `Contrato Social: ${
+        data.isContratoSocialOk ? "Conforme" : "Não conforme"
+      }`,
+      `EPAE: ${data.isEpaeOk ? "Conforme" : "Não conforme"}`,
+      `Laudo Compressor: ${
+        data.isLaudoCompressorOk ? "Conforme" : "Não conforme"
+      }`,
+      `Laudo Estanqueidade: ${
+        data.isLaudoEstanqueidadeOk ? "Conforme" : "Não conforme"
+      }`,
+      `Laudo Elétrica: ${data.isLaudoEletricaOk ? "Conforme" : "Não conforme"}`,
+    ].join("\n");
+
+    // Encurtar URLs das imagens e montar a descrição
+    let imagesDescriptions = await Promise.all(
+      data.images.map(async (image: { imageUrl: string; type: any }) => {
+        const shortUrl = await shortenUrl(image.imageUrl);
+        return `${image.type}: ${shortUrl}`;
+      })
+    ).then((descriptions) => descriptions.join("\n"));
+
+    // Montar o corpo da mensagem
+    const messageBody = `*Documentos*\n\nData: ${formattedDate}\nPosto: ${
+      data.postName
+    }\nSupervisor: ${
+      data.supervisorName
+    }\n\n*Conformidade*\n\n${complianceList}\n\n*Imagens*\n\n${imagesDescriptions}\n\nObservações: ${
+      data.observations || "Sem observações adicionais"
+    }`;
+
+    // Enviar a mensagem via Twilio
+    const response = await fetch(
+      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            "Basic " +
+            btoa(
+              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
+            ),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: "whatsapp:+553899624092",
+          From: "whatsapp:+14155238886",
+          Body: messageBody,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    }
+
+    console.log("Mensagem de verificação de documentos enviada com sucesso!");
   }
 
   return (
