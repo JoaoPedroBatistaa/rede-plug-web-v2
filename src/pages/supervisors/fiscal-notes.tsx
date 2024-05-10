@@ -217,7 +217,7 @@ export default function NewPost() {
   async function shortenUrl(originalUrl: string): Promise<string> {
     const payload = {
       originalURL: originalUrl,
-      domain: "ewja.short.gy", // Substitua pelo seu domínio personalizado
+      domain: "ewja.short.gy",
     };
 
     const response = await fetch("https://api.short.io/links", {
@@ -247,7 +247,7 @@ export default function NewPost() {
     postName: any;
     supervisorName: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
     const status = data.isOk ? "Tudo em ordem" : "Revisões necessárias";
     const observationsMsg = data.observations
