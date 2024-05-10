@@ -351,7 +351,7 @@ export default function NewPost() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "sk_4rwgIKnBOzJxbwC7",
+        Authorization: `${process.env.URL_SHORTENER_API_KEY}`,
       },
       body: JSON.stringify(payload),
     });
@@ -388,11 +388,8 @@ export default function NewPost() {
       {
         method: "POST",
         headers: {
-          Authorization:
-            "Basic " +
-            btoa(
-              "ACb0e4bbdd08e851e23384532bdfab6020:6d7dc5f2b04d0f47e7ba4dd085e305f2"
-            ),
+          Authorization: `Basic ${btoa(`${process.env.WHATSAPP_API_KEY}`)}`,
+
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
