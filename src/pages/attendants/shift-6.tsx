@@ -106,10 +106,10 @@ export default function NewPost() {
   const [pix, setPix] = useState("");
 
   // States para total de entrada e saída
-  const [totalOutput, setTotalOutput] = useState("");
-  const [totalInput, setTotalInput] = useState("");
-  const [totalExpenses, setTotalExpenses] = useState("");
-  const [difference, setDifference] = useState("");
+  const [totalOutput, setTotalOutput] = useState(0);
+  const [totalInput, setTotalInput] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [difference, setDifference] = useState(0);
 
   const [expenses, setExpenses] = useState([
     { expenseValue: "", expenseType: "" }, // Estado inicial com um item, se necessário
@@ -168,7 +168,7 @@ export default function NewPost() {
       return acc + Number(current.expenseValue);
     }, 0);
 
-    const total = totalPayments + totalExpenses;
+    const total = totalPayments;
 
     // @ts-ignore
     setTotalInput(total);
@@ -188,17 +188,12 @@ export default function NewPost() {
   useEffect(() => {
     let total = 0;
 
-    if (totalInput > totalOutput) {
-      // @ts-ignore
-      total = totalInput - totalOutput;
-    } else {
-      // @ts-ignore
-      total = totalOutput - totalInput;
-    }
+    // @ts-ignore
+    total = totalOutput - (totalInput + totalExpenses);
 
     // @ts-ignore
     setDifference(total);
-  }, [totalInput, totalOutput]);
+  }, [totalInput, totalOutput, totalExpenses]);
 
   const saveMeasurement = async () => {
     setIsLoading(true);
@@ -672,11 +667,11 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Total Saída</p>
                   <input
-                    id="attendant"
+                    id="totalOutput"
                     type="text"
                     className={styles.Field}
-                    value={totalOutput}
-                    onChange={(e) => setTotalOutput(e.target.value)}
+                    value={totalOutput.toFixed(2)}
+                    onChange={(e) => setTotalOutput(parseFloat(e.target.value))}
                     placeholder=""
                     disabled
                   />
@@ -684,11 +679,11 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Total Entrada</p>
                   <input
-                    id="attendant"
+                    id="totalInput"
                     type="text"
                     className={styles.Field}
-                    value={totalInput}
-                    onChange={(e) => setTotalInput(e.target.value)}
+                    value={totalInput.toFixed(2)}
+                    onChange={(e) => setTotalInput(parseFloat(e.target.value))}
                     placeholder=""
                     disabled
                   />
@@ -696,11 +691,13 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Despesas</p>
                   <input
-                    id="attendant"
+                    id="totalExpenses"
                     type="text"
                     className={styles.Field}
-                    value={totalExpenses}
-                    onChange={(e) => setTotalExpenses(e.target.value)}
+                    value={totalExpenses.toFixed(2)}
+                    onChange={(e) =>
+                      setTotalExpenses(parseFloat(e.target.value))
+                    }
                     placeholder=""
                     disabled
                   />
@@ -708,11 +705,11 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Diferença</p>
                   <input
-                    id="attendant"
+                    id="difference"
                     type="text"
                     className={styles.Field}
-                    value={difference}
-                    onChange={(e) => setDifference(e.target.value)}
+                    value={difference.toFixed(2)}
+                    onChange={(e) => setDifference(parseFloat(e.target.value))}
                     placeholder=""
                     disabled
                   />

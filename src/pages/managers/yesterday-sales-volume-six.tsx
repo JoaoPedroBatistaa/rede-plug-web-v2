@@ -423,7 +423,7 @@ export default function NewPost() {
               </div>
 
               <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Total Saída</p>
+                <p className={styles.FieldLabel}>Total Litros</p>
                 <input
                   id="attendant"
                   type="text"
