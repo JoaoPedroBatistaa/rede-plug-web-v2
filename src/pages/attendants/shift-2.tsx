@@ -189,7 +189,7 @@ export default function NewPost() {
     let total = 0;
 
     // @ts-ignore
-    total = totalOutput - (totalInput + totalExpenses);
+    total = totalInput + totalExpenses - totalOutput;
 
     // @ts-ignore
     setDifference(total);
