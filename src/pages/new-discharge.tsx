@@ -322,6 +322,9 @@ export default function NewPost() {
         // @ts-ignore
         image: hydrationRef.current?.files[0] || null,
       },
+      initialLiters,
+      finalLiters,
+      totalLiters: totalDescarregado,
     };
 
     await uploadImagesAndUpdateData(dischargeData);
