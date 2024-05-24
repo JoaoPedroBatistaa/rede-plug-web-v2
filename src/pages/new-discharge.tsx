@@ -126,6 +126,7 @@ export default function NewPost() {
           options = ["GC"];
           if (tank.saleDefense !== "Defesa") options.push("SECO");
           if (tank.saleDefense !== "Defesa") options.push("ET");
+          if (tank.saleDefense !== "Defesa") options.push("ANIDRO");
           break;
         case "GA":
           options = ["GC", "GA"];

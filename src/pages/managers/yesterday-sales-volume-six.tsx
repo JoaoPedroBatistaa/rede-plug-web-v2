@@ -261,20 +261,30 @@ export default function NewPost() {
     // Montar o corpo da mensagem
     const messageBody = `*Novo Vendas do Dia Anterior às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes das Vendas*\n${salesDescription}\n\n*Detalhes das Imagens*\n${imagesDescription}`;
 
-    // Enviar a mensagem via Twilio
+    const postsRef = collection(db, "POSTS");
+    const q = query(postsRef, where("name", "==", data.postName));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.error("Nenhum posto encontrado com o nome especificado.");
+      throw new Error("Posto não encontrado");
+    }
+
+    const postData = querySnapshot.docs[0].data();
+    const managerContact = postData.managers[0].contact;
+
+    console.log(managerContact);
+
     const response = await fetch(
-      "https://api.twilio.com/2010-04-01/Accounts/ACb0e4bbdd08e851e23384532bdfab6020/Messages.json",
+      `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/664f81f7028bc8c1dec6e205/text`,
       {
         method: "POST",
         headers: {
-          Authorization: `Basic ${btoa(`${process.env.WHATSAPP_API_KEY}`)}`,
-
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          To: "whatsapp:+553899624092", // Substitua pelo número correto
-          From: "whatsapp:+14155238886",
-          Body: messageBody,
+          id: `${managerContact}`, // substituindo 'whatsapp:+553899624092' por '553899624092'
+          message: `${messageBody}`,
         }),
       }
     );
