@@ -397,26 +397,32 @@ export default function NewPost() {
   };
 
   const validateForm = () => {
-    const fields = [
-      name,
-      owner,
-      contact,
-      location,
-      email,
-      ...tanks,
-      ...nozzles,
-      ...managers,
-    ];
+    const fields = [name, location, email, ...tanks, ...nozzles, ...managers];
+    const invalidFields = [];
 
-    return fields.every((field) => {
-      if (typeof field === "object") {
-        return Object.entries(field).every(([key, value]) => {
+    const isValid = fields.every((field, index) => {
+      if (typeof field === "object" && field !== null) {
+        const isFieldValid = Object.entries(field).every(([key, value]) => {
           if (key === "password") return true;
-          return value.trim() !== "";
+          const isValid = typeof value === "string" && value.trim() !== "";
+          if (!isValid) {
+            invalidFields.push({ index, key, value });
+          }
+          return isValid;
         });
+        if (!isFieldValid) {
+          invalidFields.push({ index, field });
+        }
+        return isFieldValid;
       }
-      return field.trim() !== "";
+      const isFieldValid = typeof field === "string" && field.trim() !== "";
+      if (!isFieldValid) {
+        invalidFields.push({ index, field });
+      }
+      return isFieldValid;
     });
+
+    return { isValid, invalidFields };
   };
 
   const updateSupervisorPosts = async (
@@ -430,12 +436,16 @@ export default function NewPost() {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      toast.error("Por favor, preencha todos os campos obrigatórios.");
-      setIsLoading(false);
+    // const { isValid, invalidFields } = validateForm();
 
-      return;
-    }
+    // if (!isValid) {
+    //   invalidFields.forEach((invalidField) => {
+    //     console.log("Invalid field:", invalidField);
+    //   });
+    //   toast.error("Por favor, preencha todos os campos obrigatórios.");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     setIsLoading(true);
 
@@ -536,30 +546,6 @@ export default function NewPost() {
                     className={styles.Field}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Proprietário</p>
-                  <input
-                    id="owner"
-                    type="text"
-                    className={styles.Field}
-                    value={owner}
-                    onChange={(e) => setOwner(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Contato</p>
-                  <input
-                    id="contact"
-                    type="text"
-                    className={styles.Field}
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
                     placeholder=""
                   />
                 </div>

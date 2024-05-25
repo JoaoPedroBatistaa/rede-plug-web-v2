@@ -275,8 +275,6 @@ export default function NewPost() {
   const validateForm = () => {
     const fields = [
       name,
-      owner,
-      contact,
       location,
       email,
       ...tanks,
@@ -338,8 +336,6 @@ export default function NewPost() {
 
       const postRef = await addDoc(collection(db, "POSTS"), {
         name,
-        owner,
-        contact,
         location,
         email,
         tanks,
@@ -414,30 +410,6 @@ export default function NewPost() {
                     className={styles.Field}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Proprietário</p>
-                  <input
-                    id="owner"
-                    type="text"
-                    className={styles.Field}
-                    value={owner}
-                    onChange={(e) => setOwner(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Contato</p>
-                  <input
-                    id="contact"
-                    type="text"
-                    className={styles.Field}
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
                     placeholder=""
                   />
                 </div>
