@@ -227,7 +227,7 @@ export default function TablePosts({
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
             <th>Nome</th>
-            <th>Proprietário</th>
+            <th>E-mail</th>
             <th>Localização</th>
           </tr>
         </thead>
@@ -290,7 +290,7 @@ export default function TablePosts({
               </td>
 
               <td className={styles.td}>
-                <b>{item.owner}</b>
+                <b>{item.email}</b>
               </td>
               <td className={styles.td}>
                 <b>{item.location}</b>
