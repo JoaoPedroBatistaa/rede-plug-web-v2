@@ -421,12 +421,12 @@ export default function NewPost() {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      toast.error("Por favor, preencha todos os campos obrigatórios.");
-      setIsLoading(false);
+    // if (!validateForm()) {
+    //   toast.error("Por favor, preencha todos os campos obrigatórios.");
+    //   setIsLoading(false);
 
-      return;
-    }
+    //   return;
+    // }
 
     setIsLoading(true);
 
