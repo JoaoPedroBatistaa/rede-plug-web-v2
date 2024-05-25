@@ -398,31 +398,16 @@ export default function NewPost() {
 
   const validateForm = () => {
     const fields = [name, location, email, ...tanks, ...nozzles, ...managers];
-    const invalidFields = [];
 
-    const isValid = fields.every((field, index) => {
+    return fields.every((field) => {
       if (typeof field === "object" && field !== null) {
-        const isFieldValid = Object.entries(field).every(([key, value]) => {
+        return Object.entries(field).every(([key, value]) => {
           if (key === "password") return true;
-          const isValid = typeof value === "string" && value.trim() !== "";
-          if (!isValid) {
-            invalidFields.push({ index, key, value });
-          }
-          return isValid;
+          return typeof value === "string" && value.trim() !== "";
         });
-        if (!isFieldValid) {
-          invalidFields.push({ index, field });
-        }
-        return isFieldValid;
       }
-      const isFieldValid = typeof field === "string" && field.trim() !== "";
-      if (!isFieldValid) {
-        invalidFields.push({ index, field });
-      }
-      return isFieldValid;
+      return typeof field === "string" && field.trim() !== "";
     });
-
-    return { isValid, invalidFields };
   };
 
   const updateSupervisorPosts = async (
@@ -436,16 +421,12 @@ export default function NewPost() {
   };
 
   const handleSubmit = async () => {
-    // const { isValid, invalidFields } = validateForm();
+    if (!validateForm()) {
+      toast.error("Por favor, preencha todos os campos obrigatórios.");
+      setIsLoading(false);
 
-    // if (!isValid) {
-    //   invalidFields.forEach((invalidField) => {
-    //     console.log("Invalid field:", invalidField);
-    //   });
-    //   toast.error("Por favor, preencha todos os campos obrigatórios.");
-    //   setIsLoading(false);
-    //   return;
-    // }
+      return;
+    }
 
     setIsLoading(true);
 
