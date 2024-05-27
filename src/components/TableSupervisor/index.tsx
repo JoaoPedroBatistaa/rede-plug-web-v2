@@ -8,6 +8,7 @@ import { collection, db, doc } from "../../../firebase";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
 
+import Link from "next/link";
 import { toast } from "react-toastify";
 
 interface Supervisor {
@@ -220,6 +221,16 @@ export default function TablePosts({
                       X
                     </div>
                     <div className={styles.containerOptionsMore}>
+                      <button className={styles.buttonBlack}>
+                        <Link
+                          href={{
+                            pathname: `/edit-supervisor`,
+                            query: { id: item.id },
+                          }}
+                        >
+                          Editar
+                        </Link>
+                      </button>
                       <button
                         className={styles.buttonRed}
                         onClick={(event) => {
