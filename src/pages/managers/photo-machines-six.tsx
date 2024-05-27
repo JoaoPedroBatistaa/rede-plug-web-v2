@@ -231,36 +231,23 @@ export default function NewPost() {
   async function shortenUrl(originalUrl: string): Promise<string> {
     console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
 
-    const payload = {
-      originalURL: originalUrl,
-      domain: "ewja.short.gy", // Substitua pelo seu domínio personalizado
-    };
-
     try {
-      console.log(`Payload para encurtar URL: ${JSON.stringify(payload)}`);
-
-      const response = await fetch("https://api.short.io/links", {
+      const response = await fetch("/api/shorten-url", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `sk_4rwgIKnBOzJxbwC7`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ originalURL: originalUrl }),
       });
 
-      console.log(
-        `Resposta recebida: ${response.status} ${response.statusText}`
-      );
-
-      const data = await response.json();
-      console.log(`Dados recebidos: ${JSON.stringify(data)}`);
-
       if (!response.ok) {
+        const data = await response.json();
         console.error("Falha ao encurtar URL:", data);
         throw new Error(`Erro ao encurtar URL: ${data.message}`);
       }
 
-      const shortUrl = data.secureShortURL || data.shortURL;
+      const data = await response.json();
+      const shortUrl = data.shortUrl;
       console.log(`URL encurtada: ${shortUrl}`);
 
       return shortUrl;
@@ -305,22 +292,19 @@ export default function NewPost() {
 
       console.log("Manager Contact: ", managerContact);
 
-      const response = await fetch(
-        `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/664f81f7028bc8c1dec6e205/text`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            id: `${managerContact}`,
-            message: `${messageBody}`,
-          }),
-        }
-      );
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact,
+          messageBody,
+        }),
+      });
 
       if (!response.ok) {
-        const errorMessage = await response.text();
+        const errorMessage = await response.json();
         console.error("Falha ao enviar mensagem via WhatsApp: ", errorMessage);
         throw new Error("Falha ao enviar mensagem via WhatsApp");
       }
