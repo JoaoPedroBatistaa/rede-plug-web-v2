@@ -139,9 +139,16 @@ export default function TablePosts({
 
   const [todayTasks, setTodayTasks] = useState([]);
 
+  const getLocalISODate = () => {
+    const date = new Date();
+    // Ajustar para o fuso horário -03:00
+    date.setHours(date.getHours() - 3);
+    return date.toISOString().slice(0, 10);
+  };
+
   useEffect(() => {
     const fetchTodayTasks = async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getLocalISODate();
       const managersRef = collection(db, "MANAGERS");
       const userName = localStorage.getItem("userName");
       const q = query(
