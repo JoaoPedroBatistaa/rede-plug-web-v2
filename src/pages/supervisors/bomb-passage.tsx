@@ -346,7 +346,7 @@ export default function NewPost() {
     // Encurtar URLs das imagens e construir a descrição dos estados e imagens de cada bomba
     let pumpDescriptions = await Promise.all(
       data.pumps.map(async (pump, index) => {
-        const status = pump.ok ? "Conforme" : "Não conforme";
+        const status = pump.ok === "yes" ? "OK" : "NÃO OK";
 
         return `*Bomba ${index + 1}:* ${status}\n`;
       })

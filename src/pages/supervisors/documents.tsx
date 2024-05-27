@@ -541,28 +541,24 @@ export default function NewPost() {
 
     // Montar a descrição da conformidade de cada item
     const complianceList = [
-      `ANP: ${data.isANPOk ? "Conforme" : "Não conforme"}`,
+      `ANP: ${data.isANPOk === "yes" ? "OK" : "NÃO OK"}`,
       `Licença de Operação: ${
-        data.isLicencaOperacaoOk ? "Conforme" : "Não conforme"
+        data.isLicencaOperacaoOk === "yes" ? "OK" : "NÃO OK"
       }`,
       `Alvará de Funcionamento: ${
-        data.isAlvaraFuncionamentoOk ? "Conforme" : "Não conforme"
+        data.isAlvaraFuncionamentoOk === "yes" ? "OK" : "NÃO OK"
       }`,
-      `Alvará dos Bombeiros: ${
-        data.isBombeirosOk ? "Conforme" : "Não conforme"
-      }`,
-      `Brigada: ${data.isBrigadaOk ? "Conforme" : "Não conforme"}`,
-      `Contrato Social: ${
-        data.isContratoSocialOk ? "Conforme" : "Não conforme"
-      }`,
-      `EPAE: ${data.isEpaeOk ? "Conforme" : "Não conforme"}`,
+      `Alvará dos Bombeiros: ${data.isBombeirosOk === "yes" ? "OK" : "NÃO OK"}`,
+      `Brigada: ${data.isBrigadaOk === "yes" ? "OK" : "NÃO OK"}`,
+      `Contrato Social: ${data.isContratoSocialOk === "yes" ? "OK" : "NÃO OK"}`,
+      `EPAE: ${data.isEpaeOk === "yes" ? "OK" : "NÃO OK"}`,
       `Laudo Compressor: ${
-        data.isLaudoCompressorOk ? "Conforme" : "Não conforme"
+        data.isLaudoCompressorOk === "yes" ? "OK" : "NÃO OK"
       }`,
       `Laudo Estanqueidade: ${
-        data.isLaudoEstanqueidadeOk ? "Conforme" : "Não conforme"
+        data.isLaudoEstanqueidadeOk === "yes" ? "OK" : "NÃO OK"
       }`,
-      `Laudo Elétrica: ${data.isLaudoEletricaOk ? "Conforme" : "Não conforme"}`,
+      `Laudo Elétrica: ${data.isLaudoEletricaOk === "yes" ? "OK" : "NÃO OK"}`,
     ].join("\n");
 
     // Encurtar URLs das imagens e montar a descrição

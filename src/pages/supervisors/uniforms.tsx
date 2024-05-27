@@ -170,7 +170,9 @@ export default function NewPost() {
       ? `Observações: ${data.observations}`
       : "Sem observações adicionais";
 
-    const messageBody = `*Verificação de Uniformes*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\nStatus: ${data.isOk}\n${observationsMsg}`;
+    const status = data.isOk === "yes" ? "OK" : "NÃO OK";
+
+    const messageBody = `*Verificação de Uniformes*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\nStatus: ${status}\n${observationsMsg}`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));

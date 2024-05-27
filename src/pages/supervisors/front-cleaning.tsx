@@ -166,7 +166,7 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
 
     // Montar o corpo da mensagem
-    const status = data.isOk ? "Tudo em ordem" : "Revisões necessárias";
+    const status = data.isOk === "yes" ? "OK" : "NÃO OK";
     const observationsMsg = data.observations
       ? `Observações: ${data.observations}`
       : "Sem observações adicionais";

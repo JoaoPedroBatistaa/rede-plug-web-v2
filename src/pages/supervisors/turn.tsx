@@ -264,12 +264,12 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
 
     // Montar o corpo da mensagem
-    const etanolStatus = data.isEtanolOk
-      ? "Etanol: Conforme"
-      : "Etanol: Não conforme";
-    const gasolinaStatus = data.isGasolinaOk
-      ? "Gasolina: Conforme"
-      : "Gasolina: Não conforme";
+    const etanolStatus =
+      data.isEtanolOk === "yes" ? "Etanol: OK" : "Etanol: NÃO OK";
+
+    const gasolinaStatus =
+      data.isGasolinaOk === "yes" ? "Gasolina: OK" : "Gasolina: NÃO OK";
+
     const observationsMsg = data.observations
       ? `Observações: ${data.observations}`
       : "Sem observações adicionais";
