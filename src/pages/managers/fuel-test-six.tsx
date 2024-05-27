@@ -237,27 +237,32 @@ export default function NewPost() {
   }
 
   async function shortenUrl(originalUrl: string): Promise<string> {
-    const payload = {
-      originalURL: originalUrl,
-      domain: "ewja.short.gy", // Use seu domínio personalizado
-    };
+    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
 
-    const response = await fetch("https://api.short.io/links", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `sk_4rwgIKnBOzJxbwC7`,
-      },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch("/api/shorten-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ originalURL: originalUrl }),
+      });
 
-    const data = await response.json();
-    if (!response.ok) {
-      console.error("Falha ao encurtar URL:", data);
-      throw new Error(`Erro ao encurtar URL: ${data.message}`);
+      if (!response.ok) {
+        const data = await response.json();
+        console.error("Falha ao encurtar URL:", data);
+        throw new Error(`Erro ao encurtar URL: ${data.message}`);
+      }
+
+      const data = await response.json();
+      const shortUrl = data.shortUrl;
+      console.log(`URL encurtada: ${shortUrl}`);
+
+      return shortUrl;
+    } catch (error) {
+      console.error("Erro ao encurtar URL:", error);
+      throw error;
     }
-
-    return data.secureShortURL || data.shortURL;
   }
 
   async function sendMessage(data: {
