@@ -100,11 +100,19 @@ export default function NewPost() {
     }
   };
 
+  const getLocalISODate = () => {
+    const date = new Date();
+    // Ajustar para o fuso horário -03:00
+    date.setHours(date.getHours() - 3);
+    return date.toISOString().slice(0, 10);
+  };
+
   const saveMeasurement = async () => {
     setIsLoading(true);
 
     let missingField = "";
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getLocalISODate();
+    console.log(today);
 
     if (!date) missingField = "Data";
     // else if (date !== today) {

@@ -70,11 +70,19 @@ export default function NewPost() {
   const [qtd, setQtd] = useState(0);
   const [observations, setObservations] = useState("");
 
+  const getLocalISODate = () => {
+    const date = new Date();
+    // Ajustar para o fuso horário -03:00
+    date.setHours(date.getHours() - 3);
+    return date.toISOString().slice(0, 10);
+  };
+
   const saveMeasurement = async () => {
     setIsLoading(true);
 
     let missingField = "";
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getLocalISODate();
+    console.log(today);
 
     if (!date) missingField = "Data";
     else if (date !== today) {
@@ -184,19 +192,16 @@ export default function NewPost() {
 
     console.log(managerContact);
 
-    const response = await fetch(
-      `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/664f81f7028bc8c1dec6e205/text`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          id: `${managerContact}`, // substituindo 'whatsapp:+553899624092' por '553899624092'
-          message: `${messageBody}`,
-        }),
-      }
-    );
+    const response = await fetch("/api/send-message", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        managerContact,
+        messageBody,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Falha ao enviar mensagem via WhatsApp");
