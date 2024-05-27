@@ -229,27 +229,45 @@ export default function NewPost() {
   }
 
   async function shortenUrl(originalUrl: string): Promise<string> {
+    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
+
     const payload = {
       originalURL: originalUrl,
       domain: "ewja.short.gy", // Substitua pelo seu domínio personalizado
     };
 
-    const response = await fetch("https://api.short.io/links", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `sk_4rwgIKnBOzJxbwC7`,
-      },
-      body: JSON.stringify(payload),
-    });
+    try {
+      console.log(`Payload para encurtar URL: ${JSON.stringify(payload)}`);
 
-    const data = await response.json();
-    if (!response.ok) {
-      console.error("Falha ao encurtar URL:", data);
-      throw new Error(`Erro ao encurtar URL: ${data.message}`);
+      const response = await fetch("https://api.short.io/links", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `sk_4rwgIKnBOzJxbwC7`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log(
+        `Resposta recebida: ${response.status} ${response.statusText}`
+      );
+
+      const data = await response.json();
+      console.log(`Dados recebidos: ${JSON.stringify(data)}`);
+
+      if (!response.ok) {
+        console.error("Falha ao encurtar URL:", data);
+        throw new Error(`Erro ao encurtar URL: ${data.message}`);
+      }
+
+      const shortUrl = data.secureShortURL || data.shortURL;
+      console.log(`URL encurtada: ${shortUrl}`);
+
+      return shortUrl;
+    } catch (error) {
+      console.error("Erro ao encurtar URL:", error);
+      throw error;
     }
-
-    return data.secureShortURL || data.shortURL; // Usa o campo correto conforme a resposta da API
   }
 
   async function sendMessage(data: {
@@ -261,51 +279,57 @@ export default function NewPost() {
     images: any;
     id?: string;
   }) {
-    const formattedDate = formatDate(data.date); // Suponha que você tenha uma função para formatar a data corretamente
+    const formattedDate = formatDate(data.date);
 
-    const imagesDescription = await Promise.all(
-      data.images.map(async (image: { imageUrl: string }, index: number) => {
-        const shortUrl = await shortenUrl(image.imageUrl);
-        return `*Maquininha ${index + 1}:* ${shortUrl}\n`;
-      })
-    ).then((descriptions) => descriptions.join("\n"));
+    try {
+      const imagesDescription = await Promise.all(
+        data.images.map(async (image: { imageUrl: string }, index: number) => {
+          const shortUrl = await shortenUrl(image.imageUrl);
+          return `*Maquininha ${index + 1}:* ${shortUrl}\n`;
+        })
+      ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
-    const messageBody = `*Nova Maquininhas às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
+      const messageBody = `*Nova Maquininhas às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
 
-    const postsRef = collection(db, "POSTS");
-    const q = query(postsRef, where("name", "==", data.postName));
-    const querySnapshot = await getDocs(q);
+      const postsRef = collection(db, "POSTS");
+      const q = query(postsRef, where("name", "==", data.postName));
+      const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-      console.error("Nenhum posto encontrado com o nome especificado.");
-      throw new Error("Posto não encontrado");
-    }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.managers[0].contact;
-
-    console.log(managerContact);
-
-    const response = await fetch(
-      `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/664f81f7028bc8c1dec6e205/text`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          id: `${managerContact}`, // substituindo 'whatsapp:+553899624092' por '553899624092'
-          message: `${messageBody}`,
-        }),
+      if (querySnapshot.empty) {
+        console.error("Nenhum posto encontrado com o nome especificado.");
+        throw new Error("Posto não encontrado");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
+      const postData = querySnapshot.docs[0].data();
+      const managerContact = postData.managers[0].contact;
+
+      console.log("Manager Contact: ", managerContact);
+
+      const response = await fetch(
+        `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/664f81f7028bc8c1dec6e205/text`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            id: `${managerContact}`,
+            message: `${messageBody}`,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error("Falha ao enviar mensagem via WhatsApp: ", errorMessage);
+        throw new Error("Falha ao enviar mensagem via WhatsApp");
+      }
+
+      console.log("Mensagem das fotos das maquininhas enviada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar mensagem: ", error);
+      toast.error("Erro ao enviar mensagem.");
     }
-
-    console.log("Mensagem das fotos das maquininhas enviada com sucesso!");
   }
 
   return (
