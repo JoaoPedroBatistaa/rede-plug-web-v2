@@ -383,16 +383,16 @@ export default function TablePosts({
             // @ts-ignore
             const time = taskRecord ? taskRecord.time : "-";
 
-            const handleTaskClick = () => {
-              if (!isFinished) {
-                navigateTo(task.link);
-              }
-            };
-
             const urlWithPostName = `${task.link}?postName=${encodeURIComponent(
               // @ts-ignore
               postName
             )}`;
+
+            const handleTaskClick = () => {
+              if (!isFinished) {
+                navigateTo(urlWithPostName);
+              }
+            };
 
             return (
               <tr
@@ -400,7 +400,7 @@ export default function TablePosts({
                   isFinished ? styles.finished : styles.notFinished
                 }`}
                 key={task.id}
-                onClick={() => navigateTo(urlWithPostName)}
+                onClick={handleTaskClick}
                 style={{ cursor: isFinished ? "default" : "pointer" }}
               >
                 <td className={styles.tdWithRelative}>

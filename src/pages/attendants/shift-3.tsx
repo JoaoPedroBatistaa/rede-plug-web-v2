@@ -117,14 +117,16 @@ export default function NewPost() {
     { expenseValue: "", expenseType: "" }, // Estado inicial com um item, se necessário
   ]);
 
-  const handleExpenseChange = (
-    index: string | number,
-    field: string | number,
-    value: any
-  ) => {
-    const newExpenses = [...expenses];
-    // @ts-ignore
-    newExpenses[index][field] = value;
+  const handleInputChange =
+    (setter: (arg0: any) => void) => (e: { target: { value: string } }) => {
+      const value = e.target.value.replace(",", ".");
+      setter(value);
+    };
+
+  const handleExpenseChange = (index: number, field: string, value: string) => {
+    const newExpenses = expenses.map((expense, i) =>
+      i === index ? { ...expense, [field]: value.replace(",", ".") } : expense
+    );
     setExpenses(newExpenses);
   };
 
@@ -410,7 +412,7 @@ export default function NewPost() {
                   onClick={saveMeasurement}
                 >
                   <img
-                    src="./finishBudget.png"
+                    src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />
@@ -474,44 +476,40 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Preço GC</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={gcPrice}
-                    onChange={(e) => setGcPrice(e.target.value)}
+                    onChange={handleInputChange(setGcPrice)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Preço ET</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={etPrice}
-                    onChange={(e) => setEtPrice(e.target.value)}
+                    onChange={handleInputChange(setEtPrice)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Preço GA</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={gaPrice}
-                    onChange={(e) => setGaPrice(e.target.value)}
+                    onChange={handleInputChange(setGaPrice)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Preço S10</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={s10Price}
-                    onChange={(e) => setS10Price(e.target.value)}
+                    onChange={handleInputChange(setS10Price)}
                     placeholder=""
                   />
                 </div>
@@ -526,44 +524,40 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas GC</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={gcSales}
-                    onChange={(e) => setGcSales(e.target.value)}
+                    onChange={handleInputChange(setGcSales)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas ET</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={etSales}
-                    onChange={(e) => setEtSales(e.target.value)}
+                    onChange={handleInputChange(setEtSales)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas GA</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={gaSales}
-                    onChange={(e) => setGaSales(e.target.value)}
+                    onChange={handleInputChange(setGaSales)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas S10</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={s10Sales}
-                    onChange={(e) => setS10Sales(e.target.value)}
+                    onChange={handleInputChange(setS10Sales)}
                     placeholder=""
                   />
                 </div>
@@ -578,44 +572,40 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Dinheiro</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={cash}
-                    onChange={(e) => setCash(e.target.value)}
+                    onChange={handleInputChange(setCash)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Débito</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={debit}
-                    onChange={(e) => setDebit(e.target.value)}
+                    onChange={handleInputChange(setDebit)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Crédito</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={credit}
-                    onChange={(e) => setCredit(e.target.value)}
+                    onChange={handleInputChange(setCredit)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Pix</p>
                   <input
-                    id="attendant"
                     type="text"
                     className={styles.Field}
                     value={pix}
-                    onChange={(e) => setPix(e.target.value)}
+                    onChange={handleInputChange(setPix)}
                     placeholder=""
                   />
                 </div>

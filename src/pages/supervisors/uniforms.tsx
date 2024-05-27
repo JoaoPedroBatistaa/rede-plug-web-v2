@@ -166,12 +166,11 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
 
     // Montar o corpo da mensagem
-    const status = data.isOk ? "Tudo em ordem" : "Revisões necessárias";
     const observationsMsg = data.observations
       ? `Observações: ${data.observations}`
       : "Sem observações adicionais";
 
-    const messageBody = `*Verificação de Uniformes*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\nStatus: ${status}\n${observationsMsg}`;
+    const messageBody = `*Verificação de Uniformes*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\nStatus: ${data.isOk}\n${observationsMsg}`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));
@@ -229,7 +228,7 @@ export default function NewPost() {
                   onClick={saveMeasurement}
                 >
                   <img
-                    src="./finishBudget.png"
+                    src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />

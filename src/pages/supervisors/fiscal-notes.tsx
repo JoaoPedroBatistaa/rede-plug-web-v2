@@ -337,7 +337,7 @@ export default function NewPost() {
                   onClick={saveMeasurement}
                 >
                   <img
-                    src="./finishBudget.png"
+                    src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />

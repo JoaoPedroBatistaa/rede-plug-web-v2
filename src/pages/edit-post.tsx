@@ -505,7 +505,7 @@ export default function NewPost() {
             <div className={styles.BudgetHeadS}>
               <button className={styles.FinishButton} onClick={handleSubmit}>
                 <img
-                  src="./finishBudget.png"
+                  src="/finishBudget.png"
                   alt="Finalizar"
                   className={styles.buttonImage}
                 />

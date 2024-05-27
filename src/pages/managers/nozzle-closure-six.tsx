@@ -341,7 +341,7 @@ export default function NewPost() {
                   onClick={saveNozzleClosure}
                 >
                   <img
-                    src="./finishBudget.png"
+                    src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />

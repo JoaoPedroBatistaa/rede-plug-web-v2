@@ -334,7 +334,7 @@ export default function NewPost() {
                   onClick={saveFourthCashier}
                 >
                   <img
-                    src="./finishBudget.png"
+                    src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />

@@ -337,7 +337,7 @@ export default function NewPost() {
               {!docId && (
                 <button className={styles.FinishButton} onClick={saveGameTest}>
                   <img
-                    src="./finishBudget.png"
+                    src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />
