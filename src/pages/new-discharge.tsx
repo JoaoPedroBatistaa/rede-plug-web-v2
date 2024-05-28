@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -73,6 +73,34 @@ export default function NewPost() {
   const [showHydrationField, setShowHydrationField] = useState(false);
 
   useEffect(() => {
+    const postName = localStorage.getItem("userPost");
+
+    if (postName) {
+      const fetchPostDetails = async () => {
+        try {
+          const postsRef = collection(db, "POSTS");
+          const q = query(postsRef, where("name", "==", postName));
+          const querySnapshot = await getDocs(q);
+
+          // @ts-ignore
+          const tanksData = [];
+          querySnapshot.forEach((doc) => {
+            const postData = doc.data();
+            tanksData.push(...postData.tanks);
+          });
+
+          // @ts-ignore
+          setTanks(tanksData);
+        } catch (error) {
+          console.error("Error fetching post details:", error);
+        }
+      };
+
+      fetchPostDetails();
+    }
+  }, []);
+
+  useEffect(() => {
     const tank = tanks.find((t) => t.tankNumber === selectedTank);
     if (
       (tank && selectedProduct === "SECO") ||
@@ -118,9 +146,17 @@ export default function NewPost() {
   ]);
 
   useEffect(() => {
-    const tank = tanks.find((t) => t.tankNumber === selectedTank);
+    console.log("Selected tank changed:", selectedTank);
+    console.log("Current tanks:", tanks);
+
+    // @ts-ignore
+    const tank = tanks.find((t) => t.tankNumber === Number(selectedTank));
+    console.log("Found tank:", tank);
+
     if (tank) {
-      let options: SetStateAction<string[]> = [];
+      // @ts-ignore
+
+      let options = [];
       switch (tank.product) {
         case "GC":
           options = ["GC"];
@@ -142,34 +178,14 @@ export default function NewPost() {
         default:
           options = [];
       }
+      // @ts-ignore
+      console.log("Setting product options:", options);
+      // @ts-ignore
       setProductOptions(options);
     } else {
       setProductOptions([]);
     }
   }, [selectedTank, tanks]);
-
-  useEffect(() => {
-    const postName = localStorage.getItem("userPost");
-
-    if (postName) {
-      const fetchPostDetails = async () => {
-        try {
-          const postsRef = collection(db, "POSTS");
-          const q = query(postsRef, where("name", "==", postName));
-          const querySnapshot = await getDocs(q);
-
-          querySnapshot.forEach((doc) => {
-            const postData = doc.data();
-            setTanks(postData.tanks || []);
-          });
-        } catch (error) {
-          console.error("Error fetching post details:", error);
-        }
-      };
-
-      fetchPostDetails();
-    }
-  }, []);
 
   // @ts-ignore
   const findLitersForMeasurement = (tankOption, measurementCm) => {
@@ -203,7 +219,8 @@ export default function NewPost() {
 
   const updateLitersAndTotal = () => {
     const selectedTankObject = tanks.find(
-      (tank) => tank.tankNumber === selectedTank
+      // @ts-ignore
+      (tank) => tank.tankNumber === Number(selectedTank)
     );
     if (!selectedTankObject) {
       setTotalDescarregado("Tanque não selecionado ou não encontrado.");
