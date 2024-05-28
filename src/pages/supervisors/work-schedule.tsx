@@ -190,8 +190,9 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
 
     // Montar o corpo da mensagem
-    const messageBody = `*Escala de Trabalho
-    *\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${
+    const messageBody = `*Escala de Trabalho*\n\nData: ${formattedDate}\nPosto: ${
+      data.postName
+    }\nSupervisor: ${
       data.supervisorName
     }\n\n*Detalhes dos turnos*\n\nTurno 1: ${data.qtdTurn1}\nTurno 2: ${
       data.qtdTurn2
