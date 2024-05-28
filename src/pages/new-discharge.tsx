@@ -72,6 +72,18 @@ export default function NewPost() {
 
   const [showHydrationField, setShowHydrationField] = useState(false);
 
+  const [productQuality, setProductQuality] = useState("");
+  const [productQualityImage, setProductQualityImage] = useState("");
+  const [productQualityFileName, setProductQualityFileName] = useState("");
+  const productQualityRef = useRef<HTMLInputElement>(null);
+
+  const [weight, setWeight] = useState("");
+  const [temperature, setTemperature] = useState("");
+  const [weightTemperatureImage, setWeightTemperatureImage] = useState("");
+  const [weightTemperatureFileName, setWeightTemperatureFileName] =
+    useState("");
+  const weightTemperatureRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
 
@@ -102,15 +114,16 @@ export default function NewPost() {
 
   useEffect(() => {
     const tank = tanks.find((t) => t.tankNumber === selectedTank);
-    if (
-      (tank && selectedProduct === "SECO") ||
-      (selectedProduct === "ANIDRO" &&
-        // @ts-ignore
+    if (tank) {
+      if (
+        (selectedProduct === "SECO" || selectedProduct === "ANIDRO") &&
         tank.product !== "GC" &&
-        // @ts-ignore
-        tank.product !== "GA")
-    ) {
-      setShowHydrationField(true);
+        tank.product !== "GA"
+      ) {
+        setShowHydrationField(true);
+      } else {
+        setShowHydrationField(false);
+      }
     } else {
       setShowHydrationField(false);
     }
@@ -293,6 +306,42 @@ export default function NewPost() {
       missingField = "Imagem do Lacre";
     else if (arrowSelection === "SIM" && !arrowPosition)
       missingField = "Posição da Seta";
+    else if (
+      (selectedProduct === "GC" || selectedProduct === "GA") &&
+      !productQuality
+    )
+      missingField = "Qualidade do Produto";
+    else if (
+      (selectedProduct === "GC" || selectedProduct === "GA") &&
+      // @ts-ignore
+      !productQualityRef.current?.files[0]
+    )
+      missingField = "Imagem da Qualidade do Produto";
+    else if (
+      (selectedProduct === "ET" ||
+        selectedProduct === "EA" ||
+        selectedProduct === "SECO" ||
+        selectedProduct === "ANIDRO") &&
+      !weight
+    )
+      missingField = "Peso";
+    else if (
+      (selectedProduct === "ET" ||
+        selectedProduct === "EA" ||
+        selectedProduct === "SECO" ||
+        selectedProduct === "ANIDRO") &&
+      !temperature
+    )
+      missingField = "Temperatura";
+    else if (
+      (selectedProduct === "ET" ||
+        selectedProduct === "EA" ||
+        selectedProduct === "SECO" ||
+        selectedProduct === "ANIDRO") &&
+      // @ts-ignore
+      !weightTemperatureRef.current?.files[0]
+    )
+      missingField = "Imagem do Peso e Temperatura";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -303,6 +352,7 @@ export default function NewPost() {
     const makerName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
     // @ts-ignore
+
     const truckPlateImage = truckPlateRef.current?.files[0];
 
     const dischargeData = {
@@ -316,16 +366,19 @@ export default function NewPost() {
       initialMeasurement: {
         cm: initialMeasurementCm,
         // @ts-ignore
+
         image: initialMeasurementRef.current?.files[0],
       },
       finalMeasurement: {
         cm: finalMeasurementCm,
         // @ts-ignore
+
         image: finalMeasurementRef.current?.files[0],
       },
       seal: {
         selection: sealSelection,
         // @ts-ignore
+
         image: sealSelection === "SIM" ? sealRef.current?.files[0] : null,
       },
       arrow: {
@@ -338,19 +391,83 @@ export default function NewPost() {
       hydration: {
         value: hydrationValue,
         // @ts-ignore
+
         image: hydrationRef.current?.files[0] || null,
       },
       initialLiters,
       finalLiters,
       totalLiters: totalDescarregado,
+      productQuality,
+      // @ts-ignore
+
+      productQualityImage: productQualityRef.current?.files[0] || "",
+      weight,
+      temperature,
+      // @ts-ignore
+
+      weightTemperatureImage: weightTemperatureRef.current?.files[0] || "",
     };
 
-    await uploadImagesAndUpdateData(dischargeData);
+    const updatedData = await uploadImagesAndUpdateData(dischargeData);
 
     try {
-      const docRef = await addDoc(collection(db, "DISCHARGES"), dischargeData);
+      const docRef = await addDoc(collection(db, "DISCHARGES"), updatedData);
       console.log("Documento salvo com ID: ", docRef.id);
       toast.success("Descarga salva com sucesso!");
+
+      // Preparar dados para envio de mensagem
+      const images = [
+        {
+          imageUrl: updatedData.truckPlateImage,
+          description: "Placa do Caminhão",
+        },
+        {
+          imageUrl: updatedData.initialMeasurement.fileUrl,
+          description: "Medição Inicial",
+        },
+        {
+          imageUrl: updatedData.finalMeasurement.fileUrl,
+          description: "Medição Final",
+        },
+      ];
+      if (updatedData.seal.fileUrl) {
+        images.push({
+          imageUrl: updatedData.seal.fileUrl,
+          description: "Lacre",
+        });
+      }
+      if (updatedData.hydration.fileUrl) {
+        images.push({
+          imageUrl: updatedData.hydration.fileUrl,
+          description: "Hidratação",
+        });
+      }
+      if (updatedData.productQualityImage) {
+        images.push({
+          imageUrl: updatedData.productQualityImage,
+          description: "Qualidade do Produto",
+        });
+      }
+      if (updatedData.weightTemperatureImage) {
+        images.push({
+          imageUrl: updatedData.weightTemperatureImage,
+          description: "Peso e Temperatura",
+        });
+      }
+
+      const messageData = {
+        date,
+        time,
+        driverName,
+        truckPlate,
+        postName,
+        managerName: makerName,
+        images,
+      };
+
+      // @ts-ignore
+      await sendDischargeMessage(messageData);
+
       router.push("/discharges");
     } catch (error) {
       console.error("Erro ao salvar os dados da descarga: ", error);
@@ -373,6 +490,8 @@ export default function NewPost() {
     observations?: string;
     makerName?: string | null;
     postName?: string | null;
+    productQualityImage?: any;
+    weightTemperatureImage?: any;
   }) => {
     const uploadImageAndGetUrl = async (
       imageFile: Blob | ArrayBuffer,
@@ -437,8 +556,125 @@ export default function NewPost() {
       data.hydration.fileUrl = null;
     }
 
+    if (data.productQualityImage instanceof File) {
+      const fileUrl = await uploadImageAndGetUrl(
+        data.productQualityImage,
+        `dischargeImages/productQuality/${
+          data.productQualityImage.name
+        }_${Date.now()}`
+      );
+      data.productQualityImage = fileUrl;
+    }
+
+    if (data.weightTemperatureImage instanceof File) {
+      const fileUrl = await uploadImageAndGetUrl(
+        data.weightTemperatureImage,
+        `dischargeImages/weightTemperature/${
+          data.weightTemperatureImage.name
+        }_${Date.now()}`
+      );
+      data.weightTemperatureImage = fileUrl;
+    }
+
     return data;
   };
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  async function shortenUrl(originalUrl: string): Promise<string> {
+    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
+
+    try {
+      const response = await fetch("/api/shorten-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ originalURL: originalUrl }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error("Falha ao encurtar URL:", data);
+        throw new Error(`Erro ao encurtar URL: ${data.message}`);
+      }
+
+      const data = await response.json();
+      const shortUrl = data.shortUrl;
+      console.log(`URL encurtada: ${shortUrl}`);
+
+      return shortUrl;
+    } catch (error) {
+      console.error("Erro ao encurtar URL:", error);
+      throw error;
+    }
+  }
+
+  async function sendDischargeMessage(data: {
+    date: string;
+    time: string;
+    driverName: string;
+    truckPlate: string;
+    postName: string;
+    managerName?: string | null;
+    images: { imageUrl: string; description: string }[];
+  }) {
+    const formattedDate = formatDate(data.date);
+
+    try {
+      const imagesDescription = await Promise.all(
+        data.images.map(async (image) => {
+          const shortUrl = await shortenUrl(image.imageUrl);
+          return `*${image.description}:* ${shortUrl}\n`;
+        })
+      ).then((descriptions) => descriptions.join("\n"));
+
+      const messageBody = `*Nova Descarga Realizada*\n\nData: ${formattedDate}\nHora: ${data.time}\nMotorista: ${data.driverName}\nPlaca do Caminhão: ${data.truckPlate}\nPosto: ${data.postName}\n\n*Imagens da descarga*\n\n${imagesDescription}`;
+
+      const postsRef = collection(db, "POSTS");
+      const q = query(postsRef, where("name", "==", data.postName));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        console.error("Nenhum posto encontrado com o nome especificado.");
+        throw new Error("Posto não encontrado");
+      }
+
+      const postData = querySnapshot.docs[0].data();
+      const managerContact = postData.managers[0].contact;
+
+      console.log("Manager Contact: ", managerContact);
+
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact,
+          messageBody,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        console.error("Falha ao enviar mensagem via WhatsApp: ", errorMessage);
+        throw new Error("Falha ao enviar mensagem via WhatsApp");
+      }
+
+      console.log("Mensagem de descarga enviada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar mensagem: ", error);
+      toast.error("Erro ao enviar mensagem.");
+    }
+  }
 
   return (
     <>
@@ -600,6 +836,140 @@ export default function NewPost() {
                   </select>
                 </div>
               </div>
+
+              {selectedProduct === "GC" || selectedProduct === "GA" ? (
+                <>
+                  <div className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Qualidade do produto (Número)
+                      </p>
+                      <input
+                        type="number"
+                        className={styles.Field}
+                        value={productQuality}
+                        onChange={(e) => setProductQuality(e.target.value)}
+                        placeholder=""
+                      />
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Qualidade do produto (Mídia)
+                      </p>
+                      <input
+                        ref={productQualityRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        style={{ display: "none" }}
+                        onChange={(event) =>
+                          handleFileChange(
+                            event,
+                            setProductQualityImage,
+                            setProductQualityFileName
+                          )
+                        }
+                      />
+                      <button
+                        onClick={() => triggerFileInput(productQualityRef)}
+                        className={styles.MidiaField}
+                      >
+                        Carregue sua foto
+                      </button>
+                    </div>
+                  </div>
+                  {productQualityImage && (
+                    <div>
+                      <img
+                        src={productQualityImage}
+                        alt="Visualização da imagem da qualidade do produto"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                      <p className={styles.fileName}>
+                        {productQualityFileName}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : null}
+
+              {selectedProduct === "ET" ||
+              selectedProduct === "EA" ||
+              selectedProduct === "SECO" ||
+              selectedProduct === "ANIDRO" ? (
+                <>
+                  <div className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Peso (Número)</p>
+                      <input
+                        type="number"
+                        className={styles.Field}
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        placeholder=""
+                      />
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Temperatura (Número)</p>
+                      <input
+                        type="number"
+                        className={styles.Field}
+                        value={temperature}
+                        onChange={(e) => setTemperature(e.target.value)}
+                        placeholder=""
+                      />
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Peso e Temperatura (Mídia)
+                      </p>
+                      <input
+                        ref={weightTemperatureRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        style={{ display: "none" }}
+                        onChange={(event) =>
+                          handleFileChange(
+                            event,
+                            setWeightTemperatureImage,
+                            setWeightTemperatureFileName
+                          )
+                        }
+                      />
+                      <button
+                        onClick={() => triggerFileInput(weightTemperatureRef)}
+                        className={styles.MidiaField}
+                      >
+                        Carregue sua foto
+                      </button>
+                    </div>
+                  </div>
+                  {weightTemperatureImage && (
+                    <div>
+                      <img
+                        src={weightTemperatureImage}
+                        alt="Visualização da imagem do peso e temperatura"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                      <p className={styles.fileName}>
+                        {weightTemperatureFileName}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : null}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

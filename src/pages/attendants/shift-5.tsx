@@ -453,16 +453,16 @@ export default function NewPost() {
       data.attendant
     }\n\n*Vendas*\n\nET: R$ ${(
       Number(data.etPrice) * Number(data.etSales)
-    ).toFixed(2)} (${data.etSales} litros)\nGC: R$ ${(
+    ).toFixed(2)} (${Number(data.etSales).toFixed(3)} litros)\nGC: R$ ${(
       Number(data.gcPrice) * Number(data.gcSales)
-    ).toFixed(2)} (${data.gcSales} litros)\nGA: R$ ${(
+    ).toFixed(2)} (${Number(data.gcSales).toFixed(3)} litros)\nGA: R$ ${(
       Number(data.gaPrice) * Number(data.gaSales)
-    ).toFixed(2)} (${data.gaSales} litros)\nS10: R$ ${(
+    ).toFixed(2)} (${Number(data.gaSales).toFixed(3)} litros)\nS10: R$ ${(
       Number(data.s10Price) * Number(data.s10Sales)
-    ).toFixed(2)} (${
-      data.s10Sales
-    } litros)\n\n*Totais*\n\nLitros Vendidos: ${data.totalLiters.toFixed(
-      2
+    ).toFixed(2)} (${Number(data.s10Sales).toFixed(
+      3
+    )} litros)\n\n*Totais*\n\nLitros Vendidos: ${data.totalLiters.toFixed(
+      3
     )}\nDinheiro: R$ ${Number(data.cash).toFixed(2)}\nDébito: R$ ${Number(
       data.debit
     ).toFixed(2)}\nCrédito: R$ ${Number(data.credit).toFixed(
