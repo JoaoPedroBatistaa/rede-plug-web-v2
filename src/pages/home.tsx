@@ -67,17 +67,19 @@ export default function Home() {
                 </div>
               </Link>
 
-              <Link href="/Products">
+              <Link href="/managers">
                 <div className={styles.CardMenu}>
                   <img src="./gerentesHome.svg"></img>
                   <span className={styles.CardMenuText}>GERENTES</span>
                 </div>
               </Link>
 
-              <div className={styles.CardMenu}>
-                <img src="./relatoriosHome.svg"></img>
-                <span className={styles.CardMenuText}>RELATÓRIOS</span>
-              </div>
+              <Link href="/reports">
+                <div className={styles.CardMenu}>
+                  <img src="./relatoriosHome.svg"></img>
+                  <span className={styles.CardMenuText}>RELATÓRIOS</span>
+                </div>
+              </Link>
             </div>
           </div>
 

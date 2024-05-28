@@ -447,7 +447,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     // @ts-ignore
                     ref={(el) => (maquininhasRefs.current[index] = el)}

@@ -451,7 +451,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem da tarefa</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}
@@ -488,7 +488,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem 2 da tarefa</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={gcRef}
                     onChange={handleGcImageChange}

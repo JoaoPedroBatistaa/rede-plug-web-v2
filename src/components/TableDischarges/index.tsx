@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/TableProducts.module.scss";
 
-import { getDocs } from "firebase/firestore";
+import { getDocs, query, where } from "firebase/firestore";
 import { collection, db } from "../../../firebase";
 import { useMenu } from "../Context/context";
 import { ITableBudgets } from "./type";
@@ -57,11 +57,22 @@ export default function TablePosts({
 
   useEffect(() => {
     let isComponentMounted = true;
+
     const fetchData = async () => {
       const path = "DISCHARGES"; // Caminho da coleção de descargas
+      const userType = localStorage.getItem("userType");
+      const userPost = localStorage.getItem("userPost");
 
-      const dbCollection = collection(db, path);
-      const dischargesSnapshot = await getDocs(dbCollection);
+      let dbCollection = collection(db, path);
+      let q;
+
+      if (userType === "manager") {
+        q = query(dbCollection, where("postName", "==", userPost));
+      } else {
+        q = query(dbCollection); // Sem filtros adicionais
+      }
+
+      const dischargesSnapshot = await getDocs(q);
       const dischargesList = dischargesSnapshot.docs.map((doc) => {
         const data = doc.data() as Discharge; // Garante a tipagem correta dos dados
         return {

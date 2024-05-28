@@ -47,6 +47,7 @@ export default function NewPost() {
           setData(fetchedData);
           setDate(fetchedData.date);
           setTime(fetchedData.time);
+          setCollectValue(fetchedData.collectValue || "");
 
           console.log(fetchedData); // Verifica se os dados foram corretamente buscados
         } else {
@@ -66,6 +67,9 @@ export default function NewPost() {
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+
+  const [collectValue, setCollectValue] = useState("");
+
   const [managerName, setManagerName] = useState("");
 
   const etanolRef = useRef(null);
@@ -174,6 +178,7 @@ export default function NewPost() {
       managerName: userName,
       userName,
       postName,
+      collectValue,
       images: [],
       id: "recolhe-6h",
     };
@@ -259,6 +264,7 @@ export default function NewPost() {
     date: string | number | Date;
     images: any[];
     time: any;
+    collectValue: any;
     postName: any;
     managerName: any;
   }) {
@@ -273,7 +279,7 @@ export default function NewPost() {
     ).then((descriptions) => descriptions.join("\n"));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Recolhe às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes dos Arquivos*\n\n${filesDescription}`;
+    const messageBody = `*Novo Recolhe às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\nValor do recolhe: ${data.collectValue}\n\n\n*Detalhes dos Arquivos*\n\n${filesDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -369,6 +375,19 @@ export default function NewPost() {
                   />
                 </div>
               </div>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Valor do Recolhe</p>
+                  <input
+                    id="recolheValue"
+                    type="text"
+                    className={styles.Field}
+                    value={collectValue}
+                    onChange={(e) => setCollectValue(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+              </div>
 
               {docId &&
                 // @ts-ignore
@@ -403,7 +422,7 @@ export default function NewPost() {
                 <p className={styles.FieldLabel}>Imagem do recolhe</p>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   style={{ display: "none" }}
                   ref={etanolRef}
                   onChange={handleEtanolImageChange}

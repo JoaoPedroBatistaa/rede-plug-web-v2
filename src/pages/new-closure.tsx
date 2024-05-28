@@ -443,7 +443,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem do comprovante</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}

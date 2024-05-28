@@ -568,7 +568,7 @@ export default function NewPost() {
                       <p className={styles.FieldLabel}>Foto da medição</p>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,video/*"
                         style={{ display: "none" }}
                         // @ts-ignore
                         ref={fileInputRefs[tank.tankNumber]}

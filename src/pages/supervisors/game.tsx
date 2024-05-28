@@ -543,7 +543,7 @@ export default function NewPost() {
                       <input
                         id={`file-input-${index}-${idx}`}
                         type="file"
-                        accept="image/*"
+                        accept="image/*,video/*"
                         style={{ display: "none" }}
                         onChange={(e) => handleFileChange(index, imageKey, e)}
                       />

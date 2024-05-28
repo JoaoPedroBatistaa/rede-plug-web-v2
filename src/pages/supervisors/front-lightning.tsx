@@ -427,7 +427,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem da tarefa</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}

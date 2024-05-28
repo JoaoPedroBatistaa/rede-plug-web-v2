@@ -37,16 +37,18 @@ export default function NewPost() {
       if (!docId) return;
 
       try {
-        const docRef = doc(db, "MANAGERS", docId as string);
+        // @ts-ignore
+        const docRef = doc(db, "MANAGERS", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
 
-          // @ts-ignore
-          setData(fetchedData);
-          setDate(fetchedData.date);
-          setTime(fetchedData.time);
+          setDate(fetchedData.date || "");
+          setTime(fetchedData.time || "");
+          setEthanolTemperature(fetchedData.ethanolTemperature || "");
+          setEthanolWeight(fetchedData.ethanolWeight || "");
+          setGasolineQuality(fetchedData.gasolineQuality || "");
 
           console.log(fetchedData);
         } else {
@@ -66,6 +68,11 @@ export default function NewPost() {
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+
+  const [ethanolTemperature, setEthanolTemperature] = useState("");
+  const [ethanolWeight, setEthanolWeight] = useState("");
+  const [gasolineQuality, setGasolineQuality] = useState("");
+
   const [managerName, setManagerName] = useState("");
 
   const etanolRef = useRef(null);
@@ -176,6 +183,9 @@ export default function NewPost() {
       managerName: userName,
       userName,
       postName,
+      ethanolTemperature,
+      ethanolWeight,
+      gasolineQuality,
       images: [],
       id: "teste-combustiveis-14h",
     };
@@ -273,6 +283,9 @@ export default function NewPost() {
     postName: any;
     images: any;
     id?: string;
+    ethanolTemperature: any; // Novo campo
+    ethanolWeight: any; // Novo campo
+    gasolineQuality: any; // Novo campo
   }) {
     const formattedDate = formatDate(data.date); // Suponha que você tenha uma função para formatar a data corretamente
 
@@ -285,7 +298,7 @@ export default function NewPost() {
     ).then((descriptions) => descriptions.join("\n"));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Teste de Combustíveis às 14h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Imagens do teste*\n\n${imagesDescription}`;
+    const messageBody = `*Novo Teste de Combustíveis às 14h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Temperatura do Etanol:* ${data.ethanolTemperature}\n*Peso do Etanol:* ${data.ethanolWeight}\n*Qualidade da Gasolina:* ${data.gasolineQuality}\n\n*Imagens do teste*\n\n${imagesDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -382,6 +395,44 @@ export default function NewPost() {
                 </div>
               </div>
 
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Temperatura do Etanol</p>
+                  <input
+                    id="ethanolTemperature"
+                    type="text"
+                    className={styles.Field}
+                    value={ethanolTemperature}
+                    onChange={(e) => setEthanolTemperature(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Peso do Etanol</p>
+                  <input
+                    id="ethanolWeight"
+                    type="text"
+                    className={styles.Field}
+                    value={ethanolWeight}
+                    onChange={(e) => setEthanolWeight(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Qualidade da Gasolina</p>
+                  <input
+                    id="gasolineQuality"
+                    type="text"
+                    className={styles.Field}
+                    value={gasolineQuality}
+                    onChange={(e) => setGasolineQuality(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+              </div>
+
               {
                 // @ts-ignore
                 docId && data && data.images && (
@@ -414,7 +465,7 @@ export default function NewPost() {
                 <p className={styles.FieldLabel}>Imagem do teste de Etanol</p>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   style={{ display: "none" }}
                   ref={etanolRef}
                   onChange={handleEtanolImageChange}
@@ -451,7 +502,7 @@ export default function NewPost() {
                 </p>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   style={{ display: "none" }}
                   ref={gcRef}
                   onChange={handleGcImageChange}

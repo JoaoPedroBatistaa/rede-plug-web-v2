@@ -24,7 +24,7 @@ export default function HeaderHome() {
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
-    const day = date.getDate();
+    const day = date.getDate() + 1;
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
 

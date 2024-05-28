@@ -422,7 +422,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem do encerrante</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     // @ts-ignore
                     ref={(el) => (encerranteRefs.current[index] = el)}

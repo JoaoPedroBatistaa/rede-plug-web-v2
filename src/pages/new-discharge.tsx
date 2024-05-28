@@ -530,7 +530,7 @@ export default function NewPost() {
                   <input
                     ref={truckPlateRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     onChange={(event) =>
                       handleFileChange(
@@ -619,7 +619,7 @@ export default function NewPost() {
                   <input
                     ref={initialMeasurementRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     onChange={(event) =>
                       handleFileChange(
@@ -674,7 +674,7 @@ export default function NewPost() {
                   <input
                     ref={finalMeasurementRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     onChange={(event) =>
                       handleFileChange(
@@ -730,7 +730,7 @@ export default function NewPost() {
                     <input
                       ref={hydrationRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/*"
                       style={{ display: "none" }}
                       onChange={(event) =>
                         handleFileChange(
@@ -788,7 +788,7 @@ export default function NewPost() {
                     <input
                       ref={sealRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/*"
                       style={{ display: "none" }}
                       onChange={(event) =>
                         handleFileChange(event, setSealImage, setSealFileName)

@@ -473,7 +473,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem do teste de Etanol</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}
@@ -513,7 +513,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={gcRef}
                     onChange={handleGcImageChange}

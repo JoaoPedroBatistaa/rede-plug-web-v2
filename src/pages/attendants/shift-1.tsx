@@ -15,10 +15,11 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { db } from "../../../firebase";
+import { createRef, useEffect, useRef, useState } from "react";
+import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
@@ -113,6 +114,54 @@ export default function NewPost() {
   const [expenses, setExpenses] = useState([
     { expenseValue: "", expenseType: "" }, // Estado inicial com um item, se necessário
   ]);
+
+  const [numMaquininhas, setNumMaquininhas] = useState(0);
+  const [maquininhasImages, setMaquininhasImages] = useState<File[][]>([]);
+  const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[][]>(
+    []
+  );
+
+  const maquininhasRefs = useRef([]);
+
+  const handleNumMaquininhasChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = parseInt(event.target.value, 10);
+    setNumMaquininhas(isNaN(value) ? 0 : value);
+    setMaquininhasImages(
+      // @ts-ignore
+      Array.from({ length: isNaN(value) ? 0 : value }, () => [null, null, null])
+    );
+    setMaquininhasFileNames(
+      Array.from({ length: isNaN(value) ? 0 : value }, () => ["", "", ""])
+    );
+    // @ts-ignore
+    maquininhasRefs.current = Array.from(
+      { length: isNaN(value) ? 0 : value },
+      () => [createRef(), createRef(), createRef()]
+    );
+  };
+
+  const handleImageChange =
+    (maquininhaIndex: number, imageIndex: number) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      // @ts-ignore
+      const file = event.target.files[0];
+      if (file) {
+        setMaquininhasImages((prev) => {
+          const newImages = [...prev];
+          newImages[maquininhaIndex] = [...newImages[maquininhaIndex]];
+          newImages[maquininhaIndex][imageIndex] = file;
+          return newImages;
+        });
+        setMaquininhasFileNames((prev) => {
+          const newFileNames = [...prev];
+          newFileNames[maquininhaIndex] = [...newFileNames[maquininhaIndex]];
+          newFileNames[maquininhaIndex][imageIndex] = file.name;
+          return newFileNames;
+        });
+      }
+    };
 
   const handleInputChange =
     (setter: (arg0: any) => void) => (e: { target: { value: string } }) => {
@@ -214,15 +263,12 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -241,7 +287,6 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("O relatório de turno 1 já foi feito hoje!");
       setIsLoading(false);
-
       return;
     }
 
@@ -269,10 +314,29 @@ export default function NewPost() {
       difference,
       observations,
       expenses,
+      images: [],
       id: "turno-1",
     };
 
+    // Processamento paralelo dos uploads de imagens
+    const uploadPromises = maquininhasImages.flatMap(
+      (imageFiles, maquininhaIndex) =>
+        imageFiles.map((imageFile, imageIndex) =>
+          uploadImageAndGetUrl(
+            imageFile,
+            `attendants/${date}/${imageFile.name}_${Date.now()}`
+          ).then((imageUrl) => ({
+            fileName: maquininhasFileNames[maquininhaIndex][imageIndex],
+            imageUrl,
+          }))
+        )
+    );
+
     try {
+      const images = await Promise.all(uploadPromises);
+      // @ts-ignore
+      taskData.images = images;
+
       const docRef = await addDoc(collection(db, "ATTENDANTS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
       toast.success("Tarefa salva com sucesso!");
@@ -287,6 +351,16 @@ export default function NewPost() {
     }
   };
 
+  async function uploadImageAndGetUrl(
+    imageFile: Blob | ArrayBuffer,
+    path: string | undefined
+  ) {
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, imageFile);
+    const downloadUrl = await getDownloadURL(storageRef);
+    return downloadUrl;
+  }
+
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
     date.setDate(date.getDate() + 1); // Adicionando um dia
@@ -294,6 +368,35 @@ export default function NewPost() {
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString().substr(-2);
     return `${day}/${month}/${year}`;
+  }
+
+  async function shortenUrl(originalUrl: string): Promise<string> {
+    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
+
+    try {
+      const response = await fetch("/api/shorten-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ originalURL: originalUrl }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error("Falha ao encurtar URL:", data);
+        throw new Error(`Erro ao encurtar URL: ${data.message}`);
+      }
+
+      const data = await response.json();
+      const shortUrl = data.shortUrl;
+      console.log(`URL encurtada: ${shortUrl}`);
+
+      return shortUrl;
+    } catch (error) {
+      console.error("Erro ao encurtar URL:", error);
+      throw error;
+    }
   }
 
   async function sendMessage(data: {
@@ -319,9 +422,9 @@ export default function NewPost() {
     difference: any;
     observations: any;
     expenses: any;
+    images: { fileName: string; imageUrl: string }[];
   }) {
     const formattedDate = formatDate(data.date);
-    // @ts-ignore
     const formattedExpenses = data.expenses
       .map(
         (exp: { expenseType: any; expenseValue: any }) =>
@@ -329,27 +432,48 @@ export default function NewPost() {
       )
       .join("\n");
 
+    const labels = [
+      "Filipeta Sistema Frente",
+      "Filipeta Sistema Verso",
+      "Filipeta Maquininha",
+    ];
+
+    const imagesDescription = await Promise.all(
+      data.images.map(async (image, index) => {
+        const shortUrl = await shortenUrl(image.imageUrl);
+        const labelIndex = index % labels.length;
+        const maquininhaIndex = Math.floor(index / labels.length) + 1;
+        return `*Maquininha ${maquininhaIndex}:* ${labels[labelIndex]} - ${shortUrl}\n`;
+      })
+    ).then((descriptions) => descriptions.join("\n"));
+
     const messageBody = `*Novo Relatório de Turno 01:*\n\nData: ${formattedDate}\nHora: ${
       data.time
     }\nPosto: ${data.postName}\nResponsável: ${
       data.attendant
-    }\n\n*Vendas*\n\nET: R$ ${Number(data.etPrice) * Number(data.etSales)} (${
-      data.etSales
-    } litros)\nGC: R$ ${Number(data.gcPrice) * Number(data.gcSales)} (${
-      data.gcSales
-    } litros)\nGA: R$ ${Number(data.gaPrice) * Number(data.gaSales)} (${
-      data.gaSales
-    } litros)\nS10: R$ ${Number(data.s10Price) * Number(data.s10Sales)} (${
+    }\n\n*Vendas*\n\nET: R$ ${(
+      Number(data.etPrice) * Number(data.etSales)
+    ).toFixed(2)} (${data.etSales} litros)\nGC: R$ ${(
+      Number(data.gcPrice) * Number(data.gcSales)
+    ).toFixed(2)} (${data.gcSales} litros)\nGA: R$ ${(
+      Number(data.gaPrice) * Number(data.gaSales)
+    ).toFixed(2)} (${data.gaSales} litros)\nS10: R$ ${(
+      Number(data.s10Price) * Number(data.s10Sales)
+    ).toFixed(2)} (${
       data.s10Sales
-    } litros)\n\n*Totais*\n\nLitros Vendidos: ${
-      data.totalLiters
-    }\nDinheiro: R$ ${data.cash}\nDébito: R$ ${data.debit}\nCrédito: R$ ${
-      data.credit
-    }\nPix: R$ ${data.pix}\nTotal de Entradas: R$ ${
+    } litros)\n\n*Totais*\n\nLitros Vendidos: ${data.totalLiters.toFixed(
+      2
+    )}\nDinheiro: R$ ${Number(data.cash).toFixed(2)}\nDébito: R$ ${Number(
+      data.debit
+    ).toFixed(2)}\nCrédito: R$ ${Number(data.credit).toFixed(
+      2
+    )}\nPix: R$ ${Number(data.pix).toFixed(2)}\nTotal de Entradas: R$ ${Number(
       data.totalInput
-    }\nTotal de Saídas: R$ ${data.totalOutput}\nDiferença: R$ ${
-      data.difference
-    }\n\n*Despesas*\n\n ${formattedExpenses}\n\n\Observações: ${
+    ).toFixed(2)}\nTotal de Saídas: R$ ${Number(data.totalOutput).toFixed(
+      2
+    )}\nDiferença: R$ ${Number(data.difference).toFixed(
+      2
+    )}\n\n*Despesas*\n\n${formattedExpenses}\n\n*Imagens da tarefa*\n\n${imagesDescription}\n\nObservações: ${
       data.observations
     }\n`;
 
@@ -462,6 +586,108 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
+              </div>
+
+              <p className={styles.BudgetTitle}>Maquininhas</p>
+              <p className={styles.Notes}>
+                Informe abaixo as informações das maquininhas
+              </p>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Número de maquininhas</p>
+                  <input
+                    type="number"
+                    className={styles.Field}
+                    value={numMaquininhas}
+                    onChange={handleNumMaquininhasChange}
+                    placeholder=""
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputField}>
+                {Array.from(
+                  { length: numMaquininhas },
+                  (_, maquininhaIndex) => (
+                    <div
+                      key={maquininhaIndex}
+                      className={styles.InputContainer}
+                    >
+                      <p className={styles.FieldLabel}>
+                        Maquininha {maquininhaIndex + 1}
+                      </p>
+                      {[
+                        "Filipeta Sistema Frente",
+                        "Filipeta Sistema Verso",
+                        "Filipeta Maquininha",
+                      ].map((label, imageIndex) => (
+                        <div key={imageIndex} className={styles.InputField}>
+                          <p className={styles.FieldLabel}>{label}</p>
+                          <input
+                            type="file"
+                            accept="image/*,video/*"
+                            style={{ display: "none" }}
+                            ref={(el) => {
+                              if (maquininhasRefs.current[maquininhaIndex]) {
+                                // @ts-ignore
+                                maquininhasRefs.current[maquininhaIndex][
+                                  imageIndex
+                                ] = el;
+                              }
+                            }}
+                            onChange={handleImageChange(
+                              maquininhaIndex,
+                              imageIndex
+                            )}
+                          />
+                          <button
+                            onClick={() =>
+                              maquininhasRefs.current[maquininhaIndex][
+                                imageIndex
+                                // @ts-ignore
+                              ]?.click()
+                            }
+                            className={styles.MidiaField}
+                          >
+                            Carregue sua foto
+                          </button>
+                          {maquininhasImages[maquininhaIndex][imageIndex] && (
+                            <div>
+                              <img
+                                src={URL.createObjectURL(
+                                  maquininhasImages[maquininhaIndex][imageIndex]
+                                )}
+                                alt={`Preview da ${label}`}
+                                style={{
+                                  maxWidth: "17.5rem",
+                                  height: "auto",
+                                  border: "1px solid #939393",
+                                  borderRadius: "20px",
+                                }}
+                                onLoad={() =>
+                                  URL.revokeObjectURL(
+                                    // @ts-ignore
+                                    maquininhasImages[maquininhaIndex][
+                                      imageIndex
+                                    ]
+                                  )
+                                }
+                              />
+                              <p className={styles.fileName}>
+                                {
+                                  maquininhasFileNames[maquininhaIndex][
+                                    imageIndex
+                                  ]
+                                }
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                )}
               </div>
 
               <p className={styles.BudgetTitle}>Preços</p>

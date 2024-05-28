@@ -98,6 +98,12 @@ export default function NewPost() {
     }
   };
 
+  const handleInputChange =
+    (setter: (arg0: any) => void) => (e: { target: { value: string } }) => {
+      const value = e.target.value.replace(",", ".");
+      setter(value);
+    };
+
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
 
@@ -254,7 +260,15 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assume uma função de formatação de data existente
 
     // Construir a descrição das vendas
-    const salesDescription = `*Vendas de Etanol:* ${data.etSales} litros\n*Vendas de Gasolina Comum:* ${data.gcSales} litros\n*Vendas de Gasolina Aditivada:* ${data.gaSales} litros\n*Vendas de Diesel S10:* ${data.s10Sales} litros\n*Total de Saída:* ${data.totalOutput}`;
+    const salesDescription = `*Vendas de Etanol:* ${data.etSales.toFixed(
+      3
+    )} litros\n*Vendas de Gasolina Comum:* ${data.gcSales.toFixed(
+      3
+    )} litros\n*Vendas de Gasolina Aditivada:* ${data.gaSales.toFixed(
+      3
+    )} litros\n*Vendas de Diesel S10:* ${data.s10Sales.toFixed(
+      3
+    )} litros\n*Total Vendido:* ${data.totalOutput.toFixed(3)}`;
 
     // Construir a descrição das imagens, se houver
     let imagesDescription = "";
@@ -391,44 +405,44 @@ export default function NewPost() {
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas GC</p>
                   <input
-                    id="attendant"
+                    id="gcSales"
                     type="text"
                     className={styles.Field}
                     value={gcSales}
-                    onChange={(e) => setGcSales(e.target.value)}
+                    onChange={handleInputChange(setGcSales)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas ET</p>
                   <input
-                    id="attendant"
+                    id="etSales"
                     type="text"
                     className={styles.Field}
                     value={etSales}
-                    onChange={(e) => setEtSales(e.target.value)}
+                    onChange={handleInputChange(setEtSales)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas GA</p>
                   <input
-                    id="attendant"
+                    id="gaSales"
                     type="text"
                     className={styles.Field}
                     value={gaSales}
-                    onChange={(e) => setGaSales(e.target.value)}
+                    onChange={handleInputChange(setGaSales)}
                     placeholder=""
                   />
                 </div>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Vendas S10</p>
                   <input
-                    id="attendant"
+                    id="s10Sales"
                     type="text"
                     className={styles.Field}
                     value={s10Sales}
-                    onChange={(e) => setS10Sales(e.target.value)}
+                    onChange={handleInputChange(setS10Sales)}
                     placeholder=""
                   />
                 </div>
@@ -440,7 +454,7 @@ export default function NewPost() {
                   id="attendant"
                   type="text"
                   className={styles.Field}
-                  value={totalOutput}
+                  value={parseFloat(totalOutput).toFixed(3)}
                   onChange={(e) => setTotalOutput(e.target.value)}
                   placeholder=""
                   disabled

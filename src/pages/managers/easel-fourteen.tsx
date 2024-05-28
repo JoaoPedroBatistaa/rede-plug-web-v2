@@ -62,7 +62,7 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
-  const [numMaquininhas, setNumMaquininhas] = useState(3);
+  const [numMaquininhas, setNumMaquininhas] = useState(0);
   const [maquininhasImages, setMaquininhasImages] = useState<File[]>([]);
   const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
     []
@@ -77,8 +77,8 @@ export default function NewPost() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     let value = parseInt(event.target.value, 10);
-    value = isNaN(value) ? 3 : value;
-    value = value < 3 ? 3 : value;
+    value = isNaN(value) ? 0 : value;
+    value = value < 0 ? 0 : value;
     setNumMaquininhas(value);
   };
 
@@ -355,7 +355,7 @@ export default function NewPost() {
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações das maquininhas
+            Informe abaixo as informações dos cavaletes
           </p>
 
           <div className={styles.userContent}>
@@ -447,7 +447,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     // @ts-ignore
                     ref={(el) => (maquininhasRefs.current[index] = el)}

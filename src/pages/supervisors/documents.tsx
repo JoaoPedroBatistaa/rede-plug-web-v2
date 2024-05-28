@@ -707,7 +707,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem do ANP</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}
@@ -763,7 +763,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={gcRef}
                     onChange={handleGcImageChange}
@@ -814,7 +814,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem do Contrato Social</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={ContratoSocialRef}
                     onChange={handleContratoSocialImageChange}
@@ -874,7 +874,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={AlvaraFuncionamentoRef}
                     onChange={handleAlvaraFuncionamentoImageChange}
@@ -932,7 +932,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem dos Bombeiros</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={BombeirosRef}
                     onChange={handleBombeirosImageChange}
@@ -986,7 +986,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem do EPAE</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={EpaeRef}
                     onChange={handleEpaeImageChange}
@@ -1040,7 +1040,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem da Brigada</p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={BrigadaRef}
                     onChange={handleBrigadaImageChange}
@@ -1096,7 +1096,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={LaudoCompressorRef}
                     onChange={handleLaudoCompressorImageChange}
@@ -1154,7 +1154,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={LaudoEstanqueidadeRef}
                     onChange={handleLaudoEstanqueidadeImageChange}
@@ -1216,7 +1216,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={LaudoEletricaRef}
                     onChange={handleLaudoEletricaImageChange}
