@@ -209,16 +209,16 @@ export default function NewPost() {
       // @ts-ignore
       photoMachinesData.images = images;
 
+      // @ts-ignore
+      sendMessageSalesData(photoMachinesData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         photoMachinesData
       );
       console.log("Preço dos concorrentes salvo com ID: ", docRef.id);
 
-      // @ts-ignore
-      sendMessageSalesData(photoMachinesData);
-
-      toast.success("Preço dos concorrentes salvo com sucesso!");
+      toast.success("Vendas do dia anterior salvo com sucesso!");
       router.push("/manager-six-routine");
     } catch (error) {
       console.error("Erro ao salvar o preço dos concorrentes: ", error);
