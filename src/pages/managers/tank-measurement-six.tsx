@@ -317,10 +317,10 @@ export default function NewPost() {
     }
 
     try {
+      await sendMessage(measurementData);
+
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);
-
-      await sendMessage(measurementData);
 
       toast.success("Medição salva com sucesso!");
       router.push("/manager-six-routine");
