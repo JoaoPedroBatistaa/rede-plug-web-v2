@@ -260,15 +260,17 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assume uma função de formatação de data existente
 
     // Construir a descrição das vendas
-    const salesDescription = `*Vendas de Etanol:* ${data.etSales.toFixed(
+    const salesDescription = `*Vendas de Etanol:* ${Number(
+      data.etSales
+    ).toFixed(3)} litros\n*Vendas de Gasolina Comum:* ${Number(
+      data.gcSales
+    ).toFixed(3)} litros\n*Vendas de Gasolina Aditivada:* ${Number(
+      data.gaSales
+    ).toFixed(3)} litros\n*Vendas de Diesel S10:* ${Number(
+      data.s10Sales
+    ).toFixed(3)} litros\n*Total Vendido:* ${Number(data.totalOutput).toFixed(
       3
-    )} litros\n*Vendas de Gasolina Comum:* ${data.gcSales.toFixed(
-      3
-    )} litros\n*Vendas de Gasolina Aditivada:* ${data.gaSales.toFixed(
-      3
-    )} litros\n*Vendas de Diesel S10:* ${data.s10Sales.toFixed(
-      3
-    )} litros\n*Total Vendido:* ${data.totalOutput.toFixed(3)}`;
+    )}`;
 
     // Construir a descrição das imagens, se houver
     let imagesDescription = "";

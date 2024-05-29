@@ -1,6 +1,4 @@
-// pages/api/shorten-url.js
-
-export default async function handler(req: { method: string; body: { originalURL: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: any; shortUrl?: any; }): void; new(): any; }; }; }) {
+export default async function handler(req: { method: string; body: { originalURL: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message?: string; shortUrl?: any; }): void; new(): any; }; }; }) {
    console.log('Recebendo solicitação para encurtar URL');
    if (req.method !== 'POST') {
       res.status(405).json({ message: 'Método não permitido' });
@@ -24,30 +22,49 @@ export default async function handler(req: { method: string; body: { originalURL
 
       console.log('Enviando payload para short.io:', payload);
 
-      const response = await fetch("https://api.short.io/links", {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-            Authorization: `sk_4rwgIKnBOzJxbwC7`,
-         },
-         body: JSON.stringify(payload),
-      });
+      const maxAttempts = 5;
+      let attempts = 0;
+      let success = false;
+      let data;
 
-      console.log(`Resposta recebida de short.io: ${response.status} ${response.statusText}`);
+      while (attempts < maxAttempts && !success) {
+         try {
+            const response = await fetch("https://api.short.io/links", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `sk_4rwgIKnBOzJxbwC7`,
+               },
+               body: JSON.stringify(payload),
+            });
 
-      const data = await response.json();
-      console.log('Dados da resposta:', data);
+            console.log(`Resposta recebida de short.io: ${response.status} ${response.statusText}`);
 
-      if (!response.ok) {
-         console.error('Falha ao encurtar URL:', data);
-         res.status(response.status).json({ message: data.message });
-         return;
+            data = await response.json();
+            console.log('Dados da resposta:', data);
+
+            if (response.ok) {
+               success = true;
+            } else {
+               console.error('Falha ao encurtar URL:', data);
+            }
+         } catch (error) {
+            console.error(`Tentativa ${attempts + 1} falhou:`, error);
+         }
+
+         attempts++;
+         if (!success && attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Atraso de 2 segundos entre tentativas
+         }
       }
 
-      const shortUrl = data.secureShortURL || data.shortURL;
-      console.log('URL encurtada:', shortUrl);
-
-      res.status(200).json({ shortUrl });
+      if (success) {
+         const shortUrl = data.secureShortURL || data.shortURL;
+         console.log('URL encurtada:', shortUrl);
+         res.status(200).json({ shortUrl });
+      } else {
+         res.status(500).json({ message: 'Erro ao encurtar URL após várias tentativas' });
+      }
    } catch (error) {
       console.error('Erro ao encurtar URL:', error);
       res.status(500).json({ message: 'Erro interno do servidor' });
