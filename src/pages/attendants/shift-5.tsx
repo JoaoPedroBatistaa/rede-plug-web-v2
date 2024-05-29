@@ -356,11 +356,11 @@ export default function NewPost() {
       // @ts-ignore
       taskData.images = images;
 
+      await sendMessage(taskData);
+
       const docRef = await addDoc(collection(db, "ATTENDANTS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
       toast.success("Tarefa salva com sucesso!");
-
-      await sendMessage(taskData);
 
       // @ts-ignore
       router.push(`/attendants?post=${encodeURIComponent(postName)}`);

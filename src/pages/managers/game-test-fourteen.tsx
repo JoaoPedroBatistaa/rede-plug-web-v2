@@ -200,13 +200,13 @@ export default function NewPost() {
       // @ts-ignore
       nozzleClosureData.images = images;
 
+      await sendMessage(nozzleClosureData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         nozzleClosureData
       );
       console.log("Teste do game salvo com ID: ", docRef.id);
-
-      await sendMessage(nozzleClosureData);
 
       toast.success("Teste do game salvo com sucesso!");
       router.push("/manager-twenty-two-routine");

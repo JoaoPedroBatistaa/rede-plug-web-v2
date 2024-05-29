@@ -188,13 +188,13 @@ export default function NewPost() {
       // @ts-ignore
       fourthCashierData.files = files;
 
+      await sendMessage(fourthCashierData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         fourthCashierData
       );
       console.log("Controle de tanque salvo com ID: ", docRef.id);
-
-      await sendMessage(fourthCashierData);
 
       toast.success("Controle de tanque salvo com sucesso!");
       router.push("/manager-six-routine");

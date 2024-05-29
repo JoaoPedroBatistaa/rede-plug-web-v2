@@ -442,10 +442,6 @@ export default function NewPost() {
     const updatedData = await uploadImagesAndUpdateData(dischargeData);
 
     try {
-      const docRef = await addDoc(collection(db, "DISCHARGES"), updatedData);
-      console.log("Documento salvo com ID: ", docRef.id);
-      toast.success("Descarga salva com sucesso!");
-
       // Preparar dados para envio de mensagem
       const images = [
         {
@@ -519,6 +515,10 @@ export default function NewPost() {
 
       // @ts-ignore
       await sendDischargeMessage(messageData);
+
+      const docRef = await addDoc(collection(db, "DISCHARGES"), updatedData);
+      console.log("Documento salvo com ID: ", docRef.id);
+      toast.success("Descarga salva com sucesso!");
 
       router.push("/discharges");
     } catch (error) {

@@ -169,11 +169,11 @@ export default function NewPost() {
       // @ts-ignore
       taskData.images = images;
 
-      const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
-      console.log("Tarefa salva com ID: ", docRef.id);
-
       // @ts-ignore
       sendMessage(taskData);
+
+      const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
+      console.log("Tarefa salva com ID: ", docRef.id);
 
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore

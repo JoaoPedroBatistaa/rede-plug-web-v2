@@ -201,13 +201,13 @@ export default function NewPost() {
       // @ts-ignore
       photoMachinesData.images = images;
 
+      await sendMessage(photoMachinesData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         photoMachinesData
       );
       console.log("Fotos das maquininhas salvas com ID: ", docRef.id);
-
-      await sendMessage(photoMachinesData);
 
       toast.success("Fotos das maquininhas salvas com sucesso!");
       router.push("/manager-fourteen-routine");

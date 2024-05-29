@@ -202,10 +202,10 @@ export default function NewPost() {
       // @ts-ignore
       fuelTestData.images = images;
 
+      await sendMessage(fuelTestData);
+
       const docRef = await addDoc(collection(db, "MANAGERS"), fuelTestData);
       console.log("Recolhe salvo com ID: ", docRef.id);
-
-      await sendMessage(fuelTestData);
 
       toast.success("Recolhe salvo com sucesso!");
       router.push("/manager-six-routine");

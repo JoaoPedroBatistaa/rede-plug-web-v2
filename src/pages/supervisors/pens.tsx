@@ -131,11 +131,10 @@ export default function NewPost() {
     };
 
     try {
+      sendMessage(taskData);
+
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
-
-      // @ts-ignore
-      await sendMessage(taskData);
 
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore

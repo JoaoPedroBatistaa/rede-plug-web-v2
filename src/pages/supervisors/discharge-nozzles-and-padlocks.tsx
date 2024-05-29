@@ -302,11 +302,10 @@ export default function NewPost() {
         tanks: pumpsData,
         id: "bocas-descarga-e-cadeados",
       };
+      sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
-
-      sendMessage(taskData);
 
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore

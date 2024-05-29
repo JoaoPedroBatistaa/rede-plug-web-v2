@@ -203,13 +203,13 @@ export default function NewPost() {
       // @ts-ignore
       photoMachinesData.images = images;
 
+      await sendMessage(photoMachinesData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         photoMachinesData
       );
       console.log("Verificação dos cavaletes salvo com ID: ", docRef.id);
-
-      await sendMessage(photoMachinesData);
 
       toast.success("Verificação dos cavaletes salva com sucesso!");
       router.push("/manager-six-routine");

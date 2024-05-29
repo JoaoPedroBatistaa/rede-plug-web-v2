@@ -217,10 +217,10 @@ export default function NewPost() {
       // @ts-ignore
       fuelTestData.images = images;
 
+      await sendMessage(fuelTestData);
+
       const docRef = await addDoc(collection(db, "MANAGERS"), fuelTestData);
       console.log("Teste dos combustíveis salvo com ID: ", docRef.id);
-
-      await sendMessage(fuelTestData);
 
       toast.success("Teste dos combustíveis salvo com sucesso!");
       router.push("/manager-six-routine");

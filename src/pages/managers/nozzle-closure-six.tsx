@@ -200,13 +200,13 @@ export default function NewPost() {
       // @ts-ignore
       nozzleClosureData.images = images;
 
+      await sendMessage(nozzleClosureData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         nozzleClosureData
       );
       console.log("Encerrante dos bicos salvo com ID: ", docRef.id);
-
-      await sendMessage(nozzleClosureData);
 
       toast.success("Encerrante dos bicos salvo com sucesso!");
       router.push("/manager-six-routine");

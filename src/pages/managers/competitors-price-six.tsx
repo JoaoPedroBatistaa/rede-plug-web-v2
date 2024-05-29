@@ -203,13 +203,13 @@ export default function NewPost() {
       // @ts-ignore
       photoMachinesData.images = images;
 
+      await sendMessage(photoMachinesData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         photoMachinesData
       );
       console.log("Preço dos concorrentes salvo com ID: ", docRef.id);
-
-      await sendMessage(photoMachinesData);
 
       toast.success("Preço dos concorrentes salvo com sucesso!");
       router.push("/manager-six-routine");

@@ -197,13 +197,13 @@ export default function NewPost() {
       // @ts-ignore
       fourthCashierData.files = files;
 
+      await sendMessage(fourthCashierData);
+
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
         fourthCashierData
       );
       console.log("Quarto caixa salvo com ID: ", docRef.id);
-
-      await sendMessage(fourthCashierData);
 
       toast.success("Quarto caixa salvo com sucesso!");
       router.push("/manager-six-routine");
