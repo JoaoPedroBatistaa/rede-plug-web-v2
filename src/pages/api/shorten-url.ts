@@ -54,7 +54,7 @@ export default async function handler(req: { method: string; body: { originalURL
 
          attempts++;
          if (!success && attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Atraso de 2 segundos entre tentativas
+            await new Promise(resolve => setTimeout(resolve, 100)); // Atraso de 2 segundos entre tentativas
          }
       }
 

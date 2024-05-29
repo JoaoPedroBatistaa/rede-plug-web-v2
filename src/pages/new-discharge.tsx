@@ -29,6 +29,7 @@ export default function NewPost() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [driverName, setDriverName] = useState("");
+  const [makerName, setMakerName] = useState("");
   const [truckPlate, setTruckPLate] = useState("");
   const [observations, setObservations] = useState("");
   const [initialMeasurementCm, setInitialMeasurementCm] = useState("");
@@ -49,9 +50,17 @@ export default function NewPost() {
   const finalMeasurementRef = useRef<HTMLInputElement>(null);
 
   const [sealSelection, setSealSelection] = useState("");
-  const [sealImage, setSealImage] = useState("");
-  const [sealFileName, setSealFileName] = useState("");
-  const sealRef = useRef<HTMLInputElement>(null);
+  const [sealImage1, setSealImage1] = useState("");
+  const [sealFileName1, setSealFileName1] = useState("");
+  const sealRef1 = useRef(null);
+
+  const [sealImage2, setSealImage2] = useState("");
+  const [sealFileName2, setSealFileName2] = useState("");
+  const sealRef2 = useRef(null);
+
+  const [sealImage3, setSealImage3] = useState("");
+  const [sealFileName3, setSealFileName3] = useState("");
+  const sealRef3 = useRef(null);
 
   const [arrowSelection, setArrowSelection] = useState("");
   const [arrowPosition, setArrowPosition] = useState("");
@@ -113,7 +122,9 @@ export default function NewPost() {
   }, []);
 
   useEffect(() => {
-    const tank = tanks.find((t) => t.tankNumber === selectedTank);
+    const tank = tanks.find(
+      (t) => Number(t.tankNumber) === Number(selectedTank)
+    );
     if (tank) {
       if (
         (selectedProduct === "SECO" || selectedProduct === "ANIDRO") &&
@@ -163,7 +174,9 @@ export default function NewPost() {
     console.log("Current tanks:", tanks);
 
     // @ts-ignore
-    const tank = tanks.find((t) => t.tankNumber === Number(selectedTank));
+    const tank = tanks.find(
+      (t) => Number(t.tankNumber) === Number(selectedTank)
+    );
     console.log("Found tank:", tank);
 
     if (tank) {
@@ -179,6 +192,9 @@ export default function NewPost() {
           break;
         case "GA":
           options = ["GC", "GA"];
+          break;
+        case "EA":
+          options = ["ET", "EA"];
           break;
         case "ET":
           options = ["ET"];
@@ -233,7 +249,7 @@ export default function NewPost() {
   const updateLitersAndTotal = () => {
     const selectedTankObject = tanks.find(
       // @ts-ignore
-      (tank) => tank.tankNumber === Number(selectedTank)
+      (tank) => Number(tank.tankNumber) === Number(selectedTank)
     );
     if (!selectedTankObject) {
       setTotalDescarregado("Tanque não selecionado ou não encontrado.");
@@ -257,7 +273,7 @@ export default function NewPost() {
 
     if (initialLitersValue !== null && finalLitersValue !== null) {
       const diff = finalLitersValue - initialLitersValue;
-      setTotalDescarregado(`Total descarregado: ${diff.toFixed(2)} litros`);
+      setTotalDescarregado(`*Total descarregado*: ${diff.toFixed(2)} litros`);
 
       if (showHydrationField === true && selectedProduct === "SECO") {
         setHydrationValue(((diff / 100) * 5).toFixed(2).toString());
@@ -301,9 +317,16 @@ export default function NewPost() {
     else if (!selectedProduct) missingField = "Produto";
     else if (!initialMeasurementCm) missingField = "Medição Inicial";
     else if (!finalMeasurementCm) missingField = "Medição Final";
-    // @ts-ignore
-    else if (sealSelection === "SIM" && !sealRef.current?.files[0])
-      missingField = "Imagem do Lacre";
+    else if (
+      sealSelection === "SIM" &&
+      // @ts-ignore
+      (!sealRef1.current?.files[0] ||
+        // @ts-ignore
+        !sealRef2.current?.files[0] ||
+        // @ts-ignore
+        !sealRef3.current?.files[0])
+    )
+      missingField = "Imagens do Lacre";
     else if (arrowSelection === "SIM" && !arrowPosition)
       missingField = "Posição da Seta";
     else if (
@@ -349,7 +372,6 @@ export default function NewPost() {
       return;
     }
 
-    const makerName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
     // @ts-ignore
 
@@ -377,9 +399,18 @@ export default function NewPost() {
       },
       seal: {
         selection: sealSelection,
-        // @ts-ignore
 
-        image: sealSelection === "SIM" ? sealRef.current?.files[0] : null,
+        images:
+          sealSelection === "SIM"
+            ? [
+                // @ts-ignore
+                sealRef1.current?.files[0],
+                // @ts-ignore
+                sealRef2.current?.files[0],
+                // @ts-ignore
+                sealRef3.current?.files[0],
+              ]
+            : [],
       },
       arrow: {
         selection: arrowSelection,
@@ -456,12 +487,33 @@ export default function NewPost() {
       }
 
       const messageData = {
-        date,
-        time,
-        driverName,
-        truckPlate,
-        postName,
-        managerName: makerName,
+        date: updatedData.date,
+        time: updatedData.time,
+        driverName: updatedData.driverName,
+        // @ts-ignore
+        truckPlate: updatedData.truckPlate,
+        postName: updatedData.postName,
+        makerName: updatedData.makerName,
+        tankNumber: updatedData.tankNumber,
+        product: updatedData.product,
+        initialMeasurement: updatedData.initialMeasurement,
+        finalMeasurement: updatedData.finalMeasurement,
+        seal: updatedData.seal,
+        arrow: updatedData.arrow,
+        observations: updatedData.observations,
+        hydration: updatedData.hydration,
+        // @ts-ignore
+        initialLiters: updatedData.initialLiters,
+        // @ts-ignore
+        finalLiters: updatedData.finalLiters,
+        // @ts-ignore
+        totalLiters: updatedData.totalLiters,
+        // @ts-ignore
+        productQuality: updatedData.productQuality,
+        // @ts-ignore
+        weight: updatedData.weight,
+        // @ts-ignore
+        temperature: updatedData.temperature,
         images,
       };
 
@@ -526,15 +578,18 @@ export default function NewPost() {
       delete data.finalMeasurement.image;
     }
 
-    if (data.seal.image instanceof File && data.seal.selection === "SIM") {
-      const fileUrl = await uploadImageAndGetUrl(
-        data.seal.image,
-        `dischargeImages/seal/${data.seal.image.name}_${Date.now()}`
-      );
-      data.seal.fileUrl = fileUrl;
-      delete data.seal.image;
-    } else {
-      data.seal.fileUrl = "";
+    if (data.seal.selection === "SIM") {
+      data.seal.fileUrls = [];
+      for (const image of data.seal.images) {
+        if (image instanceof File) {
+          const fileUrl = await uploadImageAndGetUrl(
+            image,
+            `dischargeImages/seal/${image.name}_${Date.now()}`
+          );
+          data.seal.fileUrls.push(fileUrl);
+        }
+      }
+      delete data.seal.images;
     }
 
     if (data.truckPlateImage instanceof File) {
@@ -618,25 +673,107 @@ export default function NewPost() {
   }
 
   async function sendDischargeMessage(data: {
-    date: string;
-    time: string;
-    driverName: string;
-    truckPlate: string;
-    postName: string;
+    date: any;
+    time: any;
+    driverName: any;
+    truckPlate: any;
+    postName: any;
     managerName?: string | null;
-    images: { imageUrl: string; description: string }[];
+    images: any;
+    tankNumber?: any;
+    product?: any;
+    initialMeasurement?: any;
+    finalMeasurement?: any;
+    seal?: any;
+    arrow?: any;
+    observations?: any;
+    makerName?: any;
+    hydration?: any;
+    initialLiters?: any;
+    finalLiters?: any;
+    totalLiters?: any;
+    productQuality?: any;
+    weight?: any;
+    temperature?: any;
   }) {
     const formattedDate = formatDate(data.date);
 
     try {
       const imagesDescription = await Promise.all(
-        data.images.map(async (image) => {
-          const shortUrl = await shortenUrl(image.imageUrl);
-          return `*${image.description}:* ${shortUrl}\n`;
-        })
+        data.images.map(
+          async (image: { imageUrl: string; description: any }) => {
+            const shortUrl = await shortenUrl(image.imageUrl);
+            return `*${image.description}:* ${shortUrl}\n`;
+          }
+        )
       ).then((descriptions) => descriptions.join("\n"));
 
-      const messageBody = `*Nova Descarga Realizada*\n\nData: ${formattedDate}\nHora: ${data.time}\nMotorista: ${data.driverName}\nPlaca do Caminhão: ${data.truckPlate}\nPosto: ${data.postName}\n\n*Imagens da descarga*\n\n${imagesDescription}`;
+      let messageBody = `*Nova Descarga Realizada*\n\n`;
+
+      if (data.date) {
+        messageBody += `*Data*: ${formattedDate}\n`;
+      }
+      if (data.time) {
+        messageBody += `*Hora*: ${data.time}\n`;
+      }
+      if (data.makerName) {
+        messageBody += `*Responsável*: ${data.makerName}\n\n`;
+      }
+      if (data.driverName) {
+        messageBody += `*Motorista*: ${data.driverName}\n`;
+      }
+      if (data.truckPlate) {
+        messageBody += `*Placa do Caminhão*: ${data.truckPlate}\n\n`;
+      }
+      if (data.postName) {
+        messageBody += `*Posto*: ${data.postName}\n`;
+      }
+      if (data.tankNumber) {
+        messageBody += `*Tanque*: ${data.tankNumber}\n`;
+      }
+      if (data.product) {
+        messageBody += `*Produto*: ${data.product}\n`;
+      }
+      if (data.initialMeasurement?.cm) {
+        messageBody += `*Medição Inicial*: ${data.initialMeasurement.cm}\n`;
+      }
+      if (data.finalMeasurement?.cm) {
+        messageBody += `*Medição Final*: ${data.finalMeasurement.cm}\n\n`;
+      }
+      if (data.seal?.selection) {
+        messageBody += `*Lacre*: ${data.seal.selection}\n`;
+      }
+      if (data.arrow?.selection) {
+        messageBody += `*Posição da Seta*: ${
+          data.arrow.position ? data.arrow.position : "NÃO"
+        }\n`;
+      }
+      if (data.hydration?.value) {
+        messageBody += `*Hidratação*: ${data.hydration.value}\n\n`;
+      }
+      if (data.initialLiters) {
+        messageBody += `*Litros Iniciais*: ${data.initialLiters}\n`;
+      }
+      if (data.finalLiters) {
+        messageBody += `*Litros Finais*: ${data.finalLiters}\n`;
+      }
+      if (data.totalLiters) {
+        messageBody += `${data.totalLiters}\n\n`;
+      }
+      if (data.productQuality) {
+        messageBody += `*Qualidade do Produto*: ${data.productQuality}\n`;
+      }
+      if (data.weight) {
+        messageBody += `*Peso*: ${data.weight}\n`;
+      }
+      if (data.temperature) {
+        messageBody += `*Temperatura*: ${data.temperature}\n\n`;
+      }
+      if (data.observations) {
+        messageBody += `*Observações*: ${data.observations}\n`;
+      }
+
+      messageBody += `\n*Imagens da descarga*\n\n${imagesDescription}`;
 
       const postsRef = collection(db, "POSTS");
       const q = query(postsRef, where("name", "==", data.postName));
@@ -652,24 +789,38 @@ export default function NewPost() {
 
       console.log("Manager Contact: ", managerContact);
 
-      const response = await fetch("/api/send-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          managerContact,
-          messageBody,
-        }),
-      });
+      let success = false;
+      let attempts = 0;
+      const maxAttempts = 5;
 
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        console.error("Falha ao enviar mensagem via WhatsApp: ", errorMessage);
-        throw new Error("Falha ao enviar mensagem via WhatsApp");
+      while (!success && attempts < maxAttempts) {
+        const response = await fetch("/api/send-message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            managerContact,
+            messageBody,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          console.error(
+            "Falha ao enviar mensagem via WhatsApp: ",
+            errorMessage
+          );
+          attempts++;
+          if (attempts >= maxAttempts) {
+            throw new Error("Falha ao enviar mensagem via WhatsApp");
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // Atraso de 2 segundos entre tentativas
+        } else {
+          console.log("Mensagem de descarga enviada com sucesso!");
+          success = true;
+        }
       }
-
-      console.log("Mensagem de descarga enviada com sucesso!");
     } catch (error) {
       console.error("Erro ao enviar mensagem: ", error);
       toast.error("Erro ao enviar mensagem.");
@@ -732,6 +883,18 @@ export default function NewPost() {
                     className={styles.Field}
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Responsável</p>
+                  <input
+                    id="time"
+                    type="text"
+                    className={styles.Field}
+                    value={makerName}
+                    onChange={(e) => setMakerName(e.target.value)}
                     placeholder=""
                   />
                 </div>
@@ -1151,44 +1314,126 @@ export default function NewPost() {
                 </div>
 
                 {sealSelection === "SIM" && (
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>
-                      Carregar imagem do lacre
-                    </p>
-                    <input
-                      ref={sealRef}
-                      type="file"
-                      accept="image/*,video/*"
-                      style={{ display: "none" }}
-                      onChange={(event) =>
-                        handleFileChange(event, setSealImage, setSealFileName)
-                      }
-                    />
-                    <button
-                      onClick={() => triggerFileInput(sealRef)}
-                      className={styles.MidiaField}
-                    >
-                      Carregue sua foto
-                    </button>
+                  <div className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <input
+                        ref={sealRef1}
+                        type="file"
+                        accept="image/*,video/*"
+                        style={{ display: "none" }}
+                        onChange={(event) =>
+                          handleFileChange(
+                            event,
+                            setSealImage1,
+                            setSealFileName1
+                          )
+                        }
+                      />
+                      <p className={styles.FieldLabel}>Foto 1</p>
+
+                      <button
+                        onClick={() => triggerFileInput(sealRef1)}
+                        className={styles.MidiaField}
+                      >
+                        Carregue sua foto 1
+                      </button>
+                      {sealFileName1 && (
+                        <div>
+                          <img
+                            src={sealImage1}
+                            alt="Visualização da imagem do lacre"
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          />
+                          <p className={styles.FileName}>{sealFileName1}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <input
+                        ref={sealRef2}
+                        type="file"
+                        accept="image/*,video/*"
+                        style={{ display: "none" }}
+                        onChange={(event) =>
+                          handleFileChange(
+                            event,
+                            setSealImage2,
+                            setSealFileName2
+                          )
+                        }
+                      />
+                      <p className={styles.FieldLabel}>Foto 2</p>
+
+                      <button
+                        onClick={() => triggerFileInput(sealRef2)}
+                        className={styles.MidiaField}
+                      >
+                        Carregue sua foto 2
+                      </button>
+                      {sealFileName2 && (
+                        <div>
+                          <img
+                            src={sealImage2}
+                            alt="Visualização da imagem do lacre"
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          />
+                          <p className={styles.FileName}>{sealFileName2}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={styles.InputField}>
+                      <input
+                        ref={sealRef3}
+                        type="file"
+                        accept="image/*,video/*"
+                        style={{ display: "none" }}
+                        onChange={(event) =>
+                          handleFileChange(
+                            event,
+                            setSealImage3,
+                            setSealFileName3
+                          )
+                        }
+                      />
+                      <p className={styles.FieldLabel}>Foto 3</p>
+
+                      <button
+                        onClick={() => triggerFileInput(sealRef3)}
+                        className={styles.MidiaField}
+                      >
+                        Carregue sua foto 3
+                      </button>
+                      {sealFileName3 && (
+                        <div>
+                          <img
+                            src={sealImage3}
+                            alt="Visualização da imagem do lacre"
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          />
+                          <p className={styles.FileName}>{sealFileName3}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
-
-              {sealImage && (
-                <div>
-                  <img
-                    src={sealImage}
-                    alt="Visualização da imagem do lacre"
-                    style={{
-                      maxWidth: "17.5rem",
-                      height: "auto",
-                      border: "1px solid #939393",
-                      borderRadius: "20px",
-                    }}
-                  />
-                  <p className={styles.fileName}>{sealFileName}</p>
-                </div>
-              )}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
@@ -1207,16 +1452,12 @@ export default function NewPost() {
                 {arrowSelection === "SIM" && (
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Posição da Seta</p>
-                    <select
+                    <input
+                      type="text"
                       value={arrowPosition}
                       onChange={(e) => setArrowPosition(e.target.value)}
-                      className={styles.SelectField}
-                    >
-                      <option value="">Selecione a posição...</option>
-                      <option value="PRIMEIRA">PRIMEIRA</option>
-                      <option value="SEGUNDA">SEGUNDA</option>
-                      <option value="TERCEIRA">TERCEIRA</option>
-                    </select>
+                      className={styles.Field}
+                    />
                   </div>
                 )}
               </div>

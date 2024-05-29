@@ -116,30 +116,37 @@ export default function NewPost() {
   ]);
 
   const [numMaquininhas, setNumMaquininhas] = useState(0);
-  const [maquininhasImages, setMaquininhasImages] = useState<File[][]>([]);
-  const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[][]>(
-    []
-  );
-
-  const maquininhasRefs = useRef([]);
+  const [maquininhasImages, setMaquininhasImages] = useState<File[][]>([
+    // @ts-ignore
+    [null, null], // Inicializamos com os campos para as duas imagens fixas
+  ]);
+  const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[][]>([
+    ["", ""], // Inicializamos com os campos para as duas imagens fixas
+  ]);
+  const maquininhasRefs = useRef([createRef(), createRef()]);
 
   const handleNumMaquininhasChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = parseInt(event.target.value, 10);
     setNumMaquininhas(isNaN(value) ? 0 : value);
-    setMaquininhasImages(
-      // @ts-ignore
-      Array.from({ length: isNaN(value) ? 0 : value }, () => [null, null, null])
-    );
-    setMaquininhasFileNames(
-      Array.from({ length: isNaN(value) ? 0 : value }, () => ["", "", ""])
-    );
+
     // @ts-ignore
-    maquininhasRefs.current = Array.from(
-      { length: isNaN(value) ? 0 : value },
-      () => [createRef(), createRef(), createRef()]
-    );
+    setMaquininhasImages((prev) => [
+      prev[0] || [null, null], // Manter as imagens fixas já existentes ou inicializar
+      ...Array.from({ length: isNaN(value) ? 0 : value }, () => [null]),
+    ]);
+
+    setMaquininhasFileNames((prev) => [
+      prev[0] || ["", ""], // Manter os nomes de arquivos fixos já existentes ou inicializar
+      ...Array.from({ length: isNaN(value) ? 0 : value }, () => [""]),
+    ]);
+
+    maquininhasRefs.current = [
+      maquininhasRefs.current[0] || createRef(),
+      maquininhasRefs.current[1] || createRef(),
+      ...Array.from({ length: isNaN(value) ? 0 : value }, () => createRef()),
+    ];
   };
 
   const handleImageChange =
@@ -148,21 +155,33 @@ export default function NewPost() {
       // @ts-ignore
       const file = event.target.files[0];
       if (file) {
-        setMaquininhasImages((prev) => {
-          const newImages = [...prev];
-          newImages[maquininhaIndex] = [...newImages[maquininhaIndex]];
-          newImages[maquininhaIndex][imageIndex] = file;
-          return newImages;
-        });
-        setMaquininhasFileNames((prev) => {
-          const newFileNames = [...prev];
-          newFileNames[maquininhaIndex] = [...newFileNames[maquininhaIndex]];
-          newFileNames[maquininhaIndex][imageIndex] = file.name;
-          return newFileNames;
-        });
+        if (imageIndex < 2) {
+          // Para Filipeta Sistema Frente e Verso, use sempre os índices 0 e 1
+          setMaquininhasImages((prev) => {
+            const newImages = [...prev];
+            newImages[0][imageIndex] = file;
+            return newImages;
+          });
+          setMaquininhasFileNames((prev) => {
+            const newFileNames = [...prev];
+            newFileNames[0][imageIndex] = file.name;
+            return newFileNames;
+          });
+        } else {
+          // Para Filipeta Maquininha, use o índice da maquininha atual mais 2
+          setMaquininhasImages((prev) => {
+            const newImages = [...prev];
+            newImages[maquininhaIndex + 1][0] = file;
+            return newImages;
+          });
+          setMaquininhasFileNames((prev) => {
+            const newFileNames = [...prev];
+            newFileNames[maquininhaIndex + 1][0] = file.name;
+            return newFileNames;
+          });
+        }
       }
     };
-
   const handleInputChange =
     (setter: (arg0: any) => void) => (e: { target: { value: string } }) => {
       const value = e.target.value.replace(",", ".");
@@ -432,18 +451,17 @@ export default function NewPost() {
       )
       .join("\n");
 
-    const labels = [
-      "Filipeta Sistema Frente",
-      "Filipeta Sistema Verso",
-      "Filipeta Maquininha",
-    ];
-
     const imagesDescription = await Promise.all(
       data.images.map(async (image, index) => {
         const shortUrl = await shortenUrl(image.imageUrl);
-        const labelIndex = index % labels.length;
-        const maquininhaIndex = Math.floor(index / labels.length) + 1;
-        return `*Maquininha ${maquininhaIndex}:* ${labels[labelIndex]} - ${shortUrl}\n`;
+        if (index === 0) {
+          return `*Filipeta Sistema Frente:* ${shortUrl}\n`;
+        } else if (index === 1) {
+          return `*Filipeta Sistema Verso:* ${shortUrl}\n`;
+        } else {
+          const maquininhaIndex = index - 1;
+          return `*Maquininha ${maquininhaIndex}:* Filipeta Maquininha - ${shortUrl}\n`;
+        }
       })
     ).then((descriptions) => descriptions.join("\n"));
 
@@ -605,58 +623,39 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-
               <div className={styles.InputField}>
-                {Array.from(
-                  { length: numMaquininhas },
-                  (_, maquininhaIndex) => (
-                    <div
-                      key={maquininhaIndex}
-                      className={styles.InputContainer}
-                    >
-                      <p className={styles.FieldLabel}>
-                        Maquininha {maquininhaIndex + 1}
-                      </p>
-                      {[
-                        "Filipeta Sistema Frente",
-                        "Filipeta Sistema Verso",
-                        "Filipeta Maquininha",
-                      ].map((label, imageIndex) => (
-                        <div key={imageIndex} className={styles.InputField}>
-                          <p className={styles.FieldLabel}>{label}</p>
-                          <input
-                            type="file"
-                            accept="image/*,video/*"
-                            style={{ display: "none" }}
-                            ref={(el) => {
-                              if (maquininhasRefs.current[maquininhaIndex]) {
-                                // @ts-ignore
-                                maquininhasRefs.current[maquininhaIndex][
-                                  imageIndex
-                                ] = el;
-                              }
-                            }}
-                            onChange={handleImageChange(
-                              maquininhaIndex,
-                              imageIndex
-                            )}
-                          />
-                          <button
-                            onClick={() =>
-                              maquininhasRefs.current[maquininhaIndex][
-                                imageIndex
-                                // @ts-ignore
-                              ]?.click()
-                            }
-                            className={styles.MidiaField}
-                          >
-                            Carregue sua foto
-                          </button>
-                          {maquininhasImages[maquininhaIndex][imageIndex] && (
+                <div className={styles.InputContainer}>
+                  {["Filipeta Sistema Frente", "Filipeta Sistema Verso"].map(
+                    (label, imageIndex) => (
+                      <div key={imageIndex} className={styles.InputField}>
+                        <p className={styles.FieldLabel}>{label}</p>
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          style={{ display: "none" }}
+                          ref={(el) => {
+                            // @ts-ignore
+
+                            maquininhasRefs.current[imageIndex] = el;
+                          }}
+                          onChange={handleImageChange(0, imageIndex)}
+                        />
+                        <button
+                          onClick={() =>
+                            // @ts-ignore
+
+                            maquininhasRefs.current[imageIndex]?.click()
+                          }
+                          className={styles.MidiaField}
+                        >
+                          Carregue sua foto
+                        </button>
+                        {maquininhasImages[0] &&
+                          maquininhasImages[0][imageIndex] && (
                             <div>
                               <img
                                 src={URL.createObjectURL(
-                                  maquininhasImages[maquininhaIndex][imageIndex]
+                                  maquininhasImages[0][imageIndex]
                                 )}
                                 alt={`Preview da ${label}`}
                                 style={{
@@ -668,23 +667,83 @@ export default function NewPost() {
                                 onLoad={() =>
                                   URL.revokeObjectURL(
                                     // @ts-ignore
-                                    maquininhasImages[maquininhaIndex][
-                                      imageIndex
-                                    ]
+
+                                    maquininhasImages[0][imageIndex]
                                   )
                                 }
                               />
                               <p className={styles.fileName}>
-                                {
-                                  maquininhasFileNames[maquininhaIndex][
-                                    imageIndex
-                                  ]
-                                }
+                                {maquininhasFileNames[0][imageIndex]}
                               </p>
                             </div>
                           )}
-                        </div>
-                      ))}
+                      </div>
+                    )
+                  )}
+                </div>
+                {Array.from(
+                  { length: numMaquininhas },
+                  (_, maquininhaIndex) => (
+                    <div
+                      key={maquininhaIndex}
+                      className={styles.InputContainer}
+                    >
+                      <p className={styles.FieldLabel}>
+                        Maquininha {maquininhaIndex + 1}
+                      </p>
+                      <div className={styles.InputField}>
+                        <p className={styles.FieldLabel}>Filipeta Maquininha</p>
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          style={{ display: "none" }}
+                          ref={(el) => {
+                            // @ts-ignore
+
+                            maquininhasRefs.current[maquininhaIndex + 2] = el;
+                          }}
+                          onChange={handleImageChange(maquininhaIndex, 2)}
+                        />
+                        <button
+                          onClick={() =>
+                            maquininhasRefs.current[
+                              maquininhaIndex + 2
+                              // @ts-ignore
+                            ]?.click()
+                          }
+                          className={styles.MidiaField}
+                        >
+                          Carregue sua foto
+                        </button>
+                        {maquininhasImages[maquininhaIndex + 1] &&
+                          maquininhasImages[maquininhaIndex + 1][0] && (
+                            <div>
+                              <img
+                                src={URL.createObjectURL(
+                                  maquininhasImages[maquininhaIndex + 1][0]
+                                )}
+                                alt={`Preview da Filipeta Maquininha ${
+                                  maquininhaIndex + 1
+                                }`}
+                                style={{
+                                  maxWidth: "17.5rem",
+                                  height: "auto",
+                                  border: "1px solid #939393",
+                                  borderRadius: "20px",
+                                }}
+                                onLoad={() =>
+                                  URL.revokeObjectURL(
+                                    // @ts-ignore
+                                    maquininhasImages[maquininhaIndex + 1][0]
+                                  )
+                                }
+                              />
+                              <p className={styles.fileName}>
+                                {maquininhasFileNames[maquininhaIndex + 1][0]}
+                              </p>
+                            </div>
+                          )}
+                      </div>
                     </div>
                   )
                 )}
