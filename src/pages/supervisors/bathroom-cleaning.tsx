@@ -73,15 +73,29 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
-  const handleEtanolImageChange = (
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
+      setIsLoading(true); // Iniciar o carregamento
+      try {
+        const imageUrl = await uploadImageAndGetUrl(
+          file,
+          `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
+        );
+        setEtanolImage(file);
+        setEtanolFileName(file.name);
+        setEtanolImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao carregar a imagem:", error);
+        toast.error("Erro ao carregar a imagem. Tente novamente.");
+      } finally {
+        setIsLoading(false); // Finalizar o carregamento
+      }
     }
   };
 
@@ -106,9 +120,8 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
-    else if (!etanolImage) missingField = "Fotos da tarefa";
+    else if (!etanolImageUrl) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -118,7 +131,6 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -147,28 +159,17 @@ export default function NewPost() {
       postName,
       isOk,
       observations,
-      images: [],
+      images: [
+        {
+          type: "Imagem da tarefa",
+          imageUrl: etanolImageUrl,
+          fileName: etanolFileName,
+        },
+      ],
       id: "limpeza-banheiros",
     };
 
-    const uploadPromises = [];
-    if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `supervisors/${date}/${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem da tarefa",
-        imageUrl,
-        fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      taskData.images = images;
-
       sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
@@ -358,19 +359,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do supervisor</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>OK?</p>
