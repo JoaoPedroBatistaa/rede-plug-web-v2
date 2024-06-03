@@ -37,6 +37,8 @@ export default function NewPost() {
 
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [selectedTank, setSelectedTank] = useState<string>("");
+  const [selectedTankDescription, setSelectedTankDescription] =
+    useState<string>("");
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [productOptions, setProductOptions] = useState<string[]>([]);
 
@@ -216,6 +218,21 @@ export default function NewPost() {
     }
   }, [selectedTank, tanks]);
 
+  const handleTankChange = (e: { target: { value: any } }) => {
+    const selectedTankNumber = e.target.value;
+    setSelectedTank(selectedTankNumber);
+
+    const selectedTank = tanks.find(
+      (tank) => tank.tankNumber === selectedTankNumber
+    );
+    if (selectedTank) {
+      const description = `Tanque ${selectedTank.tankNumber} - ${selectedTank.capacity}L (${selectedTank.product}) - ${selectedTank.saleDefense}`;
+      setSelectedTankDescription(description);
+    } else {
+      setSelectedTankDescription("");
+    }
+  };
+
   // @ts-ignore
   const findLitersForMeasurement = (tankOption, measurementCm) => {
     const measurementCmNumber = Number(measurementCm);
@@ -384,6 +401,7 @@ export default function NewPost() {
       truckPlate,
       truckPlateImage,
       tankNumber: selectedTank,
+      selectedTankDescription,
       product: selectedProduct,
       initialMeasurement: {
         cm: initialMeasurementCm,
@@ -491,6 +509,7 @@ export default function NewPost() {
         postName: updatedData.postName,
         makerName: updatedData.makerName,
         tankNumber: updatedData.tankNumber,
+        selectedTankDescription,
         product: updatedData.product,
         initialMeasurement: updatedData.initialMeasurement,
         finalMeasurement: updatedData.finalMeasurement,
@@ -681,6 +700,7 @@ export default function NewPost() {
     managerName?: string | null;
     images: any;
     tankNumber?: any;
+    selectedTankDescription?: any;
     product?: any;
     initialMeasurement?: any;
     finalMeasurement?: any;
@@ -729,36 +749,10 @@ export default function NewPost() {
         messageBody += `*Posto*: ${data.postName}\n`;
       }
       if (data.tankNumber) {
-        messageBody += `*Tanque*: ${data.tankNumber}\n`;
+        messageBody += `*Tanque*: ${data.selectedTankDescription}\n`;
       }
       if (data.product) {
         messageBody += `*Produto*: ${data.product}\n`;
-      }
-      if (data.initialMeasurement?.cm) {
-        messageBody += `*Medição Inicial*: ${data.initialMeasurement.cm}\n`;
-      }
-      if (data.finalMeasurement?.cm) {
-        messageBody += `*Medição Final*: ${data.finalMeasurement.cm}\n\n`;
-      }
-      if (data.seal?.selection) {
-        messageBody += `*Lacre*: ${data.seal.selection}\n`;
-      }
-      if (data.arrow?.selection) {
-        messageBody += `*Posição da Seta*: ${
-          data.arrow.position ? data.arrow.position : "NÃO"
-        }\n`;
-      }
-      if (data.hydration?.value) {
-        messageBody += `*Hidratação*: ${data.hydration.value}\n\n`;
-      }
-      if (data.initialLiters) {
-        messageBody += `*Litros Iniciais*: ${data.initialLiters}\n`;
-      }
-      if (data.finalLiters) {
-        messageBody += `*Litros Finais*: ${data.finalLiters}\n`;
-      }
-      if (data.totalLiters) {
-        messageBody += `${data.totalLiters}\n\n`;
       }
       if (data.productQuality) {
         messageBody += `*Qualidade do Produto*: ${data.productQuality}\n`;
@@ -769,11 +763,47 @@ export default function NewPost() {
       if (data.temperature) {
         messageBody += `*Temperatura*: ${data.temperature}\n\n`;
       }
+      if (data.initialMeasurement?.cm) {
+        messageBody += `*Medição Inicial*: ${data.initialMeasurement.cm}\n`;
+      }
+      if (data.finalMeasurement?.cm) {
+        messageBody += `*Medição Final*: ${data.finalMeasurement.cm}\n\n`;
+      }
+      if (data.initialLiters) {
+        messageBody += `*Litros Iniciais*: ${data.initialLiters}\n`;
+      }
+      if (data.finalLiters) {
+        messageBody += `*Litros Finais*: ${data.finalLiters}\n`;
+      }
+      if (data.totalLiters) {
+        messageBody += `${data.totalLiters}\n\n`;
+      }
+      if (data.seal?.selection === "SIM") {
+        messageBody += `*Lacre*: SIM\n`;
+      } else {
+        messageBody += `*Lacre*: NÃO\n`;
+      }
+      if (data.arrow?.selection) {
+        messageBody += `*Posição da Seta*: ${
+          data.arrow.position ? data.arrow.position : "NÃO"
+        }\n`;
+      }
+      if (data.hydration?.value) {
+        messageBody += `*Hidratação*: ${data.hydration.value}\n\n`;
+      }
+
       if (data.observations) {
         messageBody += `*Observações*: ${data.observations}\n`;
       }
 
       messageBody += `\n*Imagens da descarga*\n\n${imagesDescription}`;
+
+      if (data.seal?.selection === "SIM") {
+        for (const [index, fileUrl] of data.seal.fileUrls.entries()) {
+          const shortUrl = await shortenUrl(fileUrl);
+          messageBody += `\n*Lacre ${index + 1}:* ${shortUrl}\n`;
+        }
+      }
 
       const postsRef = collection(db, "POSTS");
       const q = query(postsRef, where("name", "==", data.postName));
@@ -969,7 +999,7 @@ export default function NewPost() {
                   <select
                     id="tankNumber"
                     className={styles.SelectField}
-                    onChange={(e) => setSelectedTank(e.target.value)}
+                    onChange={handleTankChange}
                   >
                     <option value="">Selecione um Tanque</option>
                     {tanks.map((tank, index) => (

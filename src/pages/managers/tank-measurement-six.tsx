@@ -107,6 +107,23 @@ export default function NewPost() {
   const [conversionData, setConversionData] = useState([]);
   const [tankLiters, setTankLiters] = useState({});
 
+  const [measurementSheet, setMeasurementSheet] = useState<File | null>(null);
+  const [measurementSheetFileName, setMeasurementSheetFileName] = useState<
+    string | null
+  >(null);
+  const measurementSheetInputRef = React.createRef<HTMLInputElement>();
+
+  const handleMeasurementSheetChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setMeasurementSheet(file);
+      setMeasurementSheetFileName(file.name);
+    }
+  };
+
   useEffect(() => {
     const loadConversionData = async () => {
       const filePath = `/data/conversion.json`;
@@ -286,6 +303,12 @@ export default function NewPost() {
       userName,
       postName,
       measurements: [],
+      measurementSheet: measurementSheet
+        ? await uploadImageAndGetUrl(
+            measurementSheet,
+            `measurementSheets/${measurementSheet.name}_${Date.now()}`
+          )
+        : "",
       id: "medicao-tanques-6h",
     };
 
@@ -317,6 +340,7 @@ export default function NewPost() {
     }
 
     try {
+      // @ts-ignore
       await sendMessage(measurementData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
@@ -381,6 +405,7 @@ export default function NewPost() {
   async function sendMessage(data: {
     date: string | number | Date;
     measurements: any[];
+    measurementSheet: string;
     time: any;
     postName: any;
     managerName: any;
@@ -390,12 +415,28 @@ export default function NewPost() {
       data.measurements.map((measurement) => shortenUrl(measurement.imageUrl))
     );
     const measurements = data.measurements
-      .map(
-        (measurement, index) =>
-          `*Tanque ${measurement.tankNumber}:* ${measurement.measurement.cm} cm, ${measurement.measurement.liters} litros, Imagem: ${shortUrls[index]}\n\n`
-      )
+      .map((measurement, index) => {
+        const tank = tanks.find(
+          (tank) => tank.tankNumber === measurement.tankNumber
+        );
+        // @ts-ignore
+        const tankTitle = `Tanque ${tank.tankNumber} - ${tank.capacity}L (${tank.product}) - ${tank.saleDefense}`;
+        return `*${tankTitle}:* ${measurement.measurement.cm} cm, ${measurement.measurement.liters} litros, Imagem: ${shortUrls[index]}\n\n`;
+      })
       .join("\n");
-    const messageBody = `*Nova Medição dos Tanques às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes das Medições*\n\n${measurements}`;
+    const measurementSheetUrl = measurementSheet
+      ? await shortenUrl(data.measurementSheet)
+      : "";
+
+    const messageBody = `*Nova Medição dos Tanques às 6h*\n\nData: ${formattedDate}\nHora: ${
+      data.time
+    }\nPosto: ${data.postName}\nGerente: ${
+      data.managerName
+    }\n\n*Detalhes das Medições*\n\n${measurements}${
+      measurementSheetUrl
+        ? `\nPlanilha de Medição: ${measurementSheetUrl}\n`
+        : ""
+    }`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -492,6 +533,46 @@ export default function NewPost() {
                     onChange={(e) => setTime(e.target.value)}
                     placeholder=""
                   />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Planilha de Medição</p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    style={{ display: "none" }}
+                    ref={measurementSheetInputRef}
+                    onChange={handleMeasurementSheetChange}
+                  />
+                  <button
+                    onClick={() =>
+                      measurementSheetInputRef.current &&
+                      measurementSheetInputRef.current.click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua planilha de medição
+                  </button>
+                  {measurementSheet && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(measurementSheet)}
+                        alt="Visualização da planilha de medição"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(measurementSheet)}
+                      />
+                      <p className={styles.fileName}>
+                        {measurementSheetFileName}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

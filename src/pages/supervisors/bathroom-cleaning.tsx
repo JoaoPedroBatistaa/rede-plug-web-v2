@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
@@ -75,26 +76,59 @@ export default function NewPost() {
   const [etanolFileName, setEtanolFileName] = useState("");
   const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 1, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
   const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
-      setIsLoading(true); // Iniciar o carregamento
+      if (!file.type.startsWith("image/")) {
+        console.error("O arquivo fornecido não é uma imagem");
+        toast.error("Por favor, selecione um arquivo de imagem.");
+        return;
+      }
+
+      setIsLoading(true);
       try {
+        const compressedFile = await compressImage(file);
         const imageUrl = await uploadImageAndGetUrl(
-          file,
+          compressedFile,
           `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
         );
-        setEtanolImage(file);
+        setEtanolImage(compressedFile);
         setEtanolFileName(file.name);
         setEtanolImageUrl(imageUrl);
       } catch (error) {
-        console.error("Erro ao carregar a imagem:", error);
-        toast.error("Erro ao carregar a imagem. Tente novamente.");
+        console.error("Erro ao fazer upload da imagem:", error);
+        toast.error("Erro ao fazer upload da imagem.");
       } finally {
-        setIsLoading(false); // Finalizar o carregamento
+        setIsLoading(false);
       }
     }
   };
