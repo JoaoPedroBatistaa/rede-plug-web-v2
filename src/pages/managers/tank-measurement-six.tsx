@@ -19,6 +19,8 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../../firebase";
 
+import imageCompression from "browser-image-compression";
+
 import LoadingOverlay from "@/components/Loading";
 
 interface Tank {
@@ -103,6 +105,9 @@ export default function NewPost() {
   const [tankImages, setTankImages] = useState<TankImages>({});
   const [tankFileNames, setTankFileNames] = useState({});
   const [fileInputRefs, setFileInputRefs] = useState({});
+  const [tankImageUrls, setTankImageUrls] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   const [conversionData, setConversionData] = useState([]);
   const [tankLiters, setTankLiters] = useState({});
@@ -112,15 +117,58 @@ export default function NewPost() {
     string | null
   >(null);
   const measurementSheetInputRef = React.createRef<HTMLInputElement>();
+  const [measurementSheetUrl, setMeasurementSheetUrl] = useState<string | null>(
+    null
+  );
 
-  const handleMeasurementSheetChange = (
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleMeasurementSheetChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setMeasurementSheet(file);
-      setMeasurementSheetFileName(file.name);
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `measurementSheets/${compressedFile.name}_${Date.now()}`
+        );
+        setMeasurementSheet(compressedFile);
+        setMeasurementSheetFileName(compressedFile.name);
+        setMeasurementSheetUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload da planilha de medição:", error);
+        toast.error("Erro ao fazer upload da planilha de medição.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -199,18 +247,38 @@ export default function NewPost() {
     }));
   };
 
-  const handleImageChange = (
+  const handleImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     tankNumber: string
   ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setTankImages((prev) => ({
-        ...prev,
-        [tankNumber]: file,
-      }));
-      setTankFileNames((prev) => ({ ...prev, [tankNumber]: file.name }));
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `tankMeasurements/${tankNumber}/${compressedFile.name}_${Date.now()}`
+        );
+        setTankImages((prev) => ({
+          ...prev,
+          [tankNumber]: compressedFile,
+        }));
+        setTankFileNames((prev) => ({
+          ...prev,
+          [tankNumber]: compressedFile.name,
+        }));
+        setTankImageUrls((prev) => ({ ...prev, [tankNumber]: imageUrl }));
+      } catch (error) {
+        console.error(
+          `Erro ao fazer upload da imagem do tanque ${tankNumber}:`,
+          error
+        );
+        toast.error(`Erro ao salvar a imagem do tanque ${tankNumber}.`);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -264,15 +332,12 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -291,24 +356,17 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A medição dos tanques das 6h já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
 
-    const measurementData: MeasurementData = {
+    const measurementData = {
       date,
       time,
-      // @ts-ignore
       managerName: userName,
       userName,
       postName,
       measurements: [],
-      measurementSheet: measurementSheet
-        ? await uploadImageAndGetUrl(
-            measurementSheet,
-            `measurementSheets/${measurementSheet.name}_${Date.now()}`
-          )
-        : "",
+      measurementSheet: measurementSheetUrl || "",
       id: "medicao-tanques-6h",
     };
 
@@ -316,31 +374,13 @@ export default function NewPost() {
       const tankData = {
         tankNumber: tank.tankNumber,
         measurement: tankMeasurements[tank.tankNumber] || "",
-        imageUrl: "",
+        imageUrl: tankImageUrls[tank.tankNumber] || "",
       };
-
-      const imageFile = tankImages[tank.tankNumber];
-      if (imageFile instanceof File) {
-        try {
-          const imageUrl = await uploadImageAndGetUrl(
-            imageFile,
-            `tankMeasurements/${tank.tankNumber}/${
-              imageFile.name
-            }_${Date.now()}`
-          );
-          tankData.imageUrl = imageUrl;
-        } catch (error) {
-          console.error("Erro ao fazer upload da imagem do tanque: ", error);
-          toast.error(`Erro ao salvar a imagem do tanque ${tank.tankNumber}.`);
-          return;
-        }
-      }
-
+      // @ts-ignore
       measurementData.measurements.push(tankData);
     }
 
     try {
-      // @ts-ignore
       await sendMessage(measurementData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
@@ -349,8 +389,10 @@ export default function NewPost() {
       toast.success("Medição salva com sucesso!");
       router.push("/manager-six-routine");
     } catch (error) {
-      console.error("Erro ao salvar os dados da medição: ", error);
+      console.error("Erro ao salvar os dados da medição:", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -424,7 +466,7 @@ export default function NewPost() {
         return `*${tankTitle}:* ${measurement.measurement.cm} cm, ${measurement.measurement.liters} litros, Imagem: ${shortUrls[index]}\n\n`;
       })
       .join("\n");
-    const measurementSheetUrl = measurementSheet
+    const measurementSheetUrl = data.measurementSheet
       ? await shortenUrl(data.measurementSheet)
       : "";
 

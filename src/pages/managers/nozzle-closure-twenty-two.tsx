@@ -21,6 +21,8 @@ import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
+import imageCompression from "browser-image-compression";
+
 interface Nozzle {
   nozzleNumber: string;
   product: string;
@@ -28,6 +30,8 @@ interface Nozzle {
 
 export default function NewPost() {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const docId = router.query.docId;
   const [data, setData] = useState(null);
@@ -62,35 +66,83 @@ export default function NewPost() {
     fetchData();
   }, [docId]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
   const [nozzles, setNozzles] = useState<Nozzle[]>([]);
   const [encerranteImages, setEncerranteImages] = useState<File[]>([]);
+  const [encerranteImageUrls, setEncerranteImageUrls] = useState<File[]>([]);
   const [encerranteFileNames, setEncerranteFileNames] = useState<string[]>([]);
 
   const encerranteRefs = useRef([]);
 
-  const handleImageChange = (
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleImageChange = async (
     index: number,
-    event: { target: { files: any } } | undefined
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setEncerranteImages((prev) => {
-        const newImages = [...prev];
-        newImages[index] = file;
-        return newImages;
-      });
-      setEncerranteFileNames((prev) => {
-        const newFileNames = [...prev];
-        newFileNames[index] = file.name;
-        return newFileNames;
-      });
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `nozzleClosures/${getLocalISODate()}/${
+            compressedFile.name
+          }_${Date.now()}`
+        );
+        setEncerranteImages((prev) => {
+          const newImages = [...prev];
+          newImages[index] = compressedFile;
+          return newImages;
+        });
+        setEncerranteFileNames((prev) => {
+          const newFileNames = [...prev];
+          newFileNames[index] = compressedFile.name;
+          return newFileNames;
+        });
+        setEncerranteImageUrls((prev) => {
+          const newUrls = [...prev];
+          // @ts-ignore
+          newUrls[index] = imageUrl;
+          return newUrls;
+        });
+      } catch (error) {
+        console.error(
+          `Erro ao fazer upload da imagem do bico ${index + 1}:`,
+          error
+        );
+        toast.error(`Erro ao salvar a imagem do bico ${index + 1}.`);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -135,18 +187,15 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
-    // @ts-ignore
-    else if (encerranteImages.length === 0)
+    else if (encerranteImages.length === 0) {
       missingField = "Fotos dos Encerrantes dos Bicos";
+    }
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -165,9 +214,10 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("O encerrante dos bicos das 22h já foi cadastrado hoje!");
       setIsLoading(false);
-
       return;
     }
+
+    const images = encerranteImageUrls.filter(Boolean);
 
     const nozzleClosureData = {
       date,
@@ -175,31 +225,14 @@ export default function NewPost() {
       managerName: userName,
       userName,
       postName,
-      images: [],
+      images: images.map((imageUrl, index) => ({
+        fileName: encerranteFileNames[index],
+        imageUrl,
+      })),
       id: "encerrante-bico-22h",
     };
 
-    // @ts-ignore
-    const uploadPromises = encerranteImages.map(
-      (imageFile: Blob | ArrayBuffer, index: string | number) =>
-        uploadImageAndGetUrl(
-          imageFile,
-          // @ts-ignore
-          `nozzleClosures/${date}/${imageFile.name}_${Date.now()}`
-        ).then((imageUrl) => {
-          return {
-            // @ts-ignore
-            fileName: encerranteFileNames[index],
-            imageUrl,
-          };
-        })
-    );
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      nozzleClosureData.images = images;
-
       await sendMessage(nozzleClosureData);
 
       const docRef = await addDoc(
@@ -213,6 +246,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os encerrantes dos bicos: ", error);
       toast.error("Erro ao salvar os encerrantes dos bicos.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -384,19 +419,35 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do gerente</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
+
+              {docId &&
+                // @ts-ignore
+                data?.images.map((image, index) => (
+                  <div key={index} className={styles.InputField}>
+                    <p className={styles.titleTank}>Bico {index + 1}</p>
+                    <p className={styles.FieldLabel}>Imagem do encerrante</p>
+
+                    {image && (
+                      <div>
+                        <img
+                          src={image.imageUrl}
+                          alt={`Preview do encerrante do bico ${index + 1}`}
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                          onLoad={() =>
+                            // @ts-ignore
+                            URL.revokeObjectURL(image)
+                          }
+                        />
+                        <p className={styles.fileName}>{image.fileName}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
 
               {nozzles.map((nozzle, index) => (
                 <div key={nozzle.nozzleNumber} className={styles.InputField}>

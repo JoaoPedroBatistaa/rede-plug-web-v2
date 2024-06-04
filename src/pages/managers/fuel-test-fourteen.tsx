@@ -21,6 +21,8 @@ import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
+import imageCompression from "browser-image-compression";
+
 interface Nozzle {
   nozzleNumber: string;
   product: string;
@@ -28,6 +30,8 @@ interface Nozzle {
 
 export default function NewPost() {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const docId = router.query.docId;
   const [data, setData] = useState(null);
@@ -64,8 +68,6 @@ export default function NewPost() {
     fetchData();
   }, [docId]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
 
@@ -79,28 +81,95 @@ export default function NewPost() {
   const gcRef = useRef(null);
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolImageUrl, setEtanolImageUrl] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
 
   const [gcImage, setGcImage] = useState<File | null>(null);
+  const [gcImageUrl, setGcImageUrl] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
 
-  const handleEtanolImageChange = (
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `fuelTests/${getLocalISODate()}/etanol_${
+            compressedFile.name
+          }_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(compressedFile.name);
+        // @ts-ignore
+        setEtanolImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload da imagem de etanol:", error);
+        toast.error("Erro ao fazer upload da imagem de etanol.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleGcImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setGcImage(file);
-      setGcFileName(file.name);
+  const handleGcImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `fuelTests/${getLocalISODate()}/gc_${
+            compressedFile.name
+          }_${Date.now()}`
+        );
+        setGcImage(compressedFile);
+        setGcFileName(compressedFile.name);
+        // @ts-ignore
+        setGcImageUrl(imageUrl);
+      } catch (error) {
+        console.error(
+          "Erro ao fazer upload da imagem de gasolina comum:",
+          error
+        );
+        toast.error("Erro ao fazer upload da imagem de gasolina comum.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -144,17 +213,14 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
     else if (!etanolImage && !gcImage)
       missingField = "Fotos do Teste dos Combustíveis";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -173,8 +239,23 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("O teste dos combustíveis das 14h já foi cadastrado hoje!");
       setIsLoading(false);
-
       return;
+    }
+
+    const images = [];
+    if (etanolImageUrl) {
+      images.push({
+        type: "Etanol",
+        imageUrl: etanolImageUrl,
+        fileName: etanolFileName,
+      });
+    }
+    if (gcImageUrl) {
+      images.push({
+        type: "GC",
+        imageUrl: gcImageUrl,
+        fileName: gcFileName,
+      });
     }
 
     const fuelTestData = {
@@ -186,37 +267,11 @@ export default function NewPost() {
       ethanolTemperature,
       ethanolWeight,
       gasolineQuality,
-      images: [],
+      images,
       id: "teste-combustiveis-14h",
     };
 
-    // Preparar os uploads das imagens
-    const uploadPromises = [];
-    if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `fuelTests/${date}/etanol_${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Etanol",
-        imageUrl,
-        fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
-    if (gcImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        gcImage,
-        `fuelTests/${date}/gc_${gcFileName}_${Date.now()}`
-      ).then((imageUrl) => ({ type: "GC", imageUrl, fileName: gcFileName }));
-      uploadPromises.push(gcPromise);
-    }
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      fuelTestData.images = images;
-
       await sendMessage(fuelTestData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), fuelTestData);
@@ -227,6 +282,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar o teste dos combustíveis: ", error);
       toast.error("Erro ao salvar o teste dos combustíveis.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -287,7 +344,7 @@ export default function NewPost() {
     ethanolWeight: any; // Novo campo
     gasolineQuality: any; // Novo campo
   }) {
-    const formattedDate = formatDate(data.date); // Suponha que você tenha uma função para formatar a data corretamente
+    const formattedDate = formatDate(data.date);
 
     // Construir a descrição das imagens
     const imagesDescription = await Promise.all(
@@ -394,7 +451,6 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Temperatura do Etanol</p>
@@ -495,7 +551,6 @@ export default function NewPost() {
                   </div>
                 )}
               </div>
-
               <div className={styles.InputField}>
                 <p className={styles.FieldLabel}>
                   Imagem do teste de Gasolina Comum (GC)

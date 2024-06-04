@@ -20,6 +20,7 @@ import React, { createRef, useEffect, useRef, useState } from "react";
 import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 
 export default function NewPost() {
   const router = useRouter();
@@ -64,6 +65,7 @@ export default function NewPost() {
   const [managerName, setManagerName] = useState("");
   const [numMaquininhas, setNumMaquininhas] = useState(0);
   const [maquininhasImages, setMaquininhasImages] = useState<File[]>([]);
+  const [maquininhasImageUrls, setMaquininhasImageUrls] = useState<File[]>([]);
   const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
     []
   );
@@ -73,6 +75,33 @@ export default function NewPost() {
     .fill(null)
     .map((_, i) => maquininhasRefs.current[i] || createRef());
 
+  // Função para comprimir imagem
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
   const handleNumMaquininhasChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -80,25 +109,49 @@ export default function NewPost() {
     setNumMaquininhas(isNaN(value) ? 0 : value);
   };
 
-  const handleImageChange =
-    (index: string | number | undefined) =>
-    (event: { target: { files: any[] } }) => {
-      const file = event.target.files[0];
-      if (file) {
+  const handleImageChange = async (
+    index: number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `photoMachines/${getLocalISODate()}/${
+            compressedFile.name
+          }_${Date.now()}`
+        );
         setMaquininhasImages((prev) => {
           const newImages = [...prev];
-          // @ts-ignore
-          newImages[index] = file;
+          newImages[index] = compressedFile;
           return newImages;
         });
         setMaquininhasFileNames((prev) => {
           const newFileNames = [...prev];
-          // @ts-ignore
-          newFileNames[index] = file.name;
+          newFileNames[index] = compressedFile.name;
           return newFileNames;
         });
+        setMaquininhasImageUrls((prev) => {
+          const newUrls = [...prev];
+          // @ts-ignore
+          newUrls[index] = imageUrl;
+          return newUrls;
+        });
+      } catch (error) {
+        console.error(
+          `Erro ao fazer upload da imagem da maquininha ${index + 1}:`,
+          error
+        );
+        toast.error(`Erro ao salvar a imagem da maquininha ${index + 1}.`);
+      } finally {
+        setIsLoading(false);
       }
-    };
+    }
+  };
 
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
@@ -141,17 +194,15 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
-    else if (maquininhasImages.length === 0)
+    else if (maquininhasImages.length === 0) {
       missingField = "Fotos das Maquininhas";
+    }
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -170,9 +221,10 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A foto das maquininhas das 6h já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
+
+    const images = maquininhasImageUrls.filter(Boolean);
 
     const photoMachinesData = {
       date,
@@ -180,28 +232,14 @@ export default function NewPost() {
       managerName: userName,
       userName,
       postName,
-      images: [],
+      images: images.map((imageUrl, index) => ({
+        fileName: maquininhasFileNames[index],
+        imageUrl,
+      })),
       id: "foto-maquininhas-6h",
     };
 
-    // Processamento paralelo dos uploads de imagens
-    const uploadPromises = maquininhasImages.map((imageFile, index) =>
-      uploadImageAndGetUrl(
-        imageFile,
-        `photoMachines/${date}/${imageFile.name}_${Date.now()}`
-      ).then((imageUrl) => {
-        return {
-          fileName: maquininhasFileNames[index],
-          imageUrl,
-        };
-      })
-    );
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      photoMachinesData.images = images;
-
       await sendMessage(photoMachinesData);
 
       const docRef = await addDoc(
@@ -215,6 +253,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar as fotos das maquininhas: ", error);
       toast.error("Erro ao salvar as fotos das maquininhas.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -445,7 +485,7 @@ export default function NewPost() {
                     // @ts-ignore
                     ref={(el) => (maquininhasRefs.current[index] = el)}
                     // @ts-ignore
-                    onChange={handleImageChange(index)}
+                    onChange={(e) => handleImageChange(index, e)}
                   />
                   <button
                     // @ts-ignore

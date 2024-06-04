@@ -19,6 +19,8 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../../firebase";
 
+import imageCompression from "browser-image-compression";
+
 import LoadingOverlay from "@/components/Loading";
 
 interface Tank {
@@ -57,6 +59,8 @@ interface TankImages {
 export default function NewPost() {
   const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const docId = router.query.docId;
   const [data, setData] = useState(null);
 
@@ -90,11 +94,10 @@ export default function NewPost() {
     fetchData();
   }, [docId]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
+  const [postName, setPostName] = useState("");
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [tankMeasurements, setTankMeasurements] = useState<TankMeasurements>(
     {}
@@ -102,9 +105,72 @@ export default function NewPost() {
   const [tankImages, setTankImages] = useState<TankImages>({});
   const [tankFileNames, setTankFileNames] = useState({});
   const [fileInputRefs, setFileInputRefs] = useState({});
+  const [tankImageUrls, setTankImageUrls] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   const [conversionData, setConversionData] = useState([]);
   const [tankLiters, setTankLiters] = useState({});
+
+  const [measurementSheet, setMeasurementSheet] = useState<File | null>(null);
+  const [measurementSheetFileName, setMeasurementSheetFileName] = useState<
+    string | null
+  >(null);
+  const measurementSheetInputRef = React.createRef<HTMLInputElement>();
+  const [measurementSheetUrl, setMeasurementSheetUrl] = useState<string | null>(
+    null
+  );
+
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleMeasurementSheetChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `measurementSheets/${compressedFile.name}_${Date.now()}`
+        );
+        setMeasurementSheet(compressedFile);
+        setMeasurementSheetFileName(compressedFile.name);
+        setMeasurementSheetUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload da planilha de medição:", error);
+        toast.error("Erro ao fazer upload da planilha de medição.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const loadConversionData = async () => {
@@ -181,18 +247,38 @@ export default function NewPost() {
     }));
   };
 
-  const handleImageChange = (
+  const handleImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     tankNumber: string
   ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setTankImages((prev) => ({
-        ...prev,
-        [tankNumber]: file, // Armazenando o objeto File
-      }));
-      setTankFileNames((prev) => ({ ...prev, [tankNumber]: file.name }));
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `tankMeasurements/${tankNumber}/${compressedFile.name}_${Date.now()}`
+        );
+        setTankImages((prev) => ({
+          ...prev,
+          [tankNumber]: compressedFile,
+        }));
+        setTankFileNames((prev) => ({
+          ...prev,
+          [tankNumber]: compressedFile.name,
+        }));
+        setTankImageUrls((prev) => ({ ...prev, [tankNumber]: imageUrl }));
+      } catch (error) {
+        console.error(
+          `Erro ao fazer upload da imagem do tanque ${tankNumber}:`,
+          error
+        );
+        toast.error(`Erro ao salvar a imagem do tanque ${tankNumber}.`);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -240,20 +326,18 @@ export default function NewPost() {
 
     let missingField = "";
     const today = getLocalISODate();
+    console.log(today);
 
     if (!date) missingField = "Data";
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -272,18 +356,17 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A medição dos tanques das 14h já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
 
-    const measurementData: MeasurementData = {
+    const measurementData = {
       date,
       time,
-      // @ts-ignore
       managerName: userName,
       userName,
       postName,
       measurements: [],
+      measurementSheet: measurementSheetUrl || "",
       id: "medicao-tanques-14h",
     };
 
@@ -291,26 +374,9 @@ export default function NewPost() {
       const tankData = {
         tankNumber: tank.tankNumber,
         measurement: tankMeasurements[tank.tankNumber] || "",
-        imageUrl: "",
+        imageUrl: tankImageUrls[tank.tankNumber] || "",
       };
-
-      const imageFile = tankImages[tank.tankNumber];
-      if (imageFile instanceof File) {
-        try {
-          const imageUrl = await uploadImageAndGetUrl(
-            imageFile,
-            `tankMeasurements/${tank.tankNumber}/${
-              imageFile.name
-            }_${Date.now()}`
-          );
-          tankData.imageUrl = imageUrl;
-        } catch (error) {
-          console.error("Erro ao fazer upload da imagem do tanque: ", error);
-          toast.error(`Erro ao salvar a imagem do tanque ${tank.tankNumber}.`);
-          return;
-        }
-      }
-
+      // @ts-ignore
       measurementData.measurements.push(tankData);
     }
 
@@ -323,8 +389,10 @@ export default function NewPost() {
       toast.success("Medição salva com sucesso!");
       router.push("/manager-fourteen-routine");
     } catch (error) {
-      console.error("Erro ao salvar os dados da medição: ", error);
+      console.error("Erro ao salvar os dados da medição:", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -379,6 +447,7 @@ export default function NewPost() {
   async function sendMessage(data: {
     date: string | number | Date;
     measurements: any[];
+    measurementSheet: string;
     time: any;
     postName: any;
     managerName: any;
@@ -388,13 +457,28 @@ export default function NewPost() {
       data.measurements.map((measurement) => shortenUrl(measurement.imageUrl))
     );
     const measurements = data.measurements
-      .map(
-        (measurement, index) =>
-          `*Tanque ${measurement.tankNumber}:* ${measurement.measurement.cm} cm, ${measurement.measurement.liters} litros, Imagem: ${shortUrls[index]}\n\n`
-      )
+      .map((measurement, index) => {
+        const tank = tanks.find(
+          (tank) => tank.tankNumber === measurement.tankNumber
+        );
+        // @ts-ignore
+        const tankTitle = `Tanque ${tank.tankNumber} - ${tank.capacity}L (${tank.product}) - ${tank.saleDefense}`;
+        return `*${tankTitle}:* ${measurement.measurement.cm} cm, ${measurement.measurement.liters} litros, Imagem: ${shortUrls[index]}\n\n`;
+      })
       .join("\n");
+    const measurementSheetUrl = data.measurementSheet
+      ? await shortenUrl(data.measurementSheet)
+      : "";
 
-    const messageBody = `*Nova Medição dos Tanques às 14h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes das Medições*\n\n${measurements}`;
+    const messageBody = `*Nova Medição dos Tanques às 14h*\n\nData: ${formattedDate}\nHora: ${
+      data.time
+    }\nPosto: ${data.postName}\nGerente: ${
+      data.managerName
+    }\n\n*Detalhes das Medições*\n\n${measurements}${
+      measurementSheetUrl
+        ? `\nPlanilha de Medição: ${measurementSheetUrl}\n`
+        : ""
+    }`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -427,6 +511,7 @@ export default function NewPost() {
 
     console.log("Mensagem enviada com sucesso!");
   }
+
   return (
     <>
       <Head>
@@ -490,6 +575,46 @@ export default function NewPost() {
                     onChange={(e) => setTime(e.target.value)}
                     placeholder=""
                   />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Planilha de Medição</p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    style={{ display: "none" }}
+                    ref={measurementSheetInputRef}
+                    onChange={handleMeasurementSheetChange}
+                  />
+                  <button
+                    onClick={() =>
+                      measurementSheetInputRef.current &&
+                      measurementSheetInputRef.current.click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua planilha de medição
+                  </button>
+                  {measurementSheet && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(measurementSheet)}
+                        alt="Visualização da planilha de medição"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(measurementSheet)}
+                      />
+                      <p className={styles.fileName}>
+                        {measurementSheetFileName}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -20,6 +20,7 @@ import React, { createRef, useEffect, useRef, useState } from "react";
 import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 
 export default function NewPost() {
   const router = useRouter();
@@ -64,6 +65,7 @@ export default function NewPost() {
   const [managerName, setManagerName] = useState("");
   const [numMaquininhas, setNumMaquininhas] = useState(0);
   const [maquininhasImages, setMaquininhasImages] = useState<File[]>([]);
+  const [maquininhasImageUrls, setMaquininhasImageUrls] = useState<File[]>([]);
   const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
     []
   );
@@ -73,6 +75,33 @@ export default function NewPost() {
     .fill(null)
     .map((_, i) => maquininhasRefs.current[i] || createRef());
 
+  // Função para comprimir imagem
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
   const handleNumMaquininhasChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -80,25 +109,49 @@ export default function NewPost() {
     setNumMaquininhas(isNaN(value) ? 0 : value);
   };
 
-  const handleImageChange =
-    (index: string | number | undefined) =>
-    (event: { target: { files: any[] } }) => {
-      const file = event.target.files[0];
-      if (file) {
+  const handleImageChange = async (
+    index: number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `photoMachines/${getLocalISODate()}/${
+            compressedFile.name
+          }_${Date.now()}`
+        );
         setMaquininhasImages((prev) => {
           const newImages = [...prev];
-          // @ts-ignore
-          newImages[index] = file;
+          newImages[index] = compressedFile;
           return newImages;
         });
         setMaquininhasFileNames((prev) => {
           const newFileNames = [...prev];
-          // @ts-ignore
-          newFileNames[index] = file.name;
+          newFileNames[index] = compressedFile.name;
           return newFileNames;
         });
+        setMaquininhasImageUrls((prev) => {
+          const newUrls = [...prev];
+          // @ts-ignore
+          newUrls[index] = imageUrl;
+          return newUrls;
+        });
+      } catch (error) {
+        console.error(
+          `Erro ao fazer upload da imagem da maquininha ${index + 1}:`,
+          error
+        );
+        toast.error(`Erro ao salvar a imagem da maquininha ${index + 1}.`);
+      } finally {
+        setIsLoading(false);
       }
-    };
+    }
+  };
 
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
@@ -133,6 +186,7 @@ export default function NewPost() {
     setIsLoading(true);
 
     let missingField = "";
+
     const today = getLocalISODate();
     console.log(today);
 
@@ -140,12 +194,11 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
-    else if (maquininhasImages.length === 0)
+    else if (maquininhasImages.length === 0) {
       missingField = "Fotos das Maquininhas";
+    }
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -168,9 +221,10 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A foto das maquininhas das 22h já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
+
+    const images = maquininhasImageUrls.filter(Boolean);
 
     const photoMachinesData = {
       date,
@@ -178,28 +232,14 @@ export default function NewPost() {
       managerName: userName,
       userName,
       postName,
-      images: [],
+      images: images.map((imageUrl, index) => ({
+        fileName: maquininhasFileNames[index],
+        imageUrl,
+      })),
       id: "foto-maquininhas-22h",
     };
 
-    // Processamento paralelo dos uploads de imagens
-    const uploadPromises = maquininhasImages.map((imageFile, index) =>
-      uploadImageAndGetUrl(
-        imageFile,
-        `photoMachines/${date}/${imageFile.name}_${Date.now()}`
-      ).then((imageUrl) => {
-        return {
-          fileName: maquininhasFileNames[index],
-          imageUrl,
-        };
-      })
-    );
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      photoMachinesData.images = images;
-
       await sendMessage(photoMachinesData);
 
       const docRef = await addDoc(
@@ -213,6 +253,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar as fotos das maquininhas: ", error);
       toast.error("Erro ao salvar as fotos das maquininhas.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -273,48 +315,54 @@ export default function NewPost() {
     images: any;
     id?: string;
   }) {
-    const formattedDate = formatDate(data.date); // Suponha que você tenha uma função para formatar a data corretamente
+    const formattedDate = formatDate(data.date);
 
-    const imagesDescription = await Promise.all(
-      data.images.map(async (image: { imageUrl: string }, index: number) => {
-        const shortUrl = await shortenUrl(image.imageUrl);
-        return `*Maquininha ${index + 1}:* ${shortUrl}\n`;
-      })
-    ).then((descriptions) => descriptions.join("\n"));
+    try {
+      const imagesDescription = await Promise.all(
+        data.images.map(async (image: { imageUrl: string }, index: number) => {
+          const shortUrl = await shortenUrl(image.imageUrl);
+          return `*Maquininha ${index + 1}:* ${shortUrl}\n`;
+        })
+      ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
-    const messageBody = `*Nova Maquininhas às 22h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
+      const messageBody = `*Nova Maquininhas às 22h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
 
-    const postsRef = collection(db, "POSTS");
-    const q = query(postsRef, where("name", "==", data.postName));
-    const querySnapshot = await getDocs(q);
+      const postsRef = collection(db, "POSTS");
+      const q = query(postsRef, where("name", "==", data.postName));
+      const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-      console.error("Nenhum posto encontrado com o nome especificado.");
-      throw new Error("Posto não encontrado");
+      if (querySnapshot.empty) {
+        console.error("Nenhum posto encontrado com o nome especificado.");
+        throw new Error("Posto não encontrado");
+      }
+
+      const postData = querySnapshot.docs[0].data();
+      const managerContact = postData.managers[0].contact;
+
+      console.log("Manager Contact: ", managerContact);
+
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact,
+          messageBody,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        console.error("Falha ao enviar mensagem via WhatsApp: ", errorMessage);
+        throw new Error("Falha ao enviar mensagem via WhatsApp");
+      }
+
+      console.log("Mensagem das fotos das maquininhas enviada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar mensagem: ", error);
+      toast.error("Erro ao enviar mensagem.");
     }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.managers[0].contact;
-
-    console.log(managerContact);
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem das fotos das maquininhas enviada com sucesso!");
   }
 
   return (
@@ -413,18 +461,6 @@ export default function NewPost() {
                 ))}
 
               <div className={styles.InputContainer}>
-                {/* <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do gerente</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div> */}
-
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Número de maquininhas</p>
                   <input
@@ -449,7 +485,7 @@ export default function NewPost() {
                     // @ts-ignore
                     ref={(el) => (maquininhasRefs.current[index] = el)}
                     // @ts-ignore
-                    onChange={handleImageChange(index)}
+                    onChange={(e) => handleImageChange(index, e)}
                   />
                   <button
                     // @ts-ignore

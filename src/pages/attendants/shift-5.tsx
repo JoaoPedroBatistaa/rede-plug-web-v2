@@ -6,6 +6,8 @@ import HeaderNewProduct from "@/components/HeaderNewTask";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import imageCompression from "browser-image-compression";
+
 import {
   addDoc,
   collection,
@@ -125,9 +127,33 @@ export default function NewPost() {
   ]);
   const maquininhasRefs = useRef([createRef(), createRef()]);
 
-  const handleNumMaquininhasChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleNumMaquininhasChange = (event: { target: { value: string } }) => {
     const value = parseInt(event.target.value, 10);
     setNumMaquininhas(isNaN(value) ? 0 : value);
 
@@ -151,37 +177,62 @@ export default function NewPost() {
 
   const handleImageChange =
     (maquininhaIndex: number, imageIndex: number) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (event: { target: { files: any[] } }) => {
       // @ts-ignore
       const file = event.target.files[0];
       if (file) {
-        if (imageIndex < 2) {
-          // Para Filipeta Sistema Frente e Verso, use sempre os índices 0 e 1
-          setMaquininhasImages((prev) => {
-            const newImages = [...prev];
-            newImages[0][imageIndex] = file;
-            return newImages;
-          });
-          setMaquininhasFileNames((prev) => {
-            const newFileNames = [...prev];
-            newFileNames[0][imageIndex] = file.name;
-            return newFileNames;
-          });
-        } else {
-          // Para Filipeta Maquininha, use o índice da maquininha atual mais 2
-          setMaquininhasImages((prev) => {
-            const newImages = [...prev];
-            newImages[maquininhaIndex + 1][0] = file;
-            return newImages;
-          });
-          setMaquininhasFileNames((prev) => {
-            const newFileNames = [...prev];
-            newFileNames[maquininhaIndex + 1][0] = file.name;
-            return newFileNames;
-          });
+        if (!file.type.startsWith("image/")) {
+          console.error("O arquivo fornecido não é uma imagem");
+          toast.error("Por favor, selecione um arquivo de imagem.");
+          return;
+        }
+
+        setIsLoading(true);
+        try {
+          const compressedFile = await compressImage(file);
+          const imageUrl = await uploadImageAndGetUrl(
+            compressedFile,
+            `attendants/${getLocalISODate()}/${
+              compressedFile.name
+            }_${Date.now()}`
+          );
+
+          if (imageIndex < 2) {
+            // Para Filipeta Sistema Frente e Verso, use sempre os índices 0 e 1
+            setMaquininhasImages((prev) => {
+              const newImages = [...prev];
+              // @ts-ignore
+              newImages[0][imageIndex] = imageUrl;
+              return newImages;
+            });
+            setMaquininhasFileNames((prev) => {
+              const newFileNames = [...prev];
+              newFileNames[0][imageIndex] = compressedFile.name;
+              return newFileNames;
+            });
+          } else {
+            // Para Filipeta Maquininha, use o índice da maquininha atual mais 2
+            setMaquininhasImages((prev) => {
+              const newImages = [...prev];
+              // @ts-ignore
+              newImages[maquininhaIndex + 1][0] = imageUrl;
+              return newImages;
+            });
+            setMaquininhasFileNames((prev) => {
+              const newFileNames = [...prev];
+              newFileNames[maquininhaIndex + 1][0] = compressedFile.name;
+              return newFileNames;
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao fazer upload da imagem:", error);
+          toast.error("Erro ao fazer upload da imagem.");
+        } finally {
+          setIsLoading(false);
         }
       }
     };
+
   const handleInputChange =
     (setter: (arg0: any) => void) => (e: { target: { value: string } }) => {
       const value = e.target.value.replace(",", ".");
@@ -309,6 +360,11 @@ export default function NewPost() {
       return;
     }
 
+    const images = maquininhasImages.flatMap((imageFiles) =>
+      imageFiles.filter((image) => image !== null)
+    );
+    console.log(images);
+
     const taskData = {
       date,
       time,
@@ -333,29 +389,12 @@ export default function NewPost() {
       difference,
       observations,
       expenses,
-      images: [],
+      images,
       id: "turno-5",
     };
 
-    // Processamento paralelo dos uploads de imagens
-    const uploadPromises = maquininhasImages.flatMap(
-      (imageFiles, maquininhaIndex) =>
-        imageFiles.map((imageFile, imageIndex) =>
-          uploadImageAndGetUrl(
-            imageFile,
-            `attendants/${date}/${imageFile.name}_${Date.now()}`
-          ).then((imageUrl) => ({
-            fileName: maquininhasFileNames[maquininhaIndex][imageIndex],
-            imageUrl,
-          }))
-        )
-    );
-
     try {
-      const images = await Promise.all(uploadPromises);
       // @ts-ignore
-      taskData.images = images;
-
       await sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "ATTENDANTS"), taskData);
@@ -367,6 +406,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -441,7 +482,7 @@ export default function NewPost() {
     difference: any;
     observations: any;
     expenses: any;
-    images: { fileName: string; imageUrl: string }[];
+    images: string[];
   }) {
     const formattedDate = formatDate(data.date);
     const formattedExpenses = data.expenses
@@ -452,8 +493,11 @@ export default function NewPost() {
       .join("\n");
 
     const imagesDescription = await Promise.all(
-      data.images.map(async (image, index) => {
-        const shortUrl = await shortenUrl(image.imageUrl);
+      data.images.map(async (imageUrl, index) => {
+        if (!imageUrl) {
+          return "";
+        }
+        const shortUrl = await shortenUrl(imageUrl);
         if (index === 0) {
           return `*Filipeta Sistema Frente:* ${shortUrl}\n`;
         } else if (index === 1) {
@@ -463,7 +507,7 @@ export default function NewPost() {
           return `*Maquininha ${maquininhaIndex}:* Filipeta Maquininha - ${shortUrl}\n`;
         }
       })
-    ).then((descriptions) => descriptions.join("\n"));
+    ).then((descriptions) => descriptions.filter(Boolean).join("\n")); // Remove strings vazias
 
     const messageBody = `*Novo Relatório de Turno 05:*\n\nData: ${formattedDate}\nHora: ${
       data.time
@@ -635,9 +679,9 @@ export default function NewPost() {
                           style={{ display: "none" }}
                           ref={(el) => {
                             // @ts-ignore
-
                             maquininhasRefs.current[imageIndex] = el;
                           }}
+                          // @ts-ignore
                           onChange={handleImageChange(0, imageIndex)}
                         />
                         <button
@@ -654,9 +698,8 @@ export default function NewPost() {
                           maquininhasImages[0][imageIndex] && (
                             <div>
                               <img
-                                src={URL.createObjectURL(
-                                  maquininhasImages[0][imageIndex]
-                                )}
+                                // @ts-ignore
+                                src={maquininhasImages[0][imageIndex]}
                                 alt={`Preview da ${label}`}
                                 style={{
                                   maxWidth: "17.5rem",
@@ -702,6 +745,7 @@ export default function NewPost() {
 
                             maquininhasRefs.current[maquininhaIndex + 2] = el;
                           }}
+                          // @ts-ignore
                           onChange={handleImageChange(maquininhaIndex, 2)}
                         />
                         <button
@@ -719,9 +763,8 @@ export default function NewPost() {
                           maquininhasImages[maquininhaIndex + 1][0] && (
                             <div>
                               <img
-                                src={URL.createObjectURL(
-                                  maquininhasImages[maquininhaIndex + 1][0]
-                                )}
+                                // @ts-ignore
+                                src={maquininhasImages[maquininhaIndex + 1][0]}
                                 alt={`Preview da Filipeta Maquininha ${
                                   maquininhaIndex + 1
                                 }`}

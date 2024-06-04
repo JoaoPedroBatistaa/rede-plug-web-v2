@@ -17,7 +17,7 @@ export default async function handler(req: { method: string; body: { originalURL
 
       const payload = {
          originalURL,
-         domain: "ewja.short.gy",
+         domain: "fet9.short.gy",
       };
 
       console.log('Enviando payload para short.io:', payload);
@@ -33,7 +33,7 @@ export default async function handler(req: { method: string; body: { originalURL
                method: "POST",
                headers: {
                   "Content-Type": "application/json",
-                  Authorization: `sk_4rwgIKnBOzJxbwC7`,
+                  Authorization: `sk_vccmCLZ2nnJV3MqI`,
                },
                body: JSON.stringify(payload),
             });
