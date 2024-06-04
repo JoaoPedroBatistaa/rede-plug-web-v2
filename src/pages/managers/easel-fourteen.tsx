@@ -21,6 +21,8 @@ import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
+import imageCompression from "browser-image-compression";
+
 export default function NewPost() {
   const router = useRouter();
 
@@ -67,11 +69,40 @@ export default function NewPost() {
   const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
     []
   );
+  const [maquininhasImageUrls, setMaquininhasImageUrls] = useState<string[]>(
+    []
+  );
 
   const maquininhasRefs = useRef([]);
   maquininhasRefs.current = Array(numMaquininhas)
     .fill(null)
     .map((_, i) => maquininhasRefs.current[i] || createRef());
+
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 1, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
 
   const handleNumMaquininhasChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -83,22 +114,39 @@ export default function NewPost() {
   };
 
   const handleImageChange =
-    (index: string | number | undefined) =>
-    (event: { target: { files: any[] } }) => {
-      const file = event.target.files[0];
+    (index: number) => async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files ? event.target.files[0] : null;
       if (file) {
-        setMaquininhasImages((prev) => {
-          const newImages = [...prev];
-          // @ts-ignore
-          newImages[index] = file;
-          return newImages;
-        });
-        setMaquininhasFileNames((prev) => {
-          const newFileNames = [...prev];
-          // @ts-ignore
-          newFileNames[index] = file.name;
-          return newFileNames;
-        });
+        setIsLoading(true);
+        try {
+          const compressedFile = await compressImage(file);
+          const imageUrl = await uploadImageAndGetUrl(
+            compressedFile,
+            `verificationCavaletes/${getLocalISODate()}/cavalete_${
+              compressedFile.name
+            }_${Date.now()}`
+          );
+          setMaquininhasImages((prev) => {
+            const newImages = [...prev];
+            newImages[index] = compressedFile;
+            return newImages;
+          });
+          setMaquininhasFileNames((prev) => {
+            const newFileNames = [...prev];
+            newFileNames[index] = compressedFile.name;
+            return newFileNames;
+          });
+          setMaquininhasImageUrls((prev) => {
+            const newUrls = [...prev];
+            newUrls[index] = imageUrl;
+            return newUrls;
+          });
+        } catch (error) {
+          console.error("Erro ao fazer upload da imagem:", error);
+          toast.error("Erro ao salvar a imagem.");
+        } finally {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -142,17 +190,14 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
-    else if (maquininhasImages.length === 0)
+    else if (maquininhasImageUrls.length === 0)
       missingField = "Verficação dos cavaletes";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -171,51 +216,38 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A verificação dos cavaletes das 14h já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
 
-    const photoMachinesData = {
+    const verificationCavaletesData = {
       date,
       time,
       managerName: userName,
       userName,
       postName,
-      images: [],
+      images: maquininhasImageUrls.map((url, index) => ({
+        imageUrl: url,
+        fileName: maquininhasFileNames[index],
+      })),
       id: "verificacao-cavaletes-14h",
     };
 
-    // Processamento paralelo dos uploads de imagens
-    const uploadPromises = maquininhasImages.map((imageFile, index) =>
-      uploadImageAndGetUrl(
-        imageFile,
-        `photoMachines/${date}/${imageFile.name}_${Date.now()}`
-      ).then((imageUrl) => {
-        return {
-          fileName: maquininhasFileNames[index],
-          imageUrl,
-        };
-      })
-    );
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      photoMachinesData.images = images;
-
-      await sendMessage(photoMachinesData);
+      await sendMessage(verificationCavaletesData);
 
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
-        photoMachinesData
+        verificationCavaletesData
       );
-      console.log("Verificação dos cavaletes salvo com ID: ", docRef.id);
+      console.log("Verificação dos cavaletes salva com ID: ", docRef.id);
 
       toast.success("Verificação dos cavaletes salva com sucesso!");
       router.push("/manager-six-routine");
     } catch (error) {
       console.error("Erro ao salvar a verificação dos cavaletes: ", error);
       toast.error("Erro ao salvar a verificação dos cavaletes.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -276,7 +308,7 @@ export default function NewPost() {
     images: any;
     id?: string;
   }) {
-    const formattedDate = formatDate(data.date); // Suponha que você tenha uma função para formatar a data corretamente
+    const formattedDate = formatDate(data.date);
 
     const imagesDescription = await Promise.all(
       data.images.map(async (image: { imageUrl: string }, index: number) => {
@@ -285,7 +317,6 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Novo Cavaletes às 14h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
 
     const postsRef = collection(db, "POSTS");
@@ -317,7 +348,7 @@ export default function NewPost() {
       throw new Error("Falha ao enviar mensagem via WhatsApp");
     }
 
-    console.log("Mensagem das fotos das maquininhas enviada com sucesso!");
+    console.log("Mensagem da verificação dos cavaletes enviada com sucesso!");
   }
 
   return (

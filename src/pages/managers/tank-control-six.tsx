@@ -21,6 +21,8 @@ import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
+import imageCompression from "browser-image-compression";
+
 interface Nozzle {
   nozzleNumber: string;
   product: string;
@@ -73,17 +75,60 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
 
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
 
-  const handleEtanolFileChange = (
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleEtanolFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
-      setEtanolImage(file); // Consider renaming this state to setEtanolFile
-      setEtanolFileName(file.name);
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadFileAndGetUrl(
+          compressedFile,
+          `tankControl/${getLocalISODate()}/etanol_${
+            compressedFile.name
+          }_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(compressedFile.name);
+        setEtanolImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo de etanol:", error);
+        toast.error("Erro ao salvar o arquivo de etanol.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -116,7 +161,7 @@ export default function NewPost() {
     return date.toISOString().slice(0, 10);
   };
 
-  const saveFourthCashier = async () => {
+  const saveTankControl = async () => {
     setIsLoading(true);
     let missingField = "";
     const today = getLocalISODate();
@@ -126,25 +171,22 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
-    else if (!etanolImage) missingField = "Arquivo do controle de tanque"; // Consider changing the name to etanolFile for clarity
+    else if (!etanolImage) missingField = "Arquivo do controle de tanque";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
     const userName = localStorage.getItem("userName");
     const postName = localStorage.getItem("userPost");
 
-    const fourthCashierRef = collection(db, "MANAGERS");
+    const tankControlRef = collection(db, "MANAGERS");
     const q = query(
-      fourthCashierRef,
+      tankControlRef,
       where("date", "==", date),
       where("userName", "==", userName),
       where("id", "==", "controle-tanque-6h")
@@ -154,46 +196,27 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("O controle de tanque das 6h já foi cadastrado hoje!");
       setIsLoading(false);
-
       return;
     }
 
-    const fourthCashierData = {
+    const files = etanolImageUrl
+      ? [{ type: "Etanol", fileUrl: etanolImageUrl, fileName: etanolFileName }]
+      : [];
+
+    const tankControlData = {
       date,
       time,
       managerName: userName,
       userName,
       postName,
-      files: [], // Changed from images to files
+      files,
       id: "controle-tanque-6h",
     };
 
-    // Preparar os uploads dos arquivos
-    const uploadPromises = [];
-    if (etanolImage) {
-      // Consider changing the name to etanolFile for clarity
-      const etanolPromise = uploadFileAndGetUrl(
-        etanolImage, // Consider changing the name to etanolFile
-        `fourthCashier/${date}/etanol_${etanolFileName}_${Date.now()}`
-      ).then((fileUrl) => ({
-        type: "Etanol",
-        fileUrl,
-        fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
     try {
-      const files = await Promise.all(uploadPromises);
-      // @ts-ignore
-      fourthCashierData.files = files;
+      await sendMessage(tankControlData);
 
-      await sendMessage(fourthCashierData);
-
-      const docRef = await addDoc(
-        collection(db, "MANAGERS"),
-        fourthCashierData
-      );
+      const docRef = await addDoc(collection(db, "MANAGERS"), tankControlData);
       console.log("Controle de tanque salvo com ID: ", docRef.id);
 
       toast.success("Controle de tanque salvo com sucesso!");
@@ -201,9 +224,10 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar o controle de tanque: ", error);
       toast.error("Erro ao salvar o controle de tanque.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
   async function uploadFileAndGetUrl(file: File, path: string) {
     const storageRef = ref(storage, path);
     const uploadResult = await uploadBytes(storageRef, file);
@@ -256,7 +280,7 @@ export default function NewPost() {
     postName: any;
     managerName: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
     // Encurtar URLs dos arquivos e construir a descrição
     const filesDescription = await Promise.all(
@@ -298,7 +322,9 @@ export default function NewPost() {
       throw new Error("Falha ao enviar mensagem via WhatsApp");
     }
 
-    console.log("Mensagem da atualização do quarto caixa enviada com sucesso!");
+    console.log(
+      "Mensagem da atualização do controle de tanque enviada com sucesso!"
+    );
   }
 
   return (
@@ -322,7 +348,7 @@ export default function NewPost() {
               {!docId && (
                 <button
                   className={styles.FinishButton}
-                  onClick={saveFourthCashier}
+                  onClick={saveTankControl}
                 >
                   <img
                     src="/finishBudget.png"

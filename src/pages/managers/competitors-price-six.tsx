@@ -21,6 +21,8 @@ import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
+import imageCompression from "browser-image-compression";
+
 export default function NewPost() {
   const router = useRouter();
 
@@ -67,11 +69,40 @@ export default function NewPost() {
   const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
     []
   );
+  const [maquininhasImageUrls, setMaquininhasImageUrls] = useState<string[]>(
+    []
+  );
 
   const maquininhasRefs = useRef([]);
   maquininhasRefs.current = Array(numMaquininhas)
     .fill(null)
     .map((_, i) => maquininhasRefs.current[i] || createRef());
+
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
 
   const handleNumMaquininhasChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -83,22 +114,39 @@ export default function NewPost() {
   };
 
   const handleImageChange =
-    (index: string | number | undefined) =>
-    (event: { target: { files: any[] } }) => {
-      const file = event.target.files[0];
+    (index: number) => async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files ? event.target.files[0] : null;
       if (file) {
-        setMaquininhasImages((prev) => {
-          const newImages = [...prev];
-          // @ts-ignore
-          newImages[index] = file;
-          return newImages;
-        });
-        setMaquininhasFileNames((prev) => {
-          const newFileNames = [...prev];
-          // @ts-ignore
-          newFileNames[index] = file.name;
-          return newFileNames;
-        });
+        setIsLoading(true);
+        try {
+          const compressedFile = await compressImage(file);
+          const imageUrl = await uploadImageAndGetUrl(
+            compressedFile,
+            `competitorsPrice/${getLocalISODate()}/maquininha_${
+              compressedFile.name
+            }_${Date.now()}`
+          );
+          setMaquininhasImages((prev) => {
+            const newImages = [...prev];
+            newImages[index] = compressedFile;
+            return newImages;
+          });
+          setMaquininhasFileNames((prev) => {
+            const newFileNames = [...prev];
+            newFileNames[index] = compressedFile.name;
+            return newFileNames;
+          });
+          setMaquininhasImageUrls((prev) => {
+            const newUrls = [...prev];
+            newUrls[index] = imageUrl;
+            return newUrls;
+          });
+        } catch (error) {
+          console.error("Erro ao fazer upload da imagem:", error);
+          toast.error("Erro ao salvar a imagem.");
+        } finally {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -142,17 +190,14 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
-    else if (maquininhasImages.length === 0)
+    else if (maquininhasImageUrls.length === 0)
       missingField = "Preço dos concorrentes";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -171,7 +216,6 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("O preço dos concorrentes das 6h já foi feito hoje!");
       setIsLoading(false);
-
       return;
     }
 
@@ -181,28 +225,14 @@ export default function NewPost() {
       managerName: userName,
       userName,
       postName,
-      images: [],
+      images: maquininhasImageUrls.map((url, index) => ({
+        imageUrl: url,
+        fileName: maquininhasFileNames[index],
+      })),
       id: "preco-concorrentes-6h",
     };
 
-    // Processamento paralelo dos uploads de imagens
-    const uploadPromises = maquininhasImages.map((imageFile, index) =>
-      uploadImageAndGetUrl(
-        imageFile,
-        `competitorsPrice/${date}/${imageFile.name}_${Date.now()}`
-      ).then((imageUrl) => {
-        return {
-          fileName: maquininhasFileNames[index],
-          imageUrl,
-        };
-      })
-    );
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      photoMachinesData.images = images;
-
       await sendMessage(photoMachinesData);
 
       const docRef = await addDoc(
@@ -216,6 +246,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar o preço dos concorrentes: ", error);
       toast.error("Erro ao salvar o preço dos concorrentes.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -276,7 +308,7 @@ export default function NewPost() {
     images: any;
     id?: string;
   }) {
-    const formattedDate = formatDate(data.date); // Suponha que você tenha uma função para formatar a data corretamente
+    const formattedDate = formatDate(data.date);
 
     const imagesDescription = await Promise.all(
       data.images.map(async (image: { imageUrl: string }, index: number) => {
@@ -285,7 +317,6 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Novo Preço dos concorrentes às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
 
     const postsRef = collection(db, "POSTS");
@@ -319,7 +350,6 @@ export default function NewPost() {
 
     console.log("Mensagem das fotos das maquininhas enviada com sucesso!");
   }
-
   return (
     <>
       <Head>

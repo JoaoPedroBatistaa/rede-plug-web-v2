@@ -21,6 +21,8 @@ import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
+import imageCompression from "browser-image-compression";
+
 interface Nozzle {
   nozzleNumber: string;
   product: string;
@@ -77,18 +79,59 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
-
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
 
-  const handleEtanolImageChange = (
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 2, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files ? event.target.files[0] : null;
     if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `collect/${getLocalISODate()}/etanol_${
+            compressedFile.name
+          }_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(compressedFile.name);
+        setEtanolImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo de etanol:", error);
+        toast.error("Erro ao salvar o arquivo de etanol.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -140,16 +183,13 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do Gerente";
     else if (!etanolImage) missingField = "Foto do Recolhe";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -168,7 +208,6 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("O recolhe das 6h já foi cadastrado hoje!");
       setIsLoading(false);
-
       return;
     }
 
@@ -179,29 +218,19 @@ export default function NewPost() {
       userName,
       postName,
       collectValue,
-      images: [],
+      images: etanolImageUrl
+        ? [
+            {
+              type: "Etanol",
+              imageUrl: etanolImageUrl,
+              fileName: etanolFileName,
+            },
+          ]
+        : [],
       id: "recolhe-6h",
     };
 
-    // Preparar os uploads das imagens
-    const uploadPromises = [];
-    if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `collect/${date}/etanol_${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Etanol",
-        imageUrl,
-        fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      fuelTestData.images = images;
-
       await sendMessage(fuelTestData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), fuelTestData);
@@ -212,9 +241,10 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar o recolhe: ", error);
       toast.error("Erro ao salvar o recolhe.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
   async function uploadImageAndGetUrl(imageFile: File, path: string) {
     const storageRef = ref(storage, path);
     const uploadResult = await uploadBytes(storageRef, imageFile);
@@ -268,7 +298,7 @@ export default function NewPost() {
     postName: any;
     managerName: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
     // Encurtar URLs dos arquivos e construir a descrição
     const filesDescription = await Promise.all(
@@ -310,7 +340,7 @@ export default function NewPost() {
       throw new Error("Falha ao enviar mensagem via WhatsApp");
     }
 
-    console.log("Mensagem da atualização do quarto caixa enviada com sucesso!");
+    console.log("Mensagem da atualização do recolhe enviada com sucesso!");
   }
 
   return (
