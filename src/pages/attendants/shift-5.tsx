@@ -178,7 +178,6 @@ export default function NewPost() {
   const handleImageChange =
     (maquininhaIndex: number, imageIndex: number) =>
     async (event: { target: { files: any[] } }) => {
-      // @ts-ignore
       const file = event.target.files[0];
       if (file) {
         if (!file.type.startsWith("image/")) {

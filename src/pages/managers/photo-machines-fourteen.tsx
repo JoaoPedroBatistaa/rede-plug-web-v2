@@ -118,21 +118,28 @@ export default function NewPost() {
       const file = files[0];
       setIsLoading(true);
       try {
-        const compressedFile = await compressImage(file);
+        let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
         const imageUrl = await uploadImageAndGetUrl(
-          compressedFile,
+          processedFile,
           `photoMachines/${getLocalISODate()}/${
-            compressedFile.name
+            processedFile.name
           }_${Date.now()}`
         );
+
         setMaquininhasImages((prev) => {
           const newImages = [...prev];
-          newImages[index] = compressedFile;
+          newImages[index] = processedFile;
           return newImages;
         });
         setMaquininhasFileNames((prev) => {
           const newFileNames = [...prev];
-          newFileNames[index] = compressedFile.name;
+          newFileNames[index] = processedFile.name;
           return newFileNames;
         });
         setMaquininhasImageUrls((prev) => {

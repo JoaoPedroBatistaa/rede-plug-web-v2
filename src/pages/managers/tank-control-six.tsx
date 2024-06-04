@@ -113,15 +113,22 @@ export default function NewPost() {
     if (file) {
       setIsLoading(true);
       try {
-        const compressedFile = await compressImage(file);
+        let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
         const imageUrl = await uploadFileAndGetUrl(
-          compressedFile,
+          processedFile,
           `tankControl/${getLocalISODate()}/etanol_${
-            compressedFile.name
+            processedFile.name
           }_${Date.now()}`
         );
-        setEtanolImage(compressedFile);
-        setEtanolFileName(compressedFile.name);
+
+        setEtanolImage(processedFile);
+        setEtanolFileName(processedFile.name);
         setEtanolImageUrl(imageUrl);
       } catch (error) {
         console.error("Erro ao fazer upload do arquivo de etanol:", error);

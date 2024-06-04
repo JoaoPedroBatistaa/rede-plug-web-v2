@@ -155,13 +155,20 @@ export default function NewPost() {
       const file = files[0];
       setIsLoading(true);
       try {
-        const compressedFile = await compressImage(file);
+        let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
         const imageUrl = await uploadImageAndGetUrl(
-          compressedFile,
-          `measurementSheets/${compressedFile.name}_${Date.now()}`
+          processedFile,
+          `measurementSheets/${processedFile.name}_${Date.now()}`
         );
-        setMeasurementSheet(compressedFile);
-        setMeasurementSheetFileName(compressedFile.name);
+
+        setMeasurementSheet(processedFile);
+        setMeasurementSheetFileName(processedFile.name);
         setMeasurementSheetUrl(imageUrl);
       } catch (error) {
         console.error("Erro ao fazer upload da planilha de medição:", error);
@@ -256,18 +263,25 @@ export default function NewPost() {
       const file = files[0];
       setIsLoading(true);
       try {
-        const compressedFile = await compressImage(file);
+        let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
         const imageUrl = await uploadImageAndGetUrl(
-          compressedFile,
-          `tankMeasurements/${tankNumber}/${compressedFile.name}_${Date.now()}`
+          processedFile,
+          `tankMeasurements/${tankNumber}/${processedFile.name}_${Date.now()}`
         );
+
         setTankImages((prev) => ({
           ...prev,
-          [tankNumber]: compressedFile,
+          [tankNumber]: processedFile,
         }));
         setTankFileNames((prev) => ({
           ...prev,
-          [tankNumber]: compressedFile.name,
+          [tankNumber]: processedFile.name,
         }));
         setTankImageUrls((prev) => ({ ...prev, [tankNumber]: imageUrl }));
       } catch (error) {
@@ -281,7 +295,6 @@ export default function NewPost() {
       }
     }
   };
-
   useEffect(() => {
     const refs = tanks.reduce((acc, tank) => {
       // @ts-ignore

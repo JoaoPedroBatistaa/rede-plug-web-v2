@@ -122,15 +122,22 @@ export default function NewPost() {
       const file = files[0];
       setIsLoading(true);
       try {
-        const compressedFile = await compressImage(file);
+        let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
         const imageUrl = await uploadImageAndGetUrl(
-          compressedFile,
+          processedFile,
           `fuelTests/${getLocalISODate()}/etanol_${
-            compressedFile.name
+            processedFile.name
           }_${Date.now()}`
         );
-        setEtanolImage(compressedFile);
-        setEtanolFileName(compressedFile.name);
+
+        setEtanolImage(processedFile);
+        setEtanolFileName(processedFile.name);
         // @ts-ignore
         setEtanolImageUrl(imageUrl);
       } catch (error) {
@@ -150,15 +157,22 @@ export default function NewPost() {
       const file = files[0];
       setIsLoading(true);
       try {
-        const compressedFile = await compressImage(file);
+        let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
         const imageUrl = await uploadImageAndGetUrl(
-          compressedFile,
+          processedFile,
           `fuelTests/${getLocalISODate()}/gc_${
-            compressedFile.name
+            processedFile.name
           }_${Date.now()}`
         );
-        setGcImage(compressedFile);
-        setGcFileName(compressedFile.name);
+
+        setGcImage(processedFile);
+        setGcFileName(processedFile.name);
         // @ts-ignore
         setGcImageUrl(imageUrl);
       } catch (error) {
