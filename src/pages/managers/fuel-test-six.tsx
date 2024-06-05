@@ -360,16 +360,30 @@ export default function NewPost() {
   }) {
     const formattedDate = formatDate(data.date);
 
-    // Construir a descrição das imagens
     const imagesDescription = await Promise.all(
-      data.images.map(async (image: { type: any; imageUrl: any }) => {
+      data.images.map(async (image: { imageUrl: string; type: any }) => {
         const shortUrl = await shortenUrl(image.imageUrl);
-        return `*Imagem do ${image.type}:* ${shortUrl}\n`;
+        return { type: image.type, url: shortUrl };
       })
-    ).then((descriptions) => descriptions.join("\n"));
+    );
 
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Teste de Combustíveis às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Temperatura do Etanol:* ${data.ethanolTemperature}\n*Peso do Etanol:* ${data.ethanolWeight}\n*Qualidade da Gasolina:* ${data.gasolineQuality}\n\n*Imagens do teste*\n\n${imagesDescription}`;
+    const ethanolImage = imagesDescription.find(
+      (image) => image.type === "Etanol"
+    );
+    const gcImage = imagesDescription.find((image) => image.type === "GC");
+
+    const messageBody =
+      `*Novo Teste de Combustíveis às 6h*\n\n` +
+      `*Data:* ${formattedDate}\n` +
+      `*Hora:* ${data.time}\n` +
+      `*Posto:* ${data.postName}\n` +
+      `*Gerente:* ${data.managerName}\n\n` +
+      `*Temperatura do Etanol:* ${data.ethanolTemperature}\n` +
+      `*Peso do Etanol:* ${data.ethanolWeight}\n` +
+      (ethanolImage ? `*Imagem do Etanol:* ${ethanolImage.url}\n\n` : "\n") +
+      `*Qualidade da Gasolina:* ${data.gasolineQuality}\n` +
+      (gcImage ? `*Imagem do GC:* ${gcImage.url}\n\n` : "\n");
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));

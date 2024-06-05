@@ -380,18 +380,20 @@ export default function NewPost() {
 
         const imageUrl = pump.image1.url
           ? await shortenUrl(pump.image1.url)
-          : "Sem imagem";
+          : "*Sem imagem*";
         return `*Tanque ${index + 1}:* ${status}\nImagem: ${imageUrl}\n`;
       })
     ).then((descriptions) => descriptions.join("\n"));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Bocas de Visita*\n\nData: ${formattedDate}\nPosto: ${
-      data.postName
-    }\nSupervisor: ${
+    const messageBody = `*Bocas de Visita*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+      data.time
+    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
       data.supervisorName
-    }\n\n*Detalhes das Bocas de Visita*\n\n${pumpDescriptions}\nObservações: ${
-      data.observations || "Sem observações adicionais"
+    }\n\n*Detalhes das Bocas de Visita*\n\n${pumpDescriptions}\n\n${
+      data.observations
+        ? `*Observações:* ${data.observations}`
+        : "_*Sem observações adicionais*_"
     }`;
 
     const postsRef = collection(db, "USERS");

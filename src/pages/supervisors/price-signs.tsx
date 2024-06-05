@@ -173,10 +173,10 @@ export default function NewPost() {
     // Montar o corpo da mensagem
     const status = data.isOk === "yes" ? "OK" : "NÃO OK";
     const observationsMsg = data.observations
-      ? `Observações: ${data.observations}`
-      : "Sem observações adicionais";
+      ? `*Observações:* ${data.observations}`
+      : "_*Sem observações adicionais*_";
 
-    const messageBody = `*Placas e faixas de preço*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\nStatus: ${status}\nQuantidade: ${data.qtd}\n${observationsMsg}`;
+    const messageBody = `*Placas e faixas de preço*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Supervisor:* ${data.supervisorName}\n\n*Status:* ${status}\n*Quantidade:* ${data.qtd}\n\n\n${observationsMsg}`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));

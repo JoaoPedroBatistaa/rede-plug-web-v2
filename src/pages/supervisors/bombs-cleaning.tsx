@@ -384,22 +384,26 @@ export default function NewPost() {
         const status = pump.ok === "yes" ? "OK" : "NÃO OK";
 
         const imageInfo1 = pump.image1.url
-          ? `Imagem 1: ${await shortenUrl(pump.image1.url)}`
-          : "Sem imagem 1";
+          ? `*Imagem 1:* ${await shortenUrl(pump.image1.url)}`
+          : "*Sem imagem 1*";
         const imageInfo2 = pump.image2.url
-          ? `Imagem 2: ${await shortenUrl(pump.image2.url)}`
-          : "Sem imagem 2";
-        return `Bomba ${index + 1}: ${status}\n${imageInfo1}\n${imageInfo2}\n`;
+          ? `*Imagem 2:* ${await shortenUrl(pump.image2.url)}`
+          : "*Sem imagem 2*";
+        return `*Bomba ${
+          index + 1
+        }:* ${status}\n${imageInfo1}\n${imageInfo2}\n`;
       })
     ).then((descriptions) => descriptions.join("\n"));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Limpeza das Bombas*\n\nData: ${formattedDate}\nPosto: ${
-      data.postName
-    }\nSupervisor: ${
+    const messageBody = `*Limpeza das Bombas*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+      data.time
+    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
       data.supervisorName
-    }\n\n*Detalhes das Bombas*\n\n${pumpDescriptions}\nObservações: ${
-      data.observations || "Sem observações adicionais"
+    }\n\n*Detalhes das Bombas*\n\n${pumpDescriptions}\n${
+      data.observations
+        ? `Observações: ${data.observations}`
+        : "_*Sem observações adicionais*_"
     }`;
 
     const postsRef = collection(db, "USERS");

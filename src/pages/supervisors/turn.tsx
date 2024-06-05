@@ -265,26 +265,45 @@ export default function NewPost() {
 
     // Montar o corpo da mensagem
     const etanolStatus =
-      data.isEtanolOk === "yes" ? "Etanol: OK" : "Etanol: NÃO OK";
+      data.isEtanolOk === "yes" ? "*Etanol:* OK" : "*Etanol:* NÃO OK";
 
     const gasolinaStatus =
-      data.isGasolinaOk === "yes" ? "Gasolina: OK" : "Gasolina: NÃO OK";
+      data.isGasolinaOk === "yes" ? "*Gasolina:* OK" : "*Gasolina:* NÃO OK";
 
-    const observationsMsg = data.observations
-      ? `Observações: ${data.observations}`
-      : "Sem observações adicionais";
+    let etanolImage = "";
+    let gasolinaImage = "";
+    let otherImages = "";
 
-    let imagesDescription = "";
     if (data.images && data.images.length > 0) {
-      imagesDescription = await Promise.all(
+      await Promise.all(
         data.images.map(async (image, index) => {
           const shortUrl = await shortenUrl(image.imageUrl);
-          return `Imagem (${image.type}): ${shortUrl}\n`;
+          if (image.type === "Etanol") {
+            etanolImage = `*Imagem ${index + 1} (Etanol):* ${shortUrl}\n`;
+          } else if (image.type === "GC") {
+            gasolinaImage = `*Imagem ${index + 1} (GC):* ${shortUrl}\n`;
+          } else {
+            otherImages += `*Imagem ${index + 1}:* ${shortUrl}\n`;
+          }
         })
-      ).then((descriptions) => descriptions.join("\n"));
+      );
     }
 
-    const messageBody = `*Vira*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\n*Status dos Combustíveis*\n\n${etanolStatus}\n${gasolinaStatus}\n\n${observationsMsg}\n\n*Detalhes das Imagens*\n\n${imagesDescription}`;
+    const observationsMsg = data.observations
+      ? `*Observações*: ${data.observations}\n`
+      : "Sem observações adicionais";
+
+    const messageBody =
+      `*Vira*\n\n` +
+      `*Data:* ${formattedDate}\n` +
+      `*Hora:* ${data.time}\n` +
+      `*Posto:* ${data.postName}\n` +
+      `*Supervisor:* ${data.supervisorName}\n\n` +
+      `${etanolStatus}\n` +
+      `${etanolImage}\n` +
+      `${gasolinaStatus}\n` +
+      `${gasolinaImage}\n\n` +
+      `${observationsMsg}`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));

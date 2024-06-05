@@ -260,17 +260,13 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assume uma função de formatação de data existente
 
     // Construir a descrição das vendas
-    const salesDescription = `*Vendas de Etanol:* ${Number(
-      data.etSales
-    ).toFixed(3)} litros\n*Vendas de Gasolina Comum:* ${Number(
-      data.gcSales
-    ).toFixed(3)} litros\n*Vendas de Gasolina Aditivada:* ${Number(
-      data.gaSales
-    ).toFixed(3)} litros\n*Vendas de Diesel S10:* ${Number(
-      data.s10Sales
-    ).toFixed(3)} litros\n*Total Vendido:* ${Number(data.totalOutput).toFixed(
+    const salesDescription = `*ET:* ${Number(data.etSales).toFixed(
       3
-    )}`;
+    )} litros\n*GC:* ${Number(data.gcSales).toFixed(3)} litros\n*GA:* ${Number(
+      data.gaSales
+    ).toFixed(3)} litros\n*S10:* ${Number(data.s10Sales).toFixed(
+      3
+    )} litros\n*Total Vendido:* ${Number(data.totalOutput).toFixed(3)}`;
 
     // Construir a descrição das imagens, se houver
     let imagesDescription = "";
@@ -283,7 +279,7 @@ export default function NewPost() {
     }
 
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Vendas do Dia Anterior às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes das Vendas*\n${salesDescription}\n\n*Detalhes das Imagens*\n${imagesDescription}`;
+    const messageBody = `*Novo Vendas do Dia Anterior às 6h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes das Vendas*\n${salesDescription}\n\n`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));

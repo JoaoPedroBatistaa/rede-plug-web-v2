@@ -323,7 +323,7 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n\n"));
 
-    const messageBody = `*Novo Encerrante dos Bicos às 22h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nResponsável: ${data.managerName}\n\n*Imagens dos Encerrantes*\n\n${imagesDetails}`;
+    const messageBody = `*Novo Encerrante dos Bicos às 22h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Responsável:* ${data.managerName}\n\n*Imagens dos Encerrantes*\n\n${imagesDetails}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));

@@ -350,15 +350,17 @@ export default function NewPost() {
 
         return `*Bomba ${index + 1}:* ${status}\n`;
       })
-    ).then((descriptions) => descriptions.join("\n"));
+    ).then((descriptions) => descriptions.join(""));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Passagem de bomba*\n\nData: ${formattedDate}\nPosto: ${
-      data.postName
-    }\nSupervisor: ${
+    const messageBody = `*Passagem de bomba*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+      data.time
+    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
       data.supervisorName
-    }\n\n*Detalhes das Bocas de Visita*\n\n${pumpDescriptions}\nObservações: ${
-      data.observations || "Sem observações adicionais"
+    }\n\n${pumpDescriptions}\n\n${
+      data.observations
+        ? `*Observações:* ${data.observations}`
+        : "_*Sem observações adicionais*_"
     }`;
 
     const postsRef = collection(db, "USERS");

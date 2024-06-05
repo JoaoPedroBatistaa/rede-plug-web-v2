@@ -190,15 +190,19 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
 
     // Montar o corpo da mensagem
-    const messageBody = `*Escala de Trabalho*\n\nData: ${formattedDate}\nPosto: ${
-      data.postName
-    }\nSupervisor: ${
+    const messageBody = `*Escala de Trabalho*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+      data.time
+    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
       data.supervisorName
-    }\n\n*Detalhes dos turnos*\n\nTurno 1: ${data.qtdTurn1}\nTurno 2: ${
+    }\n\n*Detalhes dos turnos*\n\n*Turno 1:* ${data.qtdTurn1}\n*Turno 2:* ${
       data.qtdTurn2
-    }\nTurno 3: ${data.qtdTurn3}\nIntermediário: ${
+    }\n*Turno 3:* ${data.qtdTurn3}\n*Intermediário:* ${
       data.qtdIntermediate
-    }\n\nObservações: ${data.observations || "Sem observações adicionais"}`;
+    }\n\n\n${
+      data.observations
+        ? `*Observações:* ${data.observations}`
+        : "_*Sem observações adicionais*_"
+    }`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));

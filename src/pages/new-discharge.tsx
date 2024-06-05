@@ -222,14 +222,28 @@ export default function NewPost() {
     const selectedTankNumber = e.target.value;
     setSelectedTank(selectedTankNumber);
 
-    const selectedTank = tanks.find(
-      (tank) => tank.tankNumber === selectedTankNumber
+    // Verifique o tipo de e.target.value
+    console.log("Tipo de e.target.value:", typeof selectedTankNumber);
+    console.log("Valor de e.target.value:", selectedTankNumber);
+
+    // Verifique os tipos e valores em tanks
+    tanks.forEach((tank) => {
+      console.log("Tipo de tank.tankNumber:", typeof tank.tankNumber);
+      console.log("Valor de tank.tankNumber:", tank.tankNumber);
+    });
+
+    // Verifique se estamos encontrando o tanque correto
+    const selectTank = tanks.find(
+      (tank) => Number(tank.tankNumber) === Number(selectedTankNumber)
     );
-    if (selectedTank) {
-      const description = `Tanque ${selectedTank.tankNumber} - ${selectedTank.capacity}L (${selectedTank.product}) - ${selectedTank.saleDefense}`;
+
+    if (selectTank) {
+      const description = `Tanque ${selectTank.tankNumber} - (${selectTank.product}) ${selectTank.saleDefense}`;
+      console.log("TANQUE", description);
       setSelectedTankDescription(description);
     } else {
       setSelectedTankDescription("");
+      console.log("TANQUE não encontrado");
     }
   };
 
@@ -464,39 +478,40 @@ export default function NewPost() {
       const images = [
         {
           imageUrl: updatedData.truckPlateImage,
-          description: "Placa do Caminhão",
+          description: "Imagem da Placa do Caminhão",
         },
         {
           imageUrl: updatedData.initialMeasurement.fileUrl,
-          description: "Medição Inicial",
+          description: "Imagem da Medição Inicial",
         },
         {
           imageUrl: updatedData.finalMeasurement.fileUrl,
-          description: "Medição Final",
+          description: "Imagem da Medição Final",
         },
       ];
+
       if (updatedData.seal.fileUrl) {
         images.push({
           imageUrl: updatedData.seal.fileUrl,
-          description: "Lacre",
+          description: "Imagem do Lacre",
         });
       }
       if (updatedData.hydration.fileUrl) {
         images.push({
           imageUrl: updatedData.hydration.fileUrl,
-          description: "Hidratação",
+          description: "Imagem da Hidratação",
         });
       }
       if (updatedData.productQualityImage) {
         images.push({
           imageUrl: updatedData.productQualityImage,
-          description: "Qualidade do Produto",
+          description: "Imagem da Qualidade do Produto",
         });
       }
       if (updatedData.weightTemperatureImage) {
         images.push({
           imageUrl: updatedData.weightTemperatureImage,
-          description: "Peso e Temperatura",
+          description: "Imagem do Peso e Temperatura",
         });
       }
 
@@ -723,10 +738,10 @@ export default function NewPost() {
         data.images.map(
           async (image: { imageUrl: string; description: any }) => {
             const shortUrl = await shortenUrl(image.imageUrl);
-            return `*${image.description}:* ${shortUrl}\n`;
+            return { description: image.description, url: shortUrl };
           }
         )
-      ).then((descriptions) => descriptions.join("\n"));
+      );
 
       let messageBody = `*Nova Descarga Realizada*\n\n`;
 
@@ -736,6 +751,9 @@ export default function NewPost() {
       if (data.time) {
         messageBody += `*Hora*: ${data.time}\n`;
       }
+      if (data.postName) {
+        messageBody += `*Posto*: ${data.postName}\n`;
+      }
       if (data.makerName) {
         messageBody += `*Responsável*: ${data.makerName}\n\n`;
       }
@@ -743,31 +761,79 @@ export default function NewPost() {
         messageBody += `*Motorista*: ${data.driverName}\n`;
       }
       if (data.truckPlate) {
-        messageBody += `*Placa do Caminhão*: ${data.truckPlate}\n\n`;
+        messageBody += `*Placa do Caminhão*: ${data.truckPlate}\n`;
+        const truckPlateImage = imagesDescription.find(
+          (img: { description: string }) =>
+            img.description === "Imagem da Placa do Caminhão"
+        );
+        if (truckPlateImage) {
+          messageBody += `Placa do Caminhão: ${truckPlateImage.url}\n\n`;
+        }
       }
-      if (data.postName) {
-        messageBody += `*Posto*: ${data.postName}\n`;
+      if (data.arrow?.selection) {
+        messageBody += `*Posição da Seta*: ${
+          data.arrow.position ? data.arrow.position : "NÃO"
+        }\n`;
+      }
+      if (data.seal?.selection === "SIM") {
+        messageBody += `*Lacre*: SIM\n`;
+      } else {
+        messageBody += `*Lacre*: NÃO\n`;
+      }
+      if (data.seal?.selection === "SIM") {
+        for (const [index, fileUrl] of data.seal.fileUrls.entries()) {
+          const shortUrl = await shortenUrl(fileUrl);
+          messageBody += `*Lacre ${index + 1}:* ${shortUrl}\n`;
+        }
       }
       if (data.tankNumber) {
-        messageBody += `*Tanque*: ${data.selectedTankDescription}\n`;
+        messageBody += `\n*Tanque*: ${data.selectedTankDescription}\n`;
       }
       if (data.product) {
         messageBody += `*Produto*: ${data.product}\n`;
-      }
-      if (data.productQuality) {
-        messageBody += `*Qualidade do Produto*: ${data.productQuality}\n`;
       }
       if (data.weight) {
         messageBody += `*Peso*: ${data.weight}\n`;
       }
       if (data.temperature) {
-        messageBody += `*Temperatura*: ${data.temperature}\n\n`;
+        messageBody += `*Temperatura*: ${data.temperature}\n`;
+        const weightTemperatureImage = imagesDescription.find(
+          (img) => img.description === "Imagem do Peso e Temperatura"
+        );
+        if (weightTemperatureImage) {
+          messageBody += `*Peso e Temperatura:* ${weightTemperatureImage.url}\n\n`;
+        }
       }
+      if (data.productQuality) {
+        messageBody += `*Qualidade do Produto*: ${data.productQuality}\n`;
+        const productQualityImage = imagesDescription.find(
+          (img: { description: string }) =>
+            img.description === "Imagem da Qualidade do Produto"
+        );
+        if (productQualityImage) {
+          messageBody += `*Qualidade do Produto:* ${productQualityImage.url}\n\n`;
+        }
+      }
+
       if (data.initialMeasurement?.cm) {
         messageBody += `*Medição Inicial*: ${data.initialMeasurement.cm}\n`;
+        const initialMeasurementImage = imagesDescription.find(
+          (img: { description: string }) =>
+            img.description === "Imagem da Medição Inicial"
+        );
+        if (initialMeasurementImage) {
+          messageBody += `*Medição Inicial:* ${initialMeasurementImage.url}\n`;
+        }
       }
       if (data.finalMeasurement?.cm) {
-        messageBody += `*Medição Final*: ${data.finalMeasurement.cm}\n\n`;
+        messageBody += `*Medição Final*: ${data.finalMeasurement.cm}\n`;
+        const finalMeasurementImage = imagesDescription.find(
+          (img: { description: string }) =>
+            img.description === "Imagem da Medição Final"
+        );
+        if (finalMeasurementImage) {
+          messageBody += `*Medição Final:* ${finalMeasurementImage.url}\n`;
+        }
       }
       if (data.initialLiters) {
         messageBody += `*Litros Iniciais*: ${data.initialLiters}\n`;
@@ -778,31 +844,19 @@ export default function NewPost() {
       if (data.totalLiters) {
         messageBody += `${data.totalLiters}\n\n`;
       }
-      if (data.seal?.selection === "SIM") {
-        messageBody += `*Lacre*: SIM\n`;
-      } else {
-        messageBody += `*Lacre*: NÃO\n`;
-      }
-      if (data.arrow?.selection) {
-        messageBody += `*Posição da Seta*: ${
-          data.arrow.position ? data.arrow.position : "NÃO"
-        }\n`;
-      }
+
       if (data.hydration?.value) {
-        messageBody += `*Hidratação*: ${data.hydration.value}\n\n`;
+        messageBody += `*Hidratação*: ${data.hydration.value}\n`;
+        const hydrationImage = imagesDescription.find(
+          (img) => img.description === "Imagem da Hidratação"
+        );
+        if (hydrationImage) {
+          messageBody += `*Hidratação:* ${hydrationImage.url}\n\n`;
+        }
       }
 
       if (data.observations) {
         messageBody += `*Observações*: ${data.observations}\n`;
-      }
-
-      messageBody += `\n*Imagens da descarga*\n\n${imagesDescription}`;
-
-      if (data.seal?.selection === "SIM") {
-        for (const [index, fileUrl] of data.seal.fileUrls.entries()) {
-          const shortUrl = await shortenUrl(fileUrl);
-          messageBody += `\n*Lacre ${index + 1}:* ${shortUrl}\n`;
-        }
       }
 
       const postsRef = collection(db, "POSTS");

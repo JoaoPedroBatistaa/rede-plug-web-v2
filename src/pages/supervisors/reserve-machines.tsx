@@ -232,6 +232,7 @@ export default function NewPost() {
   async function sendMessage(data: {
     date: string | number | Date;
     isOk: any;
+    time: any;
     qtd: any;
 
     observations: any;
@@ -243,20 +244,20 @@ export default function NewPost() {
 
     // Montar o corpo da mensagem
     const observationsMsg = data.observations
-      ? `Observações: ${data.observations}`
-      : "Sem observações adicionais";
+      ? `*Observações:* ${data.observations}`
+      : "_*Sem observações adicionais*_";
 
     let imagesDescription = "";
     if (data.images && data.images.length > 0) {
       imagesDescription = await Promise.all(
         data.images.map(async (image, index) => {
           const shortUrl = await shortenUrl(image.imageUrl);
-          return `Imagem ${index + 1}: ${shortUrl}\n`;
+          return `*Imagem ${index + 1}:* ${shortUrl}\n`;
         })
       ).then((descriptions) => descriptions.join("\n"));
     }
 
-    const messageBody = `*Maquininhas reservas*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\nMaquininhas: ${data.qtd}\n${observationsMsg}\n\n*Detalhes das Imagens*\n\n${imagesDescription}`;
+    const messageBody = `*Maquininhas reservas*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Supervisor:* ${data.supervisorName}\n\n*Maquininhas reservas:* ${data.qtd}\n${imagesDescription}\n\n${observationsMsg}`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));

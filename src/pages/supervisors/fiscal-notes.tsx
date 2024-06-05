@@ -264,20 +264,20 @@ export default function NewPost() {
 
     const status = data.isOk === "yes" ? "OK" : "NÃO OK";
     const observationsMsg = data.observations
-      ? `Observações: ${data.observations}`
-      : "Sem observações adicionais";
+      ? `*Observações:* ${data.observations}`
+      : "_*Sem observações adicionais*_";
 
     let imagesDescription = "";
     if (data.images && data.images.length > 0) {
       imagesDescription = await Promise.all(
         data.images.map(async (image, index) => {
           const shortUrl = await shortenUrl(image.imageUrl);
-          return `Imagem ${index + 1} (${image.type}): ${shortUrl}\n`;
+          return `*Imagem ${index + 1}:* ${shortUrl}\n`;
         })
-      ).then((descriptions) => descriptions.join("\n"));
+      ).then((descriptions) => descriptions.join(""));
     }
 
-    const messageBody = `*Notas Fiscais*\n\nData: ${formattedDate}\nPosto: ${data.postName}\nSupervisor: ${data.supervisorName}\n\nStatus: ${status}\n${observationsMsg}\n\n*Detalhes das Imagens*\n\n${imagesDescription}`;
+    const messageBody = `*Notas Fiscais*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Supervisor:* ${data.supervisorName}\n\n*Status:* ${status}\n${imagesDescription}\n\n${observationsMsg}`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));

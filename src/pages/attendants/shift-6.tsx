@@ -487,7 +487,7 @@ export default function NewPost() {
     const formattedExpenses = data.expenses
       .map(
         (exp: { expenseType: any; expenseValue: any }) =>
-          `Tipo: ${exp.expenseType}, Valor: R$ ${exp.expenseValue}`
+          `*Tipo:* ${exp.expenseType}, *Valor:* R$ ${exp.expenseValue}`
       )
       .join("\n");
 
@@ -503,40 +503,42 @@ export default function NewPost() {
           return `*Filipeta Sistema Verso:* ${shortUrl}\n`;
         } else {
           const maquininhaIndex = index - 1;
-          return `*Maquininha ${maquininhaIndex}:* Filipeta Maquininha - ${shortUrl}\n`;
+          return `*Filipeta Maquininha ${maquininhaIndex}:* ${shortUrl}\n`;
         }
       })
     ).then((descriptions) => descriptions.filter(Boolean).join("\n")); // Remove strings vazias
 
-    const messageBody = `*Novo Relatório de Turno 06:*\n\nData: ${formattedDate}\nHora: ${
+    const messageBody = `*Novo Relatório de Turno 06:*\n\n*Data:* ${formattedDate}\n*Hora:* ${
       data.time
-    }\nPosto: ${data.postName}\nResponsável: ${
+    }\n*Posto:* ${data.postName}\n*Responsável:* ${
       data.attendant
-    }\n\n*Vendas*\n\nET: R$ ${(
+    }\n\n*Vendas*\n*ET:* R$ ${(
       Number(data.etPrice) * Number(data.etSales)
-    ).toFixed(2)} (${Number(data.etSales).toFixed(3)} litros)\nGC: R$ ${(
+    ).toFixed(2)} (*${Number(data.etSales).toFixed(3)} litros*)\n*GC:* R$ ${(
       Number(data.gcPrice) * Number(data.gcSales)
-    ).toFixed(2)} (${Number(data.gcSales).toFixed(3)} litros)\nGA: R$ ${(
+    ).toFixed(2)} (*${Number(data.gcSales).toFixed(3)} litros*)\n*GA:* R$ ${(
       Number(data.gaPrice) * Number(data.gaSales)
-    ).toFixed(2)} (${Number(data.gaSales).toFixed(3)} litros)\nS10: R$ ${(
+    ).toFixed(2)} (*${Number(data.gaSales).toFixed(3)} litros*)\n*S10:* R$ ${(
       Number(data.s10Price) * Number(data.s10Sales)
-    ).toFixed(2)} (${Number(data.s10Sales).toFixed(
+    ).toFixed(2)} (*${Number(data.s10Sales).toFixed(
       3
-    )} litros)\n\n*Totais*\n\nLitros Vendidos: ${data.totalLiters.toFixed(
+    )} litros*)\n\n*Totais*\n*Litros Vendidos:* ${data.totalLiters.toFixed(
       3
-    )}\nDinheiro: R$ ${Number(data.cash).toFixed(2)}\nDébito: R$ ${Number(
+    )}\n*Dinheiro:* R$ ${Number(data.cash).toFixed(2)}\n*Débito:* R$ ${Number(
       data.debit
-    ).toFixed(2)}\nCrédito: R$ ${Number(data.credit).toFixed(
+    ).toFixed(2)}\n*Crédito:* R$ ${Number(data.credit).toFixed(
       2
-    )}\nPix: R$ ${Number(data.pix).toFixed(2)}\nTotal de Entradas: R$ ${Number(
-      data.totalInput
-    ).toFixed(2)}\nTotal de Saídas: R$ ${Number(data.totalOutput).toFixed(
+    )}\n*Pix:* R$ ${Number(data.pix).toFixed(
       2
-    )}\nDiferença: R$ ${Number(data.difference).toFixed(
+    )}\n*Total de Entradas:* R$ ${Number(data.totalInput).toFixed(
       2
-    )}\n\n*Despesas*\n\n${formattedExpenses}\n\n*Imagens da tarefa*\n\n${imagesDescription}\n\nObservações: ${
+    )}\n*Total de Saídas:* R$ ${Number(data.totalOutput).toFixed(
+      2
+    )}\n*Diferença:* R$ ${Number(data.difference).toFixed(
+      2
+    )}\n\n*Despesas*\n${formattedExpenses}\n\n*Observações:* ${
       data.observations
-    }\n`;
+    }\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));

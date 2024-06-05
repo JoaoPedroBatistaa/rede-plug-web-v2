@@ -347,14 +347,13 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "turno-5"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("id", "==", "turno-6"),
+      where("userName", "==", userName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("O relatório de turno 5 já foi feito hoje!");
+      toast.error("O relatório de turno 6 já foi feito hoje!");
       setIsLoading(false);
       return;
     }
@@ -369,7 +368,7 @@ export default function NewPost() {
       time,
       attendant,
       postName,
-      shift: "05",
+      shift: "06",
       etPrice,
       gcPrice,
       gaPrice,
@@ -389,7 +388,7 @@ export default function NewPost() {
       observations,
       expenses,
       images,
-      id: "turno-5",
+      id: "turno-6",
     };
 
     try {
@@ -429,26 +428,26 @@ export default function NewPost() {
     return `${day}/${month}/${year}`;
   }
 
-  async function shortenUrl(originalUrl: string): Promise<string> {
+  async function shortenUrl(originalUrl: string | number | boolean) {
     console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
 
+    const apiUrl = `https://is.gd/create.php?format=json&url=${encodeURIComponent(
+      originalUrl
+    )}`;
+    console.log(`URL da API: ${apiUrl}`);
+
     try {
-      const response = await fetch("/api/shorten-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ originalURL: originalUrl }),
-      });
+      const response = await fetch(apiUrl);
+      console.log(`Status da resposta: ${response.status}`);
 
       if (!response.ok) {
-        const data = await response.json();
-        console.error("Falha ao encurtar URL:", data);
-        throw new Error(`Erro ao encurtar URL: ${data.message}`);
+        const errorData = await response.json();
+        console.error("Falha ao encurtar URL:", errorData);
+        throw new Error(`Erro ao encurtar URL: ${errorData.errormessage}`);
       }
 
       const data = await response.json();
-      const shortUrl = data.shortUrl;
+      const shortUrl = data.shorturl;
       console.log(`URL encurtada: ${shortUrl}`);
 
       return shortUrl;
@@ -487,7 +486,7 @@ export default function NewPost() {
     const formattedExpenses = data.expenses
       .map(
         (exp: { expenseType: any; expenseValue: any }) =>
-          `*Tipo:* ${exp.expenseType}, *Valor:* R$ ${exp.expenseValue}`
+          `Tipo: ${exp.expenseType}, Valor: R$ ${exp.expenseValue}`
       )
       .join("\n");
 
@@ -503,42 +502,40 @@ export default function NewPost() {
           return `*Filipeta Sistema Verso:* ${shortUrl}\n`;
         } else {
           const maquininhaIndex = index - 1;
-          return `*Filipeta Maquininha ${maquininhaIndex}:* ${shortUrl}\n`;
+          return `*Maquininha ${maquininhaIndex}:* Filipeta Maquininha - ${shortUrl}\n`;
         }
       })
     ).then((descriptions) => descriptions.filter(Boolean).join("\n")); // Remove strings vazias
 
-    const messageBody = `*Novo Relatório de Turno 05:*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+    const messageBody = `*Novo Relatório de Turno 06:*\n\nData: ${formattedDate}\nHora: ${
       data.time
-    }\n*Posto:* ${data.postName}\n*Responsável:* ${
+    }\nPosto: ${data.postName}\nResponsável: ${
       data.attendant
-    }\n\n*Vendas*\n*ET:* R$ ${(
+    }\n\n*Vendas*\n\nET: R$ ${(
       Number(data.etPrice) * Number(data.etSales)
-    ).toFixed(2)} (*${Number(data.etSales).toFixed(3)} litros*)\n*GC:* R$ ${(
+    ).toFixed(2)} (${Number(data.etSales).toFixed(3)} litros)\nGC: R$ ${(
       Number(data.gcPrice) * Number(data.gcSales)
-    ).toFixed(2)} (*${Number(data.gcSales).toFixed(3)} litros*)\n*GA:* R$ ${(
+    ).toFixed(2)} (${Number(data.gcSales).toFixed(3)} litros)\nGA: R$ ${(
       Number(data.gaPrice) * Number(data.gaSales)
-    ).toFixed(2)} (*${Number(data.gaSales).toFixed(3)} litros*)\n*S10:* R$ ${(
+    ).toFixed(2)} (${Number(data.gaSales).toFixed(3)} litros)\nS10: R$ ${(
       Number(data.s10Price) * Number(data.s10Sales)
-    ).toFixed(2)} (*${Number(data.s10Sales).toFixed(
+    ).toFixed(2)} (${Number(data.s10Sales).toFixed(
       3
-    )} litros*)\n\n*Totais*\n*Litros Vendidos:* ${data.totalLiters.toFixed(
+    )} litros)\n\n*Totais*\n\nLitros Vendidos: ${data.totalLiters.toFixed(
       3
-    )}\n*Dinheiro:* R$ ${Number(data.cash).toFixed(2)}\n*Débito:* R$ ${Number(
+    )}\nDinheiro: R$ ${Number(data.cash).toFixed(2)}\nDébito: R$ ${Number(
       data.debit
-    ).toFixed(2)}\n*Crédito:* R$ ${Number(data.credit).toFixed(
+    ).toFixed(2)}\nCrédito: R$ ${Number(data.credit).toFixed(
       2
-    )}\n*Pix:* R$ ${Number(data.pix).toFixed(
+    )}\nPix: R$ ${Number(data.pix).toFixed(2)}\nTotal de Entradas: R$ ${Number(
+      data.totalInput
+    ).toFixed(2)}\nTotal de Saídas: R$ ${Number(data.totalOutput).toFixed(
       2
-    )}\n*Total de Entradas:* R$ ${Number(data.totalInput).toFixed(
+    )}\nDiferença: R$ ${Number(data.difference).toFixed(
       2
-    )}\n*Total de Saídas:* R$ ${Number(data.totalOutput).toFixed(
-      2
-    )}\n*Diferença:* R$ ${Number(data.difference).toFixed(
-      2
-    )}\n\n*Despesas*\n${formattedExpenses}\n\n*Observações:* ${
+    )}\n\n*Despesas*\n\n${formattedExpenses}\n\n*Imagens da tarefa*\n\n${imagesDescription}\n\nObservações: ${
       data.observations
-    }\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
+    }\n`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -588,7 +585,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Relatório de turno 05</p>
+            <p className={styles.BudgetTitle}>Relatório de turno 06</p>
             <div className={styles.BudgetHeadS}>
               {!docId && (
                 <button

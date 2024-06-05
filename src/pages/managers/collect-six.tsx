@@ -311,12 +311,12 @@ export default function NewPost() {
     const filesDescription = await Promise.all(
       data.images.map(async (file, index) => {
         const shortUrl = await shortenUrl(file.imageUrl);
-        return `Arquivo ${index + 1}: ${shortUrl}\n`;
+        return `*Arquivo ${index + 1}:* ${shortUrl}\n`;
       })
     ).then((descriptions) => descriptions.join("\n"));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Recolhe às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\nValor do recolhe: ${data.collectValue}\n\n\n*Detalhes dos Arquivos*\n\n${filesDescription}`;
+    const messageBody = `*Novo Recolhe às 6h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Valor do recolhe:* ${data.collectValue}\n\n*Detalhes dos Arquivos*\n\n${filesDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
