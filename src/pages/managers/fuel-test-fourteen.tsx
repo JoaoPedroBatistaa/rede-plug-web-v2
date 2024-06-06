@@ -374,7 +374,7 @@ export default function NewPost() {
     const gcImage = imagesDescription.find((image) => image.type === "GC");
 
     const messageBody =
-      `*Novo Teste de Combustíveis às 6h*\n\n` +
+      `*Novo Teste de Combustíveis às 14h*\n\n` +
       `*Data:* ${formattedDate}\n` +
       `*Hora:* ${data.time}\n` +
       `*Posto:* ${data.postName}\n` +
