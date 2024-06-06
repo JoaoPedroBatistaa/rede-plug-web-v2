@@ -510,25 +510,47 @@ export default function NewPost() {
     const contacts = [managerContact, "5511911534298"];
 
     for (const contact of contacts) {
-      const response = await fetch("/api/send-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          managerContact: contact,
-          messageBody,
-        }),
-      });
+      let attempts = 0;
+      const maxAttempts = 2;
+      let success = false;
 
-      if (!response.ok) {
-        throw new Error(
-          `Falha ao enviar mensagem via WhatsApp para ${contact}`
-        );
+      while (attempts < maxAttempts && !success) {
+        try {
+          const response = await fetch("/api/send-message", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              managerContact: contact,
+              messageBody,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(
+              `Falha ao enviar mensagem via WhatsApp para ${contact}`
+            );
+          }
+
+          console.log(`Mensagem enviada com sucesso para ${contact}`);
+          toast.success(`Mensagem enviada com sucesso para ${contact}`);
+          success = true;
+        } catch (error) {
+          attempts += 1;
+          console.error(error);
+          toast.error(
+            `Tentativa ${attempts} falhou ao enviar mensagem para ${contact}`
+          );
+
+          if (attempts >= maxAttempts) {
+            toast.error(
+              `Falha ao enviar mensagem para ${contact} após várias tentativas`
+            );
+          }
+        }
       }
     }
-
-    console.log("Mensagens enviadas com sucesso!");
   }
 
   return (
