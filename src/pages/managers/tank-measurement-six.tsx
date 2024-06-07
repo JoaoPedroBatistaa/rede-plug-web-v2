@@ -80,6 +80,10 @@ export default function NewPost() {
           setDate(fetchedData.date);
           setTime(fetchedData.time);
 
+          if (fetchedData.measurementSheet) {
+            setMeasurementSheetUrl(fetchedData.measurementSheet);
+          }
+
           console.log(fetchedData); // Verifica se os dados foram corretamente buscados
         } else {
           console.log("No such document!");
@@ -659,40 +663,30 @@ export default function NewPost() {
                 </div>
               </div>
 
-              {docId &&
-                // @ts-ignore
-                data?.measurements.map((measurement, index) => (
-                  <div key={index}>
-                    <p className={styles.titleTank}>
-                      Tanque {measurement.tankNumber}
-                    </p>
-
-                    <div className={styles.InputContainer}>
-                      <div className={styles.InputField}>
-                        <p className={styles.FieldLabel}>Medição em cm</p>
-                        <input
-                          type="number"
-                          value={measurement.measurement.cm}
-                          className={styles.Field}
-                          disabled
-                        />
-                      </div>
-
-                      <div className={styles.InputField}>
-                        <p className={styles.FieldLabel}>Litros</p>
-                        <input
-                          type="text"
-                          value={measurement.measurement.liters}
-                          className={styles.Field}
-                          disabled
-                        />
-                      </div>
-
-                      <div className={styles.InputField}>
-                        <p className={styles.FieldLabel}>Foto da medição</p>
+              {docId && (
+                <>
+                  {measurementSheetUrl && (
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Planilha de Medição</p>
+                      {measurementSheetUrl.includes(".mp4") ||
+                      measurementSheetUrl.includes(".avi") ||
+                      measurementSheetUrl.includes(".mov") ? (
+                        <video
+                          controls
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        >
+                          <source src={measurementSheetUrl} type="video/mp4" />
+                          Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                      ) : (
                         <img
-                          src={measurement.imageUrl}
-                          alt="Visualização da imagem"
+                          src={measurementSheetUrl}
+                          alt="Visualização da planilha de medição"
                           style={{
                             maxWidth: "17.5rem",
                             height: "auto",
@@ -700,10 +694,99 @@ export default function NewPost() {
                             borderRadius: "20px",
                           }}
                         />
-                      </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )}
+
+                  {
+                    // @ts-ignore
+                    data?.measurements.map(
+                      (
+                        measurement: {
+                          tankNumber: any;
+                          measurement: {
+                            cm: any;
+                            liters: any;
+                          };
+                          imageUrl: any;
+                        },
+                        index: React.Key | null | undefined
+                      ) => (
+                        <div key={index}>
+                          <p className={styles.titleTank}>
+                            Tanque {measurement.tankNumber}
+                          </p>
+
+                          <div className={styles.InputContainer}>
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>Medição em cm</p>
+                              <input
+                                type="number"
+                                value={measurement.measurement.cm}
+                                className={styles.Field}
+                                disabled
+                              />
+                            </div>
+
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>Litros</p>
+                              <input
+                                type="text"
+                                value={measurement.measurement.liters}
+                                className={styles.Field}
+                                disabled
+                              />
+                            </div>
+
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>
+                                Foto da medição
+                              </p>
+                              {
+                                // @ts-ignore
+                                measurement.imageUrl.includes(".mp4") ||
+                                // @ts-ignore
+                                measurement.imageUrl.includes(".avi") ||
+                                // @ts-ignore
+                                measurement.imageUrl.includes(".mov") ? (
+                                  <video
+                                    controls
+                                    style={{
+                                      maxWidth: "17.5rem",
+                                      height: "auto",
+                                      border: "1px solid #939393",
+                                      borderRadius: "20px",
+                                    }}
+                                  >
+                                    <source
+                                      // @ts-ignore
+                                      src={measurement.imageUrl}
+                                      type="video/mp4"
+                                    />
+                                    Seu navegador não suporta o elemento de
+                                    vídeo.
+                                  </video>
+                                ) : (
+                                  <img
+                                    src={measurement.imageUrl}
+                                    alt="Visualização da imagem"
+                                    style={{
+                                      maxWidth: "17.5rem",
+                                      height: "auto",
+                                      border: "1px solid #939393",
+                                      borderRadius: "20px",
+                                    }}
+                                  />
+                                )
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )
+                  }
+                </>
+              )}
 
               {tanks.map((tank) => (
                 <>

@@ -622,16 +622,36 @@ export default function NewPost() {
 
                       <div className={styles.InputField}>
                         <p className={styles.FieldLabel}>Foto da medição</p>
-                        <img
-                          src={measurement.imageUrl}
-                          alt="Visualização da imagem"
-                          style={{
-                            maxWidth: "17.5rem",
-                            height: "auto",
-                            border: "1px solid #939393",
-                            borderRadius: "20px",
-                          }}
-                        />
+                        {measurement.imageUrl.includes(".mp4") ||
+                        measurement.imageUrl.includes(".avi") ||
+                        measurement.imageUrl.includes(".mov") ? (
+                          <video
+                            controls
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          >
+                            <source
+                              src={measurement.imageUrl}
+                              type="video/mp4"
+                            />
+                            Seu navegador não suporta o elemento de vídeo.
+                          </video>
+                        ) : (
+                          <img
+                            src={measurement.imageUrl}
+                            alt="Visualização da imagem"
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
