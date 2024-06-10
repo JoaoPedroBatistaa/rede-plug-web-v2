@@ -511,49 +511,101 @@ export default function NewPost() {
 
     console.log(managerContact);
 
-    const contacts = [managerContact, "5511911534298"];
+    // Enviar mensagem completa apenas para o managerContact
+    try {
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact: managerContact,
+          messageBody,
+        }),
+      });
 
-    for (const contact of contacts) {
-      let attempts = 0;
-      const maxAttempts = 2;
-      let success = false;
-
-      while (attempts < maxAttempts && !success) {
-        try {
-          const response = await fetch("/api/send-message", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              managerContact: contact,
-              messageBody,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(
-              `Falha ao enviar mensagem via WhatsApp para ${contact}`
-            );
-          }
-
-          console.log(`Mensagem enviada com sucesso para ${contact}`);
-          toast.success(`Mensagem enviada com sucesso para ${contact}`);
-          success = true;
-        } catch (error) {
-          attempts += 1;
-          console.error(error);
-          toast.error(
-            `Tentativa ${attempts} falhou ao enviar mensagem para ${contact}`
-          );
-
-          if (attempts >= maxAttempts) {
-            toast.error(
-              `Falha ao enviar mensagem para ${contact} após várias tentativas`
-            );
-          }
-        }
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error(
+          `Erro na resposta ao enviar mensagem completa: ${errorMessage}`
+        );
+        throw new Error(
+          `Falha ao enviar mensagem via WhatsApp para ${managerContact}`
+        );
       }
+
+      console.log(`Mensagem enviada com sucesso para ${managerContact}`);
+      toast.success(`Mensagem enviada com sucesso para ${managerContact}`);
+    } catch (error) {
+      console.error(`Erro ao enviar mensagem completa: ${error}`);
+      toast.error(`Falha ao enviar mensagem para ${managerContact}`);
+    }
+
+    // Obter token de autenticação
+    let authToken;
+    try {
+      const authResponse = await fetch("/api/auth-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "admredeplug@gmail.com",
+          password: "Sc125687!",
+        }),
+      });
+
+      const authResponseBody = await authResponse.json();
+      console.log(
+        `Resposta completa do login de autenticação: ${authResponseBody}`
+      );
+
+      if (!authResponse.ok) {
+        console.error(
+          `Erro na resposta ao obter token de autenticação: ${authResponseBody}`
+        );
+        throw new Error("Falha ao obter token de autenticação");
+      }
+
+      authToken = authResponseBody.data.token;
+
+      console.log(`Token de autenticação obtido: ${authToken}`);
+    } catch (error) {
+      console.error(`Erro ao obter token de autenticação: ${error}`);
+      toast.error("Falha ao obter token de autenticação");
+      return;
+    }
+
+    // Enviar mensagem de imagem para o outro contato usando a API route
+    try {
+      const response = await fetch("/api/send-image-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          measurementSheetUrl: measurementSheetUrl, // Envie a URL da imagem
+          postName: data.postName,
+          formattedDate: formattedDate,
+          authToken: authToken,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error(
+          `Erro na resposta ao enviar mensagem de imagem: ${errorMessage}`
+        );
+        throw new Error(
+          `Falha ao enviar mensagem de imagem via WhatsApp para o Léo`
+        );
+      }
+
+      console.log(`Mensagem de imagem enviada com sucesso para o Léo`);
+      toast.success(`Mensagem de imagem enviada com sucesso para o Léo`);
+    } catch (error) {
+      console.error(`Erro ao enviar mensagem de imagem: ${error}`);
+      toast.error(`Falha ao enviar mensagem de imagem para o Léo`);
     }
   }
 

@@ -304,7 +304,7 @@ export default function NewPost() {
 
     if (initialLitersValue !== null && finalLitersValue !== null) {
       const diff = finalLitersValue - initialLitersValue;
-      setTotalDescarregado(`*Total descarregado*: ${diff.toFixed(2)} litros`);
+      setTotalDescarregado(`*Total descarregado*: ${diff.toFixed(0)} litros`);
 
       if (showHydrationField === true && selectedProduct === "SECO") {
         setHydrationValue(((diff / 100) * 5).toFixed(2).toString());
@@ -904,6 +904,31 @@ export default function NewPost() {
           console.log("Mensagem de descarga enviada com sucesso!");
           success = true;
         }
+      }
+
+      // Enviar mensagem simplificada para o número adicional
+      const simplifiedMessageBody = `*Nova Descarga Realizada*\n\n*Data*: ${formattedDate}\n*Hora*: ${data.time}\n*Posto*: ${data.postName}\n*Responsável*: ${data.makerName}\n\n*Motorista*: ${data.driverName}\n*Tanque*: ${data.selectedTankDescription}\n*Produto*: ${data.product}\n${data.totalLiters} litros\n*Observações*: ${data.observations}`;
+
+      const simplifiedMessageResponse = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact: "5511911534298",
+          messageBody: simplifiedMessageBody,
+        }),
+      });
+
+      if (!simplifiedMessageResponse.ok) {
+        const errorMessage = await simplifiedMessageResponse.json();
+        console.error(
+          "Falha ao enviar mensagem simplificada via WhatsApp: ",
+          errorMessage
+        );
+        throw new Error("Falha ao enviar mensagem simplificada via WhatsApp");
+      } else {
+        console.log("Mensagem simplificada enviada com sucesso!");
       }
     } catch (error) {
       console.error("Erro ao enviar mensagem: ", error);
