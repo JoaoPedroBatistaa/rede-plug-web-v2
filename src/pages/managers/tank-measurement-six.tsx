@@ -346,6 +346,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
+    if (!measurementSheetUrl) missingField = "Planilha de medição";
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
@@ -462,26 +463,39 @@ export default function NewPost() {
   }
 
   async function sendMessage(data: {
-    date: string | number | Date;
-    measurements: any[];
-    measurementSheet: string;
+    date: any;
     time: any;
-    postName: any;
     managerName: any;
+    userName?: string | null;
+    postName: any;
+    measurements: any;
+    measurementSheet: any;
+    id?: string;
   }) {
     const formattedDate = formatDate(data.date); // Formatando a data
     const shortUrls = await Promise.all(
-      data.measurements.map((measurement) => shortenUrl(measurement.imageUrl))
+      data.measurements.map((measurement: { imageUrl: string }) =>
+        shortenUrl(measurement.imageUrl)
+      )
     );
     const measurements = data.measurements
-      .map((measurement, index) => {
-        const tank = tanks.find(
-          (tank) => tank.tankNumber === measurement.tankNumber
-        );
-        // @ts-ignore
-        const tankTitle = `Tanque ${tank.tankNumber} - (${tank.product}) ${tank.saleDefense}`;
-        return `*${tankTitle}:*\n*Régua:* ${measurement.measurement.cm} cm\n*Conversão:* ${measurement.measurement.liters} litros\n*Imagem:* ${shortUrls[index]}\n\n`;
-      })
+      .map(
+        (
+          measurement: {
+            tankNumber: string;
+            measurement: { cm: any; liters: any };
+          },
+          index: string | number
+        ) => {
+          const tank = tanks.find(
+            (tank) => tank.tankNumber === measurement.tankNumber
+          );
+          // @ts-ignore
+          const tankTitle = `Tanque ${tank.tankNumber} - (${tank.product}) ${tank.saleDefense}`;
+          // @ts-ignore
+          return `*${tankTitle}:*\n*Régua:* ${measurement.measurement.cm} cm\n*Conversão:* ${measurement.measurement.liters} litros\n*Imagem:* ${shortUrls[index]}\n\n`;
+        }
+      )
       .join("\n");
     const measurementSheetUrl = data.measurementSheet
       ? await shortenUrl(data.measurementSheet)
@@ -578,34 +592,36 @@ export default function NewPost() {
 
     // Enviar mensagem de imagem para o outro contato usando a API route
     try {
-      const response = await fetch("/api/send-image-message", {
+      const imageResponse = await fetch("/api/send-image-message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          measurementSheetUrl: measurementSheetUrl, // Envie a URL da imagem
-          postName: data.postName,
-          formattedDate: formattedDate,
+          contacts: ["5511983610285", "5511979525519", "5511911534298"], // Lista de contatos
+          messageBody: {
+            title: "*Nova Medição às 6h*", // Parâmetro de título dinâmico
+            measurementSheetUrl: data.measurementSheet, // Envie a URL correta da imagem
+            postName: data.postName,
+            formattedDate: formattedDate,
+          },
           authToken: authToken,
         }),
       });
 
-      if (!response.ok) {
-        const errorMessage = await response.text();
+      if (!imageResponse.ok) {
+        const errorMessage = await imageResponse.text();
         console.error(
           `Erro na resposta ao enviar mensagem de imagem: ${errorMessage}`
         );
-        throw new Error(
-          `Falha ao enviar mensagem de imagem via WhatsApp para o Léo`
-        );
+        throw new Error(`Falha ao enviar mensagem de imagem via WhatsApp`);
       }
 
-      console.log(`Mensagem de imagem enviada com sucesso para o Léo`);
-      toast.success(`Mensagem de imagem enviada com sucesso para o Léo`);
+      console.log(`Mensagem de imagem enviada com sucesso`);
+      toast.success(`Mensagem de imagem enviada com sucesso`);
     } catch (error) {
       console.error(`Erro ao enviar mensagem de imagem: ${error}`);
-      toast.error(`Falha ao enviar mensagem de imagem para o Léo`);
+      toast.error(`Falha ao enviar mensagem de imagem`);
     }
   }
 

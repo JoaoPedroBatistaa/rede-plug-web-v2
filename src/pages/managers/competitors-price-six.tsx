@@ -340,23 +340,32 @@ export default function NewPost() {
 
     console.log(managerContact);
 
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
+    const contacts = [managerContact, "5511979525519"];
+
+    const sendMessages = contacts.map(async (contact) => {
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact: contact,
+          messageBody,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Falha ao enviar mensagem via WhatsApp para ${contact}`
+        );
+      }
+
+      console.log(`Mensagem enviada com sucesso para ${contact}!`);
     });
 
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem das fotos das maquininhas enviada com sucesso!");
+    await Promise.all(sendMessages);
   }
+
   return (
     <>
       <Head>

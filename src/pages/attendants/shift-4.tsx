@@ -63,6 +63,7 @@ export default function NewPost() {
           setDifference(fetchedData.difference);
           setObservations(fetchedData.observations);
           setExpenses(fetchedData.expenses);
+          setMediaUrl(fetchedData.mediaUrl);
 
           console.log(fetchedData); // Verifica se os dados foram corretamente buscados
         } else {
@@ -126,6 +127,11 @@ export default function NewPost() {
     ["", ""], // Inicializamos com os campos para as duas imagens fixas
   ]);
   const maquininhasRefs = useRef([createRef(), createRef()]);
+
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const mediaRef = useRef<HTMLInputElement>(null);
+  const [mediaFileName, setMediaFileName] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
 
   async function compressImage(file: File) {
     const options = {
@@ -255,6 +261,34 @@ export default function NewPost() {
     setExpenses(newExpenses);
   };
 
+  const handleMediaChange = async (event: { target: { files: any[] } }) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+        console.error("O arquivo fornecido não é uma imagem ou vídeo");
+        toast.error("Por favor, selecione um arquivo de imagem ou vídeo.");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const mediaUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `attendants/${getLocalISODate()}/${compressedFile.name}_${Date.now()}`
+        );
+        setMediaFile(compressedFile);
+        setMediaFileName(compressedFile.name);
+        setMediaUrl(mediaUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload da mídia:", error);
+        toast.error("Erro ao fazer upload da mídia.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   useEffect(() => {
     const total =
       Number(gcPrice) * Number(gcSales) +
@@ -362,6 +396,7 @@ export default function NewPost() {
     const images = maquininhasImages.flatMap((imageFiles) =>
       imageFiles.filter((image) => image !== null)
     );
+
     console.log(images);
 
     const taskData = {
@@ -389,6 +424,7 @@ export default function NewPost() {
       observations,
       expenses,
       images,
+      mediaUrl,
       id: "turno-4",
     };
 
@@ -482,6 +518,7 @@ export default function NewPost() {
     observations: any;
     expenses: any;
     images: string[];
+    mediaUrl: string;
   }) {
     const formattedDate = formatDate(data.date);
     const formattedExpenses = data.expenses
@@ -507,6 +544,10 @@ export default function NewPost() {
         }
       })
     ).then((descriptions) => descriptions.filter(Boolean).join("\n")); // Remove strings vazias
+
+    const mediaDescription = data.mediaUrl
+      ? `*Comprovante de aferição:* ${await shortenUrl(data.mediaUrl)}\n`
+      : "";
 
     const messageBody = `*Novo Relatório de Turno 04:*\n\n*Data:* ${formattedDate}\n*Hora:* ${
       data.time
@@ -538,7 +579,7 @@ export default function NewPost() {
       2
     )}\n\n*Despesas*\n${formattedExpenses}\n\n*Observações:* ${
       data.observations
-    }\n\n*Imagens da tarefa*\n\n${imagesDescription}`;
+    }\n\n*Imagens da tarefa*\n\n${imagesDescription}\n${mediaDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -935,6 +976,20 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Total Despesas</p>
+                  <input
+                    id="totalExpenses"
+                    type="text"
+                    className={styles.Field}
+                    value={totalExpenses.toFixed(2)}
+                    onChange={(e) =>
+                      setTotalExpenses(parseFloat(e.target.value))
+                    }
+                    placeholder=""
+                    disabled
+                  />
+                </div>
               </div>
 
               <p className={styles.BudgetTitle}>Despesas</p>
@@ -989,6 +1044,34 @@ export default function NewPost() {
                 </div>
               ))}
 
+              <p className={styles.BudgetTitle}>Comprovante de aferição</p>
+              <p className={styles.Notes}>
+                Informe abaixo as informações do comprovante
+              </p>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    style={{ display: "none" }}
+                    ref={mediaRef}
+                    // @ts-ignore
+                    onChange={handleMediaChange}
+                  />
+                  <button
+                    onClick={() => mediaRef.current?.click()}
+                    className={styles.MidiaField}
+                  >
+                    Carregue seu comprovante
+                  </button>
+                  {mediaFile && (
+                    <div>
+                      <p className={styles.fileName}>{mediaFileName}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <p className={styles.BudgetTitle}>Total</p>
               <p className={styles.Notes}>
                 Informe abaixo as informações do total
@@ -1019,20 +1102,7 @@ export default function NewPost() {
                     disabled
                   />
                 </div>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Despesas</p>
-                  <input
-                    id="totalExpenses"
-                    type="text"
-                    className={styles.Field}
-                    value={totalExpenses.toFixed(2)}
-                    onChange={(e) =>
-                      setTotalExpenses(parseFloat(e.target.value))
-                    }
-                    placeholder=""
-                    disabled
-                  />
-                </div>
+
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Diferença</p>
                   <input
