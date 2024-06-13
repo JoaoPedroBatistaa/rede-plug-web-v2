@@ -408,13 +408,24 @@ export default function NewPost() {
     }
   }
 
-  async function sendMessage(data: any) {
+  async function sendMessage(data: {
+    date: any;
+    time: any;
+    managerName: any;
+    userName?: string | null;
+    postName: any;
+    ethanolData: any;
+    gasolineData: any;
+    images: any;
+    tanks: any;
+    id?: string;
+  }) {
     const formattedDate = formatDate(data.date);
 
     // Processar as URLs das imagens
     console.log("Iniciando processamento das URLs das imagens.");
     const imagesDescription = await Promise.all(
-      data.images.map(async (image: any) => {
+      data.images.map(async (image: { imageUrl: string; type: any }) => {
         console.log(`Encurtando URL da imagem: ${image.imageUrl}`);
         const shortUrl = await shortenUrl(image.imageUrl);
         console.log(`URL encurtada: ${shortUrl}`);
@@ -433,54 +444,63 @@ export default function NewPost() {
 
     if (data.ethanolData.length > 0) {
       console.log("Processando dados de etanol.");
-      data.ethanolData.forEach((ethanol: any, index: number) => {
-        const tank = data.tanks.find(
-          (tank: any) => tank.product === "ET" && tank.saleDefense === "Venda"
-        );
-        const tankNumber = tank ? tank.tankNumber : index + 1;
-        const tankTitle = `Tanque ${tankNumber} - ET Venda`;
-        messageBody +=
-          `*${tankTitle}*\n` +
-          `*Temperatura:* ${ethanol.ethanolTemperature}\n` +
-          `*Peso:* ${ethanol.ethanolWeight}\n`;
-        const ethanolImage = imagesDescription.find(
-          (image: any) => image.type === `Etanol ${index + 1}`
-        );
-        if (ethanolImage) {
-          messageBody += `*Imagem:* ${ethanolImage.url}\n\n`;
-          console.log(
-            `Imagem de Etanol ${index + 1} adicionada: ${ethanolImage.url}`
+      data.ethanolData.forEach(
+        (
+          ethanol: { ethanolTemperature: any; ethanolWeight: any },
+          index: number
+        ) => {
+          const tank = data.tanks.find(
+            (tank: { product: string; saleDefense: string }) =>
+              tank.product === "ET" && tank.saleDefense === "Venda"
           );
-        } else {
-          messageBody += `\n`;
-          console.log(`Nenhuma imagem encontrada para Etanol ${index + 1}`);
+          const tankNumber = tank ? tank.tankNumber : index + 1;
+          const tankTitle = `Tanque ${tankNumber} - ET Venda`;
+          messageBody +=
+            `*${tankTitle}*\n` +
+            `*Temperatura:* ${ethanol.ethanolTemperature}\n` +
+            `*Peso:* ${ethanol.ethanolWeight}\n`;
+          const ethanolImage = imagesDescription.find(
+            (image) => image.type === `Etanol ${index + 1}`
+          );
+          if (ethanolImage) {
+            messageBody += `*Imagem:* ${ethanolImage.url}\n\n`;
+            console.log(
+              `Imagem de Etanol ${index + 1} adicionada: ${ethanolImage.url}`
+            );
+          } else {
+            messageBody += `\n`;
+            console.log(`Nenhuma imagem encontrada para Etanol ${index + 1}`);
+          }
         }
-      });
+      );
     }
 
     if (data.gasolineData.length > 0) {
       console.log("Processando dados de gasolina.");
-      data.gasolineData.forEach((gasoline: any, index: number) => {
-        const tank = data.tanks.find(
-          (tank: any) => tank.product === "GC" && tank.saleDefense === "Venda"
-        );
-        const tankNumber = tank ? tank.tankNumber : index + 1;
-        const tankTitle = `Tanque ${tankNumber} - GC Venda`;
-        messageBody +=
-          `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n`;
-        const gcImage = imagesDescription.find(
-          (image: any) => image.type === `GC ${index + 1}`
-        );
-        if (gcImage) {
-          messageBody += `*Imagem:* ${gcImage.url}\n\n`;
-          console.log(
-            `Imagem de Gasolina ${index + 1} adicionada: ${gcImage.url}`
+      data.gasolineData.forEach(
+        (gasoline: { gasolineQuality: any }, index: number) => {
+          const tank = data.tanks.find(
+            (tank: { product: string; saleDefense: string }) =>
+              tank.product === "GC" && tank.saleDefense === "Venda"
           );
-        } else {
-          messageBody += `\n`;
-          console.log(`Nenhuma imagem encontrada para Gasolina ${index + 1}`);
+          const tankNumber = tank ? tank.tankNumber : index + 1;
+          const tankTitle = `Tanque ${tankNumber} - GC Venda`;
+          messageBody +=
+            `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n`;
+          const gcImage = imagesDescription.find(
+            (image) => image.type === `GC ${index + 1}`
+          );
+          if (gcImage) {
+            messageBody += `*Imagem:* ${gcImage.url}\n\n`;
+            console.log(
+              `Imagem de Gasolina ${index + 1} adicionada: ${gcImage.url}`
+            );
+          } else {
+            messageBody += `\n`;
+            console.log(`Nenhuma imagem encontrada para Gasolina ${index + 1}`);
+          }
         }
-      });
+      );
     }
 
     console.log("Mensagem final gerada:", messageBody);
@@ -499,22 +519,30 @@ export default function NewPost() {
 
     console.log("Contato do gerente:", managerContact);
 
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
+    const contacts = [managerContact, "5511979525519"];
 
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    for (const contact of contacts) {
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact: contact,
+          messageBody,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Falha ao enviar mensagem via WhatsApp para ${contact}`
+        );
+      }
+
+      console.log(
+        `Mensagem de teste de combustíveis enviada com sucesso para ${contact}!`
+      );
     }
-
-    console.log("Mensagem de teste de combustíveis enviada com sucesso!");
   }
 
   return (

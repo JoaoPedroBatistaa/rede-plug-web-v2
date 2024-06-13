@@ -371,7 +371,7 @@ export default function NewPost() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contacts: ["5511983610285", "5511979525519", "5511911534298"], // Lista de contatos
+          contacts: ["5511983610285"], // Lista de contatos
           messageBody: {
             title: "*Novo 4º caixa às 6h*", // Parâmetro de título dinâmico
             measurementSheetUrl: filesDescription[0].originalUrl, // Usando a URL correta da imagem
