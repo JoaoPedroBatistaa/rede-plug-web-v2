@@ -362,6 +362,35 @@ export default function NewPost() {
     const today = getLocalISODate();
     console.log(today);
 
+    // Verificação de campos NaN
+    const fields = [
+      etPrice,
+      gcPrice,
+      gaPrice,
+      s10Price,
+      etSales,
+      gcSales,
+      gaSales,
+      s10Sales,
+      totalLiters,
+      cash,
+      debit,
+      credit,
+      pix,
+      totalOutput,
+      totalInput,
+      difference,
+      ...expenses.map((expense) => expense.expenseValue),
+    ];
+
+    const hasNaN = fields.some((field) => isNaN(Number(field)));
+
+    if (hasNaN) {
+      toast.error("Por favor, preencha todos os campos corretamente.");
+      setIsLoading(false);
+      return;
+    }
+
     if (!date) missingField = "Data";
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");

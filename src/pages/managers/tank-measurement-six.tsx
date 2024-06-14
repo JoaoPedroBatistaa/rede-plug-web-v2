@@ -399,7 +399,8 @@ export default function NewPost() {
     }
 
     try {
-      await sendMessage(measurementData);
+      await sendMainMessage(measurementData);
+      await sendAdditionalMessages(measurementData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);
@@ -426,7 +427,7 @@ export default function NewPost() {
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
+    date.setDate(date.getDate() + 1);
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString().substr(-2);
@@ -462,7 +463,7 @@ export default function NewPost() {
     }
   }
 
-  async function sendMessage(data: {
+  async function sendMainMessage(data: {
     date: any;
     time: any;
     managerName: any;
@@ -472,7 +473,7 @@ export default function NewPost() {
     measurementSheet: any;
     id?: string;
   }) {
-    const formattedDate = formatDate(data.date); // Formatando a data
+    const formattedDate = formatDate(data.date);
     const shortUrls = await Promise.all(
       data.measurements.map((measurement: { imageUrl: string }) =>
         shortenUrl(measurement.imageUrl)
@@ -525,7 +526,6 @@ export default function NewPost() {
 
     console.log(managerContact);
 
-    // Enviar mensagem completa apenas para o managerContact
     try {
       const response = await fetch("/api/send-message", {
         method: "POST",
@@ -554,8 +554,20 @@ export default function NewPost() {
       console.error(`Erro ao enviar mensagem completa: ${error}`);
       toast.error(`Falha ao enviar mensagem para ${managerContact}`);
     }
+  }
 
-    // Obter token de autenticação
+  async function sendAdditionalMessages(data: {
+    date: any;
+    time: any;
+    managerName: any;
+    userName?: string | null;
+    postName: any;
+    measurements: any;
+    measurementSheet: any;
+    id?: string;
+  }) {
+    const formattedDate = formatDate(data.date);
+
     let authToken;
     try {
       const authResponse = await fetch("/api/auth-login", {
@@ -590,38 +602,45 @@ export default function NewPost() {
       return;
     }
 
-    // Enviar mensagem de imagem para o outro contato usando a API route
-    try {
-      const imageResponse = await fetch("/api/send-image-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contacts: ["5511983610285", "5511979525519", "5511911534298"], // Lista de contatos
-          messageBody: {
-            title: "*Nova Medição às 6h*", // Parâmetro de título dinâmico
-            measurementSheetUrl: data.measurementSheet, // Envie a URL correta da imagem
-            postName: data.postName,
-            formattedDate: formattedDate,
+    const contacts = ["5511911534298", "5511983610285", "5511979525519"];
+    for (const contact of contacts) {
+      try {
+        const imageResponse = await fetch("/api/send-image-message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-          authToken: authToken,
-        }),
-      });
+          body: JSON.stringify({
+            contacts: [contact],
+            messageBody: {
+              title: "*Nova Medição às 6h*",
+              measurementSheetUrl: data.measurementSheet,
+              postName: data.postName,
+              formattedDate: formattedDate,
+            },
+            authToken: authToken,
+          }),
+        });
 
-      if (!imageResponse.ok) {
-        const errorMessage = await imageResponse.text();
+        if (!imageResponse.ok) {
+          const errorMessage = await imageResponse.text();
+          console.error(
+            `Erro na resposta ao enviar mensagem de imagem: ${errorMessage}`
+          );
+          throw new Error(`Falha ao enviar mensagem de imagem via WhatsApp`);
+        }
+
+        console.log(`Mensagem de imagem enviada com sucesso para ${contact}`);
+        toast.success(`Mensagem de imagem enviada com sucesso para ${contact}`);
+      } catch (error) {
         console.error(
-          `Erro na resposta ao enviar mensagem de imagem: ${errorMessage}`
+          `Erro ao enviar mensagem de imagem para ${contact}: ${error}`
         );
-        throw new Error(`Falha ao enviar mensagem de imagem via WhatsApp`);
+        toast.error(`Falha ao enviar mensagem de imagem para ${contact}`);
       }
 
-      console.log(`Mensagem de imagem enviada com sucesso`);
-      toast.success(`Mensagem de imagem enviada com sucesso`);
-    } catch (error) {
-      console.error(`Erro ao enviar mensagem de imagem: ${error}`);
-      toast.error(`Falha ao enviar mensagem de imagem`);
+      // Adiciona um intervalo de 2 segundos entre cada mensagem
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
 

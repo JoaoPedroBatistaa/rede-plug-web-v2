@@ -313,7 +313,7 @@ export default function NewPost() {
       .join("\n");
 
     // Montar o corpo da mensagem de texto
-    const messageBody = `Novo 4º Caixa as 6h\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes dos Arquivos*\n\n${filesDescriptionText}`;
+    const messageBody = `*Novo 4º Caixa as 6h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes dos Arquivos*\n\n${filesDescriptionText}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));

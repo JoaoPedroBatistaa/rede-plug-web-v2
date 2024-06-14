@@ -422,14 +422,14 @@ export default function NewPost() {
                 // @ts-ignore
                 data?.images.map((image, index) => (
                   <div key={index} className={styles.InputField}>
-                    <p className={styles.titleTank}>Bico {index + 1}</p>
+                    <p className={styles.titleTank}>Bomba {index + 1}</p>
                     <p className={styles.FieldLabel}>Imagem do teste</p>
 
                     {image && (
                       <div>
                         <img
                           src={image.imageUrl}
-                          alt={`Preview do encerrante do bico ${index + 1}`}
+                          alt={`Preview do encerrante da bomba ${index + 1}`}
                           style={{
                             maxWidth: "17.5rem",
                             height: "auto",
@@ -472,7 +472,7 @@ export default function NewPost() {
                     <div>
                       <img
                         src={URL.createObjectURL(encerranteImages[index])}
-                        alt={`Preview do encerrante do bico ${nozzle.bombNumber}`}
+                        alt={`Preview do encerrante da bomba ${nozzle.bombNumber}`}
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
