@@ -653,6 +653,15 @@ export default function NewPost() {
                           />
                         )}
                       </div>
+
+                      <a
+                        href={measurement.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.openMediaLink}
+                      >
+                        Abrir mídia
+                      </a>
                     </div>
                   </div>
                 ))}

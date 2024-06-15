@@ -71,7 +71,7 @@ export default function NewPost() {
   const [managerName, setManagerName] = useState("");
   const [nozzles, setNozzles] = useState<Nozzle[]>([]);
   const [encerranteImages, setEncerranteImages] = useState<File[]>([]);
-  const [encerranteImageUrls, setEncerranteImageUrls] = useState<File[]>([]);
+  const [encerranteImageUrls, setEncerranteImageUrls] = useState<string[]>([]);
   const [encerranteFileNames, setEncerranteFileNames] = useState<string[]>([]);
 
   const encerranteRefs = useRef([]);
@@ -451,6 +451,16 @@ export default function NewPost() {
                           }
                         />
                         <p className={styles.fileName}>{image.fileName}</p>
+                        {docId && (
+                          <a
+                            href={image.imageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.openMediaLink}
+                          >
+                            Abrir mídia
+                          </a>
+                        )}
                       </div>
                     )}
                   </div>

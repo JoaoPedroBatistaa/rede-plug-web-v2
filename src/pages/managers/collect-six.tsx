@@ -450,6 +450,14 @@ export default function NewPost() {
                           }
                         />
                         <p className={styles.fileName}>{image.fileName}</p>
+                        <a
+                          href={image.imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.openMediaLink}
+                        >
+                          Abrir mídia
+                        </a>
                       </div>
                     )}
                   </div>

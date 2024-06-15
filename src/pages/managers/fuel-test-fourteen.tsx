@@ -773,6 +773,19 @@ export default function NewPost() {
                                       ).fileName
                                     }
                                   </p>
+                                  <a
+                                    href={
+                                      fetchedData.images.find(
+                                        (img: any) =>
+                                          img.type === `Etanol ${index + 1}`
+                                      ).imageUrl
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.openMediaLink}
+                                  >
+                                    Abrir mídia
+                                  </a>
                                 </div>
                               )}
                             </div>
@@ -917,6 +930,19 @@ export default function NewPost() {
                                       ).fileName
                                     }
                                   </p>
+                                  <a
+                                    href={
+                                      fetchedData.images.find(
+                                        (img: any) =>
+                                          img.type === `Etanol ${index + 1}`
+                                      ).imageUrl
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.openMediaLink}
+                                  >
+                                    Abrir mídia
+                                  </a>
                                 </div>
                               )}
                             </div>
@@ -1026,6 +1052,18 @@ export default function NewPost() {
                                       ).fileName
                                     }
                                   </p>
+                                  <a
+                                    href={
+                                      fetchedData.images.find(
+                                        (img: any) => img.type === `GC ${index}`
+                                      ).imageUrl
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.openMediaLink}
+                                  >
+                                    Abrir mídia
+                                  </a>
                                 </div>
                               )}
                             </div>

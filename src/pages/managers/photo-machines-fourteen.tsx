@@ -65,7 +65,9 @@ export default function NewPost() {
   const [managerName, setManagerName] = useState("");
   const [numMaquininhas, setNumMaquininhas] = useState(0);
   const [maquininhasImages, setMaquininhasImages] = useState<File[]>([]);
-  const [maquininhasImageUrls, setMaquininhasImageUrls] = useState<File[]>([]);
+  const [maquininhasImageUrls, setMaquininhasImageUrls] = useState<string[]>(
+    []
+  );
   const [maquininhasFileNames, setMaquininhasFileNames] = useState<string[]>(
     []
   );
@@ -462,6 +464,16 @@ export default function NewPost() {
                           }
                         />
                         <p className={styles.fileName}>{image.fileName}</p>
+                        {docId && (
+                          <a
+                            href={image.imageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.openMediaLink}
+                          >
+                            Abrir mídia
+                          </a>
+                        )}
                       </div>
                     )}
                   </div>

@@ -424,24 +424,20 @@ export default function NewPost() {
                           }
                         />
                         <p className={styles.fileName}>{image.fileName}</p>
+                        {docId && (
+                          <a
+                            href={image.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.openMediaLink}
+                          >
+                            Abrir mídia
+                          </a>
+                        )}
                       </div>
                     )}
                   </div>
                 ))}
-
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do gerente</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
 
               <div className={styles.InputField}>
                 <p className={styles.FieldLabel}>

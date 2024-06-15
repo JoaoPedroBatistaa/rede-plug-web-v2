@@ -458,6 +458,49 @@ export default function NewPost() {
                   disabled
                 />
               </div>
+
+              {docId &&
+                // @ts-ignore
+                data?.images.map((image, index) => (
+                  <div key={index} className={styles.InputField}>
+                    <p className={styles.titleTank}>Imagem {index + 1}</p>
+                    {image.imageUrl.includes(".mp4") ||
+                    image.imageUrl.includes(".avi") ||
+                    image.imageUrl.includes(".mov") ? (
+                      <video
+                        controls
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      >
+                        <source src={image.imageUrl} type="video/mp4" />
+                        Seu navegador não suporta o elemento de vídeo.
+                      </video>
+                    ) : (
+                      <img
+                        src={image.imageUrl}
+                        alt={`Imagem ${index + 1}`}
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                    )}
+                    <a
+                      href={image.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.openMediaLink}
+                    >
+                      Abrir mídia
+                    </a>
+                  </div>
+                ))}
             </div>
           </div>
 

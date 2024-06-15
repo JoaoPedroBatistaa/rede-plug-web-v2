@@ -427,21 +427,46 @@ export default function NewPost() {
 
                     {image && (
                       <div>
-                        <img
-                          src={image.imageUrl}
-                          alt={`Preview do encerrante da bomba  ${index + 1}`}
-                          style={{
-                            maxWidth: "17.5rem",
-                            height: "auto",
-                            border: "1px solid #939393",
-                            borderRadius: "20px",
-                          }}
-                          onLoad={() =>
-                            // @ts-ignore
-                            URL.revokeObjectURL(image)
-                          }
-                        />
+                        {[".mp4", ".mov", ".avi", ".MOV", ".MP4", ".AVI"].some(
+                          (ext) => image.imageUrl.includes(ext)
+                        ) ? (
+                          <video
+                            controls
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          >
+                            <source src={image.imageUrl} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                        ) : (
+                          <img
+                            src={image.imageUrl}
+                            alt={`Preview do encerrante da bomba ${index + 1}`}
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                            onLoad={() =>
+                              // @ts-ignore
+                              URL.revokeObjectURL(image)
+                            }
+                          />
+                        )}
                         <p className={styles.fileName}>{image.fileName}</p>
+                        <a
+                          href={image.imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.openMediaLink}
+                        >
+                          Abrir mídia
+                        </a>
                       </div>
                     )}
                   </div>
@@ -472,7 +497,7 @@ export default function NewPost() {
                     <div>
                       <img
                         src={URL.createObjectURL(encerranteImages[index])}
-                        alt={`Preview do encerrante da bomba  ${nozzle.bombNumber}`}
+                        alt={`Preview do encerrante da bomba ${nozzle.bombNumber}`}
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",

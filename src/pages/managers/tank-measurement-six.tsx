@@ -782,6 +782,14 @@ export default function NewPost() {
                           }}
                         />
                       )}
+                      <a
+                        href={measurementSheetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.openMediaLink}
+                      >
+                        Abrir mídia
+                      </a>
                     </div>
                   )}
 
@@ -866,6 +874,14 @@ export default function NewPost() {
                                   />
                                 )
                               }
+                              <a
+                                href={measurement.imageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.openMediaLink}
+                              >
+                                Abrir mídia
+                              </a>
                             </div>
                           </div>
                         </div>
