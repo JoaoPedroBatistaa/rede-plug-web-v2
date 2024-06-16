@@ -16,7 +16,7 @@ import {
   where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useEffect, useRef, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -70,15 +70,9 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
-  const etanolRef = useRef(null);
-  const gcRef = useRef(null);
-
-  const [etanolImage, setEtanolImage] = useState<File | null>(null);
-  const [etanolFileName, setEtanolFileName] = useState("");
-  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
-
-  const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcFileName, setGcFileName] = useState("");
+  const [mediaFields, setMediaFields] = useState([
+    { file: null, fileName: "", fileUrl: null, inputRef: createRef() },
+  ]);
 
   async function compressImage(file: File) {
     const options = {
@@ -106,7 +100,8 @@ export default function NewPost() {
     }
   }
 
-  const handleEtanolFileChange = async (
+  const handleFileChange = async (
+    index: number,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files ? event.target.files[0] : null;
@@ -127,39 +122,41 @@ export default function NewPost() {
           }_${Date.now()}`
         );
 
-        setEtanolImage(processedFile);
-        setEtanolFileName(processedFile.name);
-        setEtanolImageUrl(imageUrl);
+        const updatedFields = [...mediaFields];
+        updatedFields[index] = {
+          // @ts-ignore
+          file: processedFile,
+          fileName: processedFile.name,
+          // @ts-ignore
+          fileUrl: imageUrl,
+          inputRef: mediaFields[index].inputRef,
+        };
+
+        setMediaFields(updatedFields);
       } catch (error) {
-        console.error("Erro ao fazer upload do arquivo de etanol:", error);
-        toast.error("Erro ao salvar o arquivo de etanol.");
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao salvar o arquivo.");
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  useEffect(() => {
-    const postName = localStorage.getItem("userPost");
+  const createMediaField = () => ({
+    file: null,
+    fileName: "",
+    fileUrl: null,
+    inputRef: createRef(),
+  });
 
-    if (postName) {
-      const fetchPostDetails = async () => {
-        try {
-          const postsRef = collection(db, "POSTS");
-          const q = query(postsRef, where("name", "==", postName));
-          const querySnapshot = await getDocs(q);
+  const addMediaField = () => {
+    setMediaFields([...mediaFields, createMediaField()]);
+  };
 
-          querySnapshot.forEach((doc) => {
-            const postData = doc.data();
-          });
-        } catch (error) {
-          console.error("Error fetching post details:", error);
-        }
-      };
-
-      fetchPostDetails();
-    }
-  }, []);
+  const removeMediaField = (index: number) => {
+    const updatedFields = mediaFields.filter((_, i) => i !== index);
+    setMediaFields(updatedFields);
+  };
 
   const getLocalISODate = () => {
     const date = new Date();
@@ -180,7 +177,8 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    else if (!etanolImage) missingField = "Arquivo do quarto caixa";
+    else if (mediaFields.some((field) => !field.file))
+      missingField = "Arquivos de mídia";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -206,9 +204,11 @@ export default function NewPost() {
       return;
     }
 
-    const files = etanolImageUrl
-      ? [{ type: "Etanol", fileUrl: etanolImageUrl, fileName: etanolFileName }]
-      : [];
+    const files = mediaFields.map((field) => ({
+      type: "Media",
+      fileUrl: field.fileUrl,
+      fileName: field.fileName,
+    }));
 
     const fourthCashierData = {
       date,
@@ -481,10 +481,7 @@ export default function NewPost() {
                             border: "1px solid #939393",
                             borderRadius: "20px",
                           }}
-                          onLoad={() =>
-                            // @ts-ignore
-                            URL.revokeObjectURL(image)
-                          }
+                          onLoad={() => URL.revokeObjectURL(image)}
                         />
                         <p className={styles.fileName}>{image.fileName}</p>
                         <a
@@ -500,29 +497,61 @@ export default function NewPost() {
                   </div>
                 ))}
 
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Arquivo do quarto caixa</p>
-                <input
-                  type="file"
-                  accept=".jpeg, .png, .jpg"
-                  style={{ display: "none" }}
-                  ref={etanolRef}
-                  onChange={handleEtanolFileChange}
-                />
+              {mediaFields.map((field, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Arquivo do quarto caixa</p>
+                    <input
+                      type="file"
+                      accept=".jpeg, .png, .jpg"
+                      style={{ display: "none" }}
+                      // @ts-ignore
+                      ref={field.inputRef}
+                      onChange={(e) => handleFileChange(index, e)}
+                    />
 
-                <button
-                  // @ts-ignore
-                  onClick={() => etanolRef.current && etanolRef.current.click()}
-                  className={styles.MidiaField}
-                >
-                  Carregue sua imagem
-                </button>
-                {etanolImage && (
-                  <div>
-                    <p className={styles.fileName}>{etanolFileName}</p>
+                    <button
+                      onClick={() =>
+                        // @ts-ignore
+                        field.inputRef.current && field.inputRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Carregue sua imagem
+                    </button>
+                    {field.file && (
+                      <div>
+                        <p className={styles.fileName}>{field.fileName}</p>
+                        <img
+                          src={URL.createObjectURL(field.file)}
+                          alt={`Preview ${field.fileName}`}
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                          // @ts-ignore
+                          onLoad={() => URL.revokeObjectURL(field.file)}
+                        />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+
+                  {mediaFields.length > 1 && (
+                    <button
+                      onClick={() => removeMediaField(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>Excluir</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              <button onClick={addMediaField} className={styles.NewButton}>
+                <span className={styles.buttonText}>Adicionar novo campo</span>
+              </button>
             </div>
           </div>
 
