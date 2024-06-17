@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
    try {
       const sendImageMessage = async (contact: any) => {
          const response = await fetch(
-            'https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/664f81f7028bc8c1dec6e205/mediaurl',
+            'https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/6670426de050f35bb4360457/mediaurl',
             {
                method: 'POST',
                headers: {

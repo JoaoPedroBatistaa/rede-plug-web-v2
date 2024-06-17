@@ -25,7 +25,7 @@ export default async function handler(req: { method: string; body: { managerCont
       while (attempts < maxAttempts && !success) {
          try {
             response = await fetch(
-               `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/664f81f7028bc8c1dec6e205/text`,
+               `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/6670426de050f35bb4360457/text`,
                {
                   method: "POST",
                   headers: {
