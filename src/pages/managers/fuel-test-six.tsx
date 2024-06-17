@@ -960,7 +960,9 @@ export default function NewPost() {
                                 id="gasolineQuality"
                                 type="text"
                                 className={styles.Field}
-                                value={gasolineData[0]?.gasolineQuality || ""}
+                                value={
+                                  gasolineData[index]?.gasolineQuality || ""
+                                }
                                 onChange={(e) =>
                                   handleGasolineFieldChange(
                                     index,
@@ -969,7 +971,6 @@ export default function NewPost() {
                                   )
                                 }
                                 placeholder=""
-                                disabled
                               />
                             </div>
 
@@ -1130,7 +1131,6 @@ export default function NewPost() {
                               placeholder=""
                             />
                           </div>
-
                           <div className={styles.InputField}>
                             <p className={styles.FieldLabel}>Peso do Etanol</p>
                             <input
@@ -1148,7 +1148,6 @@ export default function NewPost() {
                               placeholder=""
                             />
                           </div>
-
                           <div className={styles.InputField}>
                             <p className={styles.FieldLabel}>
                               Imagem do teste de Etanol
@@ -1209,7 +1208,7 @@ export default function NewPost() {
                               id="gasolineQuality"
                               type="text"
                               className={styles.Field}
-                              value={gasolineData[0]?.gasolineQuality || ""}
+                              value={gasolineData[index]?.gasolineQuality || ""}
                               onChange={(e) =>
                                 handleGasolineFieldChange(
                                   index,
@@ -1220,7 +1219,6 @@ export default function NewPost() {
                               placeholder=""
                             />
                           </div>
-
                           <div className={styles.InputField}>
                             <p className={styles.FieldLabel}>
                               Imagem do teste de Gasolina Comum (GC)

@@ -346,55 +346,6 @@ export default function NewPost() {
     }
 
     console.log("Mensagem da atualização do quarto caixa enviada com sucesso!");
-
-    // Obter token de autenticação
-    const authTokenResponse = await fetch("/api/auth-login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: "admredeplug@gmail.com",
-        password: "Sc125687!",
-      }),
-    });
-
-    const authTokenBody = await authTokenResponse.json();
-    const authToken = authTokenBody.data.token;
-
-    const additionalContacts = ["5511983610285", "5511979525519"];
-
-    try {
-      const imageResponse = await fetch("/api/send-image-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contacts: ["5511983610285"], // Lista de contatos
-          messageBody: {
-            title: "*Novo 4º caixa às 6h*", // Parâmetro de título dinâmico
-            measurementSheetUrl: filesDescription[0].originalUrl, // Usando a URL correta da imagem
-            postName: data.postName,
-            formattedDate: formattedDate,
-          },
-          authToken: authToken,
-        }),
-      });
-
-      if (!imageResponse.ok) {
-        const errorMessage = await imageResponse.text();
-        console.error(
-          `Erro na resposta ao enviar mensagem de imagem: ${errorMessage}`
-        );
-        throw new Error(`Falha ao enviar mensagem de imagem via WhatsApp`);
-      }
-
-      console.log(`Mensagem de imagem enviada com sucesso`);
-    } catch (error) {
-      console.error(`Erro ao enviar mensagem de imagem: ${error}`);
-      throw error;
-    }
   }
 
   return (

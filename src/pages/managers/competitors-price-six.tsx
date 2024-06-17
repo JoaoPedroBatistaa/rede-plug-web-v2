@@ -340,7 +340,7 @@ export default function NewPost() {
 
     console.log(managerContact);
 
-    const contacts = [managerContact, "5511979525519"];
+    const contacts = [managerContact];
 
     const sendMessages = contacts.map(async (contact) => {
       const response = await fetch("/api/send-message", {
