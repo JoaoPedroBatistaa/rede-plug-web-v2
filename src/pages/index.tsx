@@ -57,11 +57,24 @@ export default function Login() {
     );
 
     if (user) {
+      const now = new Date();
+      const date = now
+        .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+        .split("/")
+        .reverse()
+        .join("-");
+      const time = now.toLocaleTimeString("pt-BR", {
+        hour12: false,
+        timeZone: "America/Sao_Paulo",
+      });
+
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userType", user.type);
       localStorage.setItem("userPost", user.postName);
-      localStorage.setItem("posts", user.posts);
+      localStorage.setItem("posts", JSON.stringify(user.posts));
+      localStorage.setItem("loginDate", date);
+      localStorage.setItem("loginTime", time);
 
       toast.success("Login realizado com sucesso!", {
         position: "top-right",
