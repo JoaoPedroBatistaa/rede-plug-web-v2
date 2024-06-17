@@ -533,7 +533,7 @@ export default function NewPost() {
 
     console.log("Contato do gerente:", managerContact);
 
-    const contacts = [managerContact, "5511979525519"];
+    const contacts = [managerContact];
 
     for (const contact of contacts) {
       await sendIndividualMessage(contact, messageBody);
