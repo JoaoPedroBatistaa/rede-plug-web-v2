@@ -26,6 +26,7 @@ import imageCompression from "browser-image-compression";
 interface Tank {
   product: string;
   saleDefense: string;
+  tankNumber: number;
 }
 
 export default function NewPost() {
@@ -43,14 +44,18 @@ export default function NewPost() {
 
   const [ethanolData, setEthanolData] = useState<any[]>([]);
   const [gasolineData, setGasolineData] = useState<any[]>([]);
+  const [s10Data, setS10Data] = useState<any[]>([]);
 
   const [etanolImages, setEtanolImages] = useState<(File | null)[]>([]);
   const [etanolFileNames, setEtanolFileNames] = useState<string[]>([]);
   const [gcImages, setGcImages] = useState<(File | null)[]>([]);
   const [gcFileNames, setGcFileNames] = useState<string[]>([]);
+  const [s10Images, setS10Images] = useState<(File | null)[]>([]);
+  const [s10FileNames, setS10FileNames] = useState<string[]>([]);
 
   const etanolRefs = useRef<(HTMLInputElement | null)[]>([]);
   const gcRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const s10Refs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -150,6 +155,7 @@ export default function NewPost() {
           setTime(data.time || "");
           setEthanolData(data.ethanolData || []);
           setGasolineData(data.gasolineData || []);
+          setS10Data(data.s10Data || []);
         } else {
           console.log("No such document!");
         }
@@ -183,6 +189,8 @@ export default function NewPost() {
           setEtanolFileNames(Array(postData.tanks.length).fill(""));
           setGcImages(Array(postData.tanks.length).fill(null));
           setGcFileNames(Array(postData.tanks.length).fill(""));
+          setS10Images(Array(postData.tanks.length).fill(null));
+          setS10FileNames(Array(postData.tanks.length).fill(""));
         }
       } catch (error) {
         console.error("Error fetching post details:", error);
@@ -216,6 +224,20 @@ export default function NewPost() {
       if (!updatedData[index]) updatedData[index] = {};
       updatedData[index][field] = value;
       console.log("Updated Gasoline Data:", updatedData); // Log dos dados de gasolina atualizados
+      return updatedData;
+    });
+  };
+
+  const handleS10FieldChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    setS10Data((prev) => {
+      const updatedData = [...prev];
+      if (!updatedData[index]) updatedData[index] = {};
+      updatedData[index][field] = value;
+      console.log("Updated S10 Data:", updatedData); // Log dos dados de S10 atualizados
       return updatedData;
     });
   };
@@ -365,6 +387,60 @@ export default function NewPost() {
     }
   };
 
+  const handleS10ImageChange = async (
+    index: number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+
+    if (files && files.length > 0) {
+      const file = files[0];
+      setIsLoading(true);
+      try {
+        let processedFile = file;
+
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
+        const imageUrl = await uploadImageAndGetUrl(
+          processedFile,
+          `fuelTests/${getLocalISODate()}/s10_${
+            processedFile.name
+          }_${Date.now()}`
+        );
+
+        setFetchedData((prev: any) => {
+          const updatedImages = [...(prev.images || [])];
+          updatedImages[index] = {
+            ...updatedImages[index],
+            imageUrl,
+            fileName: processedFile.name,
+            type: `S10 ${index + 1}`,
+          };
+          return { ...prev, images: updatedImages };
+        });
+
+        setS10Images((prev) => {
+          const updated = [...prev];
+          updated[index] = processedFile;
+          return updated;
+        });
+
+        setS10FileNames((prev) => {
+          const updated = [...prev];
+          updated[index] = processedFile.name;
+          return updated;
+        });
+      } catch (error) {
+        console.error("Erro ao fazer upload da imagem de S10:", error);
+        toast.error("Erro ao fazer upload da imagem de S10.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const getLocalISODate = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
@@ -422,6 +498,7 @@ export default function NewPost() {
 
     const ethanolDataFiltered = ethanolData.filter((data: any) => data);
     const gasolineDataFiltered = gasolineData.filter((data: any) => data);
+    const s10DataFiltered = s10Data.filter((data: any) => data);
 
     const fuelTestData = {
       date,
@@ -431,6 +508,7 @@ export default function NewPost() {
       postName: userPost,
       ethanolData: ethanolDataFiltered,
       gasolineData: gasolineDataFiltered,
+      s10Data: s10DataFiltered,
       images,
       tanks: fetchedData?.tanks || [],
       id: "teste-combustiveis-14h",
@@ -505,6 +583,7 @@ export default function NewPost() {
     postName: any;
     ethanolData: any;
     gasolineData: any;
+    s10Data: any;
     images: any;
     tanks: any;
     id?: string;
@@ -531,6 +610,29 @@ export default function NewPost() {
       `*Posto:* ${data.postName}\n` +
       `*Gerente:* ${data.managerName}\n\n`;
 
+    const tankNumbers: { [key: string]: number } = {
+      ET: 0,
+      GC: 0,
+      S10: 0,
+    };
+
+    data.tanks.forEach((tank: { product: string; tankNumber: number }) => {
+      if (tank.product === "ET") tankNumbers.ET++;
+      else if (tank.product === "GC") tankNumbers.GC++;
+      else if (tank.product === "S10") tankNumbers.S10++;
+    });
+
+    const getTankNumber = (product: string, index: number) => {
+      let count = 0;
+      for (let i = 0; i < data.tanks.length; i++) {
+        if (data.tanks[i].product === product) {
+          if (count === index) return data.tanks[i].tankNumber;
+          count++;
+        }
+      }
+      return index + 1;
+    };
+
     if (data.ethanolData.length > 0) {
       console.log("Processando dados de etanol.");
       data.ethanolData.forEach(
@@ -538,11 +640,7 @@ export default function NewPost() {
           ethanol: { ethanolTemperature: any; ethanolWeight: any },
           index: number
         ) => {
-          const tank = data.tanks.find(
-            (tank: { product: string; saleDefense: string }) =>
-              tank.product === "ET" && tank.saleDefense === "Venda"
-          );
-          const tankNumber = tank ? tank.tankNumber : index + 1;
+          const tankNumber = getTankNumber("ET", index);
           const tankTitle = `Tanque ${tankNumber} - ET Venda`;
           messageBody +=
             `*${tankTitle}*\n` +
@@ -568,11 +666,7 @@ export default function NewPost() {
       console.log("Processando dados de gasolina.");
       data.gasolineData.forEach(
         (gasoline: { gasolineQuality: any }, index: number) => {
-          const tank = data.tanks.find(
-            (tank: { product: string; saleDefense: string }) =>
-              tank.product === "GC" && tank.saleDefense === "Venda"
-          );
-          const tankNumber = tank ? tank.tankNumber : index + 1;
+          const tankNumber = getTankNumber("GC", index);
           const tankTitle = `Tanque ${tankNumber} - GC Venda`;
           messageBody +=
             `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n`;
@@ -590,6 +684,25 @@ export default function NewPost() {
           }
         }
       );
+    }
+
+    if (data.s10Data.length > 0) {
+      console.log("Processando dados de S10.");
+      data.s10Data.forEach((s10: { s10Weight: any }, index: number) => {
+        const tankNumber = getTankNumber("S10", index);
+        const tankTitle = `Tanque ${tankNumber} - S10 Venda`;
+        messageBody += `*${tankTitle}*\n` + `*Peso:* ${s10.s10Weight}\n`;
+        const s10Image = imagesDescription.find(
+          (image) => image.type === `S10 ${index + 1}`
+        );
+        if (s10Image) {
+          messageBody += `*Imagem:* ${s10Image.url}\n\n`;
+          console.log(`Imagem de S10 ${index + 1} adicionada: ${s10Image.url}`);
+        } else {
+          messageBody += `\n`;
+          console.log(`Nenhuma imagem encontrada para S10 ${index + 1}`);
+        }
+      });
     }
 
     console.log("Mensagem final gerada:", messageBody);
@@ -1145,6 +1258,134 @@ export default function NewPost() {
                             </div>
                           </div>
                         );
+                      } else if (tank.product === "S10") {
+                        return (
+                          <div key={index} className={styles.InputContainer}>
+                            <p className={styles.TankTitle}>{tankTitle}</p>
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>Peso do S10</p>
+                              <input
+                                id="s10Weight"
+                                type="text"
+                                className={styles.Field}
+                                value={s10Data[index]?.s10Weight || ""}
+                                onChange={(e) =>
+                                  handleS10FieldChange(
+                                    index,
+                                    "s10Weight",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder=""
+                                disabled
+                              />
+                            </div>
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>
+                                Imagem do teste de S10
+                              </p>
+                              <input
+                                type="file"
+                                accept="image/*,video/*"
+                                style={{ display: "none" }}
+                                ref={(el) => (s10Refs.current[index] = el)}
+                                onChange={(e) => handleS10ImageChange(index, e)}
+                                disabled
+                              />
+                              <button
+                                onClick={() =>
+                                  s10Refs.current[index] &&
+                                  // @ts-ignore
+                                  s10Refs.current[index].click()
+                                }
+                                className={styles.MidiaField}
+                                disabled
+                              >
+                                Carregue sua foto
+                              </button>
+                              {fetchedData.images?.find(
+                                (img: any) => img.type === `S10 ${index + 1}`
+                              ) && (
+                                <div>
+                                  {[
+                                    ".mp4",
+                                    ".mov",
+                                    ".avi",
+                                    ".MOV",
+                                    ".MP4",
+                                    ".AVI",
+                                  ].some((ext) =>
+                                    fetchedData.images
+                                      .find(
+                                        (img: any) =>
+                                          img.type === `S10 ${index + 1}`
+                                      )
+                                      .imageUrl.includes(ext)
+                                  ) ? (
+                                    <video
+                                      controls
+                                      style={{
+                                        maxWidth: "17.5rem",
+                                        height: "auto",
+                                        border: "1px solid #939393",
+                                        borderRadius: "20px",
+                                      }}
+                                    >
+                                      <source
+                                        src={
+                                          fetchedData.images.find(
+                                            (img: any) =>
+                                              img.type === `S10 ${index + 1}`
+                                          ).imageUrl
+                                        }
+                                        type="video/mp4"
+                                      />
+                                      Your browser does not support the video
+                                      tag.
+                                    </video>
+                                  ) : (
+                                    <img
+                                      src={
+                                        fetchedData.images.find(
+                                          (img: any) =>
+                                            img.type === `S10 ${index + 1}`
+                                        ).imageUrl
+                                      }
+                                      alt="Preview do teste de S10"
+                                      style={{
+                                        maxWidth: "17.5rem",
+                                        height: "auto",
+                                        border: "1px solid #939393",
+                                        borderRadius: "20px",
+                                      }}
+                                    />
+                                  )}
+                                  <p className={styles.fileName}>
+                                    {
+                                      fetchedData.images.find(
+                                        (img: any) =>
+                                          img.type === `S10 ${index + 1}`
+                                      ).fileName
+                                    }
+                                  </p>
+                                  <a
+                                    href={
+                                      fetchedData.images.find(
+                                        (img: any) =>
+                                          img.type === `S10 ${index + 1}`
+                                      ).imageUrl
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.openMediaLink}
+                                  >
+                                    Abrir mídia
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
                       }
                     })}
               </div>
@@ -1334,6 +1575,73 @@ export default function NewPost() {
                                 />
                                 <p className={styles.fileName}>
                                   {gcFileNames[index]}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    } else if (tank.product === "S10") {
+                      return (
+                        <div key={index} className={styles.InputContainer}>
+                          <p className={styles.TankTitle}>{tankTitle}</p>
+                          <div className={styles.InputField}>
+                            <p className={styles.FieldLabel}>Peso do S10</p>
+                            <input
+                              id="s10Weight"
+                              type="text"
+                              className={styles.Field}
+                              value={s10Data[index]?.s10Weight || ""}
+                              onChange={(e) =>
+                                handleS10FieldChange(
+                                  index,
+                                  "s10Weight",
+                                  e.target.value
+                                )
+                              }
+                              placeholder=""
+                            />
+                          </div>
+                          <div className={styles.InputField}>
+                            <p className={styles.FieldLabel}>
+                              Imagem do teste de S10
+                            </p>
+                            <input
+                              type="file"
+                              accept="image/*,video/*"
+                              style={{ display: "none" }}
+                              ref={(el) => (s10Refs.current[index] = el)}
+                              onChange={(e) => handleS10ImageChange(index, e)}
+                            />
+                            <button
+                              onClick={() =>
+                                s10Refs.current[index] &&
+                                // @ts-ignore
+                                s10Refs.current[index].click()
+                              }
+                              className={styles.MidiaField}
+                            >
+                              Carregue sua foto
+                            </button>
+                            {s10Images[index] && (
+                              <div>
+                                <img
+                                  // @ts-ignore
+                                  src={URL.createObjectURL(s10Images[index])}
+                                  alt="Preview do teste de S10"
+                                  style={{
+                                    maxWidth: "17.5rem",
+                                    height: "auto",
+                                    border: "1px solid #939393",
+                                    borderRadius: "20px",
+                                  }}
+                                  onLoad={() =>
+                                    // @ts-ignore
+                                    URL.revokeObjectURL(s10Images[index])
+                                  }
+                                />
+                                <p className={styles.fileName}>
+                                  {s10FileNames[index]}
                                 </p>
                               </div>
                             )}

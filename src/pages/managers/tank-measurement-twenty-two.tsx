@@ -62,7 +62,7 @@ export default function NewPost() {
   const [isLoading, setIsLoading] = useState(false);
 
   const docId = router.query.docId;
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -149,10 +149,17 @@ export default function NewPost() {
 
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
+
+          // @ts-ignore
           setData(fetchedData);
           setDate(fetchedData.date);
           setTime(fetchedData.time);
-          console.log(fetchedData);
+
+          if (fetchedData.measurementSheet) {
+            setMeasurementSheetUrl(fetchedData.measurementSheet);
+          }
+
+          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
         } else {
           console.log("No such document!");
         }
@@ -175,19 +182,15 @@ export default function NewPost() {
     {}
   );
   const [tankImages, setTankImages] = useState<TankImages>({});
-  const [tankFileNames, setTankFileNames] = useState<{ [key: string]: string }>(
-    {}
-  );
-  const [fileInputRefs, setFileInputRefs] = useState<{
-    [key: string]: React.RefObject<HTMLInputElement>;
-  }>({});
+  const [tankFileNames, setTankFileNames] = useState({});
+  const [fileInputRefs, setFileInputRefs] = useState({});
   const [tankImageUrls, setTankImageUrls] = useState<{ [key: string]: string }>(
     {}
   );
-  const [conversionData, setConversionData] = useState<any[]>([]);
-  const [tankLiters, setTankLiters] = useState<{
-    [key: string]: number | null;
-  }>({});
+
+  const [conversionData, setConversionData] = useState([]);
+  const [tankLiters, setTankLiters] = useState({});
+
   const [measurementSheet, setMeasurementSheet] = useState<File | null>(null);
   const [measurementSheetFileName, setMeasurementSheetFileName] = useState<
     string | null
@@ -232,6 +235,8 @@ export default function NewPost() {
       setIsLoading(true);
       try {
         let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
         if (file.type.startsWith("image/")) {
           processedFile = await compressImage(file);
         }
@@ -273,13 +278,12 @@ export default function NewPost() {
     loadConversionData();
   }, []);
 
-  const findLitersForMeasurement = (
-    tankOption: string,
-    measurementCm: string
-  ) => {
+  // @ts-ignore
+  const findLitersForMeasurement = (tankOption, measurementCm) => {
     const measurementCmNumber = Number(measurementCm);
 
     const tankConversionData = conversionData.filter(
+      // @ts-ignore
       (data) => data.Tanque.toString() === tankOption.toString()
     );
 
@@ -300,13 +304,12 @@ export default function NewPost() {
       );
     }
 
+    // @ts-ignore
     return conversionRecord ? conversionRecord.Litros : null;
   };
 
-  const handleMeasurementChange = (
-    tankNumber: string,
-    measurementCm: string
-  ) => {
+  // @ts-ignore
+  const handleMeasurementChange = (tankNumber, measurementCm) => {
     const selectedTankObject = tanks.find(
       (tank) => tank.tankNumber === tankNumber
     );
@@ -316,11 +319,11 @@ export default function NewPost() {
     }
 
     const liters = findLitersForMeasurement(
-      selectedTankObject.tankNumber,
+      // @ts-ignore
+      selectedTankObject.tankOption,
       measurementCm
     );
 
-    // @ts-ignore
     setTankMeasurements((prev) => ({
       ...prev,
       [tankNumber]: {
@@ -340,6 +343,8 @@ export default function NewPost() {
       setIsLoading(true);
       try {
         let processedFile = file;
+
+        // Verifica se o arquivo é uma imagem antes de comprimir
         if (file.type.startsWith("image/")) {
           processedFile = await compressImage(file);
         }
@@ -369,12 +374,12 @@ export default function NewPost() {
       }
     }
   };
-
   useEffect(() => {
     const refs = tanks.reduce((acc, tank) => {
-      acc[tank.tankNumber] = React.createRef<HTMLInputElement>();
+      // @ts-ignore
+      acc[tank.tankNumber] = React.createRef();
       return acc;
-    }, {} as { [key: string]: React.RefObject<HTMLInputElement> });
+    }, {});
     setFileInputRefs(refs);
   }, [tanks]);
 
@@ -403,6 +408,7 @@ export default function NewPost() {
 
   const getLocalISODate = () => {
     const date = new Date();
+    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
@@ -445,15 +451,13 @@ export default function NewPost() {
       return;
     }
 
-    const measurementData: MeasurementData = {
+    const measurementData = {
       date,
       time,
-      // @ts-ignore
       managerName: userName,
       userName,
       postName,
       measurements: [],
-      measurementSheet: measurementSheetUrl || "",
       id: "medicao-tanques-22h",
     };
 
@@ -463,11 +467,15 @@ export default function NewPost() {
         measurement: tankMeasurements[tank.tankNumber] || "",
         imageUrl: tankImageUrls[tank.tankNumber] || "",
       };
+      // @ts-ignore
       measurementData.measurements.push(tankData);
     }
 
     try {
-      await sendMessage(measurementData);
+      // @ts-ignore
+      await sendMainMessage(measurementData);
+      // @ts-ignore
+      await sendAdditionalMessages(measurementData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);
@@ -530,36 +538,43 @@ export default function NewPost() {
     }
   }
 
-  async function sendMessage(data: MeasurementData) {
+  async function sendMainMessage(data: {
+    date: any;
+    time: any;
+    managerName: any;
+    userName?: string | null;
+    postName: any;
+    measurements: any;
+    measurementSheet: any;
+    id?: string;
+  }) {
     const formattedDate = formatDate(data.date);
     const shortUrls = await Promise.all(
-      data.measurements.map((measurement) => shortenUrl(measurement.imageUrl))
+      data.measurements.map((measurement: { imageUrl: string }) =>
+        shortenUrl(measurement.imageUrl)
+      )
     );
     const measurements = data.measurements
-      .map((measurement, index) => {
-        const tank = tanks.find(
-          (tank) => tank.tankNumber === measurement.tankNumber
-        );
-        const tankTitle = `Tanque ${tank?.tankNumber} - (${tank?.product}) ${tank?.saleDefense}`;
-        // @ts-ignore
-        return `*${tankTitle}:*\n*Régua:* ${measurement.measurement.cm} cm\n*Conversão:* ${measurement.measurement.liters} litros\n*Imagem:* ${shortUrls[index]}\n\n`;
-      })
+      .map(
+        (
+          measurement: {
+            tankNumber: string;
+            measurement: { cm: any; liters: any };
+          },
+          index: string | number
+        ) => {
+          const tank = tanks.find(
+            (tank) => tank.tankNumber === measurement.tankNumber
+          );
+          // @ts-ignore
+          const tankTitle = `Tanque ${tank.tankNumber} - (${tank.product}) ${tank.saleDefense}`;
+          // @ts-ignore
+          return `*${tankTitle}:*\n*Régua:* ${measurement.measurement.cm} cm\n*Conversão:* ${measurement.measurement.liters} litros\n*Imagem:* ${shortUrls[index]}\n\n`;
+        }
+      )
       .join("\n");
-    // @ts-ignore
-    const measurementSheetUrl = data.measurementSheet
-      ? // @ts-ignore
-        await shortenUrl(data.measurementSheet)
-      : "";
 
-    const messageBody = `*Nova Medição dos Tanques às 22h*\n\n*Data:* ${formattedDate}\n*Hora:* ${
-      data.time
-    }\n*Posto:* ${data.postName}\n*Gerente:* ${
-      data.managerName
-    }\n\n*Detalhes das Medições*\n\n${measurements}${
-      measurementSheetUrl
-        ? `\n*Planilha de Medição:* ${measurementSheetUrl}\n`
-        : ""
-    }`;
+    const messageBody = `*Nova Medição dos Tanques às 22h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes das Medições*\n\n${measurements}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -575,22 +590,122 @@ export default function NewPost() {
 
     console.log(managerContact);
 
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
+    try {
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          managerContact: managerContact,
+          messageBody,
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error(
+          `Erro na resposta ao enviar mensagem completa: ${errorMessage}`
+        );
+        throw new Error(
+          `Falha ao enviar mensagem via WhatsApp para ${managerContact}`
+        );
+      }
+
+      console.log(`Mensagem enviada com sucesso para ${managerContact}`);
+      toast.success(`Mensagem enviada com sucesso para ${managerContact}`);
+    } catch (error) {
+      console.error(`Erro ao enviar mensagem completa: ${error}`);
+      toast.error(`Falha ao enviar mensagem para ${managerContact}`);
+    }
+  }
+
+  async function sendAdditionalMessages(data: {
+    date: any;
+    time: any;
+    managerName: any;
+    userName?: string | null;
+    postName: any;
+    measurements: any;
+    measurementSheet: any;
+    id?: string;
+  }) {
+    const formattedDate = formatDate(data.date);
+
+    let authToken;
+    try {
+      const authResponse = await fetch("/api/auth-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "admredeplug@gmail.com",
+          password: "Sc125687!",
+        }),
+      });
+
+      const authResponseBody = await authResponse.json();
+      console.log(
+        `Resposta completa do login de autenticação: ${authResponseBody}`
+      );
+
+      if (!authResponse.ok) {
+        console.error(
+          `Erro na resposta ao obter token de autenticação: ${authResponseBody}`
+        );
+        throw new Error("Falha ao obter token de autenticação");
+      }
+
+      authToken = authResponseBody.data.token;
+
+      console.log(`Token de autenticação obtido: ${authToken}`);
+    } catch (error) {
+      console.error(`Erro ao obter token de autenticação: ${error}`);
+      toast.error("Falha ao obter token de autenticação");
+      return;
     }
 
-    console.log("Mensagem enviada com sucesso!");
+    const contacts = ["5511911534298"];
+    for (const contact of contacts) {
+      try {
+        const imageResponse = await fetch("/api/send-image-message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contacts: [contact],
+            messageBody: {
+              title: "*Nova Medição às 22h*",
+              measurementSheetUrl: data.measurementSheet,
+              postName: data.postName,
+              formattedDate: formattedDate,
+            },
+            authToken: authToken,
+          }),
+        });
+
+        if (!imageResponse.ok) {
+          const errorMessage = await imageResponse.text();
+          console.error(
+            `Erro na resposta ao enviar mensagem de imagem: ${errorMessage}`
+          );
+          throw new Error(`Falha ao enviar mensagem de imagem via WhatsApp`);
+        }
+
+        console.log(`Mensagem de imagem enviada com sucesso para ${contact}`);
+        toast.success(`Mensagem de imagem enviada com sucesso para ${contact}`);
+      } catch (error) {
+        console.error(
+          `Erro ao enviar mensagem de imagem para ${contact}: ${error}`
+        );
+        toast.error(`Falha ao enviar mensagem de imagem para ${contact}`);
+      }
+
+      // Adiciona um intervalo de 2 segundos entre cada mensagem
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
   }
 
   return (
@@ -659,91 +774,155 @@ export default function NewPost() {
                 </div>
               </div>
 
-              {docId &&
-                data?.measurements.map(
-                  (measurement: TankMeasurement, index: number) => (
-                    <div key={index}>
-                      <p className={styles.titleTank}>
-                        Tanque {measurement.tankNumber}
-                      </p>
-
-                      <div className={styles.InputContainer}>
-                        <div className={styles.InputField}>
-                          <p className={styles.FieldLabel}>Medição em cm</p>
-                          <input
-                            type="number"
-                            // @ts-ignore
-                            value={measurement.measurement.cm}
-                            className={styles.Field}
-                            disabled
-                          />
-                        </div>
-
-                        <div className={styles.InputField}>
-                          <p className={styles.FieldLabel}>Litros</p>
-                          <input
-                            type="text"
-                            // @ts-ignore
-                            value={measurement.measurement.liters}
-                            className={styles.Field}
-                            disabled
-                          />
-                        </div>
-
-                        <div className={styles.InputField}>
-                          <p className={styles.FieldLabel}>Foto da medição</p>
-                          {measurement.imageUrl.includes(".mp4") ||
-                          measurement.imageUrl.includes(".avi") ||
-                          measurement.imageUrl.includes(".mov") ? (
-                            <video
-                              controls
-                              style={{
-                                maxWidth: "17.5rem",
-                                height: "auto",
-                                border: "1px solid #939393",
-                                borderRadius: "20px",
-                              }}
-                            >
-                              <source
-                                src={measurement.imageUrl}
-                                type="video/mp4"
-                              />
-                              Seu navegador não suporta o elemento de vídeo.
-                            </video>
-                          ) : (
-                            <img
-                              src={measurement.imageUrl}
-                              alt="Visualização da imagem"
-                              style={{
-                                maxWidth: "17.5rem",
-                                height: "auto",
-                                border: "1px solid #939393",
-                                borderRadius: "20px",
-                              }}
-                            />
-                          )}
-                          <a
-                            href={measurement.imageUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.openMediaLink}
-                          >
-                            Abrir mídia
-                          </a>
-                        </div>
-                      </div>
+              {docId && (
+                <>
+                  {measurementSheetUrl && (
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Planilha de Medição</p>
+                      {measurementSheetUrl.includes(".mp4") ||
+                      measurementSheetUrl.includes(".avi") ||
+                      measurementSheetUrl.includes(".mov") ? (
+                        <video
+                          controls
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        >
+                          <source src={measurementSheetUrl} type="video/mp4" />
+                          Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                      ) : (
+                        <img
+                          src={measurementSheetUrl}
+                          alt="Visualização da planilha de medição"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      )}
+                      <a
+                        href={measurementSheetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.openMediaLink}
+                      >
+                        Abrir mídia
+                      </a>
                     </div>
-                  )
-                )}
+                  )}
+
+                  {
+                    // @ts-ignore
+                    data?.measurements.map(
+                      (
+                        measurement: {
+                          tankNumber: any;
+                          measurement: {
+                            cm: any;
+                            liters: any;
+                          };
+                          imageUrl: any;
+                        },
+                        index: React.Key | null | undefined
+                      ) => (
+                        <div key={index}>
+                          <p className={styles.titleTank}>
+                            Tanque {measurement.tankNumber}
+                          </p>
+
+                          <div className={styles.InputContainer}>
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>Medição em cm</p>
+                              <input
+                                type="number"
+                                value={measurement.measurement.cm}
+                                className={styles.Field}
+                                disabled
+                              />
+                            </div>
+
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>Litros</p>
+                              <input
+                                type="text"
+                                value={measurement.measurement.liters}
+                                className={styles.Field}
+                                disabled
+                              />
+                            </div>
+
+                            <div className={styles.InputField}>
+                              <p className={styles.FieldLabel}>
+                                Foto da medição
+                              </p>
+                              {
+                                // @ts-ignore
+                                measurement.imageUrl.includes(".mp4") ||
+                                // @ts-ignore
+                                measurement.imageUrl.includes(".avi") ||
+                                // @ts-ignore
+                                measurement.imageUrl.includes(".mov") ? (
+                                  <video
+                                    controls
+                                    style={{
+                                      maxWidth: "17.5rem",
+                                      height: "auto",
+                                      border: "1px solid #939393",
+                                      borderRadius: "20px",
+                                    }}
+                                  >
+                                    <source
+                                      // @ts-ignore
+                                      src={measurement.imageUrl}
+                                      type="video/mp4"
+                                    />
+                                    Seu navegador não suporta o elemento de
+                                    vídeo.
+                                  </video>
+                                ) : (
+                                  <img
+                                    src={measurement.imageUrl}
+                                    alt="Visualização da imagem"
+                                    style={{
+                                      maxWidth: "17.5rem",
+                                      height: "auto",
+                                      border: "1px solid #939393",
+                                      borderRadius: "20px",
+                                    }}
+                                  />
+                                )
+                              }
+                              <a
+                                href={measurement.imageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.openMediaLink}
+                              >
+                                Abrir mídia
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )
+                  }
+                </>
+              )}
 
               {tanks.map((tank) => (
-                <React.Fragment key={tank.tankNumber}>
+                <>
                   <p className={styles.titleTank}>
                     Tanque {tank.tankNumber} - {tank.capacity}L ({tank.product})
                     - {tank.saleDefense}
                   </p>
 
-                  <div className={styles.InputContainer}>
+                  <div key={tank.tankNumber} className={styles.InputContainer}>
                     <div className={styles.InputField}>
                       <p className={styles.FieldLabel}>Medição em cm</p>
                       <input
@@ -766,6 +945,7 @@ export default function NewPost() {
                         type="file"
                         accept="image/*,video/*"
                         style={{ display: "none" }}
+                        // @ts-ignore
                         ref={fileInputRefs[tank.tankNumber]}
                         onChange={(event) =>
                           handleImageChange(event, tank.tankNumber)
@@ -773,8 +953,11 @@ export default function NewPost() {
                       />
                       <button
                         onClick={() =>
+                          // @ts-ignore
+
                           fileInputRefs[tank.tankNumber].current &&
                           // @ts-ignore
+
                           fileInputRefs[tank.tankNumber].current.click()
                         }
                         className={styles.MidiaField}
@@ -791,7 +974,10 @@ export default function NewPost() {
                         <p className={styles.totalDischarge}>
                           {
                             // @ts-ignore
-                            tankMeasurements[tank.tankNumber]?.liters !== null
+                            tankMeasurements[tank.tankNumber]?.liters !==
+                              undefined &&
+                            // @ts-ignore
+                            tankMeasurements[tank.tankNumber].liters !== null
                               ? `Medição atual em litros: ${
                                   // @ts-ignore
                                   tankMeasurements[tank.tankNumber].liters
@@ -820,11 +1006,14 @@ export default function NewPost() {
                         }
                       />
                       <p className={styles.fileName}>
-                        {tankFileNames[tank.tankNumber]}
+                        {
+                          //@ts-ignore
+                          tankFileNames[tank.tankNumber]
+                        }
                       </p>
                     </div>
                   )}
-                </React.Fragment>
+                </>
               ))}
             </div>
           </div>
