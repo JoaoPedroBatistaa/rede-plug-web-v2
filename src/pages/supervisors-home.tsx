@@ -96,7 +96,8 @@ export default function Home() {
 
     const postsData = localStorage.getItem("posts");
     if (postsData) {
-      const postsArray = postsData.split(",");
+      let postsArray = postsData.split(",");
+      postsArray = postsArray.map((post) => post.replace(/['"\[\]]/g, ""));
       // @ts-ignore
       setPosts(postsArray);
     }
