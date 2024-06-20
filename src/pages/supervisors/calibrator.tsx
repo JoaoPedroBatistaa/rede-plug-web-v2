@@ -19,7 +19,34 @@ import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -148,16 +175,27 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
 
-  const handleEtanolImageChange = (
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setIsLoading(true);
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
+      const isImage = file.type.startsWith("image/");
+      const uploadFile = isImage ? await compressImage(file) : file;
+      const path = `supervisors/${date}/${file.name}_${Date.now()}`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, uploadFile);
+      const fileUrl = await getDownloadURL(storageRef);
+
       setEtanolImage(file);
       setEtanolFileName(file.name);
+      setEtanolImageUrl(fileUrl);
     }
+    setIsLoading(false);
   };
 
   const getLocalISODate = () => {
@@ -181,9 +219,8 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
-    else if (!etanolImage) missingField = "Fotos da tarefa";
+    else if (!etanolImageUrl) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -193,7 +230,6 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -220,28 +256,13 @@ export default function NewPost() {
       postName,
       isOk,
       observations,
-      images: [],
+      images: etanolImageUrl
+        ? [{ imageUrl: etanolImageUrl, fileName: etanolFileName }]
+        : [],
       id: "calibrador",
     };
 
-    const uploadPromises = [];
-    if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `supervisors/${date}/${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem da tarefa",
-        imageUrl,
-        fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      taskData.images = images;
-
       sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
@@ -253,24 +274,10 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  async function uploadImageAndGetUrl(imageFile: File, path: string) {
-    const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, imageFile);
-    const downloadUrl = await getDownloadURL(uploadResult.ref);
-    return downloadUrl;
-  }
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
 
   async function shortenUrl(originalUrl: string): Promise<string> {
     console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
@@ -362,6 +369,15 @@ export default function NewPost() {
     console.log(
       "Mensagem de limpeza e organização da pista enviada com sucesso!"
     );
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
   }
 
   return (
@@ -516,10 +532,10 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {etanolImage && (
+                  {etanolImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(etanolImage)}
+                        src={etanolImageUrl}
                         alt="Preview do teste de Etanol"
                         style={{
                           maxWidth: "17.5rem",
@@ -527,8 +543,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(etanolImage)}
                       />
                       <p className={styles.fileName}>{etanolFileName}</p>
                     </div>

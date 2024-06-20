@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
@@ -148,21 +149,64 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
-  const handleEtanolImageChange = (
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
+      setIsLoading(true);
+      try {
+        let finalFile = file;
+        if (file.type.startsWith("image/")) {
+          finalFile = await compressImage(file);
+        }
+        const imageUrl = await uploadImageAndGetUrl(
+          finalFile,
+          `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
+        );
+        setEtanolImage(finalFile);
+        setEtanolFileName(file.name);
+        setEtanolImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload da imagem:", error);
+        toast.error("Erro ao fazer upload da imagem.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
@@ -178,22 +222,18 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
-    else if (!etanolImage) missingField = "Fotos da tarefa";
+    else if (!etanolImageUrl) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -208,7 +248,6 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A tarefa iluminação das testeiras já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
 
@@ -220,28 +259,17 @@ export default function NewPost() {
       postName,
       isOk,
       observations,
-      images: [],
+      images: [
+        {
+          type: "Imagem da tarefa",
+          imageUrl: etanolImageUrl,
+          fileName: etanolFileName,
+        },
+      ],
       id: "iluminacao-testeiras",
     };
 
-    const uploadPromises = [];
-    if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `supervisors/${date}/${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem da tarefa",
-        imageUrl,
-        fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      taskData.images = images;
-
       sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
@@ -253,6 +281,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -265,7 +295,7 @@ export default function NewPost() {
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
+    date.setDate(date.getDate() + 1);
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString().substr(-2);
@@ -310,9 +340,8 @@ export default function NewPost() {
     postName: any;
     supervisorName: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Montar o corpo da mensagem
     const status = data.isOk === "yes" ? "OK" : "NÃO OK";
     const observationsMsg = data.observations
       ? `*Observações:* ${data.observations}`
@@ -359,9 +388,7 @@ export default function NewPost() {
       throw new Error("Falha ao enviar mensagem via WhatsApp");
     }
 
-    console.log(
-      "Mensagem de limpeza e organização da pista enviada com sucesso!"
-    );
+    console.log("Mensagem de iluminação das testeiras enviada com sucesso!");
   }
 
   return (
@@ -429,19 +456,6 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do supervisor</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>OK?</p>

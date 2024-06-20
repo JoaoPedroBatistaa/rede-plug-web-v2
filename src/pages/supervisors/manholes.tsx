@@ -19,7 +19,34 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1, // Tamanho máximo do arquivo final em megabytes
+    maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+    useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -148,18 +175,51 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
+  const [gcImageUrl, setGcImageUrl] = useState("");
 
-  const handleEtanolImageChange = (
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
+      setIsLoading(true);
+      const compressedFile = file.type.startsWith("image/")
+        ? await compressImage(file)
+        : file;
+      const fileUrl = await uploadImageAndGetUrl(
+        compressedFile,
+        `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
+      );
       setEtanolImage(file);
       setEtanolFileName(file.name);
+      setEtanolImageUrl(fileUrl);
+      setIsLoading(false);
+    }
+  };
+
+  const handleGcImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    // @ts-ignore
+    const file = event.target.files[0];
+    if (file) {
+      setIsLoading(true);
+      const compressedFile = file.type.startsWith("image/")
+        ? await compressImage(file)
+        : file;
+      const fileUrl = await uploadImageAndGetUrl(
+        compressedFile,
+        `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
+      );
+      setGcImage(file);
+      setGcFileName(file.name);
+      setGcImageUrl(fileUrl);
+      setIsLoading(false);
     }
   };
 
@@ -193,30 +253,38 @@ export default function NewPost() {
       // @ts-ignore
       Array.from({ length: num }, (_, index) => ({
         image1File: null,
-        image1Preview: "",
+        image1Url: "",
         image1Name: "",
         ok: "",
       }))
     );
   };
 
-  const handleImageChange = (
+  const handleFileChange = async (
     pumpIndex: number,
-    imageKey: string,
+    imageKey: any,
     event: ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
-    const newFile = event.target.files[0];
-    if (newFile) {
+    const file = event.target.files[0];
+    if (file) {
+      setIsLoading(true);
+      const compressedFile = file.type.startsWith("image/")
+        ? await compressImage(file)
+        : file;
+      const fileUrl = await uploadImageAndGetUrl(
+        compressedFile,
+        `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
+      );
       const newPumps = [...pumps];
       // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = newFile;
+      newPumps[pumpIndex][`${imageKey}File`] = file;
       // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(newFile);
+      newPumps[pumpIndex][`${imageKey}Url`] = fileUrl;
       // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
-
+      newPumps[pumpIndex][`${imageKey}Name`] = file.name;
       setPumps(newPumps);
+      setIsLoading(false);
     }
   };
 
@@ -227,42 +295,11 @@ export default function NewPost() {
     setPumps(newPumps);
   };
 
-  const handleFileChange = (
-    pumpIndex: number,
-    imageKey: any,
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      const newPumps = [...pumps];
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = file;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(file);
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = file.name;
-      setPumps(newPumps);
-    }
-  };
-
-  const uploadButton = (
-    event: { preventDefault: () => void },
-    pumpIndex: any,
-    imageIndex: any
-  ) => {
-    const fileInput = document.getElementById(
-      `file-input-${pumpIndex}-${imageIndex}`
-    );
-    if (fileInput) {
-      fileInput.click();
-    }
-    event.preventDefault(); // Prevent form submission if it's part of a form
-  };
-
   const initializePumps = (num: any) => {
     const newPumps = Array.from({ length: num }, () => ({
       image1File: null,
+      image1Url: "",
+      image1Name: "",
     }));
     // @ts-ignore
     setPumps(newPumps);
@@ -279,7 +316,6 @@ export default function NewPost() {
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
@@ -297,7 +333,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -305,7 +340,6 @@ export default function NewPost() {
       return;
     }
 
-    // Verificação de campos para cada bomba
     for (let pump of pumps) {
       // @ts-ignore
       if (!pump.ok) {
@@ -313,7 +347,7 @@ export default function NewPost() {
         break;
       }
       // @ts-ignore
-      if (!pump.image1File && !pump.image2File) {
+      if (!pump.image1File) {
         missingField = "Cada tanque deve ter pelo menos uma imagem";
         break;
       }
@@ -326,7 +360,6 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -348,13 +381,10 @@ export default function NewPost() {
       Promise.all(
         ["image1"].map((key) =>
           pump[`${key}File`]
-            ? uploadImageAndGetUrl(
-                pump[`${key}File`],
-                `supervisors/${date}/${pump[`${key}Name`]}_${Date.now()}`
-              ).then((imageUrl) => ({
-                url: imageUrl,
+            ? Promise.resolve({
+                url: pump[`${key}Url`],
                 name: pump[`${key}Name`],
-              }))
+              })
             : Promise.resolve({ url: null, name: null })
         )
       ).then((results) => ({
@@ -402,7 +432,7 @@ export default function NewPost() {
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
+    date.setDate(date.getDate() + 1);
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString().substr(-2);
@@ -446,9 +476,8 @@ export default function NewPost() {
     supervisorName: any;
     observations: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Encurtar URLs das imagens e construir a descrição dos estados e imagens de cada bomba
     let pumpDescriptions = await Promise.all(
       data.tanks.map(async (pump, index) => {
         const status = pump.ok === "yes" ? "OK" : "NÃO OK";
@@ -460,7 +489,6 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Bocas de Visita*\n\n*Data:* ${formattedDate}\n*Hora:* ${
       data.time
     }\n*Posto:* ${data.postName}\n*Supervisor:* ${
@@ -639,7 +667,7 @@ export default function NewPost() {
                       </button>
                       {pump[`${imageKey}File`] && (
                         <img
-                          src={pump[`${imageKey}Preview`]}
+                          src={pump[`${imageKey}Url`]}
                           alt={`Preview da Imagem ${idx + 1} do tanque ${
                             index + 1
                           }`}

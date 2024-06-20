@@ -149,7 +149,7 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
-  const [etanolImageUrl, setEtanolImageUrl] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
 
   async function compressImage(file: File) {
     const options = {
@@ -180,18 +180,14 @@ export default function NewPost() {
   const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        console.error("O arquivo fornecido não é uma imagem");
-        toast.error("Por favor, selecione um arquivo de imagem.");
-        return;
-      }
-
       setIsLoading(true);
       try {
-        const compressedFile = await compressImage(file);
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
         const imageUrl = await uploadImageAndGetUrl(
           compressedFile,
           `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
@@ -200,8 +196,8 @@ export default function NewPost() {
         setEtanolFileName(file.name);
         setEtanolImageUrl(imageUrl);
       } catch (error) {
-        console.error("Erro ao fazer upload da imagem:", error);
-        toast.error("Erro ao fazer upload da imagem.");
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
       } finally {
         setIsLoading(false);
       }
@@ -210,7 +206,6 @@ export default function NewPost() {
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
@@ -226,7 +221,6 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
     else if (!isOk) missingField = "Está ok?";
@@ -235,7 +229,6 @@ export default function NewPost() {
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -256,7 +249,6 @@ export default function NewPost() {
         "A tarefa limpeza e organização dos banheiros já foi feita hoje!"
       );
       setIsLoading(false);
-
       return;
     }
 
@@ -349,7 +341,6 @@ export default function NewPost() {
   }) {
     const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
 
-    // Montar o corpo da mensagem
     const status = data.isOk === "yes" ? "OK" : "NÃO OK";
     const observationsMsg = data.observations
       ? `*Observações:* ${data.observations}`
@@ -545,10 +536,11 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {etanolImage && (
+                  {isLoading && <p>Carregando imagem...</p>}
+                  {etanolImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(etanolImage)}
+                        src={etanolImageUrl}
                         alt="Preview do teste de Etanol"
                         style={{
                           maxWidth: "17.5rem",
@@ -556,8 +548,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(etanolImage)}
                       />
                       <p className={styles.fileName}>{etanolFileName}</p>
                     </div>

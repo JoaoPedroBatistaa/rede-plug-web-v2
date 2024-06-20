@@ -19,6 +19,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
@@ -148,20 +149,93 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
 
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
+  const [gcImageUrl, setGcImageUrl] = useState<string | null>(null);
 
-  const handleEtanolImageChange = (
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
+      setIsLoading(true);
+      try {
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
+        const fileName = compressedFile.name;
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODate()}/${fileName}_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(fileName);
+        setEtanolImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
+
+  const handleGcImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsLoading(true);
+      try {
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
+        const fileName = compressedFile.name;
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODate()}/${fileName}_${Date.now()}`
+        );
+        setGcImage(compressedFile);
+        setGcFileName(fileName);
+        setGcImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
 
   const [numberOfPumps, setNumberOfPumps] = useState(0);
   const [pumps, setPumps] = useState([]);
@@ -195,31 +269,53 @@ export default function NewPost() {
         image1File: null,
         image1Preview: "",
         image1Name: "",
+        image1Url: null,
         image2File: null,
         image2Preview: "",
         image2Name: "",
+        image2Url: null,
         ok: "",
       }))
     );
   };
 
-  const handleImageChange = (
+  const handleImageChange = async (
     pumpIndex: number,
     imageKey: string,
     event: ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const newFile = event.target.files[0];
+    const newFile = event.target.files?.[0];
     if (newFile) {
-      const newPumps = [...pumps];
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = newFile;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(newFile);
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
+      setIsLoading(true);
+      try {
+        let compressedFile = newFile;
+        if (newFile.type.startsWith("image/")) {
+          compressedFile = await compressImage(newFile);
+        }
+        const fileName = compressedFile.name;
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODate()}/${fileName}_${Date.now()}`
+        );
 
-      setPumps(newPumps);
+        const newPumps = [...pumps];
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}File`] = compressedFile;
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Preview`] =
+          URL.createObjectURL(compressedFile);
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Name`] = fileName;
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Url`] = imageUrl;
+
+        setPumps(newPumps);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -228,25 +324,6 @@ export default function NewPost() {
     // @ts-ignore
     newPumps[pumpIndex].ok = value;
     setPumps(newPumps);
-  };
-
-  const handleFileChange = (
-    pumpIndex: number,
-    imageKey: any,
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      const newPumps = [...pumps];
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = file;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(file);
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = file.name;
-      setPumps(newPumps);
-    }
   };
 
   const uploadButton = (
@@ -266,24 +343,16 @@ export default function NewPost() {
   const initializePumps = (num: any) => {
     const newPumps = Array.from({ length: num }, () => ({
       image1File: null,
+      image1Url: null,
       image2File: null,
+      image2Url: null,
     }));
     // @ts-ignore
     setPumps(newPumps);
   };
 
-  const uploadFile = (pumpIndex: number, imageRefKey: string) => {
-    const ref = pumps[pumpIndex][imageRefKey];
-    // @ts-ignore
-    if (ref && ref.current) {
-      // @ts-ignore
-      ref.current.click();
-    }
-  };
-
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
@@ -301,7 +370,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -309,7 +377,6 @@ export default function NewPost() {
       return;
     }
 
-    // Verificação de campos para cada bomba
     for (let pump of pumps) {
       // @ts-ignore
       if (!pump.ok) {
@@ -330,7 +397,6 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -348,41 +414,33 @@ export default function NewPost() {
       return;
     }
 
-    const uploadPromises = pumps.map((pump, index) =>
-      Promise.all(
-        ["image1", "image2"].map((key) =>
-          pump[`${key}File`]
-            ? uploadImageAndGetUrl(
-                pump[`${key}File`],
-                `supervisors/${date}/${pump[`${key}Name`]}_${Date.now()}`
-              ).then((imageUrl) => ({
-                url: imageUrl,
-                name: pump[`${key}Name`],
-              }))
-            : Promise.resolve({ url: null, name: null })
-        )
-      ).then((results) => ({
-        // @ts-ignore
-        ok: pump.ok,
-        image1: results[0],
-        image2: results[1],
-      }))
-    );
+    const pumpsData = pumps.map((pump) => ({
+      // @ts-ignore
+      ok: pump.ok,
+      // @ts-ignore
+      image1: pump.image1Url
+        ? // @ts-ignore
+          { url: pump.image1Url, name: pump.image1Name }
+        : null,
+      // @ts-ignore
+      image2: pump.image2Url
+        ? // @ts-ignore
+          { url: pump.image2Url, name: pump.image2Name }
+        : null,
+    }));
+
+    const taskData = {
+      date,
+      time,
+      supervisorName: userName,
+      userName,
+      postName,
+      observations,
+      pumps: pumpsData,
+      id: "limpeza-bombas",
+    };
 
     try {
-      const pumpsData = await Promise.all(uploadPromises);
-
-      const taskData = {
-        date,
-        time,
-        supervisorName: userName,
-        userName,
-        postName,
-        observations,
-        pumps: pumpsData,
-        id: "limpeza-bombas",
-      };
-
       sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
@@ -407,7 +465,7 @@ export default function NewPost() {
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
+    date.setDate(date.getDate() + 1);
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString().substr(-2);
@@ -451,17 +509,16 @@ export default function NewPost() {
     supervisorName: any;
     observations: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Encurtar URLs das imagens e construir a descrição dos estados e imagens de cada bomba
     let pumpDescriptions = await Promise.all(
       data.pumps.map(async (pump, index) => {
         const status = pump.ok === "yes" ? "OK" : "NÃO OK";
 
-        const imageInfo1 = pump.image1.url
+        const imageInfo1 = pump.image1
           ? `*Imagem 1:* ${await shortenUrl(pump.image1.url)}`
           : "*Sem imagem 1*";
-        const imageInfo2 = pump.image2.url
+        const imageInfo2 = pump.image2
           ? `*Imagem 2:* ${await shortenUrl(pump.image2.url)}`
           : "*Sem imagem 2*";
         return `*Bomba ${
@@ -470,7 +527,6 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Limpeza das Bombas*\n\n*Data:* ${formattedDate}\n*Hora:* ${
       data.time
     }\n*Posto:* ${data.postName}\n*Supervisor:* ${
@@ -581,7 +637,7 @@ export default function NewPost() {
 
               {docId &&
                 // @ts-ignore
-                data.pumps.map((pump, index) => (
+                data?.pumps.map((pump, index) => (
                   <div key={index} className={styles.InputContainer}>
                     {[1, 2].map((imageIndex) => (
                       <div key={imageIndex} className={styles.InputField}>
@@ -631,7 +687,7 @@ export default function NewPost() {
                         type="file"
                         accept="image/*,video/*"
                         style={{ display: "none" }}
-                        onChange={(e) => handleFileChange(index, imageKey, e)}
+                        onChange={(e) => handleImageChange(index, imageKey, e)}
                       />
                       <button
                         onClick={() =>
@@ -644,9 +700,10 @@ export default function NewPost() {
                       >
                         Carregue a Imagem {idx + 1}
                       </button>
-                      {pump[`${imageKey}File`] && (
+                      {isLoading && <p>Carregando imagem...</p>}
+                      {pump[`${imageKey}Url`] && (
                         <img
-                          src={pump[`${imageKey}Preview`]}
+                          src={pump[`${imageKey}Url`]}
                           alt={`Preview da Imagem ${idx + 1} da Bomba ${
                             index + 1
                           }`}

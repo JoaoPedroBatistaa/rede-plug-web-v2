@@ -19,7 +19,34 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -71,7 +98,6 @@ export default function NewPost() {
                 console.log(
                   "Stored data is outdated. Clearing cache and reloading..."
                 );
-                // Clear cache and reload
                 caches
                   .keys()
                   .then((names) => {
@@ -148,18 +174,41 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
+  const [gcImageUrl, setGcImageUrl] = useState("");
 
-  const handleEtanolImageChange = (
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
-      setEtanolImage(file);
+      const compressedFile = await compressImage(file);
+      const url = await uploadImageAndGetUrl(
+        compressedFile,
+        `etanol/${compressedFile.name}`
+      );
+      setEtanolImageUrl(url);
       setEtanolFileName(file.name);
+    }
+  };
+
+  const handleGcImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    // @ts-ignore
+    const file = event.target.files[0];
+    if (file) {
+      const compressedFile = await compressImage(file);
+      const url = await uploadImageAndGetUrl(
+        compressedFile,
+        `gc/${compressedFile.name}`
+      );
+      setGcImageUrl(url);
+      setGcFileName(file.name);
     }
   };
 
@@ -194,16 +243,18 @@ export default function NewPost() {
       Array.from({ length: num }, (_, index) => ({
         image1File: null,
         image1Preview: "",
+        image1Url: "",
         image1Name: "",
         image2File: null,
         image2Preview: "",
+        image2Url: "",
         image2Name: "",
         ok: "",
       }))
     );
   };
 
-  const handleImageChange = (
+  const handleImageChange = async (
     pumpIndex: number,
     imageKey: string,
     event: ChangeEvent<HTMLInputElement>
@@ -211,11 +262,19 @@ export default function NewPost() {
     // @ts-ignore
     const newFile = event.target.files[0];
     if (newFile) {
+      const compressedFile = await compressImage(newFile);
+      const url = await uploadImageAndGetUrl(
+        compressedFile,
+        `pumps/${compressedFile.name}`
+      );
       const newPumps = [...pumps];
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}File`] = newFile;
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(newFile);
+      // @ts-ignore
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Url`] = url;
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
 
@@ -230,7 +289,7 @@ export default function NewPost() {
     setPumps(newPumps);
   };
 
-  const handleFileChange = (
+  const handleFileChange = async (
     pumpIndex: number,
     imageKey: any,
     event: ChangeEvent<HTMLInputElement>
@@ -238,14 +297,24 @@ export default function NewPost() {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
+      setIsLoading(true);
+      const compressedFile = await compressImage(file);
+      const url = await uploadImageAndGetUrl(
+        compressedFile,
+        `pumps/${compressedFile.name}`
+      );
       const newPumps = [...pumps];
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}File`] = file;
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(file);
       // @ts-ignore
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Url`] = url;
+      // @ts-ignore
       newPumps[pumpIndex][`${imageKey}Name`] = file.name;
       setPumps(newPumps);
+      setIsLoading(false);
     }
   };
 
@@ -283,7 +352,6 @@ export default function NewPost() {
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
@@ -301,7 +369,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -309,7 +376,6 @@ export default function NewPost() {
       return;
     }
 
-    // Verificação de campos para cada bomba
     for (let pump of pumps) {
       // @ts-ignore
       if (!pump.ok) {
@@ -330,7 +396,6 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -348,43 +413,29 @@ export default function NewPost() {
       return;
     }
 
-    const uploadPromises = pumps.map((pump, index) =>
-      Promise.all(
-        ["image1", "image2"].map((key) =>
-          pump[`${key}File`]
-            ? uploadImageAndGetUrl(
-                pump[`${key}File`],
-                `supervisors/${date}/${pump[`${key}Name`]}_${Date.now()}`
-              ).then((imageUrl) => ({
-                url: imageUrl,
-                name: pump[`${key}Name`],
-              }))
-            : Promise.resolve({ url: null, name: null })
-        )
-      ).then((results) => ({
-        // @ts-ignore
-        ok: pump.ok,
-        image1: results[0],
-        image2: results[1],
-      }))
-    );
+    const pumpsData = pumps.map((pump) => ({
+      // @ts-ignore
+      ok: pump.ok,
+      // @ts-ignore
+      image1: { url: pump.image1Url, name: pump.image1Name },
+      // @ts-ignore
+      image2: { url: pump.image2Url, name: pump.image2Name },
+    }));
+
+    const taskData = {
+      date,
+      time,
+      supervisorName: userName,
+      userName,
+      postName,
+      observations,
+      pumps: pumpsData,
+      id: "lacre-bombas",
+    };
+
+    sendMessage(taskData);
 
     try {
-      const pumpsData = await Promise.all(uploadPromises);
-
-      const taskData = {
-        date,
-        time,
-        supervisorName: userName,
-        userName,
-        postName,
-        observations,
-        pumps: pumpsData,
-        id: "lacre-bombas",
-      };
-
-      sendMessage(taskData);
-
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
 
@@ -451,9 +502,8 @@ export default function NewPost() {
     supervisorName: any;
     observations: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Encurtar URLs das imagens e construir a descrição dos estados e imagens de cada bomba
     let pumpDescriptions = await Promise.all(
       data.pumps.map(async (pump, index) => {
         const status = pump.ok === "yes" ? "OK" : "NÃO OK";
@@ -470,7 +520,6 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Lacre das Bombas*\n\n*Data:* ${formattedDate}\n*Data:* ${
       data.time
     }\n*Posto:* ${data.postName}\n*Supervisor:* ${

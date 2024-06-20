@@ -19,7 +19,41 @@ import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
+
+async function uploadImageAndGetUrl(imageFile: File, path: string) {
+  const storageRef = ref(storage, path);
+  const uploadResult = await uploadBytes(storageRef, imageFile);
+  const downloadUrl = await getDownloadURL(uploadResult.ref);
+  return downloadUrl;
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -71,7 +105,6 @@ export default function NewPost() {
                 console.log(
                   "Stored data is outdated. Clearing cache and reloading..."
                 );
-                // Clear cache and reload
                 caches
                   .keys()
                   .then((names) => {
@@ -173,151 +206,69 @@ export default function NewPost() {
   const LaudoEstanqueidadeRef = useRef(null);
   const LaudoEletricaRef = useRef(null);
 
-  const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string>("");
   const [etanolFileName, setEtanolFileName] = useState("");
 
-  const [gcImage, setGcImage] = useState<File | null>(null);
+  const [gcImageUrl, setGcImageUrl] = useState<string>("");
   const [gcFileName, setGcFileName] = useState("");
 
-  const [contratoSocialImage, setContratoSocialImage] = useState<File | null>(
-    null
-  );
+  const [contratoSocialImageUrl, setContratoSocialImageUrl] =
+    useState<string>("");
   const [contratoSocialFileName, setContratoSocialFileName] = useState("");
 
-  const [alvaraFuncionamentoImage, setAlvaraFuncionamentoImage] =
-    useState<File | null>(null);
+  const [alvaraFuncionamentoImageUrl, setAlvaraFuncionamentoImageUrl] =
+    useState<string>("");
   const [alvaraFuncionamentoFileName, setAlvaraFuncionamentoFileName] =
     useState("");
 
-  const [bombeirosImage, setBombeirosImage] = useState<File | null>(null);
+  const [bombeirosImageUrl, setBombeirosImageUrl] = useState<string>("");
   const [bombeirosFileName, setBombeirosFileName] = useState("");
 
-  const [epaeImage, setEpaeImage] = useState<File | null>(null);
+  const [epaeImageUrl, setEpaeImageUrl] = useState<string>("");
   const [epaeFileName, setEpaeFileName] = useState("");
 
-  const [brigadaImage, setBrigadaImage] = useState<File | null>(null);
+  const [brigadaImageUrl, setBrigadaImageUrl] = useState<string>("");
   const [brigadaFileName, setBrigadaFileName] = useState("");
 
-  const [laudoCompressorImage, setLaudoCompressorImage] = useState<File | null>(
-    null
-  );
+  const [laudoCompressorImageUrl, setLaudoCompressorImageUrl] =
+    useState<string>("");
   const [laudoCompressorFileName, setLaudoCompressorFileName] = useState("");
 
-  const [laudoEstanqueidadeImage, setLaudoEstanqueidadeImage] =
-    useState<File | null>(null);
+  const [laudoEstanqueidadeImageUrl, setLaudoEstanqueidadeImageUrl] =
+    useState<string>("");
   const [laudoEstanqueidadeFileName, setLaudoEstanqueidadeFileName] =
     useState("");
 
-  const [laudoEletricaImage, setLaudoEletricaImage] = useState<File | null>(
-    null
-  );
+  const [laudoEletricaImageUrl, setLaudoEletricaImageUrl] =
+    useState<string>("");
   const [laudoEletricaFileName, setLaudoEletricaFileName] = useState("");
 
-  const handleEtanolImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    setImageUrl: React.Dispatch<React.SetStateAction<string>>,
+    setFileName: React.Dispatch<React.SetStateAction<string>>,
+    refName: React.RefObject<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
-    }
-  };
-
-  const handleGcImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setGcImage(file);
-      setGcFileName(file.name);
-    }
-  };
-
-  const handleContratoSocialImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setContratoSocialImage(file);
-      setContratoSocialFileName(file.name);
-    }
-  };
-
-  const handleAlvaraFuncionamentoImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setAlvaraFuncionamentoImage(file);
-      setAlvaraFuncionamentoFileName(file.name);
-    }
-  };
-
-  const handleBombeirosImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setBombeirosImage(file);
-      setBombeirosFileName(file.name);
-    }
-  };
-
-  const handleEpaeImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setEpaeImage(file);
-      setEpaeFileName(file.name);
-    }
-  };
-
-  const handleBrigadaImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setBrigadaImage(file);
-      setBrigadaFileName(file.name);
-    }
-  };
-
-  const handleLaudoCompressorImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setLaudoCompressorImage(file);
-      setLaudoCompressorFileName(file.name);
-    }
-  };
-
-  const handleLaudoEstanqueidadeImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setLaudoEstanqueidadeImage(file);
-      setLaudoEstanqueidadeFileName(file.name);
-    }
-  };
-
-  const handleLaudoEletricaImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setLaudoEletricaImage(file);
-      setLaudoEletricaFileName(file.name);
+      setFileName(file.name);
+      setIsLoading(true);
+      try {
+        const compressedFile = file.type.startsWith("image/")
+          ? await compressImage(file)
+          : file;
+        const path = `supervisors/${new Date().toISOString()}/${
+          file.name
+        }_${Date.now()}`;
+        const imageUrl = await uploadImageAndGetUrl(compressedFile, path);
+        setImageUrl(imageUrl);
+      } catch (error) {
+        toast.error("Erro ao enviar a imagem.");
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -347,16 +298,16 @@ export default function NewPost() {
     else if (!isLicencaOperacaoOk)
       missingField = "Licença de Operação está ok?";
     else if (
-      !etanolImage &&
-      !gcImage &&
-      !contratoSocialImage &&
-      !alvaraFuncionamentoImage &&
-      bombeirosImage &&
-      !epaeImage &&
-      brigadaImage &&
-      !laudoCompressorImage &&
-      !laudoEstanqueidadeImage &&
-      !laudoEletricaImage
+      !etanolImageUrl &&
+      !gcImageUrl &&
+      !contratoSocialImageUrl &&
+      !alvaraFuncionamentoImageUrl &&
+      bombeirosImageUrl &&
+      !epaeImageUrl &&
+      brigadaImageUrl &&
+      !laudoCompressorImageUrl &&
+      !laudoEstanqueidadeImageUrl &&
+      !laudoEletricaImageUrl
     )
       missingField = "Fotos do Documento";
     if (missingField) {
@@ -407,133 +358,64 @@ export default function NewPost() {
       id: "documentos",
     };
 
-    const uploadPromises = [];
-    if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `supervisors/${date}/${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do ANP",
-        imageUrl,
+    const imagesData = [
+      {
+        imageUrl: etanolImageUrl,
         fileName: etanolFileName,
-      }));
-      uploadPromises.push(etanolPromise);
-    }
-
-    if (gcImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        gcImage,
-        `fuelTests/${date}/gc_${gcFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem da Licença de Operação",
-        imageUrl,
+        type: "Imagem do ANP",
+      },
+      {
+        imageUrl: gcImageUrl,
         fileName: gcFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (contratoSocialImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        contratoSocialImage,
-        `fuelTests/${date}/gc_${contratoSocialFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do contrato social",
-        imageUrl,
+        type: "Imagem da Licença de Operação",
+      },
+      {
+        imageUrl: contratoSocialImageUrl,
         fileName: contratoSocialFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (alvaraFuncionamentoImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        alvaraFuncionamentoImage,
-        `fuelTests/${date}/gc_${alvaraFuncionamentoFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do Alvará de funcionamento",
-        imageUrl,
+        type: "Imagem do contrato social",
+      },
+      {
+        imageUrl: alvaraFuncionamentoImageUrl,
         fileName: alvaraFuncionamentoFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (bombeirosImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        bombeirosImage,
-        `fuelTests/${date}/gc_${bombeirosFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do Alvará dos Bombeiros",
-        imageUrl,
+        type: "Imagem do Alvará de funcionamento",
+      },
+      {
+        imageUrl: bombeirosImageUrl,
         fileName: bombeirosFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (epaeImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        epaeImage,
-        `fuelTests/${date}/gc_${epaeFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do EPAE",
-        imageUrl,
+        type: "Imagem do Alvará dos Bombeiros",
+      },
+      {
+        imageUrl: epaeImageUrl,
         fileName: epaeFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (brigadaImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        brigadaImage,
-        `fuelTests/${date}/gc_${brigadaFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do Brigada",
-        imageUrl,
+        type: "Imagem do EPAE",
+      },
+      {
+        imageUrl: brigadaImageUrl,
         fileName: brigadaFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (laudoCompressorImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        laudoCompressorImage,
-        `fuelTests/${date}/gc_${laudoCompressorFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do Laudo Compressor",
-        imageUrl,
+        type: "Imagem do Brigada",
+      },
+      {
+        imageUrl: laudoCompressorImageUrl,
         fileName: laudoCompressorFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (laudoEstanqueidadeImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        laudoEstanqueidadeImage,
-        `fuelTests/${date}/gc_${laudoEstanqueidadeFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do Laudo Estanqueidade",
-        imageUrl,
+        type: "Imagem do Laudo Compressor",
+      },
+      {
+        imageUrl: laudoEstanqueidadeImageUrl,
         fileName: laudoEstanqueidadeFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
-
-    if (laudoEletricaImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        laudoEletricaImage,
-        `fuelTests/${date}/gc_${laudoEletricaFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
-        type: "Imagem do Laudo Eletrica",
-        imageUrl,
+        type: "Imagem do Laudo Estanqueidade",
+      },
+      {
+        imageUrl: laudoEletricaImageUrl,
         fileName: laudoEletricaFileName,
-      }));
-      uploadPromises.push(gcPromise);
-    }
+        type: "Imagem do Laudo Eletrica",
+      },
+    ];
+
+    // @ts-ignore
+    taskData.images = imagesData.filter((image) => image.imageUrl);
 
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      taskData.images = images;
-
-      sendMessage(taskData);
+      await sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
@@ -544,15 +426,10 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  async function uploadImageAndGetUrl(imageFile: File, path: string) {
-    const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, imageFile);
-    const downloadUrl = await getDownloadURL(uploadResult.ref);
-    return downloadUrl;
-  }
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
@@ -614,7 +491,6 @@ export default function NewPost() {
   }) {
     const formattedDate = formatDate(data.date);
 
-    // Montar a descrição da conformidade de cada item
     const complianceList = [
       `ANP: ${data.isANPOk === "yes" ? "OK" : "NÃO OK"}`,
       `Licença de Operação: ${
@@ -636,7 +512,6 @@ export default function NewPost() {
       `Laudo Elétrica: ${data.isLaudoEletricaOk === "yes" ? "OK" : "NÃO OK"}`,
     ].join("\n");
 
-    // Encurtar URLs das imagens e montar a descrição
     let imagesDescriptions = await Promise.all(
       data.images.map(async (image: { imageUrl: string; type: any }) => {
         const shortUrl = await shortenUrl(image.imageUrl);
@@ -644,7 +519,6 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Documentos*\n\nData: ${formattedDate}\nPosto: ${
       data.postName
     }\nSupervisor: ${
@@ -750,19 +624,6 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do supervisor</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>ANP OK?</p>
@@ -785,10 +646,16 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={etanolRef}
-                    onChange={handleEtanolImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setEtanolImageUrl,
+                        setEtanolFileName,
+                        etanolRef
+                      )
+                    }
                   />
                   <button
-                    // @ts-ignore
                     onClick={() =>
                       // @ts-ignore
                       etanolRef.current && etanolRef.current.click()
@@ -797,10 +664,10 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {etanolImage && (
+                  {etanolImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(etanolImage)}
+                        src={etanolImageUrl}
                         alt="Preview do ANP"
                         style={{
                           maxWidth: "17.5rem",
@@ -808,8 +675,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(etanolImage)}
                       />
                       <p className={styles.fileName}>{etanolFileName}</p>
                     </div>
@@ -834,14 +699,16 @@ export default function NewPost() {
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>
-                    Imagem do teste da Licença de Operação
+                    Imagem da Licença de Operação
                   </p>
                   <input
                     type="file"
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={gcRef}
-                    onChange={handleGcImageChange}
+                    onChange={(e) =>
+                      handleImageChange(e, setGcImageUrl, setGcFileName, gcRef)
+                    }
                   />
                   <button
                     // @ts-ignore
@@ -850,19 +717,17 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {gcImage && (
+                  {gcImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(gcImage)}
-                        alt="Preview da Licença de Operaçaõ"
+                        src={gcImageUrl}
+                        alt="Preview da Licença de Operação"
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(gcImage)}
                       />
                       <p className={styles.fileName}>{gcFileName}</p>
                     </div>
@@ -892,7 +757,14 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={ContratoSocialRef}
-                    onChange={handleContratoSocialImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setContratoSocialImageUrl,
+                        setContratoSocialFileName,
+                        ContratoSocialRef
+                      )
+                    }
                   />
                   <button
                     onClick={() =>
@@ -904,19 +776,17 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {contratoSocialImage && (
+                  {contratoSocialImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(contratoSocialImage)}
-                        alt="Preview do Contrato social"
+                        src={contratoSocialImageUrl}
+                        alt="Preview do Contrato Social"
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(contratoSocialImage)}
                       />
                       <p className={styles.fileName}>
                         {contratoSocialFileName}
@@ -952,7 +822,14 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={AlvaraFuncionamentoRef}
-                    onChange={handleAlvaraFuncionamentoImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setAlvaraFuncionamentoImageUrl,
+                        setAlvaraFuncionamentoFileName,
+                        AlvaraFuncionamentoRef
+                      )
+                    }
                   />
                   <button
                     onClick={() =>
@@ -964,21 +841,17 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {alvaraFuncionamentoImage && (
+                  {alvaraFuncionamentoImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(alvaraFuncionamentoImage)}
-                        alt="Preview do Alvara de funcionamento"
+                        src={alvaraFuncionamentoImageUrl}
+                        alt="Preview do Alvará de funcionamento"
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        onLoad={() =>
-                          // @ts-ignore
-                          URL.revokeObjectURL(alvaraFuncionamentoImage)
-                        }
                       />
                       <p className={styles.fileName}>
                         {alvaraFuncionamentoFileName}
@@ -1010,22 +883,28 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={BombeirosRef}
-                    onChange={handleBombeirosImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setBombeirosImageUrl,
+                        setBombeirosFileName,
+                        BombeirosRef
+                      )
+                    }
                   />
                   <button
                     onClick={() =>
-                      BombeirosRef.current &&
                       // @ts-ignore
-                      BombeirosRef.current.click()
+                      BombeirosRef.current && BombeirosRef.current.click()
                     }
                     className={styles.MidiaField}
                   >
                     Carregue sua foto
                   </button>
-                  {bombeirosImage && (
+                  {bombeirosImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(bombeirosImage)}
+                        src={bombeirosImageUrl}
                         alt="Preview dos Bombeiros"
                         style={{
                           maxWidth: "17.5rem",
@@ -1033,8 +912,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(bombeirosImage)}
                       />
                       <p className={styles.fileName}>{bombeirosFileName}</p>
                     </div>
@@ -1064,22 +941,26 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={EpaeRef}
-                    onChange={handleEpaeImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setEpaeImageUrl,
+                        setEpaeFileName,
+                        EpaeRef
+                      )
+                    }
                   />
                   <button
-                    onClick={() =>
-                      EpaeRef.current &&
-                      // @ts-ignore
-                      EpaeRef.current.click()
-                    }
+                    // @ts-ignore
+                    onClick={() => EpaeRef.current && EpaeRef.current.click()}
                     className={styles.MidiaField}
                   >
                     Carregue sua foto
                   </button>
-                  {epaeImage && (
+                  {epaeImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(epaeImage)}
+                        src={epaeImageUrl}
                         alt="Preview do EPAE"
                         style={{
                           maxWidth: "17.5rem",
@@ -1087,8 +968,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(epaeImage)}
                       />
                       <p className={styles.fileName}>{epaeFileName}</p>
                     </div>
@@ -1118,31 +997,35 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={BrigadaRef}
-                    onChange={handleBrigadaImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setBrigadaImageUrl,
+                        setBrigadaFileName,
+                        BrigadaRef
+                      )
+                    }
                   />
                   <button
                     onClick={() =>
-                      BrigadaRef.current &&
                       // @ts-ignore
-                      BrigadaRef.current.click()
+                      BrigadaRef.current && BrigadaRef.current.click()
                     }
                     className={styles.MidiaField}
                   >
                     Carregue sua foto
                   </button>
-                  {brigadaImage && (
+                  {brigadaImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(brigadaImage)}
-                        alt="Preview do Brigada"
+                        src={brigadaImageUrl}
+                        alt="Preview da Brigada"
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(brigadaImage)}
                       />
                       <p className={styles.fileName}>{brigadaFileName}</p>
                     </div>
@@ -1174,7 +1057,14 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={LaudoCompressorRef}
-                    onChange={handleLaudoCompressorImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setLaudoCompressorImageUrl,
+                        setLaudoCompressorFileName,
+                        LaudoCompressorRef
+                      )
+                    }
                   />
                   <button
                     onClick={() =>
@@ -1186,10 +1076,10 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {laudoCompressorImage && (
+                  {laudoCompressorImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(laudoCompressorImage)}
+                        src={laudoCompressorImageUrl}
                         alt="Preview do Laudo Compressor"
                         style={{
                           maxWidth: "17.5rem",
@@ -1197,8 +1087,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(laudoCompressorImage)}
                       />
                       <p className={styles.fileName}>
                         {laudoCompressorFileName}
@@ -1232,7 +1120,14 @@ export default function NewPost() {
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={LaudoEstanqueidadeRef}
-                    onChange={handleLaudoEstanqueidadeImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setLaudoEstanqueidadeImageUrl,
+                        setLaudoEstanqueidadeFileName,
+                        LaudoEstanqueidadeRef
+                      )
+                    }
                   />
                   <button
                     onClick={() =>
@@ -1244,10 +1139,10 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {laudoEstanqueidadeImage && (
+                  {laudoEstanqueidadeImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(laudoEstanqueidadeImage)}
+                        src={laudoEstanqueidadeImageUrl}
                         alt="Preview do Laudo Estanqueidade"
                         style={{
                           maxWidth: "17.5rem",
@@ -1255,10 +1150,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        onLoad={() =>
-                          // @ts-ignore
-                          URL.revokeObjectURL(laudoEstanqueidadeImage)
-                        }
                       />
                       <p className={styles.fileName}>
                         {laudoEstanqueidadeFileName}
@@ -1287,14 +1178,21 @@ export default function NewPost() {
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>
-                    Imagem do Laudo Eletrica e Para Raio
+                    Imagem do Laudo Elétrica e Para Raio
                   </p>
                   <input
                     type="file"
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     ref={LaudoEletricaRef}
-                    onChange={handleLaudoEletricaImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setLaudoEletricaImageUrl,
+                        setLaudoEletricaFileName,
+                        LaudoEletricaRef
+                      )
+                    }
                   />
                   <button
                     onClick={() =>
@@ -1306,19 +1204,17 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {laudoEletricaImage && (
+                  {laudoEletricaImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(laudoEletricaImage)}
-                        alt="Preview do Laudo Eletrica"
+                        src={laudoEletricaImageUrl}
+                        alt="Preview do Laudo Elétrica e Para Raio"
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(laudoEletricaImage)}
                       />
                       <p className={styles.fileName}>{laudoEletricaFileName}</p>
                     </div>

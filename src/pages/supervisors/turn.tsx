@@ -1,11 +1,6 @@
-import Head from "next/head";
-import { useRouter } from "next/router";
-import styles from "../../styles/ProductFoam.module.scss";
-
 import HeaderNewProduct from "@/components/HeaderNewTask";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import {
   addDoc,
   collection,
@@ -15,16 +10,44 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
-import { db, getDownloadURL, ref, storage } from "../../../firebase";
-
-import LoadingOverlay from "@/components/Loading";
 import { uploadBytes } from "firebase/storage";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { db, getDownloadURL, ref, storage } from "../../../firebase";
+import styles from "../../styles/ProductFoam.module.scss";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
 
 export default function NewPost() {
   const router = useRouter();
   const postName = router.query.postName;
-
   const docId = router.query.docId;
   const [data, setData] = useState(null);
 
@@ -71,7 +94,6 @@ export default function NewPost() {
                 console.log(
                   "Stored data is outdated. Clearing cache and reloading..."
                 );
-                // Clear cache and reload
                 caches
                   .keys()
                   .then((names) => {
@@ -113,7 +135,6 @@ export default function NewPost() {
 
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
-
           // @ts-ignore
           setData(fetchedData);
           setDate(fetchedData.date);
@@ -122,7 +143,7 @@ export default function NewPost() {
           setIsEtanolOk(fetchedData.isEtanolOk);
           setIsGasolinaOk(fetchedData.isGasolinaOk);
 
-          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
+          console.log(fetchedData);
         } else {
           console.log("No such document!");
         }
@@ -151,33 +172,74 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
+  const [gcImageUrl, setGcImageUrl] = useState("");
 
-  const handleEtanolImageChange = (
+  const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
+      setIsLoading(true);
+      try {
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODate()}/${
+            compressedFile.name
+          }_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(compressedFile.name);
+        setEtanolImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload da imagem:", error);
+        toast.error("Erro ao fazer upload da imagem.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleGcImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGcImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
-      setGcImage(file);
-      setGcFileName(file.name);
+      setIsLoading(true);
+      try {
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODate()}/${
+            compressedFile.name
+          }_${Date.now()}`
+        );
+        setGcImage(compressedFile);
+        setGcFileName(compressedFile.name);
+        setGcImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Erro ao fazer upload da imagem:", error);
+        toast.error("Erro ao fazer upload da imagem.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
@@ -193,23 +255,19 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isEtanolOk) missingField = "Etanol está ok?";
     else if (!isGasolinaOk) missingField = "Gasolina está ok?";
-    else if (!etanolImage && !gcImage)
+    else if (!etanolImageUrl && !gcImageUrl)
       missingField = "Fotos do Teste dos Combustíveis";
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -224,7 +282,6 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A tarefa vira já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
 
@@ -242,23 +299,21 @@ export default function NewPost() {
     };
 
     const uploadPromises = [];
-    if (etanolImage) {
-      const etanolPromise = uploadImageAndGetUrl(
-        etanolImage,
-        `supervisors/${date}/${etanolFileName}_${Date.now()}`
-      ).then((imageUrl) => ({
+    if (etanolImageUrl) {
+      const etanolPromise = Promise.resolve({
         type: "Etanol",
-        imageUrl,
+        imageUrl: etanolImageUrl,
         fileName: etanolFileName,
-      }));
+      });
       uploadPromises.push(etanolPromise);
     }
 
-    if (gcImage) {
-      const gcPromise = uploadImageAndGetUrl(
-        gcImage,
-        `fuelTests/${date}/gc_${gcFileName}_${Date.now()}`
-      ).then((imageUrl) => ({ type: "GC", imageUrl, fileName: gcFileName }));
+    if (gcImageUrl) {
+      const gcPromise = Promise.resolve({
+        type: "GC",
+        imageUrl: gcImageUrl,
+        fileName: gcFileName,
+      });
       uploadPromises.push(gcPromise);
     }
 
@@ -336,9 +391,8 @@ export default function NewPost() {
     postName: any;
     supervisorName: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Montar o corpo da mensagem
     const etanolStatus =
       data.isEtanolOk === "yes" ? "*Etanol:* OK" : "*Etanol:* NÃO OK";
 
@@ -477,19 +531,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do supervisor</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Etanol OK?</p>
@@ -571,7 +613,6 @@ export default function NewPost() {
                     onChange={handleEtanolImageChange}
                   />
                   <button
-                    // @ts-ignore
                     onClick={() =>
                       // @ts-ignore
                       etanolRef.current && etanolRef.current.click()
@@ -583,7 +624,7 @@ export default function NewPost() {
                   {etanolImage && (
                     <div>
                       <img
-                        src={URL.createObjectURL(etanolImage)}
+                        src={etanolImageUrl}
                         alt="Preview do teste de Etanol"
                         style={{
                           maxWidth: "17.5rem",
@@ -591,8 +632,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(etanolImage)}
                       />
                       <p className={styles.fileName}>{etanolFileName}</p>
                     </div>
@@ -620,7 +659,7 @@ export default function NewPost() {
                   {gcImage && (
                     <div>
                       <img
-                        src={URL.createObjectURL(gcImage)}
+                        src={gcImageUrl}
                         alt="Preview do teste de Gasolina Comum"
                         style={{
                           maxWidth: "17.5rem",
@@ -628,8 +667,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(gcImage)}
                       />
                       <p className={styles.fileName}>{gcFileName}</p>
                     </div>

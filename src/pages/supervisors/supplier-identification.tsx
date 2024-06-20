@@ -15,156 +15,81 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
 
 export default function NewPost() {
   const router = useRouter();
   const postName = router.query.postName;
-
   const docId = router.query.docId;
+
   const [data, setData] = useState(null);
-
-  useEffect(() => {
-    const checkForUpdates = async () => {
-      console.log("Checking for updates...");
-      const updateDoc = doc(db, "UPDATE", "Lp8egidKNeHs9jQ8ozvs");
-      try {
-        const updateSnapshot = await getDoc(updateDoc);
-        const updateData = updateSnapshot.data();
-
-        if (updateData) {
-          console.log("Update data retrieved:", updateData);
-          const { date: updateDate, time: updateTime } = updateData;
-          const storedDate = localStorage.getItem("loginDate");
-          const storedTime = localStorage.getItem("loginTime");
-
-          if (storedDate && storedTime) {
-            console.log("Stored date and time:", storedDate, storedTime);
-            const updateDateTime = new Date(
-              `${updateDate.replace(/\//g, "-")}T${updateTime}`
-            );
-            const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-
-            console.log("Update date and time:", updateDateTime);
-            console.log("Stored date and time:", storedDateTime);
-
-            const now = new Date();
-            const date = now
-              .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
-              .split("/")
-              .reverse()
-              .join("-");
-            const time = now.toLocaleTimeString("pt-BR", {
-              hour12: false,
-              timeZone: "America/Sao_Paulo",
-            });
-
-            if (
-              !isNaN(updateDateTime.getTime()) &&
-              !isNaN(storedDateTime.getTime())
-            ) {
-              if (storedDateTime < updateDateTime) {
-                console.log(
-                  "Stored data is outdated. Clearing cache and reloading..."
-                );
-                // Clear cache and reload
-                caches
-                  .keys()
-                  .then((names) => {
-                    for (let name of names) caches.delete(name);
-                  })
-                  .then(() => {
-                    localStorage.setItem("loginDate", date);
-                    localStorage.setItem("loginTime", time);
-                    alert("O sistema agora está na versão mais recente");
-                    window.location.reload();
-                  });
-              } else {
-                console.log("Stored data is up to date.");
-              }
-            } else {
-              console.log("Invalid date/time format detected.");
-            }
-          } else {
-            console.log("No stored date and time found.");
-          }
-        } else {
-          console.log("No update data found in the database.");
-        }
-      } catch (error) {
-        console.error("Error fetching update document:", error);
-      }
-    };
-
-    checkForUpdates();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!docId) return;
-
-      try {
-        const docRef = doc(db, "SUPERVISORS", docId as string);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const fetchedData = docSnap.data();
-
-          // @ts-ignore
-          setData(fetchedData);
-          setDate(fetchedData.date);
-          setTime(fetchedData.time);
-          setObservations(fetchedData.observations);
-
-          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
-        } else {
-          console.log("No such document!");
-        }
-      } catch (error) {
-        console.error("Error getting document:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [docId]);
-
   const [isLoading, setIsLoading] = useState(false);
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [managerName, setManagerName] = useState("");
-
-  const [isOk, setIsOk] = useState("");
   const [observations, setObservations] = useState("");
 
-  const etanolRef = useRef(null);
-  const gcRef = useRef(null);
-
-  const [etanolImage, setEtanolImage] = useState<File | null>(null);
-  const [etanolFileName, setEtanolFileName] = useState("");
-
-  const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcFileName, setGcFileName] = useState("");
-
-  const handleEtanolImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
-    }
-  };
-
-  const [numberOfPumps, setNumberOfPumps] = useState(0);
   const [pumps, setPumps] = useState([]);
+  const [pumpUrls, setPumpUrls] = useState([]); // Array para armazenar URLs das imagens no storage
+
+  useEffect(() => {
+    if (docId) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        try {
+          const docRef = doc(db, "SUPERVISORS", docId as string);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const fetchedData = docSnap.data();
+            // @ts-ignore
+            setData(fetchedData);
+            setDate(fetchedData.date);
+            setTime(fetchedData.time);
+            setObservations(fetchedData.observations);
+          } else {
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.error("Error getting document:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }
+  }, [docId]);
 
   useEffect(() => {
     if (postName) {
@@ -176,115 +101,69 @@ export default function NewPost() {
 
           querySnapshot.forEach((doc) => {
             const postData = doc.data();
-            setNumberOfPumps(postData.bombs.length || []);
-            initializePumps(postData.bombs.length || []);
+            const numPumps = postData.bombs.length;
+            setPumps(
+              // @ts-ignore
+              Array(numPumps).fill({ image1Url: "", image2Url: "", ok: "" })
+            );
+            //@ts-ignore
+            setPumpUrls(Array(numPumps).fill({ image1Url: "", image2Url: "" }));
           });
         } catch (error) {
-          console.error("Error fetching post details:.", error);
+          console.error("Error fetching post details:", error);
         }
       };
-
       fetchPostDetails();
     }
   }, [postName]);
 
-  const updatePumps = (num: number) => {
-    setPumps(
-      // @ts-ignore
-      Array.from({ length: num }, (_, index) => ({
-        image1File: null,
-        image1Preview: "",
-        image1Name: "",
-        image2File: null,
-        image2Preview: "",
-        image2Name: "",
-        ok: "",
-      }))
-    );
-  };
-
-  const handleImageChange = (
+  const handleFileChange = async (
     pumpIndex: number,
     imageKey: string,
     event: ChangeEvent<HTMLInputElement>
   ) => {
+    setIsLoading(true);
     // @ts-ignore
-    const newFile = event.target.files[0];
-    if (newFile) {
-      const newPumps = [...pumps];
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = newFile;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(newFile);
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
+    const file = event.target.files[0];
+    if (file) {
+      const isImage = file.type.startsWith("image/");
+      const uploadFile = isImage ? await compressImage(file) : file;
+      const path = `supervisors/${date}/${file.name}_${Date.now()}`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, uploadFile);
+      const fileUrl = await getDownloadURL(storageRef);
 
-      setPumps(newPumps);
+      const updatedPumps = [...pumps];
+      // @ts-ignore
+      updatedPumps[pumpIndex] = {
+        // @ts-ignore
+        ...updatedPumps[pumpIndex],
+        [`${imageKey}Url`]: fileUrl,
+      };
+      setPumps(updatedPumps);
+
+      const updatedPumpUrls = [...pumpUrls];
+      // @ts-ignore
+      updatedPumpUrls[pumpIndex] = {
+        // @ts-ignore
+        ...updatedPumpUrls[pumpIndex],
+        [`${imageKey}Url`]: fileUrl,
+      };
+      setPumpUrls(updatedPumpUrls);
     }
+    setIsLoading(false);
   };
 
   const handleSelectChange = (pumpIndex: number, value: string) => {
     const newPumps = [...pumps];
     // @ts-ignore
-    newPumps[pumpIndex].ok = value;
+    newPumps[pumpIndex] = { ...newPumps[pumpIndex], ok: value };
     setPumps(newPumps);
-  };
-
-  const handleFileChange = (
-    pumpIndex: number,
-    imageKey: any,
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      const newPumps = [...pumps];
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = file;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(file);
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = file.name;
-      setPumps(newPumps);
-    }
-  };
-
-  const uploadButton = (
-    event: { preventDefault: () => void },
-    pumpIndex: any,
-    imageIndex: any
-  ) => {
-    const fileInput = document.getElementById(
-      `file-input-${pumpIndex}-${imageIndex}`
-    );
-    if (fileInput) {
-      fileInput.click();
-    }
-    event.preventDefault(); // Prevent form submission if it's part of a form
-  };
-
-  const initializePumps = (num: any) => {
-    const newPumps = Array.from({ length: num }, () => ({
-      image1File: null,
-      image2File: null,
-    }));
-    // @ts-ignore
-    setPumps(newPumps);
-  };
-
-  const uploadFile = (pumpIndex: number, imageRefKey: string) => {
-    const ref = pumps[pumpIndex][imageRefKey];
-    // @ts-ignore
-    if (ref && ref.current) {
-      // @ts-ignore
-      ref.current.click();
-    }
   };
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
-    date.setHours(date.getHours() - 3);
+    date.setHours(date.getHours() - 3); // Ajustar para o fuso horário -03:00
     return date.toISOString().slice(0, 10);
   };
 
@@ -301,15 +180,7 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
 
-    if (missingField) {
-      toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
-      setIsLoading(false);
-      return;
-    }
-
-    // Verificação de campos para cada bomba
     for (let pump of pumps) {
       // @ts-ignore
       if (!pump.ok) {
@@ -317,7 +188,7 @@ export default function NewPost() {
         break;
       }
       // @ts-ignore
-      if (!pump.image1File && !pump.image2File) {
+      if (!pump.image1Url && !pump.image2Url) {
         missingField = "Cada bomba deve ter pelo menos uma imagem";
         break;
       }
@@ -330,8 +201,6 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
-
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
@@ -348,46 +217,20 @@ export default function NewPost() {
       return;
     }
 
-    const uploadPromises = pumps.map((pump, index) =>
-      Promise.all(
-        ["image1", "image2"].map((key) =>
-          pump[`${key}File`]
-            ? uploadImageAndGetUrl(
-                pump[`${key}File`],
-                `supervisors/${date}/${pump[`${key}Name`]}_${Date.now()}`
-              ).then((imageUrl) => ({
-                url: imageUrl,
-                name: pump[`${key}Name`],
-              }))
-            : Promise.resolve({ url: null, name: null })
-        )
-      ).then((results) => ({
-        // @ts-ignore
-        ok: pump.ok,
-        image1: results[0],
-        image2: results[1],
-      }))
-    );
+    const taskData = {
+      date,
+      time,
+      supervisorName: userName,
+      userName,
+      postName,
+      observations,
+      pumps: pumpUrls,
+      id: "identificacao-fornecedor",
+    };
 
     try {
-      const pumpsData = await Promise.all(uploadPromises);
-
-      const taskData = {
-        date,
-        time,
-        supervisorName: userName,
-        userName,
-        postName,
-        observations,
-        pumps: pumpsData,
-        id: "identificacao-fornecedor",
-      };
-
-      sendMessage(taskData);
-
-      const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
-      console.log("Tarefa salva com ID: ", docRef.id);
-
+      await sendMessage(taskData);
+      await addDoc(collection(db, "SUPERVISORS"), taskData);
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore
       router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
@@ -397,22 +240,6 @@ export default function NewPost() {
       setIsLoading(false);
     }
   };
-
-  async function uploadImageAndGetUrl(imageFile: File, path: string) {
-    const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, imageFile);
-    const downloadUrl = await getDownloadURL(uploadResult.ref);
-    return downloadUrl;
-  }
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
 
   async function shortenUrl(originalUrl: string): Promise<string> {
     console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
@@ -451,18 +278,16 @@ export default function NewPost() {
     supervisorName: any;
     observations: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Encurtar URLs das imagens e construir a descrição dos estados e imagens de cada bomba
     let pumpDescriptions = await Promise.all(
       data.pumps.map(async (pump, index) => {
         const status = pump.ok === "yes" ? "OK" : "NÃO OK";
-
-        const imageInfo1 = pump.image1.url
-          ? `*Imagem 1:* ${await shortenUrl(pump.image1.url)}`
+        const imageInfo1 = pump.image1Url
+          ? `*Imagem 1:* ${await shortenUrl(pump.image1Url)}`
           : "*Sem imagem 1*";
-        const imageInfo2 = pump.image2.url
-          ? `*Imagem 2:* ${await shortenUrl(pump.image2.url)}`
+        const imageInfo2 = pump.image2Url
+          ? `*Imagem 2:* ${await shortenUrl(pump.image2Url)}`
           : "*Sem imagem 2*";
         return `*Bomba ${
           index + 1
@@ -470,7 +295,6 @@ export default function NewPost() {
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Identificação do fornecedor*\n\n*Data:* ${formattedDate}\n*Hora:* ${
       data.time
     }\n*Posto:* ${data.postName}\n*Supervisor:* ${
@@ -493,8 +317,6 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.contact;
 
-    console.log(managerContact);
-
     const response = await fetch("/api/send-message", {
       method: "POST",
       headers: {
@@ -511,6 +333,15 @@ export default function NewPost() {
     }
 
     console.log("Mensagem de limpeza das bombas enviada com sucesso!");
+  }
+
+  function formatDate(dateString: string | number | Date) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Adicionando um dia
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString().substr(-2);
+    return `${day}/${month}/${year}`;
   }
 
   return (
@@ -647,9 +478,9 @@ export default function NewPost() {
                       >
                         Carregue a Imagem {idx + 1}
                       </button>
-                      {pump[`${imageKey}File`] && (
+                      {pump[`${imageKey}Url`] && (
                         <img
-                          src={pump[`${imageKey}Preview`]}
+                          src={pump[`${imageKey}Url`]}
                           alt={`Preview da Imagem ${idx + 1} da Bomba ${
                             index + 1
                           }`}
