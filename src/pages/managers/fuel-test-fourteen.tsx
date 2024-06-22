@@ -202,42 +202,42 @@ export default function NewPost() {
 
   const handleEthanolFieldChange = (
     index: number,
+    tankNumber: number,
     field: string,
     value: string
   ) => {
     setEthanolData((prev) => {
       const updatedData = [...prev];
-      if (!updatedData[index]) updatedData[index] = {};
+      if (!updatedData[index]) updatedData[index] = { tankNumber };
       updatedData[index][field] = value;
-      console.log("Updated Ethanol Data:", updatedData); // Log dos dados de etanol atualizados
       return updatedData;
     });
   };
 
   const handleGasolineFieldChange = (
     index: number,
+    tankNumber: number,
     field: string,
     value: string
   ) => {
     setGasolineData((prev) => {
       const updatedData = [...prev];
-      if (!updatedData[index]) updatedData[index] = {};
+      if (!updatedData[index]) updatedData[index] = { tankNumber };
       updatedData[index][field] = value;
-      console.log("Updated Gasoline Data:", updatedData); // Log dos dados de gasolina atualizados
       return updatedData;
     });
   };
 
   const handleS10FieldChange = (
     index: number,
+    tankNumber: number,
     field: string,
     value: string
   ) => {
     setS10Data((prev) => {
       const updatedData = [...prev];
-      if (!updatedData[index]) updatedData[index] = {};
+      if (!updatedData[index]) updatedData[index] = { tankNumber };
       updatedData[index][field] = value;
-      console.log("Updated S10 Data:", updatedData); // Log dos dados de S10 atualizados
       return updatedData;
     });
   };
@@ -274,6 +274,7 @@ export default function NewPost() {
 
   const handleEtanolImageChange = async (
     index: number,
+    tankNumber: number,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = event.target.files;
@@ -298,12 +299,11 @@ export default function NewPost() {
 
         setFetchedData((prev: any) => {
           const updatedImages = [...(prev.images || [])];
-          const imageIndex = userPost === "Vena" ? index : index + 1;
           updatedImages[index] = {
             ...updatedImages[index],
             imageUrl,
             fileName: processedFile.name,
-            type: `Etanol ${imageIndex}`,
+            type: `Etanol ${tankNumber}`,
           };
           return { ...prev, images: updatedImages };
         });
@@ -330,6 +330,7 @@ export default function NewPost() {
 
   const handleGcImageChange = async (
     index: number,
+    tankNumber: number,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = event.target.files;
@@ -354,12 +355,11 @@ export default function NewPost() {
 
         setFetchedData((prev: any) => {
           const updatedImages = [...(prev.images || [])];
-          const imageIndex = userPost === "Vena" ? index + 1 : index;
           updatedImages[index] = {
             ...updatedImages[index],
             imageUrl,
             fileName: processedFile.name,
-            type: `GC ${imageIndex}`,
+            type: `GC ${tankNumber}`,
           };
           return { ...prev, images: updatedImages };
         });
@@ -389,6 +389,7 @@ export default function NewPost() {
 
   const handleS10ImageChange = async (
     index: number,
+    tankNumber: number,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = event.target.files;
@@ -416,7 +417,7 @@ export default function NewPost() {
             ...updatedImages[index],
             imageUrl,
             fileName: processedFile.name,
-            type: `S10 ${index + 1}`,
+            type: `S10 ${tankNumber}`,
           };
           return { ...prev, images: updatedImages };
         });
@@ -476,7 +477,7 @@ export default function NewPost() {
       managersRef,
       where("date", "==", date),
       where("userName", "==", userName),
-      where("id", "==", "teste-combustiveis-14h")
+      where("id", "==", "teste-combustiveis-14")
     );
 
     const querySnapshot = await getDocs(q);
@@ -610,100 +611,109 @@ export default function NewPost() {
       `*Posto:* ${data.postName}\n` +
       `*Gerente:* ${data.managerName}\n\n`;
 
-    const tankNumbers: { [key: string]: number } = {
-      ET: 0,
-      GC: 0,
-      S10: 0,
-    };
+    console.log("Tanks before sorting:", data.tanks);
+    const sortedTanks = data.tanks.sort(
+      (a: { tankNumber: number }, b: { tankNumber: number }) =>
+        a.tankNumber - b.tankNumber
+    );
+    console.log("Sorted tanks:", sortedTanks);
 
-    data.tanks.forEach((tank: { product: string; tankNumber: number }) => {
-      if (tank.product === "ET") tankNumbers.ET++;
-      else if (tank.product === "GC") tankNumbers.GC++;
-      else if (tank.product === "S10") tankNumbers.S10++;
-    });
+    console.log("Ethanol data:", data.ethanolData);
+    console.log("Gasoline data:", data.gasolineData);
+    console.log("S10 data:", data.s10Data);
 
-    const getTankNumber = (product: string, index: number) => {
-      let count = 0;
-      for (let i = 0; i < data.tanks.length; i++) {
-        if (data.tanks[i].product === product) {
-          if (count === index) return data.tanks[i].tankNumber;
-          count++;
-        }
-      }
-      return index + 1;
-    };
-
-    if (data.ethanolData.length > 0) {
-      console.log("Processando dados de etanol.");
-      data.ethanolData.forEach(
-        (
-          ethanol: { ethanolTemperature: any; ethanolWeight: any },
-          index: number
-        ) => {
-          const tankNumber = getTankNumber("ET", index);
-          const tankTitle = `Tanque ${tankNumber} - ET Venda`;
+    sortedTanks.forEach((tank: { product: string; tankNumber: number }) => {
+      console.log(
+        `Processing tank number ${tank.tankNumber}, product ${tank.product}`
+      );
+      if (tank.product === "ET") {
+        const ethanol = data.ethanolData.find(
+          (eth: any) => eth.tankNumber === tank.tankNumber
+        );
+        console.log(
+          `Checking ethanol data for tank number ${tank.tankNumber}:`,
+          ethanol
+        );
+        if (ethanol) {
+          console.log(
+            `Found ethanol data for tank number ${tank.tankNumber}:`,
+            ethanol
+          );
+          const tankTitle = `Tanque ${tank.tankNumber} - ET Venda`;
           messageBody +=
             `*${tankTitle}*\n` +
             `*Temperatura:* ${ethanol.ethanolTemperature}\n` +
             `*Peso:* ${ethanol.ethanolWeight}\n`;
           const ethanolImage = imagesDescription.find(
-            (image) => image.type === `Etanol ${index + 1}`
+            (image) => image.type === `Etanol ${tank.tankNumber}`
           );
           if (ethanolImage) {
             messageBody += `*Imagem:* ${ethanolImage.url}\n\n`;
-            console.log(
-              `Imagem de Etanol ${index + 1} adicionada: ${ethanolImage.url}`
-            );
           } else {
             messageBody += `\n`;
-            console.log(`Nenhuma imagem encontrada para Etanol ${index + 1}`);
           }
+        } else {
+          console.log(
+            `No ethanol data found for tank number ${tank.tankNumber}`
+          );
         }
-      );
-    }
-
-    if (data.gasolineData.length > 0) {
-      console.log("Processando dados de gasolina.");
-      data.gasolineData.forEach(
-        (gasoline: { gasolineQuality: any }, index: number) => {
-          const tankNumber = getTankNumber("GC", index);
-          const tankTitle = `Tanque ${tankNumber} - GC Venda`;
+      } else if (tank.product === "GC") {
+        const gasoline = data.gasolineData.find(
+          (gas: any) => gas.tankNumber === tank.tankNumber
+        );
+        console.log(
+          `Checking gasoline data for tank number ${tank.tankNumber}:`,
+          gasoline
+        );
+        if (gasoline) {
+          console.log(
+            `Found gasoline data for tank number ${tank.tankNumber}:`,
+            gasoline
+          );
+          const tankTitle = `Tanque ${tank.tankNumber} - GC Venda`;
           messageBody +=
             `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n`;
           const gcImage = imagesDescription.find(
-            (image) => image.type === `GC ${index + 1}`
+            (image) => image.type === `GC ${tank.tankNumber}`
           );
           if (gcImage) {
             messageBody += `*Imagem:* ${gcImage.url}\n\n`;
-            console.log(
-              `Imagem de Gasolina ${index + 1} adicionada: ${gcImage.url}`
-            );
           } else {
             messageBody += `\n`;
-            console.log(`Nenhuma imagem encontrada para Gasolina ${index + 1}`);
           }
-        }
-      );
-    }
-
-    if (data.s10Data.length > 0) {
-      console.log("Processando dados de S10.");
-      data.s10Data.forEach((s10: { s10Weight: any }, index: number) => {
-        const tankNumber = getTankNumber("S10", index);
-        const tankTitle = `Tanque ${tankNumber} - S10 Venda`;
-        messageBody += `*${tankTitle}*\n` + `*Peso:* ${s10.s10Weight}\n`;
-        const s10Image = imagesDescription.find(
-          (image) => image.type === `S10 ${index + 1}`
-        );
-        if (s10Image) {
-          messageBody += `*Imagem:* ${s10Image.url}\n\n`;
-          console.log(`Imagem de S10 ${index + 1} adicionada: ${s10Image.url}`);
         } else {
-          messageBody += `\n`;
-          console.log(`Nenhuma imagem encontrada para S10 ${index + 1}`);
+          console.log(
+            `No gasoline data found for tank number ${tank.tankNumber}`
+          );
         }
-      });
-    }
+      } else if (tank.product === "S10") {
+        const s10 = data.s10Data.find(
+          (s: any) => s.tankNumber === tank.tankNumber
+        );
+        console.log(
+          `Checking S10 data for tank number ${tank.tankNumber}:`,
+          s10
+        );
+        if (s10) {
+          console.log(
+            `Found S10 data for tank number ${tank.tankNumber}:`,
+            s10
+          );
+          const tankTitle = `Tanque ${tank.tankNumber} - S10 Venda`;
+          messageBody += `*${tankTitle}*\n` + `*Peso:* ${s10.s10Weight}\n`;
+          const s10Image = imagesDescription.find(
+            (image) => image.type === `S10 ${tank.tankNumber}`
+          );
+          if (s10Image) {
+            messageBody += `*Imagem:* ${s10Image.url}\n\n`;
+          } else {
+            messageBody += `\n`;
+          }
+        } else {
+          console.log(`No S10 data found for tank number ${tank.tankNumber}`);
+        }
+      }
+    });
 
     console.log("Mensagem final gerada:", messageBody);
 
@@ -836,13 +846,6 @@ export default function NewPost() {
                                   ethanolData[index - 1]?.ethanolTemperature ||
                                   ""
                                 }
-                                onChange={(e) =>
-                                  handleEthanolFieldChange(
-                                    index,
-                                    "ethanolTemperature",
-                                    e.target.value
-                                  )
-                                }
                                 placeholder=""
                                 disabled
                               />
@@ -859,13 +862,6 @@ export default function NewPost() {
                                 value={
                                   ethanolData[index - 1]?.ethanolWeight || ""
                                 }
-                                onChange={(e) =>
-                                  handleEthanolFieldChange(
-                                    index,
-                                    "ethanolWeight",
-                                    e.target.value
-                                  )
-                                }
                                 placeholder=""
                                 disabled
                               />
@@ -880,9 +876,6 @@ export default function NewPost() {
                                 accept="image/*,video/*"
                                 style={{ display: "none" }}
                                 ref={(el) => (etanolRefs.current[index] = el)}
-                                onChange={(e) =>
-                                  handleEtanolImageChange(index, e)
-                                }
                                 disabled
                               />
                               <button
@@ -994,13 +987,6 @@ export default function NewPost() {
                                 value={
                                   ethanolData[index]?.ethanolTemperature || ""
                                 }
-                                onChange={(e) =>
-                                  handleEthanolFieldChange(
-                                    index,
-                                    "ethanolTemperature",
-                                    e.target.value
-                                  )
-                                }
                                 placeholder=""
                                 disabled
                               />
@@ -1015,13 +1001,6 @@ export default function NewPost() {
                                 type="text"
                                 className={styles.Field}
                                 value={ethanolData[index]?.ethanolWeight || ""}
-                                onChange={(e) =>
-                                  handleEthanolFieldChange(
-                                    index,
-                                    "ethanolWeight",
-                                    e.target.value
-                                  )
-                                }
                                 placeholder=""
                                 disabled
                               />
@@ -1036,9 +1015,6 @@ export default function NewPost() {
                                 accept="image/*,video/*"
                                 style={{ display: "none" }}
                                 ref={(el) => (etanolRefs.current[index] = el)}
-                                onChange={(e) =>
-                                  handleEtanolImageChange(index, e)
-                                }
                                 disabled
                               />
                               <button
@@ -1151,13 +1127,6 @@ export default function NewPost() {
                                 value={
                                   gasolineData[index]?.gasolineQuality || ""
                                 }
-                                onChange={(e) =>
-                                  handleGasolineFieldChange(
-                                    index,
-                                    "gasolineQuality",
-                                    e.target.value
-                                  )
-                                }
                                 placeholder=""
                               />
                             </div>
@@ -1171,7 +1140,6 @@ export default function NewPost() {
                                 accept="image/*,video/*"
                                 style={{ display: "none" }}
                                 ref={(el) => (gcRefs.current[index] = el)}
-                                onChange={(e) => handleGcImageChange(index, e)}
                                 disabled
                               />
                               <button
@@ -1269,13 +1237,6 @@ export default function NewPost() {
                                 type="text"
                                 className={styles.Field}
                                 value={s10Data[index]?.s10Weight || ""}
-                                onChange={(e) =>
-                                  handleS10FieldChange(
-                                    index,
-                                    "s10Weight",
-                                    e.target.value
-                                  )
-                                }
                                 placeholder=""
                                 disabled
                               />
@@ -1289,7 +1250,6 @@ export default function NewPost() {
                                 accept="image/*,video/*"
                                 style={{ display: "none" }}
                                 ref={(el) => (s10Refs.current[index] = el)}
-                                onChange={(e) => handleS10ImageChange(index, e)}
                                 disabled
                               />
                               <button
@@ -1440,6 +1400,7 @@ export default function NewPost() {
                               onChange={(e) =>
                                 handleEthanolFieldChange(
                                   index,
+                                  tank.tankNumber,
                                   "ethanolTemperature",
                                   e.target.value
                                 )
@@ -1457,6 +1418,7 @@ export default function NewPost() {
                               onChange={(e) =>
                                 handleEthanolFieldChange(
                                   index,
+                                  tank.tankNumber,
                                   "ethanolWeight",
                                   e.target.value
                                 )
@@ -1474,7 +1436,11 @@ export default function NewPost() {
                               style={{ display: "none" }}
                               ref={(el) => (etanolRefs.current[index] = el)}
                               onChange={(e) =>
-                                handleEtanolImageChange(index, e)
+                                handleEtanolImageChange(
+                                  index,
+                                  tank.tankNumber,
+                                  e
+                                )
                               }
                             />
                             <button
@@ -1528,6 +1494,7 @@ export default function NewPost() {
                               onChange={(e) =>
                                 handleGasolineFieldChange(
                                   index,
+                                  tank.tankNumber,
                                   "gasolineQuality",
                                   e.target.value
                                 )
@@ -1544,7 +1511,9 @@ export default function NewPost() {
                               accept="image/*,video/*"
                               style={{ display: "none" }}
                               ref={(el) => (gcRefs.current[index] = el)}
-                              onChange={(e) => handleGcImageChange(index, e)}
+                              onChange={(e) =>
+                                handleGcImageChange(index, tank.tankNumber, e)
+                              }
                             />
                             <button
                               onClick={() =>
@@ -1595,6 +1564,7 @@ export default function NewPost() {
                               onChange={(e) =>
                                 handleS10FieldChange(
                                   index,
+                                  tank.tankNumber,
                                   "s10Weight",
                                   e.target.value
                                 )
@@ -1611,7 +1581,9 @@ export default function NewPost() {
                               accept="image/*,video/*"
                               style={{ display: "none" }}
                               ref={(el) => (s10Refs.current[index] = el)}
-                              onChange={(e) => handleS10ImageChange(index, e)}
+                              onChange={(e) =>
+                                handleS10ImageChange(index, tank.tankNumber, e)
+                              }
                             />
                             <button
                               onClick={() =>
