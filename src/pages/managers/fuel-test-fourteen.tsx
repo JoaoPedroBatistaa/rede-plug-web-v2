@@ -806,7 +806,6 @@ export default function NewPost() {
                       type="date"
                       className={styles.Field}
                       value={date}
-                      onChange={(e) => setDate(e.target.value)}
                       placeholder=""
                       disabled
                     />
@@ -819,7 +818,6 @@ export default function NewPost() {
                       type="time"
                       className={styles.Field}
                       value={time}
-                      onChange={(e) => setTime(e.target.value)}
                       placeholder=""
                       disabled
                     />
@@ -829,524 +827,210 @@ export default function NewPost() {
                   fetchedData.tanks
                     .filter((tank: any) => tank.saleDefense === "Venda")
                     .map((tank: any, index: number) => {
-                      const tankTitle = `Tanque ${tank.tankNumber} - ${tank.product} ${tank.saleDefense}`;
-                      if (tank.product === "ET" && postName === "Vena") {
-                        return (
-                          <div key={index} className={styles.InputContainer}>
-                            <p className={styles.TankTitle}>{tankTitle}</p>
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Temperatura do Etanol
-                              </p>
-                              <input
-                                id="ethanolTemperature"
-                                type="text"
-                                className={styles.Field}
-                                value={
-                                  ethanolData[index - 1]?.ethanolTemperature ||
-                                  ""
-                                }
-                                placeholder=""
-                                disabled
-                              />
-                            </div>
+                      const tankTitle = `Tanque ${tank.tankNumber} - ${tank.product} Venda`;
+                      const currentData = {
+                        ET: ethanolData.find(
+                          (d) => d.tankNumber === tank.tankNumber
+                        ),
+                        GC: gasolineData.find(
+                          (d) => d.tankNumber === tank.tankNumber
+                        ),
+                        S10: s10Data.find(
+                          (d) => d.tankNumber === tank.tankNumber
+                        ),
+                      };
 
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Peso do Etanol
-                              </p>
-                              <input
-                                id="ethanolWeight"
-                                type="text"
-                                className={styles.Field}
-                                value={
-                                  ethanolData[index - 1]?.ethanolWeight || ""
-                                }
-                                placeholder=""
-                                disabled
-                              />
-                            </div>
-
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Imagem do teste de Etanol
-                              </p>
-                              <input
-                                type="file"
-                                accept="image/*,video/*"
-                                style={{ display: "none" }}
-                                ref={(el) => (etanolRefs.current[index] = el)}
-                                disabled
-                              />
-                              <button
-                                onClick={() =>
-                                  etanolRefs.current[index] &&
-                                  // @ts-ignore
-                                  etanolRefs.current[index].click()
-                                }
-                                className={styles.MidiaField}
-                                disabled
-                              >
-                                Carregue sua foto
-                              </button>
-                              {fetchedData.images?.find(
-                                (img: any) => img.type === `Etanol ${index + 1}`
-                              ) && (
-                                <div>
-                                  {[
-                                    ".mp4",
-                                    ".mov",
-                                    ".avi",
-                                    ".MOV",
-                                    ".MP4",
-                                    ".AVI",
-                                  ].some((ext) =>
-                                    fetchedData.images
-                                      .find(
-                                        (img: any) =>
-                                          img.type === `Etanol ${index + 1}`
-                                      )
-                                      .imageUrl.includes(ext)
-                                  ) ? (
-                                    <video
-                                      controls
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
-                                    >
-                                      <source
+                      return (
+                        <div key={index} className={styles.InputContainer}>
+                          <p className={styles.TankTitle}>{tankTitle}</p>
+                          {["ET", "GC", "S10"].includes(tank.product) && (
+                            <>
+                              {tank.product === "ET" && (
+                                <>
+                                  <div className={styles.InputField}>
+                                    <p className={styles.FieldLabel}>
+                                      Temperatura do Etanol
+                                    </p>
+                                    <input
+                                      id={`ethanolTemperature-${tank.tankNumber}`}
+                                      type="text"
+                                      className={styles.Field}
+                                      value={
+                                        currentData.ET?.ethanolTemperature || ""
+                                      }
+                                      placeholder=""
+                                      disabled
+                                    />
+                                  </div>
+                                  <div className={styles.InputField}>
+                                    <p className={styles.FieldLabel}>
+                                      Peso do Etanol
+                                    </p>
+                                    <input
+                                      id={`ethanolWeight-${tank.tankNumber}`}
+                                      type="text"
+                                      className={styles.Field}
+                                      value={
+                                        currentData.ET?.ethanolWeight || ""
+                                      }
+                                      placeholder=""
+                                      disabled
+                                    />
+                                  </div>
+                                </>
+                              )}
+                              {tank.product === "GC" && (
+                                <div className={styles.InputField}>
+                                  <p className={styles.FieldLabel}>
+                                    Qualidade da Gasolina
+                                  </p>
+                                  <input
+                                    id={`gasolineQuality-${tank.tankNumber}`}
+                                    type="text"
+                                    className={styles.Field}
+                                    value={
+                                      currentData.GC?.gasolineQuality || ""
+                                    }
+                                    placeholder=""
+                                    disabled
+                                  />
+                                </div>
+                              )}
+                              {tank.product === "S10" && (
+                                <div className={styles.InputField}>
+                                  <p className={styles.FieldLabel}>
+                                    Peso do S10
+                                  </p>
+                                  <input
+                                    id={`s10Weight-${tank.tankNumber}`}
+                                    type="text"
+                                    className={styles.Field}
+                                    value={currentData.S10?.s10Weight || ""}
+                                    placeholder=""
+                                    disabled
+                                  />
+                                </div>
+                              )}
+                              <div className={styles.InputField}>
+                                <p className={styles.FieldLabel}>
+                                  Imagem do teste de {tank.product}
+                                </p>
+                                {fetchedData.images?.find(
+                                  (img: any) =>
+                                    img.type ===
+                                    `${
+                                      tank.product === "ET"
+                                        ? "Etanol"
+                                        : tank.product
+                                    } ${tank.tankNumber}`
+                                ) && (
+                                  <div>
+                                    {[
+                                      ".mp4",
+                                      ".mov",
+                                      ".avi",
+                                      ".MOV",
+                                      ".MP4",
+                                      ".AVI",
+                                    ].some((ext) =>
+                                      fetchedData.images
+                                        .find(
+                                          (img: any) =>
+                                            img.type ===
+                                            `${
+                                              tank.product === "ET"
+                                                ? "Etanol"
+                                                : tank.product
+                                            } ${tank.tankNumber}`
+                                        )
+                                        .imageUrl.includes(ext)
+                                    ) ? (
+                                      <video
+                                        controls
+                                        style={{
+                                          maxWidth: "17.5rem",
+                                          height: "auto",
+                                          border: "1px solid #939393",
+                                          borderRadius: "20px",
+                                        }}
+                                      >
+                                        <source
+                                          src={
+                                            fetchedData.images.find(
+                                              (img: any) =>
+                                                img.type ===
+                                                `${
+                                                  tank.product === "ET"
+                                                    ? "Etanol"
+                                                    : tank.product
+                                                } ${tank.tankNumber}`
+                                            ).imageUrl
+                                          }
+                                          type="video/mp4"
+                                        />
+                                        Your browser does not support the video
+                                        tag.
+                                      </video>
+                                    ) : (
+                                      <img
                                         src={
                                           fetchedData.images.find(
                                             (img: any) =>
-                                              img.type === `Etanol ${index + 1}`
+                                              img.type ===
+                                              `${
+                                                tank.product === "ET"
+                                                  ? "Etanol"
+                                                  : tank.product
+                                              } ${tank.tankNumber}`
                                           ).imageUrl
                                         }
-                                        type="video/mp4"
+                                        alt={`Preview do teste de ${tank.product}`}
+                                        style={{
+                                          maxWidth: "17.5rem",
+                                          height: "auto",
+                                          border: "1px solid #939393",
+                                          borderRadius: "20px",
+                                        }}
                                       />
-                                      Your browser does not support the video
-                                      tag.
-                                    </video>
-                                  ) : (
-                                    <img
-                                      src={
+                                    )}
+                                    <p className={styles.fileName}>
+                                      {
                                         fetchedData.images.find(
                                           (img: any) =>
-                                            img.type === `Etanol ${index + 1}`
+                                            img.type ===
+                                            `${
+                                              tank.product === "ET"
+                                                ? "Etanol"
+                                                : tank.product
+                                            } ${tank.tankNumber}`
+                                        ).fileName
+                                      }
+                                    </p>
+                                    <a
+                                      href={
+                                        fetchedData.images.find(
+                                          (img: any) =>
+                                            img.type ===
+                                            `${
+                                              tank.product === "ET"
+                                                ? "Etanol"
+                                                : tank.product
+                                            } ${tank.tankNumber}`
                                         ).imageUrl
                                       }
-                                      alt="Preview do teste de Etanol"
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
-                                    />
-                                  )}
-                                  <p className={styles.fileName}>
-                                    {
-                                      fetchedData.images.find(
-                                        (img: any) =>
-                                          img.type === `Etanol ${index + 1}`
-                                      ).fileName
-                                    }
-                                  </p>
-                                  <a
-                                    href={
-                                      fetchedData.images.find(
-                                        (img: any) =>
-                                          img.type === `Etanol ${index + 1}`
-                                      ).imageUrl
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.openMediaLink}
-                                  >
-                                    Abrir mídia
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      } else if (tank.product === "ET" && postName !== "Vena") {
-                        return (
-                          <div key={index} className={styles.InputContainer}>
-                            <p className={styles.TankTitle}>{tankTitle}</p>
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Temperatura do Etanol
-                              </p>
-                              <input
-                                id="ethanolTemperature"
-                                type="text"
-                                className={styles.Field}
-                                value={
-                                  ethanolData[index]?.ethanolTemperature || ""
-                                }
-                                placeholder=""
-                                disabled
-                              />
-                            </div>
-
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Peso do Etanol
-                              </p>
-                              <input
-                                id="ethanolWeight"
-                                type="text"
-                                className={styles.Field}
-                                value={ethanolData[index]?.ethanolWeight || ""}
-                                placeholder=""
-                                disabled
-                              />
-                            </div>
-
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Imagem do teste de Etanol
-                              </p>
-                              <input
-                                type="file"
-                                accept="image/*,video/*"
-                                style={{ display: "none" }}
-                                ref={(el) => (etanolRefs.current[index] = el)}
-                                disabled
-                              />
-                              <button
-                                onClick={() =>
-                                  etanolRefs.current[index] &&
-                                  // @ts-ignore
-                                  etanolRefs.current[index].click()
-                                }
-                                className={styles.MidiaField}
-                                disabled
-                              >
-                                Carregue sua foto
-                              </button>
-                              {fetchedData.images?.find(
-                                (img: any) => img.type === `Etanol ${index + 1}`
-                              ) && (
-                                <div>
-                                  {[
-                                    ".mp4",
-                                    ".mov",
-                                    ".avi",
-                                    ".MOV",
-                                    ".MP4",
-                                    ".AVI",
-                                    ".MOV",
-                                  ].some((ext) =>
-                                    fetchedData.images
-                                      .find(
-                                        (img: any) =>
-                                          img.type === `Etanol ${index + 1}`
-                                      )
-                                      .imageUrl.includes(ext)
-                                  ) ? (
-                                    <video
-                                      controls
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={styles.openMediaLink}
                                     >
-                                      <source
-                                        src={
-                                          fetchedData.images.find(
-                                            (img: any) =>
-                                              img.type === `Etanol ${index + 1}`
-                                          ).imageUrl
-                                        }
-                                        type="video/mp4"
-                                      />
-                                      Your browser does not support the video
-                                      tag.
-                                    </video>
-                                  ) : (
-                                    <img
-                                      src={
-                                        fetchedData.images.find(
-                                          (img: any) =>
-                                            img.type === `Etanol ${index + 1}`
-                                        ).imageUrl
-                                      }
-                                      alt="Preview do teste de Etanol"
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
-                                    />
-                                  )}
-                                  <p className={styles.fileName}>
-                                    {
-                                      fetchedData.images.find(
-                                        (img: any) =>
-                                          img.type === `Etanol ${index + 1}`
-                                      ).fileName
-                                    }
-                                  </p>
-                                  <a
-                                    href={
-                                      fetchedData.images.find(
-                                        (img: any) =>
-                                          img.type === `Etanol ${index + 1}`
-                                      ).imageUrl
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.openMediaLink}
-                                  >
-                                    Abrir mídia
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      } else if (tank.product === "GC") {
-                        return (
-                          <div key={index} className={styles.InputContainer}>
-                            <p className={styles.TankTitle}>{tankTitle}</p>
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Qualidade da Gasolina
-                              </p>
-                              <input
-                                id="gasolineQuality"
-                                type="text"
-                                className={styles.Field}
-                                value={
-                                  gasolineData[index]?.gasolineQuality || ""
-                                }
-                                placeholder=""
-                              />
-                            </div>
-
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Imagem do teste de Gasolina Comum (GC)
-                              </p>
-                              <input
-                                type="file"
-                                accept="image/*,video/*"
-                                style={{ display: "none" }}
-                                ref={(el) => (gcRefs.current[index] = el)}
-                                disabled
-                              />
-                              <button
-                                onClick={() =>
-                                  gcRefs.current[index] &&
-                                  // @ts-ignore
-                                  gcRefs.current[index].click()
-                                }
-                                className={styles.MidiaField}
-                                disabled
-                              >
-                                Carregue sua foto
-                              </button>
-                              {fetchedData.images?.find(
-                                (img: any) => img.type === `GC ${index}`
-                              ) && (
-                                <div>
-                                  {[".mp4", ".mov", ".avi"].some((ext) =>
-                                    fetchedData.images
-                                      .find(
-                                        (img: any) => img.type === `GC ${index}`
-                                      )
-                                      .imageUrl.includes(ext)
-                                  ) ? (
-                                    <video
-                                      controls
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
-                                    >
-                                      <source
-                                        src={
-                                          fetchedData.images.find(
-                                            (img: any) =>
-                                              img.type === `GC ${index}`
-                                          ).imageUrl
-                                        }
-                                        type="video/mp4"
-                                      />
-                                      Your browser does not support the video
-                                      tag.
-                                    </video>
-                                  ) : (
-                                    <img
-                                      src={
-                                        fetchedData.images.find(
-                                          (img: any) =>
-                                            img.type === `GC ${index}`
-                                        ).imageUrl
-                                      }
-                                      alt="Preview do teste de Gasolina Comum"
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
-                                    />
-                                  )}
-                                  <p className={styles.fileName}>
-                                    {
-                                      fetchedData.images.find(
-                                        (img: any) => img.type === `GC ${index}`
-                                      ).fileName
-                                    }
-                                  </p>
-                                  <a
-                                    href={
-                                      fetchedData.images.find(
-                                        (img: any) => img.type === `GC ${index}`
-                                      ).imageUrl
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.openMediaLink}
-                                  >
-                                    Abrir mídia
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      } else if (tank.product === "S10") {
-                        return (
-                          <div key={index} className={styles.InputContainer}>
-                            <p className={styles.TankTitle}>{tankTitle}</p>
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>Peso do S10</p>
-                              <input
-                                id="s10Weight"
-                                type="text"
-                                className={styles.Field}
-                                value={s10Data[index]?.s10Weight || ""}
-                                placeholder=""
-                                disabled
-                              />
-                            </div>
-                            <div className={styles.InputField}>
-                              <p className={styles.FieldLabel}>
-                                Imagem do teste de S10
-                              </p>
-                              <input
-                                type="file"
-                                accept="image/*,video/*"
-                                style={{ display: "none" }}
-                                ref={(el) => (s10Refs.current[index] = el)}
-                                disabled
-                              />
-                              <button
-                                onClick={() =>
-                                  s10Refs.current[index] &&
-                                  // @ts-ignore
-                                  s10Refs.current[index].click()
-                                }
-                                className={styles.MidiaField}
-                                disabled
-                              >
-                                Carregue sua foto
-                              </button>
-                              {fetchedData.images?.find(
-                                (img: any) => img.type === `S10 ${index + 1}`
-                              ) && (
-                                <div>
-                                  {[
-                                    ".mp4",
-                                    ".mov",
-                                    ".avi",
-                                    ".MOV",
-                                    ".MP4",
-                                    ".AVI",
-                                  ].some((ext) =>
-                                    fetchedData.images
-                                      .find(
-                                        (img: any) =>
-                                          img.type === `S10 ${index + 1}`
-                                      )
-                                      .imageUrl.includes(ext)
-                                  ) ? (
-                                    <video
-                                      controls
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
-                                    >
-                                      <source
-                                        src={
-                                          fetchedData.images.find(
-                                            (img: any) =>
-                                              img.type === `S10 ${index + 1}`
-                                          ).imageUrl
-                                        }
-                                        type="video/mp4"
-                                      />
-                                      Your browser does not support the video
-                                      tag.
-                                    </video>
-                                  ) : (
-                                    <img
-                                      src={
-                                        fetchedData.images.find(
-                                          (img: any) =>
-                                            img.type === `S10 ${index + 1}`
-                                        ).imageUrl
-                                      }
-                                      alt="Preview do teste de S10"
-                                      style={{
-                                        maxWidth: "17.5rem",
-                                        height: "auto",
-                                        border: "1px solid #939393",
-                                        borderRadius: "20px",
-                                      }}
-                                    />
-                                  )}
-                                  <p className={styles.fileName}>
-                                    {
-                                      fetchedData.images.find(
-                                        (img: any) =>
-                                          img.type === `S10 ${index + 1}`
-                                      ).fileName
-                                    }
-                                  </p>
-                                  <a
-                                    href={
-                                      fetchedData.images.find(
-                                        (img: any) =>
-                                          img.type === `S10 ${index + 1}`
-                                      ).imageUrl
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.openMediaLink}
-                                  >
-                                    Abrir mídia
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      }
+                                      Abrir mídia
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
                     })}
               </div>
             </div>
