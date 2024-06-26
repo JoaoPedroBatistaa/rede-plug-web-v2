@@ -16,12 +16,13 @@ import {
   where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
 import imageCompression from "browser-image-compression";
+import React from "react";
 
 interface Nozzle {
   nozzleNumber: string;
@@ -145,15 +146,61 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
-  const etanolRef = useRef(null);
-  const gcRef = useRef(null);
+  const [mediaFields, setMediaFields] = useState([
+    { inputRef: React.createRef(), file: null, fileName: "", fileUrl: null },
+  ]);
 
-  const [etanolImage, setEtanolImage] = useState<File | null>(null);
-  const [etanolFileName, setEtanolFileName] = useState("");
-  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
+  const addMediaField = () => {
+    setMediaFields([
+      ...mediaFields,
+      { inputRef: React.createRef(), file: null, fileName: "", fileUrl: null },
+    ]);
+  };
 
-  const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcFileName, setGcFileName] = useState("");
+  const removeMediaField = (index: number) => {
+    setMediaFields(mediaFields.filter((_, i) => i !== index));
+  };
+
+  const handleFileChange = async (
+    index: string | number,
+    event: { target: { files: any[] } }
+  ) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    if (file) {
+      setIsLoading(true);
+      try {
+        let processedFile = file;
+
+        if (file.type.startsWith("image/")) {
+          processedFile = await compressImage(file);
+        }
+
+        const imageUrl = await uploadFileAndGetUrl(
+          processedFile,
+          `tankControl/${getLocalISODate()}/etanol_${
+            processedFile.name
+          }_${Date.now()}`
+        );
+
+        const newMediaFields = [...mediaFields];
+        // @ts-ignore
+        newMediaFields[index] = {
+          // @ts-ignore
+          ...newMediaFields[index],
+          file: processedFile,
+          fileName: processedFile.name,
+          fileUrl: imageUrl,
+        };
+
+        setMediaFields(newMediaFields);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao salvar o arquivo.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   async function compressImage(file: File) {
     const options = {
@@ -180,39 +227,6 @@ export default function NewPost() {
       throw error;
     }
   }
-
-  const handleEtanolFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      setIsLoading(true);
-      try {
-        let processedFile = file;
-
-        // Verifica se o arquivo é uma imagem antes de comprimir
-        if (file.type.startsWith("image/")) {
-          processedFile = await compressImage(file);
-        }
-
-        const imageUrl = await uploadFileAndGetUrl(
-          processedFile,
-          `tankControl/${getLocalISODate()}/etanol_${
-            processedFile.name
-          }_${Date.now()}`
-        );
-
-        setEtanolImage(processedFile);
-        setEtanolFileName(processedFile.name);
-        setEtanolImageUrl(imageUrl);
-      } catch (error) {
-        console.error("Erro ao fazer upload do arquivo de etanol:", error);
-        toast.error("Erro ao salvar o arquivo de etanol.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
 
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
@@ -255,7 +269,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    else if (!etanolImage) missingField = "Arquivo do controle de tanque";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -281,9 +294,13 @@ export default function NewPost() {
       return;
     }
 
-    const files = etanolImageUrl
-      ? [{ type: "Etanol", fileUrl: etanolImageUrl, fileName: etanolFileName }]
-      : [];
+    const files = mediaFields
+      .filter((field) => field.fileUrl)
+      .map((field) => ({
+        type: "Etanol",
+        fileUrl: field.fileUrl,
+        fileName: field.fileName,
+      }));
 
     const tankControlData = {
       date,
@@ -310,6 +327,7 @@ export default function NewPost() {
       setIsLoading(false);
     }
   };
+
   async function uploadFileAndGetUrl(file: File, path: string) {
     const storageRef = ref(storage, path);
     const uploadResult = await uploadBytes(storageRef, file);
@@ -356,23 +374,23 @@ export default function NewPost() {
   }
 
   async function sendMessage(data: {
-    date: string | number | Date;
-    files: any[];
+    date: any;
     time: any;
-    postName: any;
     managerName: any;
+    userName?: string | null;
+    postName: any;
+    files: any;
+    id?: string;
   }) {
     const formattedDate = formatDate(data.date);
 
-    // Encurtar URLs dos arquivos e construir a descrição
     const filesDescription = await Promise.all(
-      data.files.map(async (file, index) => {
+      data.files.map(async (file: { fileUrl: string }, index: number) => {
         const shortUrl = await shortenUrl(file.fileUrl);
         return `Arquivo ${index + 1}: ${shortUrl}\n`;
       })
     ).then((descriptions) => descriptions.join("\n"));
 
-    // Montar o corpo da mensagem
     const messageBody = `*Novo Controle de tanque às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes dos Arquivos*\n\n${filesDescription}`;
 
     const postsRef = collection(db, "POSTS");
@@ -386,8 +404,6 @@ export default function NewPost() {
 
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
-
-    console.log(managerContact);
 
     const response = await fetch("/api/send-message", {
       method: "POST",
@@ -514,31 +530,63 @@ export default function NewPost() {
                   </div>
                 ))}
 
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>
-                  Arquivo do controle de tanque
-                </p>
-                <input
-                  type="file"
-                  accept=".jpeg, .png, .jpg"
-                  style={{ display: "none" }}
-                  ref={etanolRef}
-                  onChange={handleEtanolFileChange}
-                />
+              {mediaFields.map((field, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>
+                      Arquivo do controle de tanque
+                    </p>
+                    <input
+                      type="file"
+                      accept=".jpeg, .png, .jpg"
+                      style={{ display: "none" }}
+                      // @ts-ignore
+                      ref={field.inputRef}
+                      // @ts-ignore
+                      onChange={(e) => handleFileChange(index, e)}
+                    />
 
-                <button
-                  // @ts-ignore
-                  onClick={() => etanolRef.current && etanolRef.current.click()}
-                  className={styles.MidiaField}
-                >
-                  Carregue sua imagem
-                </button>
-                {etanolImage && (
-                  <div>
-                    <p className={styles.fileName}>{etanolFileName}</p>
+                    <button
+                      onClick={() =>
+                        // @ts-ignore
+                        field.inputRef.current && field.inputRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Carregue sua imagem
+                    </button>
+                    {field.file && (
+                      <div>
+                        <p className={styles.fileName}>{field.fileName}</p>
+                        <img
+                          src={URL.createObjectURL(field.file)}
+                          alt={`Preview ${field.fileName}`}
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                          // @ts-ignore
+                          onLoad={() => URL.revokeObjectURL(field.file)}
+                        />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                  {mediaFields.length > 1 && (
+                    <button
+                      onClick={() => removeMediaField(index)}
+                      className={styles.DeleteButton}
+                    >
+                      <span className={styles.buttonText}>Excluir</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              <button onClick={addMediaField} className={styles.NewButton}>
+                <span className={styles.buttonText}>Adicionar novo campo</span>
+              </button>
             </div>
           </div>
 

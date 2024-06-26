@@ -280,7 +280,6 @@ export default function NewPost() {
           setContact(postData.contact);
           setLocation(postData.location);
           setEmail(postData.email);
-          setPassword(docId);
           setTanks(postData.tanks || []);
           setBombs(postData.bombs || []);
           setNozzles(postData.nozzles || []);
@@ -297,6 +296,21 @@ export default function NewPost() {
           ) || [{ selectedSupervisorId: "" }];
 
           setSelectedSupervisors(loadedSupervisors);
+
+          // Fetch the password from the USERS collection
+          const q = query(
+            collection(db, "USERS"),
+            where("type", "==", "post"),
+            where("name", "==", postData.name)
+          );
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs[0].data();
+            setPassword(userData.password);
+          } else {
+            console.log("No post user found for the provided post name.");
+          }
         } else {
           console.log("No such document!");
         }
@@ -495,14 +509,46 @@ export default function NewPost() {
     });
   };
 
+  const updateUserPassword = async (postName: string, newPassword: string) => {
+    const q = query(
+      collection(db, "USERS"),
+      where("type", "==", "post"),
+      where("name", "==", postName)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const docRef = querySnapshot.docs[0].ref;
+      await updateDoc(docRef, { password: newPassword });
+    } else {
+      throw new Error("No post user found for the provided post name.");
+    }
+  };
+
+  const updateManagerPassword = async (
+    managerName: string,
+    postName: string,
+    newPassword: string
+  ) => {
+    const q = query(
+      collection(db, "USERS"),
+      where("type", "==", "manager"),
+      where("name", "==", managerName),
+      where("postName", "==", postName)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const docRef = querySnapshot.docs[0].ref;
+      await updateDoc(docRef, { password: newPassword });
+    } else {
+      throw new Error(
+        "No manager user found for the provided manager name and post name."
+      );
+    }
+  };
+
   const handleSubmit = async () => {
-    // if (!validateForm()) {
-    //   toast.error("Por favor, preencha todos os campos obrigatórios.");
-    //   setIsLoading(false);
-
-    //   return;
-    // }
-
     setIsLoading(true);
 
     const docId = Array.isArray(router.query.id)
@@ -511,14 +557,25 @@ export default function NewPost() {
 
     if (!docId) {
       toast.error("ID do documento não fornecido.");
+      setIsLoading(false);
       return;
     }
 
     try {
+      // Atualiza a senha do frentista na coleção USERS
+      if (password) {
+        await updateUserPassword(name, password);
+      }
+
+      // Atualiza os gerentes e suas senhas na coleção USERS
       const updatedManagersWithPasswords = [];
       for (const manager of managers) {
-        const updatedManager = await addOrUpdateManagerToUsers(manager);
-        updatedManagersWithPasswords.push(updatedManager);
+        await updateManagerPassword(
+          manager.managerName,
+          name,
+          manager.password
+        );
+        updatedManagersWithPasswords.push(manager);
       }
 
       const supervisorsList = selectedSupervisors.map((supervisor) => {
@@ -537,10 +594,10 @@ export default function NewPost() {
 
       const updateData = {
         name,
-        owner,
-        contact,
+
         location,
         email,
+        password, // Atualiza a senha do frentista na coleção POSTS
         tanks,
         nozzles,
         managers: updatedManagersWithPasswords,
@@ -550,13 +607,13 @@ export default function NewPost() {
       const postRef = doc(db, "POSTS", docId);
       await updateDoc(postRef, updateData);
 
-      console.log("Post atualizado com sucesso. ID:", docId);
       toast.success("Posto e gerentes atualizados com sucesso!");
-
       router.push("/posts");
     } catch (error) {
       console.error("Erro ao atualizar dados:", error);
       toast.error("Erro ao completar a atualização.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -639,7 +696,6 @@ export default function NewPost() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder=""
-                    disabled
                   />
                 </div>
               </div>
@@ -924,7 +980,6 @@ export default function NewPost() {
                       type="text"
                       className={styles.Field}
                       value={manager.password}
-                      disabled
                       onChange={(e) =>
                         handleManagerChange(index, "password", e.target.value)
                       }
