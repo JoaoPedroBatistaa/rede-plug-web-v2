@@ -15,7 +15,7 @@ export default async function handler(req: { method: string; body: { managerCont
          return;
       }
 
-      console.log('Enviando mensagem via API Z');
+      console.log('Enviando mensagem via API Sendbit');
 
       const maxAttempts = 5;
       let attempts = 0;
@@ -25,21 +25,20 @@ export default async function handler(req: { method: string; body: { managerCont
       while (attempts < maxAttempts && !success) {
          try {
             response = await fetch(
-               `https://api.z-api.io/instances/3D170912279B00BE263572B70F2FFCF9/token/65C68F1C84BAE9915D898D2D/send-text`,
+               `https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/6674676be9361f3131f66422/text`,
                {
                   method: "POST",
                   headers: {
                      "Content-Type": "application/x-www-form-urlencoded",
-                     "Client-Token": "F872abe6911454ce9a1b7461ac4873f92S"  // Adicione seu token aqui
                   },
                   body: new URLSearchParams({
-                     phone: `${managerContact}`,
+                     id: `${managerContact}`,
                      message: `${messageBody}`,
                   }),
                }
             );
 
-            console.log(`Resposta recebida de Z: ${response.status} ${response.statusText}`);
+            console.log(`Resposta recebida de Sendbit: ${response.status} ${response.statusText}`);
 
             if (response.ok) {
                success = true;
@@ -53,7 +52,7 @@ export default async function handler(req: { method: string; body: { managerCont
 
          attempts++;
          if (!success && attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Atraso de 2 segundos entre tentativas
+            await new Promise(resolve => setTimeout(resolve, 100)); // Atraso de 2 segundos entre tentativas
          }
       }
 
