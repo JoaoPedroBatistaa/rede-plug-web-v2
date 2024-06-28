@@ -20,16 +20,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
    try {
       const sendImageMessage = async (contact: any) => {
          const response = await fetch(
-            'https://api.z-api.io/instances/3D170912279B00BE263572B70F2FFCF9/token/65C68F1C84BAE9915D898D2D/send-image',
+            'https://api.getsendbit.com/api/account/664e607c4c76fd3392e1d006/instance/6674676be9361f3131f66422/mediaurl',
             {
                method: 'POST',
                headers: {
+                  'Authorization': `Bearer ${authToken}`,
                   'Content-Type': 'application/x-www-form-urlencoded',
-                  "Client-Token": "F872abe6911454ce9a1b7461ac4873f92S"
                },
                body: new URLSearchParams({
-                  phone: contact,
-                  image: messageBody.measurementSheetUrl,
+                  id: contact,
+                  url: messageBody.measurementSheetUrl,
+                  type: 'image',
+                  mimetype: 'image/jpeg',
                   caption: `${messageBody.title}\n\n*Posto:* ${messageBody.postName}\n*Data:* ${messageBody.formattedDate}\n`,
                }),
             }
