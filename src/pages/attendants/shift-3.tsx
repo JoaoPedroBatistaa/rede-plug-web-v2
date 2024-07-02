@@ -523,6 +523,7 @@ export default function NewPost() {
       credit,
       pix,
       totalOutput,
+      totalExpenses,
       totalInput,
       difference,
       observations,
@@ -617,6 +618,7 @@ export default function NewPost() {
     credit: any;
     pix: any;
     totalInput: any;
+    totalExpenses: any;
     totalOutput: any;
     difference: any;
     observations: any;
@@ -675,7 +677,11 @@ export default function NewPost() {
       2
     )}\n*Pix:* R$ ${Number(data.pix).toFixed(
       2
-    )}\n*Total de Entradas:* R$ ${Number(data.totalInput).toFixed(
+    )}\n*Total de despesas:* R$ ${Number(data.totalExpenses).toFixed(
+      2
+    )}\n*Total de Entradas:* R$ ${Number(
+      data.totalInput
+    ).toFixed()}\n*Total de Entradas:* R$ ${Number(data.totalInput).toFixed(
       2
     )}\n*Total de Saídas:* R$ ${Number(data.totalOutput).toFixed(
       2

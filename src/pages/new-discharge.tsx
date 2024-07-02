@@ -178,6 +178,15 @@ export default function NewPost() {
     useState("");
   const weightTemperatureRef = useRef<HTMLInputElement>(null);
 
+  const [decalitro, setDecalitro] = useState("");
+  const [inicioDescargaVideo, setInicioDescargaVideo] = useState("");
+  const [inicioDescargaFileName, setInicioDescargaFileName] = useState("");
+  const inicioDescargaRef = useRef<HTMLInputElement>(null);
+
+  const [finalDescargaVideo, setFinalDescargaVideo] = useState("");
+  const [finalDescargaFileName, setFinalDescargaFileName] = useState("");
+  const finalDescargaRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const postName = localStorage.getItem("userPost");
 
@@ -552,6 +561,15 @@ export default function NewPost() {
       // @ts-ignore
 
       weightTemperatureImage: weightTemperatureRef.current?.files[0] || "",
+      decalitro,
+      inicioDescarga: {
+        // @ts-ignore
+        video: inicioDescargaRef.current?.files[0],
+      },
+      finalDescarga: {
+        // @ts-ignore
+        video: finalDescargaRef.current?.files[0],
+      },
     };
 
     const updatedData = await uploadImagesAndUpdateData(dischargeData);
@@ -628,6 +646,15 @@ export default function NewPost() {
         // @ts-ignore
         temperature: updatedData.temperature,
         images,
+        decalitro,
+        inicioDescarga: {
+          // @ts-ignore
+          video: updatedData.inicioDescarga.fileUrl,
+        },
+        finalDescarga: {
+          // @ts-ignore
+          video: updatedData.finalDescarga.fileUrl,
+        },
       };
 
       // @ts-ignore
@@ -648,19 +675,30 @@ export default function NewPost() {
     date?: string;
     time?: string;
     driverName?: string;
+    truckPlate?: string;
     truckPlateImage: any;
-    hydration: any;
     tankNumber?: string;
+    selectedTankDescription?: string;
     product?: string;
     initialMeasurement: any;
     finalMeasurement: any;
     seal: any;
     arrow?: { selection: string; position: string };
     observations?: string;
-    makerName?: string | null;
+    makerName?: string;
     postName?: string | null;
-    productQualityImage?: any;
-    weightTemperatureImage?: any;
+    hydration: any;
+    initialLiters?: null;
+    finalLiters?: null;
+    totalLiters?: string;
+    productQuality?: string;
+    productQualityImage: any;
+    weight?: string;
+    temperature?: string;
+    weightTemperatureImage: any;
+    decalitro?: string;
+    inicioDescarga: any;
+    finalDescarga: any;
   }) => {
     const uploadImageAndGetUrl = async (
       imageFile: Blob | ArrayBuffer,
@@ -748,6 +786,28 @@ export default function NewPost() {
       data.weightTemperatureImage = fileUrl;
     }
 
+    if (data.inicioDescarga.video instanceof File) {
+      const fileUrl = await uploadImageAndGetUrl(
+        data.inicioDescarga.video,
+        `dischargeVideos/inicioDescarga/${
+          data.inicioDescarga.video.name
+        }_${Date.now()}`
+      );
+      data.inicioDescarga.fileUrl = fileUrl;
+      delete data.inicioDescarga.video;
+    }
+
+    if (data.finalDescarga.video instanceof File) {
+      const fileUrl = await uploadImageAndGetUrl(
+        data.finalDescarga.video,
+        `dischargeVideos/finalDescarga/${
+          data.finalDescarga.video.name
+        }_${Date.now()}`
+      );
+      data.finalDescarga.fileUrl = fileUrl;
+      delete data.finalDescarga.video;
+    }
+
     return data;
   };
 
@@ -813,6 +873,9 @@ export default function NewPost() {
     productQuality?: any;
     weight?: any;
     temperature?: any;
+    decalitro?: any;
+    inicioDescarga?: any;
+    finalDescarga?: any;
   }) {
     const formattedDate = formatDate(data.date);
 
@@ -825,6 +888,15 @@ export default function NewPost() {
           }
         )
       );
+
+      const inicioDescargaVideoUrl = data.inicioDescarga?.video
+        ? await shortenUrl(data.inicioDescarga.video)
+        : "";
+      console.log(inicioDescargaVideoUrl);
+      const finalDescargaVideoUrl = data.finalDescarga?.video
+        ? await shortenUrl(data.finalDescarga.video)
+        : "";
+      console.log(finalDescargaVideoUrl);
 
       let messageBody = `*Nova Descarga Realizada*\n\n`;
 
@@ -936,6 +1008,16 @@ export default function NewPost() {
         }
       }
 
+      if (data.decalitro) {
+        messageBody += `*Decalitro*: ${data.decalitro}\n`;
+      }
+      if (inicioDescargaVideoUrl) {
+        messageBody += `*Início Descarga:* ${inicioDescargaVideoUrl}\n`;
+      }
+      if (finalDescargaVideoUrl) {
+        messageBody += `*Final Descarga:* ${finalDescargaVideoUrl}\n\n`;
+      }
+
       if (data.observations) {
         messageBody += `*Observações*: ${data.observations}\n`;
       }
@@ -988,7 +1070,7 @@ export default function NewPost() {
       }
 
       // Enviar mensagem simplificada para o número adicional
-      const simplifiedMessageBody = `*Nova Descarga Realizada*\n\n*Data*: ${formattedDate}\n*Hora*: ${data.time}\n*Posto*: ${data.postName}\n*Responsável*: ${data.makerName}\n\n*Motorista*: ${data.driverName}\n*Tanque*: ${data.selectedTankDescription}\n*Produto*: ${data.product}\n${data.totalLiters} litros\n*Observações*: ${data.observations}`;
+      const simplifiedMessageBody = `*Nova Descarga Realizada*\n\n*Data*: ${formattedDate}\n*Hora*: ${data.time}\n*Posto*: ${data.postName}\n*Responsável*: ${data.makerName}\n\n*Motorista*: ${data.driverName}\n*Tanque*: ${data.selectedTankDescription}\n*Produto*: ${data.product}\n${data.totalLiters} litros\n*Decalitro*: ${data.decalitro}\n\n*Observações*: ${data.observations}`;
 
       const simplifiedMessageResponse = await fetch("/api/send-message", {
         method: "POST",
@@ -1433,6 +1515,95 @@ export default function NewPost() {
               )}
 
               <div className={styles.totalDischarge}>{totalDescarregado}</div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Decalitro</p>
+                  <input
+                    type="text"
+                    className={styles.Field}
+                    value={decalitro}
+                    onChange={(e) => setDecalitro(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Início Descarga (Vídeo)</p>
+                  <input
+                    ref={inicioDescargaRef}
+                    type="file"
+                    accept="video/*"
+                    style={{ display: "none" }}
+                    onChange={(event) =>
+                      handleFileChange(
+                        event,
+                        setInicioDescargaVideo,
+                        setInicioDescargaFileName
+                      )
+                    }
+                  />
+                  <button
+                    onClick={() => triggerFileInput(inicioDescargaRef)}
+                    className={styles.MidiaField}
+                  >
+                    Carregue seu vídeo
+                  </button>
+                </div>
+                {inicioDescargaVideo && (
+                  <div>
+                    <video
+                      src={inicioDescargaVideo}
+                      controls
+                      style={{
+                        maxWidth: "17.5rem",
+                        height: "auto",
+                        border: "1px solid #939393",
+                        borderRadius: "20px",
+                      }}
+                    />
+                    <p className={styles.fileName}>{inicioDescargaFileName}</p>
+                  </div>
+                )}
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Final Descarga (Vídeo)</p>
+                  <input
+                    ref={finalDescargaRef}
+                    type="file"
+                    accept="video/*"
+                    style={{ display: "none" }}
+                    onChange={(event) =>
+                      handleFileChange(
+                        event,
+                        setFinalDescargaVideo,
+                        setFinalDescargaFileName
+                      )
+                    }
+                  />
+                  <button
+                    onClick={() => triggerFileInput(finalDescargaRef)}
+                    className={styles.MidiaField}
+                  >
+                    Carregue seu vídeo
+                  </button>
+                </div>
+                {finalDescargaVideo && (
+                  <div>
+                    <video
+                      src={finalDescargaVideo}
+                      controls
+                      style={{
+                        maxWidth: "17.5rem",
+                        height: "auto",
+                        border: "1px solid #939393",
+                        borderRadius: "20px",
+                      }}
+                    />
+                    <p className={styles.fileName}>{finalDescargaFileName}</p>
+                  </div>
+                )}
+              </div>
 
               {showHydrationField && (
                 <div className={styles.InputContainer}>
