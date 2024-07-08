@@ -143,6 +143,76 @@ export default function NewPost() {
     { selectedSupervisorId: "" },
   ]);
 
+  const [coordinates, setCoordinates] = useState<{
+    lat: number | null;
+    lng: number | null;
+  }>({ lat: null, lng: null });
+  const [mapUrl, setMapUrl] = useState("");
+  const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+
+  const calculateCoordinatesInRadius = (
+    center: { lat: any; lng: any },
+    radius = 200
+  ) => {
+    const points = [];
+    const earthRadius = 6371000; // Radius of the Earth in meters
+
+    for (let angle = 0; angle < 360; angle += 10) {
+      const bearing = (angle * Math.PI) / 180; // Convert to radians
+      const lat1 = (center.lat * Math.PI) / 180; // Convert to radians
+      const lng1 = (center.lng * Math.PI) / 180; // Convert to radians
+
+      const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(radius / earthRadius) +
+          Math.cos(lat1) * Math.sin(radius / earthRadius) * Math.cos(bearing)
+      );
+      const lng2 =
+        lng1 +
+        Math.atan2(
+          Math.sin(bearing) * Math.sin(radius / earthRadius) * Math.cos(lat1),
+          Math.cos(radius / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+        );
+
+      points.push({
+        lat: (lat2 * 180) / Math.PI, // Convert back to degrees
+        lng: (lng2 * 180) / Math.PI, // Convert back to degrees
+      });
+    }
+
+    return points;
+  };
+
+  const getLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setCoordinates({ lat, lng });
+
+          const newUrl = `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
+          setMapUrl(newUrl);
+
+          const radiusCoords = calculateCoordinatesInRadius({ lat, lng });
+          // @ts-ignore
+          setRadiusCoordinates(radiusCoords);
+
+          // Log URLs for checking
+          radiusCoords.forEach((coord, index) => {
+            const coordUrl = `https://www.google.com/maps?q=${coord.lat},${coord.lng}&output=embed`;
+            console.log(`Coordinate ${index + 1}: ${coordUrl}`);
+          });
+        },
+        (error) => {
+          console.error("Error obtaining location:", error);
+          setCoordinates({ lat: null, lng: null });
+        }
+      );
+    } else {
+      console.log("Geolocation is not available in this browser.");
+    }
+  };
+
   const addSupervisor = () => {
     setSelectedSupervisors([
       ...selectedSupervisors,
@@ -494,15 +564,19 @@ export default function NewPost() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Localização</p>
-                  <input
-                    id="location"
-                    type="text"
-                    className={styles.Field}
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder=""
-                  />
+                  <button
+                    onClick={getLocation}
+                    className={styles.locationButton}
+                  >
+                    Cadastrar localização
+                  </button>
+                  {coordinates.lat && coordinates.lng && (
+                    <p className={styles.locText}>
+                      Lat: {coordinates.lat}, Lng: {coordinates.lng}
+                    </p>
+                  )}
                 </div>
+
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Email</p>
                   <input
@@ -515,6 +589,19 @@ export default function NewPost() {
                   />
                 </div>
               </div>
+
+              {coordinates.lat && coordinates.lng && (
+                <>
+                  <iframe
+                    src={mapUrl}
+                    width="320"
+                    height="280"
+                    loading="lazy"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                  ></iframe>
+                </>
+              )}
 
               <div className={styles.BudgetHead}>
                 <p className={styles.BudgetTitle}>Tanques</p>

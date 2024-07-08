@@ -27,6 +27,41 @@ export default function NewPost() {
 
   const docId = router.query.docId;
   const [data, setData] = useState(null);
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [managerName, setManagerName] = useState("");
+
+  const [isOk, setIsOk] = useState("");
+  const [observations, setObservations] = useState("");
+
+  const fetchCoordinates = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoordinates({
+            // @ts-ignore
+            lat: position.coords.latitude,
+            // @ts-ignore
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error("Error obtaining location:", error);
+          setCoordinates({ lat: null, lng: null });
+        }
+      );
+    } else {
+      console.log("Geolocation is not available in this browser.");
+    }
+  };
+
+  useEffect(() => {
+    fetchCoordinates();
+  }, [date, time, isOk, observations, managerName]);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -135,15 +170,6 @@ export default function NewPost() {
     fetchData();
   }, [docId]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [managerName, setManagerName] = useState("");
-
-  const [isOk, setIsOk] = useState("");
-  const [observations, setObservations] = useState("");
-
   const getLocalISODate = () => {
     const date = new Date();
     // Ajustar para o fuso horário -03:00
@@ -153,6 +179,9 @@ export default function NewPost() {
 
   const saveMeasurement = async () => {
     setIsLoading(true);
+
+    // Verifique as coordenadas ao salvar
+    fetchCoordinates();
 
     let missingField = "";
     const today = getLocalISODate();
@@ -203,6 +232,7 @@ export default function NewPost() {
       isOk,
       observations,
       id: "uniformes",
+      coordinates,
     };
 
     try {
