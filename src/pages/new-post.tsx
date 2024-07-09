@@ -184,6 +184,7 @@ export default function NewPost() {
 
   const getLocation = () => {
     if ("geolocation" in navigator) {
+      setIsLoading(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
@@ -202,8 +203,15 @@ export default function NewPost() {
             const coordUrl = `https://www.google.com/maps?q=${coord.lat},${coord.lng}&output=embed`;
             console.log(`Coordinate ${index + 1}: ${coordUrl}`);
           });
+
+          // Add a timeout before setting loading to false
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 2000);
         },
         (error) => {
+          // Set loading to false immediately in case of an error
+          setIsLoading(false);
           console.error("Error obtaining location:", error);
           setCoordinates({ lat: null, lng: null });
         }
