@@ -575,6 +575,21 @@ export default function NewPost() {
                       Lat: {coordinates.lat}, Lng: {coordinates.lng}
                     </p>
                   )}
+
+                  {coordinates.lat && coordinates.lng && (
+                    <>
+                      <div className={styles.InputContainer}>
+                        <iframe
+                          src={mapUrl}
+                          width="320"
+                          height="280"
+                          loading="lazy"
+                          style={{ border: 0 }}
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className={styles.InputField}>
@@ -589,19 +604,6 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-
-              {coordinates.lat && coordinates.lng && (
-                <>
-                  <iframe
-                    src={mapUrl}
-                    width="320"
-                    height="280"
-                    loading="lazy"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                  ></iframe>
-                </>
-              )}
 
               <div className={styles.BudgetHead}>
                 <p className={styles.BudgetTitle}>Tanques</p>
