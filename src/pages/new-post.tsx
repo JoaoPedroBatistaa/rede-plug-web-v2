@@ -207,6 +207,7 @@ export default function NewPost() {
           // Add a timeout before setting loading to false
           setTimeout(() => {
             setIsLoading(false);
+            toast.success("Localização obtida com sucesso!");
           }, 2000);
         },
         (error) => {
@@ -214,10 +215,29 @@ export default function NewPost() {
           setIsLoading(false);
           console.error("Error obtaining location:", error);
           setCoordinates({ lat: null, lng: null });
+
+          if (error.code === error.PERMISSION_DENIED) {
+            toast.error(
+              "Permissão de localização negada. Por favor, habilite a permissão de localização nas configurações do seu navegador."
+            );
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            toast.error(
+              "A localização não está disponível. Por favor, verifique sua conexão com a internet ou tente novamente mais tarde."
+            );
+          } else if (error.code === error.TIMEOUT) {
+            toast.error(
+              "O tempo para obter a localização esgotou. Por favor, tente novamente."
+            );
+          } else {
+            toast.error(
+              "Erro ao obter a localização. Por favor, tente novamente."
+            );
+          }
         }
       );
     } else {
       console.log("Geolocation is not available in this browser.");
+      toast.error("Geolocalização não está disponível neste navegador.");
     }
   };
 
