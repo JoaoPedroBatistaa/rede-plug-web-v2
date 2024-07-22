@@ -433,14 +433,14 @@ export default function EditPost() {
 
           if (
             postData.location &&
-            postData.location.coordinates.lat &&
-            postData.location.coordinates.lng
+            postData.location.lat &&
+            postData.location.lng
           ) {
-            const newUrl = `https://www.google.com/maps?q=${postData.location.coordinates.lat},${postData.location.coordinates.lng}&output=embed`;
+            const newUrl = `https://www.google.com/maps?q=${postData.location.lat},${postData.location.lng}&output=embed`;
             setMapUrl(newUrl);
             setCoordinates({
-              lat: postData.location.coordinates.lat,
-              lng: postData.location.coordinates.lng,
+              lat: postData.location.lat,
+              lng: postData.location.lng,
             });
           }
         } else {

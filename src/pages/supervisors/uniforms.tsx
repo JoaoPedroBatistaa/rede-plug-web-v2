@@ -23,18 +23,21 @@ import LoadingOverlay from "@/components/Loading";
 export default function NewPost() {
   const router = useRouter();
   const postName = router.query.postName;
-  console.log(postName);
-
   const docId = router.query.docId;
+
   const [data, setData] = useState(null);
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
-
+  const [postCoordinates, setPostCoordinates] = useState({
+    lat: null,
+    lng: null,
+  });
+  const [mapUrl, setMapUrl] = useState("");
+  const [radiusCoordinates, setRadiusCoordinates] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
-
   const [isOk, setIsOk] = useState("");
   const [observations, setObservations] = useState("");
 
@@ -48,6 +51,9 @@ export default function NewPost() {
             // @ts-ignore
             lng: position.coords.longitude,
           });
+          console.log(
+            `Supervisor coordinates obtained: lat=${position.coords.latitude}, lng=${position.coords.longitude}`
+          );
         },
         (error) => {
           console.error("Error obtaining location:", error);
@@ -65,27 +71,21 @@ export default function NewPost() {
 
   useEffect(() => {
     const checkForUpdates = async () => {
-      console.log("Checking for updates...");
       const updateDoc = doc(db, "UPDATE", "Lp8egidKNeHs9jQ8ozvs");
       try {
         const updateSnapshot = await getDoc(updateDoc);
         const updateData = updateSnapshot.data();
 
         if (updateData) {
-          console.log("Update data retrieved:", updateData);
           const { date: updateDate, time: updateTime } = updateData;
           const storedDate = localStorage.getItem("loginDate");
           const storedTime = localStorage.getItem("loginTime");
 
           if (storedDate && storedTime) {
-            console.log("Stored date and time:", storedDate, storedTime);
             const updateDateTime = new Date(
               `${updateDate.replace(/\//g, "-")}T${updateTime}`
             );
             const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-
-            console.log("Update date and time:", updateDateTime);
-            console.log("Stored date and time:", storedDateTime);
 
             const now = new Date();
             const date = now
@@ -103,10 +103,6 @@ export default function NewPost() {
               !isNaN(storedDateTime.getTime())
             ) {
               if (storedDateTime < updateDateTime) {
-                console.log(
-                  "Stored data is outdated. Clearing cache and reloading..."
-                );
-                // Clear cache and reload
                 caches
                   .keys()
                   .then((names) => {
@@ -118,17 +114,9 @@ export default function NewPost() {
                     alert("O sistema agora está na versão mais recente");
                     window.location.reload();
                   });
-              } else {
-                console.log("Stored data is up to date.");
               }
-            } else {
-              console.log("Invalid date/time format detected.");
             }
-          } else {
-            console.log("No stored date and time found.");
           }
-        } else {
-          console.log("No update data found in the database.");
         }
       } catch (error) {
         console.error("Error fetching update document:", error);
@@ -148,17 +136,13 @@ export default function NewPost() {
 
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
-
           // @ts-ignore
           setData(fetchedData);
           setDate(fetchedData.date);
           setTime(fetchedData.time);
           setObservations(fetchedData.observations);
           setIsOk(fetchedData.isOk);
-
-          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
-        } else {
-          console.log("No such document!");
+          console.log("Supervisor data fetched: ", fetchedData);
         }
       } catch (error) {
         console.error("Error getting document:", error);
@@ -170,37 +154,93 @@ export default function NewPost() {
     fetchData();
   }, [docId]);
 
+  useEffect(() => {
+    const fetchPostCoordinates = async () => {
+      if (!postName) return;
+
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const postData = querySnapshot.docs[0].data();
+          setPostCoordinates({
+            lat: postData.location.lat,
+            lng: postData.location.lng,
+          });
+          console.log("Post coordinates fetched: ", postData.location);
+        }
+      } catch (error) {
+        console.error("Error fetching post coordinates:", error);
+      }
+    };
+
+    fetchPostCoordinates();
+  }, [postName]);
+
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
+  };
+
+  const calculateCoordinatesInRadius = (
+    center: { lat: number; lng: number },
+    radius = 200,
+    stepSize = 2
+  ) => {
+    const points = [];
+    const earthRadius = 6371000;
+
+    const lat1 = (center.lat * Math.PI) / 180;
+    const lng1 = (center.lng * Math.PI) / 180;
+
+    for (let angle = 0; angle < 360; angle += stepSize) {
+      const bearing = (angle * Math.PI) / 180;
+
+      for (let dist = 0; dist <= radius; dist += stepSize) {
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(dist / earthRadius) +
+            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
+        );
+        const lng2 =
+          lng1 +
+          Math.atan2(
+            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
+            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+          );
+
+        points.push({
+          lat: (lat2 * 180) / Math.PI,
+          lng: (lng2 * 180) / Math.PI,
+        });
+      }
+    }
+
+    console.log("Radius coordinates calculated: ", points);
+    return points;
   };
 
   const saveMeasurement = async () => {
     setIsLoading(true);
 
-    // Verifique as coordenadas ao salvar
     fetchCoordinates();
 
     let missingField = "";
     const today = getLocalISODate();
-    console.log(today);
 
     if (!date) missingField = "Data";
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -219,7 +259,6 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A tarefa uniformes já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
 
@@ -235,12 +274,35 @@ export default function NewPost() {
       coordinates,
     };
 
+    console.log("Task data: ", taskData);
+
+    // @ts-ignore
+    const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
+    // @ts-ignore
+    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+
+    const isWithinRadius = radiusCoords.some(
+      (coord) =>
+        // @ts-ignore
+        Math.abs(coord.lat - coordinates.lat) < 0.0001 &&
+        // @ts-ignore
+        Math.abs(coord.lng - coordinates.lng) < 0.0001
+    );
+
+    console.log(`Supervisor is within radius: ${isWithinRadius}`);
+
+    if (!isWithinRadius) {
+      toast.error(
+        "Você não está dentro do raio permitido para realizar essa tarefa."
+      );
+      setIsLoading(false);
+      return;
+    }
+
     try {
       sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
-      console.log("Tarefa salva com ID: ", docRef.id);
-
       toast.success("Tarefa salva com sucesso!");
       // @ts-ignore
       router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
@@ -252,7 +314,7 @@ export default function NewPost() {
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
+    date.setDate(date.getDate() + 1);
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString().substr(-2);
@@ -267,16 +329,15 @@ export default function NewPost() {
     postName: any;
     supervisorName: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Montar o corpo da mensagem
     const observationsMsg = data.observations
       ? `Observações: ${data.observations}`
-      : "_*Sem observações adicionais*_";
+      : "Sem observações adicionais";
 
     const status = data.isOk === "yes" ? "OK" : "NÃO OK";
 
-    const messageBody = `*Verificação de Uniformes*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Supervisor:* ${data.supervisorName}\n\n*Status:* ${status}\n${observationsMsg}`;
+    const messageBody = `Verificação de Uniformes\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Supervisor:* ${data.supervisorName}\n\n*Status:* ${status}\n${observationsMsg}`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));
@@ -289,8 +350,6 @@ export default function NewPost() {
 
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.contact;
-
-    console.log(managerContact);
 
     const response = await fetch("/api/send-message", {
       method: "POST",
@@ -306,20 +365,16 @@ export default function NewPost() {
     if (!response.ok) {
       throw new Error("Falha ao enviar mensagem via WhatsApp");
     }
-
-    console.log("Mensagem de verificação de uniformes enviada com sucesso!");
   }
 
   return (
     <>
       <Head>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
-          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
-        `}</style>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');`}</style>
       </Head>
 
-      <HeaderNewProduct></HeaderNewProduct>
+      <HeaderNewProduct />
       <ToastContainer />
       <LoadingOverlay isLoading={isLoading} />
 
@@ -375,19 +430,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do supervisor</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>OK?</p>
@@ -414,6 +457,17 @@ export default function NewPost() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <iframe
+              src={mapUrl}
+              width="320"
+              height="280"
+              loading="lazy"
+              style={{ border: 0 }}
+              allowFullScreen
+            ></iframe>
           </div>
 
           <div className={styles.Copyright}>
