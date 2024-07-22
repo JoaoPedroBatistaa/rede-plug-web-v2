@@ -11,6 +11,7 @@ import { ITableBudgets } from "./type";
 import Link from "next/link";
 
 import { format } from "date-fns";
+import { useRouter } from "next/router";
 
 interface Measurement {
   cm: string;
@@ -55,6 +56,9 @@ export default function TablePosts({
     userId = window.localStorage.getItem("userId");
   }
 
+  const router = useRouter();
+  const { post } = router.query;
+
   useEffect(() => {
     let isComponentMounted = true;
 
@@ -66,14 +70,18 @@ export default function TablePosts({
       let dbCollection = collection(db, path);
       let q;
 
-      if (userType === "manager") {
+      if (userType === "manager" && post) {
+        q = query(dbCollection, where("postName", "==", post));
+      } else if (userType === "manager") {
         q = query(dbCollection, where("postName", "==", userPost));
+      } else if (post) {
+        q = query(dbCollection, where("postName", "==", post));
       } else {
         q = query(dbCollection); // Sem filtros adicionais
       }
 
       const dischargesSnapshot = await getDocs(q);
-      const dischargesList = dischargesSnapshot.docs.map((doc) => {
+      let dischargesList = dischargesSnapshot.docs.map((doc) => {
         const data = doc.data() as Discharge; // Garante a tipagem correta dos dados
         return {
           id: doc.id,
@@ -107,9 +115,22 @@ export default function TablePosts({
         };
       });
 
+      // Ordenar dischargesList primeiro por date e time em ordem decrescente e depois por postName em ordem alfabética
+      dischargesList = dischargesList.sort((a, b) => {
+        const dateComparison = b.date.localeCompare(a.date);
+        if (dateComparison !== 0) {
+          return dateComparison;
+        }
+        const timeComparison = b.time.localeCompare(a.time);
+        if (timeComparison !== 0) {
+          return timeComparison;
+        }
+        return a.postName.localeCompare(b.postName);
+      });
+
       if (isComponentMounted) {
         setTeste(dischargesList);
-        setFilteredData(dischargesList); // Aqui você pode aplicar filtros ou ordenações
+        setFilteredData(dischargesList); // Aqui você pode aplicar filtros ou ordenações adicionais
         console.log("Set data: ", dischargesList);
       }
     };
@@ -119,7 +140,7 @@ export default function TablePosts({
     return () => {
       isComponentMounted = false; // Limpeza ao desmontar o componente
     };
-  }, []);
+  }, [post]);
 
   useEffect(() => {
     if (searchValue !== "") {

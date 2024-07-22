@@ -151,40 +151,59 @@ export default function NewPost() {
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
 
   const calculateCoordinatesInRadius = (
-    center: { lat: any; lng: any },
-    radius = 200
+    center: { lat: number; lng: number },
+    radius = 200,
+    stepSize = 2
   ) => {
     const points = [];
     const earthRadius = 6371000; // Radius of the Earth in meters
 
-    for (let angle = 0; angle < 360; angle += 10) {
+    // Convert center coordinates to radians
+    const lat1 = (center.lat * Math.PI) / 180;
+    const lng1 = (center.lng * Math.PI) / 180;
+
+    console.log("Starting calculation of coordinates within the radius.");
+
+    for (let angle = 0; angle < 360; angle += stepSize) {
       const bearing = (angle * Math.PI) / 180; // Convert to radians
-      const lat1 = (center.lat * Math.PI) / 180; // Convert to radians
-      const lng1 = (center.lng * Math.PI) / 180; // Convert to radians
 
-      const lat2 = Math.asin(
-        Math.sin(lat1) * Math.cos(radius / earthRadius) +
-          Math.cos(lat1) * Math.sin(radius / earthRadius) * Math.cos(bearing)
-      );
-      const lng2 =
-        lng1 +
-        Math.atan2(
-          Math.sin(bearing) * Math.sin(radius / earthRadius) * Math.cos(lat1),
-          Math.cos(radius / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+      for (let dist = 0; dist <= radius; dist += stepSize) {
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(dist / earthRadius) +
+            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
         );
+        const lng2 =
+          lng1 +
+          Math.atan2(
+            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
+            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+          );
 
-      points.push({
-        lat: (lat2 * 180) / Math.PI, // Convert back to degrees
-        lng: (lng2 * 180) / Math.PI, // Convert back to degrees
-      });
+        points.push({
+          lat: (lat2 * 180) / Math.PI, // Convert back to degrees
+          lng: (lng2 * 180) / Math.PI, // Convert back to degrees
+        });
+      }
     }
+
+    console.log("Finished calculation of coordinates.");
+
+    // Log all points
+    points.forEach((point, index) => {
+      const coordUrl = `https://www.google.com/maps?q=${point.lat},${point.lng}&output=embed`;
+      console.log(`Coordinate ${index + 1}: ${coordUrl}`);
+    });
 
     return points;
   };
 
+  // Função getLocation atualizada para chamar calculateCoordinatesInRadius e logar todas as coordenadas
   const getLocation = () => {
     if ("geolocation" in navigator) {
       setIsLoading(true);
+      console.log(
+        "Geolocation is available. Attempting to get current position."
+      );
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
@@ -194,15 +213,17 @@ export default function NewPost() {
           const newUrl = `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
           setMapUrl(newUrl);
 
+          console.log(`Current position obtained: lat=${lat}, lng=${lng}`);
+
           const radiusCoords = calculateCoordinatesInRadius({ lat, lng });
           // @ts-ignore
           setRadiusCoordinates(radiusCoords);
 
           // Log URLs for checking
-          radiusCoords.forEach((coord, index) => {
-            const coordUrl = `https://www.google.com/maps?q=${coord.lat},${coord.lng}&output=embed`;
-            console.log(`Coordinate ${index + 1}: ${coordUrl}`);
-          });
+          // radiusCoords.forEach((coord, index) => {
+          //   const coordUrl = `https://www.google.com/maps?q=${coord.lat},${coord.lng}&output=embed`;
+          //   console.log(`Coordinate ${index + 1}: ${coordUrl}`);
+          // });
 
           // Add a timeout before setting loading to false
           setTimeout(() => {
@@ -481,11 +502,11 @@ export default function NewPost() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    if (!validateForm()) {
-      toast.error("Por favor, preencha todos os campos obrigatórios.");
-      setIsLoading(false);
-      return;
-    }
+    // if (!validateForm()) {
+    //   toast.error("Por favor, preencha todos os campos obrigatórios.");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     try {
       const supervisorsList = selectedSupervisors.map((supervisor) => {
@@ -510,7 +531,9 @@ export default function NewPost() {
 
       const postRef = await addDoc(collection(db, "POSTS"), {
         name,
-        location,
+        location: {
+          coordinates, // Adiciona as coordenadas principais
+        },
         email,
         tanks,
         nozzles,

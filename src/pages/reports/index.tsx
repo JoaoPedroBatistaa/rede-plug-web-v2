@@ -103,10 +103,15 @@ export default function Home() {
         };
       });
 
+      // Organize a lista em ordem alfabética
+      const sortedPostsList = postsList.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
       if (isComponentMounted) {
         // @ts-ignore
-        setPosts(postsList);
-        console.log("Set data: ", postsList);
+        setPosts(sortedPostsList);
+        console.log("Set data: ", sortedPostsList);
       }
     };
     fetchData();

@@ -119,6 +119,17 @@ export default function Home() {
               </Link>
               <Link
                 href={{
+                  pathname: "/discharges", // @ts-ignore
+                  query: { post: router.query.post },
+                }}
+              >
+                <div className={styles.CardMenu}>
+                  <img src="/supervisoresHome.svg" alt="Gerentes" />
+                  <span className={styles.CardMenuText}>Descargas</span>
+                </div>
+              </Link>
+              <Link
+                href={{
                   pathname: "/reports/attendants", // @ts-ignore
                   query: { post: router.query.post },
                 }}

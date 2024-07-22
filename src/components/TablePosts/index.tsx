@@ -35,7 +35,7 @@ interface Post {
   name: string;
   owner: string;
   contact: string;
-  location: string;
+  location: any;
   email: string;
   tanks: Tank[];
   nozzles: Nozzle[];
@@ -59,6 +59,7 @@ export default function TablePosts({
 
   useEffect(() => {
     let isComponentMounted = true;
+
     const fetchData = async () => {
       const path = "POSTS";
 
@@ -79,12 +80,18 @@ export default function TablePosts({
         };
       });
 
+      // Ordenar a lista de postos em ordem alfabética pelo campo 'name'
+      const sortedPostsList = postsList.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
       if (isComponentMounted) {
-        setTeste(postsList);
-        setFilteredData(postsList);
-        console.log("Set data: ", postsList);
+        setTeste(sortedPostsList);
+        setFilteredData(sortedPostsList);
+        console.log("Set data: ", sortedPostsList);
       }
     };
+
     fetchData();
 
     return () => {
@@ -292,8 +299,9 @@ export default function TablePosts({
               <td className={styles.td}>
                 <b>{item.email}</b>
               </td>
+
               <td className={styles.td}>
-                <b>{item.location}</b>
+                <b>Confira na edição</b>
               </td>
             </tr>
           ))}

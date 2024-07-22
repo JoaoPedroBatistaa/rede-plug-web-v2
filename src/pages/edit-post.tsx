@@ -33,7 +33,7 @@ interface Supervisor {
   password: string;
 }
 
-export default function NewPost() {
+export default function EditPost() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -149,6 +149,125 @@ export default function NewPost() {
   const [selectedSupervisors, setSelectedSupervisors] = useState([
     { selectedSupervisorId: "" },
   ]);
+
+  const [coordinates, setCoordinates] = useState<{
+    lat: number | null;
+    lng: number | null;
+  }>({ lat: null, lng: null });
+  const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+
+  const [mapUrl, setMapUrl] = useState("");
+
+  const calculateCoordinatesInRadius = (
+    center: { lat: number; lng: number },
+    radius = 200,
+    stepSize = 2
+  ) => {
+    const points = [];
+    const earthRadius = 6371000; // Radius of the Earth in meters
+
+    // Convert center coordinates to radians
+    const lat1 = (center.lat * Math.PI) / 180;
+    const lng1 = (center.lng * Math.PI) / 180;
+
+    console.log("Starting calculation of coordinates within the radius.");
+
+    for (let angle = 0; angle < 360; angle += stepSize) {
+      const bearing = (angle * Math.PI) / 180; // Convert to radians
+
+      for (let dist = 0; dist <= radius; dist += stepSize) {
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(dist / earthRadius) +
+            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
+        );
+        const lng2 =
+          lng1 +
+          Math.atan2(
+            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
+            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+          );
+
+        points.push({
+          lat: (lat2 * 180) / Math.PI, // Convert back to degrees
+          lng: (lng2 * 180) / Math.PI, // Convert back to degrees
+        });
+      }
+    }
+
+    console.log("Finished calculation of coordinates.");
+
+    // Log all points
+    points.forEach((point, index) => {
+      const coordUrl = `https://www.google.com/maps?q=${point.lat},${point.lng}&output=embed`;
+      console.log(`Coordinate ${index + 1}: ${coordUrl}`);
+    });
+
+    return points;
+  };
+
+  const getLocation = () => {
+    if ("geolocation" in navigator) {
+      setIsLoading(true);
+      console.log(
+        "Geolocation is available. Attempting to get current position."
+      );
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setCoordinates({ lat, lng });
+
+          const newUrl = `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
+          setMapUrl(newUrl);
+
+          console.log(`Current position obtained: lat=${lat}, lng=${lng}`);
+
+          const radiusCoords = calculateCoordinatesInRadius({ lat, lng });
+          // @ts-ignore
+          setRadiusCoordinates(radiusCoords);
+
+          // Log URLs for checking
+          // radiusCoords.forEach((coord, index) => {
+          //   const coordUrl = `https://www.google.com/maps?q=${coord.lat},${coord.lng}&output=embed`;
+          //   console.log(`Coordinate ${index + 1}: ${coordUrl}`);
+          // });
+
+          // Add a timeout before setting loading to false
+          setTimeout(() => {
+            setIsLoading(false);
+            toast.success("Localização obtida com sucesso!");
+          }, 2000);
+        },
+        (error) => {
+          // Set loading to false immediately in case of an error
+          setIsLoading(false);
+          console.error("Error obtaining location:", error);
+          setCoordinates({ lat: null, lng: null });
+
+          if (error.code === error.PERMISSION_DENIED) {
+            toast.error(
+              "Permissão de localização negada. Por favor, habilite a permissão de localização nas configurações do seu navegador."
+            );
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            toast.error(
+              "A localização não está disponível. Por favor, verifique sua conexão com a internet ou tente novamente mais tarde."
+            );
+          } else if (error.code === error.TIMEOUT) {
+            toast.error(
+              "O tempo para obter a localização esgotou. Por favor, tente novamente."
+            );
+          } else {
+            toast.error(
+              "Erro ao obter a localização. Por favor, tente novamente."
+            );
+          }
+        }
+      );
+    } else {
+      console.log("Geolocation is not available in this browser.");
+      toast.error("Geolocalização não está disponível neste navegador.");
+    }
+  };
 
   const addSupervisor = () => {
     setSelectedSupervisors([
@@ -310,6 +429,19 @@ export default function NewPost() {
             setPassword(userData.password);
           } else {
             console.log("No post user found for the provided post name.");
+          }
+
+          if (
+            postData.location &&
+            postData.location.coordinates.lat &&
+            postData.location.coordinates.lng
+          ) {
+            const newUrl = `https://www.google.com/maps?q=${postData.location.coordinates.lat},${postData.location.coordinates.lng}&output=embed`;
+            setMapUrl(newUrl);
+            setCoordinates({
+              lat: postData.location.coordinates.lat,
+              lng: postData.location.coordinates.lng,
+            });
           }
         } else {
           console.log("No such document!");
@@ -594,8 +726,7 @@ export default function NewPost() {
 
       const updateData = {
         name,
-
-        location,
+        location: coordinates,
         email,
         password, // Atualiza a senha do frentista na coleção POSTS
         tanks,
@@ -667,15 +798,34 @@ export default function NewPost() {
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Localização</p>
-                  <input
-                    id="location"
-                    type="text"
-                    className={styles.Field}
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder=""
-                  />
+                  <button
+                    onClick={getLocation}
+                    className={styles.locationButton}
+                  >
+                    Cadastrar localização
+                  </button>
+                  {coordinates.lat && coordinates.lng && (
+                    <p className={styles.locText}>
+                      Lat: {coordinates.lat}, Lng: {coordinates.lng}
+                    </p>
+                  )}
+
+                  {coordinates.lat && coordinates.lng && (
+                    <>
+                      <div className={styles.InputContainer}>
+                        <iframe
+                          src={mapUrl}
+                          width="320"
+                          height="280"
+                          loading="lazy"
+                          style={{ border: 0 }}
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </>
+                  )}
                 </div>
+
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Email</p>
                   <input
