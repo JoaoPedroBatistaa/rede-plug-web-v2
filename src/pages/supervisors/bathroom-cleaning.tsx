@@ -29,6 +29,14 @@ export default function NewPost() {
   const docId = router.query.docId;
   const [data, setData] = useState(null);
 
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  const [postCoordinates, setPostCoordinates] = useState({
+    lat: null,
+    lng: null,
+  });
+  const [mapUrl, setMapUrl] = useState("");
+  const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+
   useEffect(() => {
     const checkForUpdates = async () => {
       console.log("Checking for updates...");
@@ -151,6 +159,96 @@ export default function NewPost() {
   const [etanolFileName, setEtanolFileName] = useState("");
   const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
 
+  const fetchCoordinates = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoordinates({
+            // @ts-ignore
+            lat: position.coords.latitude,
+            // @ts-ignore
+            lng: position.coords.longitude,
+          });
+          console.log(
+            `Supervisor coordinates obtained: lat=${position.coords.latitude}, lng=${position.coords.longitude}`
+          );
+        },
+        (error) => {
+          console.error("Error obtaining location:", error);
+          setCoordinates({ lat: null, lng: null });
+        }
+      );
+    } else {
+      console.log("Geolocation is not available in this browser.");
+    }
+  };
+
+  useEffect(() => {
+    fetchCoordinates();
+  }, [date, time, isOk, observations, managerName]);
+
+  useEffect(() => {
+    const fetchPostCoordinates = async () => {
+      if (!postName) return;
+
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const postData = querySnapshot.docs[0].data();
+          setPostCoordinates({
+            lat: postData.location.lat,
+            lng: postData.location.lng,
+          });
+          console.log("Post coordinates fetched: ", postData.location);
+        }
+      } catch (error) {
+        console.error("Error fetching post coordinates:", error);
+      }
+    };
+
+    fetchPostCoordinates();
+  }, [postName]);
+
+  const calculateCoordinatesInRadius = (
+    center: { lat: number; lng: number },
+    radius = 200,
+    stepSize = 2
+  ) => {
+    const points = [];
+    const earthRadius = 6371000;
+
+    const lat1 = (center.lat * Math.PI) / 180;
+    const lng1 = (center.lng * Math.PI) / 180;
+
+    for (let angle = 0; angle < 360; angle += stepSize) {
+      const bearing = (angle * Math.PI) / 180;
+
+      for (let dist = 0; dist <= radius; dist += stepSize) {
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(dist / earthRadius) +
+            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
+        );
+        const lng2 =
+          lng1 +
+          Math.atan2(
+            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
+            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+          );
+
+        points.push({
+          lat: (lat2 * 180) / Math.PI,
+          lng: (lng2 * 180) / Math.PI,
+        });
+      }
+    }
+
+    console.log("Radius coordinates calculated: ", points);
+    return points;
+  };
+
   async function compressImage(file: File) {
     const options = {
       maxSizeMB: 1, // Tamanho máximo do arquivo final em megabytes
@@ -213,6 +311,8 @@ export default function NewPost() {
   const saveMeasurement = async () => {
     setIsLoading(true);
 
+    fetchCoordinates();
+
     let missingField = "";
     const today = getLocalISODate();
     console.log(today);
@@ -260,6 +360,8 @@ export default function NewPost() {
       postName,
       isOk,
       observations,
+      coordinates,
+
       images: [
         {
           type: "Imagem da tarefa",
@@ -269,6 +371,29 @@ export default function NewPost() {
       ],
       id: "limpeza-banheiros",
     };
+
+    // @ts-ignore
+    const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
+    // @ts-ignore
+    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+
+    const isWithinRadius = radiusCoords.some(
+      (coord) =>
+        // @ts-ignore
+        Math.abs(coord.lat - coordinates.lat) < 0.0001 &&
+        // @ts-ignore
+        Math.abs(coord.lng - coordinates.lng) < 0.0001
+    );
+
+    console.log(`Supervisor is within radius: ${isWithinRadius}`);
+
+    if (!isWithinRadius) {
+      toast.error(
+        "Você não está dentro do raio permitido para realizar essa tarefa."
+      );
+      setIsLoading(false);
+      return;
+    }
 
     try {
       sendMessage(taskData);

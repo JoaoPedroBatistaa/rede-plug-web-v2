@@ -15,7 +15,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -51,8 +51,17 @@ async function compressImage(file: File) {
 export default function NewPost() {
   const router = useRouter();
   const postName = router.query.postName;
+
   const docId = router.query.docId;
   const [data, setData] = useState(null);
+
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  const [postCoordinates, setPostCoordinates] = useState({
+    lat: null,
+    lng: null,
+  });
+  const [mapUrl, setMapUrl] = useState("");
+  const [radiusCoordinates, setRadiusCoordinates] = useState([]);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -97,6 +106,7 @@ export default function NewPost() {
                 console.log(
                   "Stored data is outdated. Clearing cache and reloading..."
                 );
+                // Clear cache and reload
                 caches
                   .keys()
                   .then((names) => {
@@ -138,6 +148,7 @@ export default function NewPost() {
 
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
+
           // @ts-ignore
           setData(fetchedData);
           setDate(fetchedData.date);
@@ -146,7 +157,7 @@ export default function NewPost() {
           setIsEtanolOk(fetchedData.isEtanolOk);
           setIsGasolinaOk(fetchedData.isGasolinaOk);
 
-          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
+          console.log(fetchedData);
         } else {
           console.log("No such document!");
         }
@@ -174,79 +185,157 @@ export default function NewPost() {
   const gcRef = useRef(null);
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
-  const [etanolFileName, setEtanolFileName] = useState("");
   const [etanolImageUrl, setEtanolImageUrl] = useState("");
+  const [etanolFileName, setEtanolFileName] = useState("");
 
   const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcFileName, setGcFileName] = useState("");
   const [gcImageUrl, setGcImageUrl] = useState("");
+  const [gcFileName, setGcFileName] = useState("");
+
+  const fetchCoordinates = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoordinates({
+            // @ts-ignore
+            lat: position.coords.latitude,
+            // @ts-ignore
+            lng: position.coords.longitude,
+          });
+          console.log(
+            `Supervisor coordinates obtained: lat=${position.coords.latitude}, lng=${position.coords.longitude}`
+          );
+        },
+        (error) => {
+          console.error("Error obtaining location:", error);
+          setCoordinates({ lat: null, lng: null });
+        }
+      );
+    } else {
+      console.log("Geolocation is not available in this browser.");
+    }
+  };
+
+  useEffect(() => {
+    fetchCoordinates();
+  }, [date, time, observations, managerName]);
+
+  useEffect(() => {
+    const fetchPostCoordinates = async () => {
+      if (!postName) return;
+
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const postData = querySnapshot.docs[0].data();
+          setPostCoordinates({
+            lat: postData.location.lat,
+            lng: postData.location.lng,
+          });
+          console.log("Post coordinates fetched: ", postData.location);
+        }
+      } catch (error) {
+        console.error("Error fetching post coordinates:", error);
+      }
+    };
+
+    fetchPostCoordinates();
+  }, [postName]);
+
+  const calculateCoordinatesInRadius = (
+    center: { lat: number; lng: number },
+    radius = 200,
+    stepSize = 2
+  ) => {
+    const points = [];
+    const earthRadius = 6371000;
+
+    const lat1 = (center.lat * Math.PI) / 180;
+    const lng1 = (center.lng * Math.PI) / 180;
+
+    for (let angle = 0; angle < 360; angle += stepSize) {
+      const bearing = (angle * Math.PI) / 180;
+
+      for (let dist = 0; dist <= radius; dist += stepSize) {
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(dist / earthRadius) +
+            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
+        );
+        const lng2 =
+          lng1 +
+          Math.atan2(
+            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
+            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+          );
+
+        points.push({
+          lat: (lat2 * 180) / Math.PI,
+          lng: (lng2 * 180) / Math.PI,
+        });
+      }
+    }
+
+    console.log("Radius coordinates calculated: ", points);
+    return points;
+  };
 
   const handleEtanolImageChange = async (
-    event: ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
       setIsLoading(true);
-      try {
-        let compressedFile = file;
-        if (file.type.startsWith("image/")) {
-          compressedFile = await compressImage(file);
-        }
-        const imageUrl = await uploadImageAndGetUrl(
-          compressedFile,
-          `supervisors/${getLocalISODate()}/${
-            compressedFile.name
-          }_${Date.now()}`
-        );
-        setEtanolImage(compressedFile);
-        setEtanolFileName(compressedFile.name);
-        setEtanolImageUrl(imageUrl);
-      } catch (error) {
-        console.error("Erro ao fazer upload do arquivo:", error);
-        toast.error("Erro ao fazer upload do arquivo.");
-      } finally {
-        setIsLoading(false);
+      let compressedFile = file;
+      if (file.type.startsWith("image/")) {
+        compressedFile = await compressImage(file);
       }
+      const url = await uploadImageAndGetUrl(
+        compressedFile,
+        `supervisors/${compressedFile.name}`
+      );
+      setEtanolImage(file);
+      setEtanolFileName(file.name);
+      setEtanolImageUrl(url);
+      setIsLoading(false);
     }
   };
 
-  const handleGcImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleGcImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
       setIsLoading(true);
-      try {
-        let compressedFile = file;
-        if (file.type.startsWith("image/")) {
-          compressedFile = await compressImage(file);
-        }
-        const imageUrl = await uploadImageAndGetUrl(
-          compressedFile,
-          `supervisors/${getLocalISODate()}/${
-            compressedFile.name
-          }_${Date.now()}`
-        );
-        setGcImage(compressedFile);
-        setGcFileName(compressedFile.name);
-        setGcImageUrl(imageUrl);
-      } catch (error) {
-        console.error("Erro ao fazer upload do arquivo:", error);
-        toast.error("Erro ao fazer upload do arquivo.");
-      } finally {
-        setIsLoading(false);
+      let compressedFile = file;
+      if (file.type.startsWith("image/")) {
+        compressedFile = await compressImage(file);
       }
+      const url = await uploadImageAndGetUrl(
+        compressedFile,
+        `fuelTests/${compressedFile.name}`
+      );
+      setGcImage(file);
+      setGcFileName(file.name);
+      setGcImageUrl(url);
+      setIsLoading(false);
     }
   };
 
   const getLocalISODate = () => {
     const date = new Date();
-    date.setHours(date.getHours() - 3); // Ajustar para o fuso horário -03:00
+    date.setHours(date.getHours() - 3);
     return date.toISOString().slice(0, 10);
   };
 
   const saveMeasurement = async () => {
     setIsLoading(true);
+
+    fetchCoordinates();
 
     let missingField = "";
     const today = getLocalISODate();
@@ -256,15 +345,17 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
+
       return;
     } else if (!time) missingField = "Hora";
     else if (!isEtanolOk) missingField = "Etanol está ok?";
     else if (!isGasolinaOk) missingField = "Gasolina está ok?";
-    else if (!etanolImageUrl && !gcImageUrl)
+    else if (!etanolImage && !gcImage)
       missingField = "Fotos do Teste dos Combustíveis";
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
+
       return;
     }
 
@@ -283,6 +374,7 @@ export default function NewPost() {
     if (!querySnapshot.empty) {
       toast.error("A tarefa teste combustíveis de venda já foi feita hoje!");
       setIsLoading(false);
+
       return;
     }
 
@@ -295,29 +387,56 @@ export default function NewPost() {
       isEtanolOk,
       isGasolinaOk,
       observations,
+      coordinates,
+
       images: [],
       id: "teste-combustiveis-venda",
     };
 
     const images = [];
-    if (etanolImageUrl) {
+    if (etanolImage) {
       images.push({
         type: "Etanol",
         imageUrl: etanolImageUrl,
         fileName: etanolFileName,
       });
     }
-    if (gcImageUrl) {
+
+    if (gcImage) {
       images.push({
         type: "GC",
         imageUrl: gcImageUrl,
         fileName: gcFileName,
       });
     }
+
     // @ts-ignore
-    taskData.images = images;
+    const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
+    // @ts-ignore
+    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+
+    const isWithinRadius = radiusCoords.some(
+      (coord) =>
+        // @ts-ignore
+        Math.abs(coord.lat - coordinates.lat) < 0.0001 &&
+        // @ts-ignore
+        Math.abs(coord.lng - coordinates.lng) < 0.0001
+    );
+
+    console.log(`Supervisor is within radius: ${isWithinRadius}`);
+
+    if (!isWithinRadius) {
+      toast.error(
+        "Você não está dentro do raio permitido para realizar essa tarefa."
+      );
+      setIsLoading(false);
+      return;
+    }
 
     try {
+      // @ts-ignore
+      taskData.images = images;
+
       sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
@@ -329,7 +448,6 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -343,7 +461,7 @@ export default function NewPost() {
 
   function formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
+    date.setDate(date.getDate() + 1);
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString().substr(-2);
@@ -389,11 +507,11 @@ export default function NewPost() {
     postName: any;
     supervisorName: any;
   }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
+    const formattedDate = formatDate(data.date);
 
-    // Montar o corpo da mensagem
     const etanolStatus =
       data.isEtanolOk === "yes" ? "*Etanol:* OK" : "*Etanol:* NÃO OK";
+
     const gasolinaStatus =
       data.isGasolinaOk === "yes" ? "*Gasolina:* OK" : "*Gasolina:* NÃO OK";
 
@@ -573,26 +691,33 @@ export default function NewPost() {
                 </div>
               </div>
 
-              {docId &&
-                data &&
+              {
                 // @ts-ignore
-                data.images &&
-                // @ts-ignore
-                data.images.map((image, index) => (
-                  <div key={index} className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Imagem {image.type}</p>
-                    <img
-                      src={image.imageUrl}
-                      alt={`Preview do teste de ${image.type}`}
-                      style={{
-                        maxWidth: "17.5rem",
-                        height: "auto",
-                        border: "1px solid #939393",
-                        borderRadius: "20px",
-                      }}
-                    />
+                docId && data && data.images && (
+                  <div>
+                    {
+                      // @ts-ignore
+                      data.images.map((image, index) => (
+                        <div key={index} className={styles.InputField}>
+                          <p className={styles.FieldLabel}>
+                            Imagem {image.type}
+                          </p>
+                          <img
+                            src={image.imageUrl}
+                            alt={`Preview do teste de ${image.type}`}
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          />
+                        </div>
+                      ))
+                    }
                   </div>
-                ))}
+                )
+              }
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
@@ -613,7 +738,7 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {etanolImage && (
+                  {etanolImageUrl && (
                     <div>
                       <img
                         src={etanolImageUrl}
@@ -648,7 +773,7 @@ export default function NewPost() {
                   >
                     Carregue sua foto
                   </button>
-                  {gcImage && (
+                  {gcImageUrl && (
                     <div>
                       <img
                         src={gcImageUrl}
