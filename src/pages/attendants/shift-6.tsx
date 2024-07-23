@@ -679,9 +679,7 @@ export default function NewPost() {
       2
     )}\n*Total de Despesas:* R$ ${Number(data.totalExpenses).toFixed(
       2
-    )}\n*Total de Entradas:* R$ ${Number(
-      data.totalInput
-    ).toFixed()}\n*Total de Entradas:* R$ ${Number(data.totalInput).toFixed(
+    )}\n*Total de Entradas:* R$ ${Number(data.totalInput).toFixed(
       2
     )}\n*Total de Saídas:* R$ ${Number(data.totalOutput).toFixed(
       2
