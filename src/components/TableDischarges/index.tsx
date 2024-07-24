@@ -10,7 +10,7 @@ import { ITableBudgets } from "./type";
 
 import Link from "next/link";
 
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { useRouter } from "next/router";
 
 interface Measurement {
@@ -92,26 +92,26 @@ export default function TablePosts({
           tankNumber: data.tankNumber,
           product: data.product,
           initialMeasurement: {
-            cm: data.initialMeasurement.cm,
-            fileUrl: data.initialMeasurement.fileUrl,
+            cm: data.initialMeasurement?.cm ?? "",
+            fileUrl: data.initialMeasurement?.fileUrl ?? "",
           },
           finalMeasurement: {
-            cm: data.finalMeasurement.cm,
-            fileUrl: data.finalMeasurement.fileUrl,
+            cm: data.finalMeasurement?.cm ?? "",
+            fileUrl: data.finalMeasurement?.fileUrl ?? "",
           },
           seal: {
-            selection: data.seal.selection,
-            fileUrl: data.seal.fileUrl,
+            selection: data.seal?.selection ?? "",
+            fileUrl: data.seal?.fileUrl ?? "",
             image: null,
           },
           arrow: {
-            selection: data.arrow.selection,
-            fileUrl: data.arrow.fileUrl,
+            selection: data.arrow?.selection ?? "",
+            fileUrl: data.arrow?.fileUrl ?? "",
             image: null,
           },
-          observations: data.observations,
-          makerName: data.makerName,
-          postName: data.postName,
+          observations: data.observations ?? "",
+          makerName: data.makerName ?? "",
+          postName: data.postName ?? "",
         };
       });
 
@@ -131,6 +131,7 @@ export default function TablePosts({
       if (isComponentMounted) {
         setTeste(dischargesList);
         setFilteredData(dischargesList); // Aqui você pode aplicar filtros ou ordenações adicionais
+        console.log(teste);
         console.log("Set data: ", dischargesList);
       }
     };
@@ -238,14 +239,8 @@ export default function TablePosts({
         </thead>
 
         <tbody>
-          {dataToDisplay.map((item, index) => (
-            <tr
-              className={styles.budgetItem}
-              key={item.id}
-              // onClick={() => {
-              //   localStorage.setItem("selectedBudgetId", item.id);
-              // }}
-            >
+          {dataToDisplay.map((item) => (
+            <tr className={styles.budgetItem} key={item.id}>
               <td className={styles.tdWithRelative}>
                 <img
                   src="./More.png"
@@ -282,16 +277,19 @@ export default function TablePosts({
               </td>
 
               <td className={styles.td}>
-                <b>{item.postName}</b>
+                <b>{item.postName || "Não especificado"}</b>
               </td>
 
               <td className={styles.td}>
                 <b>
-                  {format(new Date(item.date), "dd/MM/yyyy")} - {item.time}
+                  {item.date
+                    ? format(addDays(new Date(item.date), 1), "dd/MM/yyyy")
+                    : "Sem data"}{" "}
+                  - {item.time || "Sem hora"}
                 </b>
               </td>
               <td className={styles.td}>
-                <b>Tanque {item.tankNumber}</b>
+                <b>Tanque {item.tankNumber || "N/A"}</b>
               </td>
             </tr>
           ))}

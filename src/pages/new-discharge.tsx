@@ -657,12 +657,12 @@ export default function NewPost() {
         },
       };
 
-      // @ts-ignore
-      await sendDischargeMessage(messageData);
-
       const docRef = await addDoc(collection(db, "DISCHARGES"), updatedData);
       console.log("Documento salvo com ID: ", docRef.id);
       toast.success("Descarga salva com sucesso!");
+
+      // @ts-ignore
+      await sendDischargeMessage(messageData);
 
       router.push("/discharges");
     } catch (error) {
