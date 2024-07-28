@@ -170,6 +170,15 @@ export default function NewPost() {
     useState("");
   const weightTemperatureRef = useRef<HTMLInputElement>(null);
 
+  const [decalitro, setDecalitro] = useState("");
+  const [inicioDescargaVideo, setInicioDescargaVideo] = useState("");
+  const [inicioDescargaFileName, setInicioDescargaFileName] = useState("");
+  const inicioDescargaRef = useRef<HTMLInputElement>(null);
+
+  const [finalDescargaVideo, setFinalDescargaVideo] = useState("");
+  const [finalDescargaFileName, setFinalDescargaFileName] = useState("");
+  const finalDescargaRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (id) {
       const fetchDischargeData = async () => {
@@ -209,6 +218,9 @@ export default function NewPost() {
             setWeight(data.weight || "");
             setTemperature(data.temperature || "");
             setWeightTemperatureImage(data.weightTemperatureImage || "");
+            setDecalitro(data.decalitro || "");
+            setInicioDescargaVideo(data.inicioDescarga.fileUrl || "");
+            setFinalDescargaVideo(data.finalDescarga.fileUrl || "");
             console.log(weightTemperatureImage);
           } else {
             toast.error("Dados da descarga não encontrados.");
@@ -733,6 +745,95 @@ export default function NewPost() {
               )}
 
               <div className={styles.totalDischarge}>{totalDescarregado}</div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Decalitro</p>
+                  <input
+                    type="text"
+                    className={styles.Field}
+                    value={decalitro}
+                    onChange={(e) => setDecalitro(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Início Descarga (Vídeo)</p>
+                  <input
+                    ref={inicioDescargaRef}
+                    type="file"
+                    accept="video/*"
+                    style={{ display: "none" }}
+                    onChange={(event) =>
+                      handleFileChange(
+                        event,
+                        setInicioDescargaVideo,
+                        setInicioDescargaFileName
+                      )
+                    }
+                  />
+                  <button
+                    onClick={() => triggerFileInput(inicioDescargaRef)}
+                    className={styles.MidiaField}
+                  >
+                    Carregue seu vídeo
+                  </button>
+                </div>
+                {inicioDescargaVideo && (
+                  <div>
+                    <video
+                      src={inicioDescargaVideo}
+                      controls
+                      style={{
+                        maxWidth: "17.5rem",
+                        height: "auto",
+                        border: "1px solid #939393",
+                        borderRadius: "20px",
+                      }}
+                    />
+                    <p className={styles.fileName}>{inicioDescargaFileName}</p>
+                  </div>
+                )}
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Final Descarga (Vídeo)</p>
+                  <input
+                    ref={finalDescargaRef}
+                    type="file"
+                    accept="video/*"
+                    style={{ display: "none" }}
+                    onChange={(event) =>
+                      handleFileChange(
+                        event,
+                        setFinalDescargaVideo,
+                        setFinalDescargaFileName
+                      )
+                    }
+                  />
+                  <button
+                    onClick={() => triggerFileInput(finalDescargaRef)}
+                    className={styles.MidiaField}
+                  >
+                    Carregue seu vídeo
+                  </button>
+                </div>
+                {finalDescargaVideo && (
+                  <div>
+                    <video
+                      src={finalDescargaVideo}
+                      controls
+                      style={{
+                        maxWidth: "17.5rem",
+                        height: "auto",
+                        border: "1px solid #939393",
+                        borderRadius: "20px",
+                      }}
+                    />
+                    <p className={styles.fileName}>{finalDescargaFileName}</p>
+                  </div>
+                )}
+              </div>
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

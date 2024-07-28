@@ -119,6 +119,9 @@ export default function NewPost() {
           setDate(fetchedData.date);
           setTime(fetchedData.time);
 
+          // Defina o número de maquininhas com base no número de imagens retornadas
+          setNumMaquininhas(fetchedData.images ? fetchedData.images.length : 0);
+
           console.log(fetchedData); // Verifica se os dados foram corretamente buscados
         } else {
           console.log("No such document!");
