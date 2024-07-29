@@ -98,6 +98,7 @@ export default function Home() {
     if (postsData) {
       let postsArray = postsData.split(",");
       postsArray = postsArray.map((post) => post.replace(/['"\[\]]/g, ""));
+      postsArray.sort(); // Ordena os posts em ordem alfabética
       // @ts-ignore
       setPosts(postsArray);
     }

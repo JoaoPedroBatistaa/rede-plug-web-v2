@@ -286,6 +286,11 @@ export default function TablePosts({
               link: "/managers/nozzle-closure-fourteen",
             },
             {
+              id: "foto-maquininhas-14h",
+              name: "Maquininhas",
+              link: "/managers/photo-machines-fourteen",
+            },
+            {
               id: "teste-game-proveta-14h",
               name: "Teste do game. (fazer somente antes de ir embora do posto!) ",
               link: "/managers/game-test-fourteen",
@@ -294,11 +299,6 @@ export default function TablePosts({
               id: "teste-combustiveis-14h",
               name: "Teste dos combustíveis (fazer somente antes de ir embora!)",
               link: "/managers/fuel-test-fourteen",
-            },
-            {
-              id: "foto-maquininhas-14h",
-              name: "Maquininhas",
-              link: "/managers/photo-machines-fourteen",
             },
           ].map((task) => {
             // @ts-ignore
