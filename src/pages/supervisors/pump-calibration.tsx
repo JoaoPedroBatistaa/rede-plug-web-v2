@@ -15,7 +15,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -106,7 +106,6 @@ export default function NewPost() {
                 console.log(
                   "Stored data is outdated. Clearing cache and reloading..."
                 );
-                // Clear cache and reload
                 caches
                   .keys()
                   .then((names) => {
@@ -149,15 +148,13 @@ export default function NewPost() {
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
 
-          // @ts-ignore
+          // @ts-ignores
           setData(fetchedData);
           setDate(fetchedData.date);
           setTime(fetchedData.time);
           setObservations(fetchedData.observations);
-          setIsEtanolOk(fetchedData.isEtanolOk);
-          setIsGasolinaOk(fetchedData.isGasolinaOk);
 
-          console.log(fetchedData);
+          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
         } else {
           console.log("No such document!");
         }
@@ -177,20 +174,11 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
-  const [isEtanolOk, setIsEtanolOk] = useState("");
-  const [isGasolinaOk, setIsGasolinaOk] = useState("");
+  const [isOk, setIsOk] = useState("");
   const [observations, setObservations] = useState("");
 
-  const etanolRef = useRef(null);
-  const gcRef = useRef(null);
-
-  const [etanolImage, setEtanolImage] = useState<File | null>(null);
-  const [etanolImageUrl, setEtanolImageUrl] = useState("");
-  const [etanolFileName, setEtanolFileName] = useState("");
-
-  const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcImageUrl, setGcImageUrl] = useState("");
-  const [gcFileName, setGcFileName] = useState("");
+  const [numberOfPumps, setNumberOfPumps] = useState(0);
+  const [pumps, setPumps] = useState([]);
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -218,7 +206,7 @@ export default function NewPost() {
 
   useEffect(() => {
     fetchCoordinates();
-  }, [date, time, observations, managerName]);
+  }, [date, time, isOk, observations, managerName]);
 
   useEffect(() => {
     const fetchPostCoordinates = async () => {
@@ -282,48 +270,87 @@ export default function NewPost() {
     return points;
   };
 
-  const handleEtanolImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+  useEffect(() => {
+    if (postName) {
+      const fetchPostDetails = async () => {
+        try {
+          const postsRef = collection(db, "POSTS");
+          const q = query(postsRef, where("name", "==", postName));
+          const querySnapshot = await getDocs(q);
+
+          querySnapshot.forEach((doc) => {
+            const postData = doc.data();
+            setNumberOfPumps(postData.nozzles.length || []);
+            initializePumps(postData.nozzles.length || []);
+          });
+        } catch (error) {
+          console.error("Error fetching post details:.", error);
+        }
+      };
+
+      fetchPostDetails();
+    }
+  }, [postName]);
+
+  const updatePumps = (num: number) => {
+    setPumps(
+      // @ts-ignore
+      Array.from({ length: num }, (_, index) => ({
+        image1File: null,
+        image1Preview: "",
+        image1Url: "",
+        image1Name: "",
+        ok: "",
+      }))
+    );
+  };
+
+  const handleImageChange = async (
+    pumpIndex: number,
+    imageKey: string,
+    event: ChangeEvent<HTMLInputElement>
   ) => {
     // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
+    const newFile = event.target.files[0];
+    if (newFile) {
       setIsLoading(true);
-      let compressedFile = file;
-      if (file.type.startsWith("image/")) {
-        compressedFile = await compressImage(file);
+      let compressedFile = newFile;
+      if (newFile.type.startsWith("image/")) {
+        compressedFile = await compressImage(newFile);
       }
       const url = await uploadImageAndGetUrl(
         compressedFile,
-        `supervisors/${compressedFile.name}`
+        `pumps/${compressedFile.name}`
       );
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
-      setEtanolImageUrl(url);
+      const newPumps = [...pumps];
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}File`] = newFile;
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(newFile);
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Url`] = url;
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
+
+      setPumps(newPumps);
       setIsLoading(false);
     }
   };
 
-  const handleGcImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleSelectChange = (pumpIndex: number, value: string) => {
+    const newPumps = [...pumps];
     // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setIsLoading(true);
-      let compressedFile = file;
-      if (file.type.startsWith("image/")) {
-        compressedFile = await compressImage(file);
-      }
-      const url = await uploadImageAndGetUrl(
-        compressedFile,
-        `fuelTests/${compressedFile.name}`
-      );
-      setGcImage(file);
-      setGcFileName(file.name);
-      setGcImageUrl(url);
-      setIsLoading(false);
-    }
+    newPumps[pumpIndex].ok = value;
+    setPumps(newPumps);
+  };
+
+  const initializePumps = (num: any) => {
+    const newPumps = Array.from({ length: num }, () => ({
+      image1File: null,
+      image1Url: "",
+    }));
+    // @ts-ignore
+    setPumps(newPumps);
   };
 
   const getLocalISODate = () => {
@@ -345,17 +372,26 @@ export default function NewPost() {
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    else if (!isEtanolOk) missingField = "Etanol está ok?";
-    else if (!isGasolinaOk) missingField = "Gasolina está ok?";
-    else if (!etanolImage && !gcImage)
-      missingField = "Fotos do Teste dos Combustíveis";
+
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
+      return;
+    }
 
+    for (let pump of pumps) {
+      // @ts-ignore
+      if (!pump.image1File) {
+        missingField = "Cada bico deve ter pelo menos uma imagem";
+        break;
+      }
+    }
+
+    if (missingField) {
+      toast.error(missingField);
+      setIsLoading(false);
       return;
     }
 
@@ -365,18 +401,22 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "teste-combustiveis-venda"),
+      where("id", "==", "calibragem-bombas"),
       where("userName", "==", userName),
       where("postName", "==", postName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A tarefa teste combustíveis de venda já foi feita hoje!");
+      toast.error("A tarefa calibragem de bombas já foi feita hoje!");
       setIsLoading(false);
-
       return;
     }
+
+    const pumpsData = pumps.map((pump) => ({
+      // @ts-ignore
+      image1: { url: pump.image1Url, name: pump.image1Name },
+    }));
 
     const taskData = {
       date,
@@ -384,31 +424,12 @@ export default function NewPost() {
       supervisorName: userName,
       userName,
       postName,
-      isEtanolOk,
-      isGasolinaOk,
       observations,
       coordinates,
 
-      images: [],
-      id: "teste-combustiveis-venda",
+      nozzles: pumpsData,
+      id: "calibragem-bombas",
     };
-
-    const images = [];
-    if (etanolImage) {
-      images.push({
-        type: "Etanol",
-        imageUrl: etanolImageUrl,
-        fileName: etanolFileName,
-      });
-    }
-
-    if (gcImage) {
-      images.push({
-        type: "GC",
-        imageUrl: gcImageUrl,
-        fileName: gcFileName,
-      });
-    }
 
     // @ts-ignore
     const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
@@ -433,12 +454,9 @@ export default function NewPost() {
       return;
     }
 
+    sendMessage(taskData);
+
     try {
-      // @ts-ignore
-      taskData.images = images;
-
-      sendMessage(taskData);
-
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
 
@@ -447,7 +465,7 @@ export default function NewPost() {
       router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
-      toast.error("Erro ao salvar a medição.");
+      toast.error("Erro ao salvar a tarefa.");
       setIsLoading(false);
     }
   };
@@ -499,56 +517,32 @@ export default function NewPost() {
 
   async function sendMessage(data: {
     date: string | number | Date;
-    isEtanolOk: any;
-    isGasolinaOk: any;
-    observations: any;
-    images: any[];
+    nozzles: any[];
     time: any;
     postName: any;
     supervisorName: any;
+    observations: any;
   }) {
     const formattedDate = formatDate(data.date);
 
-    const etanolStatus =
-      data.isEtanolOk === "yes" ? "*Etanol:* OK" : "*Etanol:* NÃO OK";
+    let pumpDescriptions = await Promise.all(
+      data.nozzles.map(async (pump, index) => {
+        const imageUrl = pump.image1.url
+          ? await shortenUrl(pump.image1.url)
+          : "*Sem imagem*";
+        return `*Bicos ${index + 1}:* \n*Imagem:* ${imageUrl}\n`;
+      })
+    ).then((descriptions) => descriptions.join("\n"));
 
-    const gasolinaStatus =
-      data.isGasolinaOk === "yes" ? "*Gasolina:* OK" : "*Gasolina:* NÃO OK";
-
-    let etanolImage = "";
-    let gasolinaImage = "";
-    let otherImages = "";
-
-    if (data.images && data.images.length > 0) {
-      await Promise.all(
-        data.images.map(async (image) => {
-          const shortUrl = await shortenUrl(image.imageUrl);
-          if (image.type === "Etanol") {
-            etanolImage = `*Imagem (Etanol):* ${shortUrl}\n`;
-          } else if (image.type === "GC") {
-            gasolinaImage = `*Imagem (GC):* ${shortUrl}\n`;
-          } else {
-            otherImages += `*Imagem (${image.type}):* ${shortUrl}\n`;
-          }
-        })
-      );
-    }
-
-    const observationsMsg = data.observations
-      ? `*Observações*: ${data.observations}\n`
-      : "Sem observações adicionais";
-
-    const messageBody =
-      `*Teste dos Combustíveis de Venda*\n\n` +
-      `*Data:* ${formattedDate}\n` +
-      `*Hora:* ${data.time}\n` +
-      `*Posto:* ${data.postName}\n` +
-      `*Supervisor:* ${data.supervisorName}\n\n` +
-      `${etanolStatus}\n` +
-      `${etanolImage}\n` +
-      `${gasolinaStatus}\n` +
-      `${gasolinaImage}\n\n` +
-      `${observationsMsg}\n\n`;
+    const messageBody = `*Calibragem de bombas*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+      data.time
+    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
+      data.supervisorName
+    }\n\n${pumpDescriptions}\n\n${
+      data.observations
+        ? `*Observações:* ${data.observations}`
+        : "_*Sem observações adicionais*_"
+    }`;
 
     const postsRef = collection(db, "USERS");
     const q = query(postsRef, where("name", "==", data.supervisorName));
@@ -579,9 +573,7 @@ export default function NewPost() {
       throw new Error("Falha ao enviar mensagem via WhatsApp");
     }
 
-    console.log(
-      "Mensagem de teste dos combustíveis de venda enviada com sucesso!"
-    );
+    console.log("Mensagem de inspeção de bocas de visita enviada com sucesso!");
   }
 
   return (
@@ -600,7 +592,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Teste combustíveis de venda</p>
+            <p className={styles.BudgetTitle}>Calibragem de bombas</p>
             <div className={styles.BudgetHeadS}>
               {!docId && (
                 <button
@@ -619,7 +611,7 @@ export default function NewPost() {
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações do teste dos combústiveis de venda
+            Informe abaixo as informações da calibragem de bombas
           </p>
 
           <div className={styles.userContent}>
@@ -649,35 +641,79 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Etanol OK?</p>
-                  <select
-                    id="isOk"
-                    className={styles.SelectField}
-                    value={isEtanolOk}
-                    onChange={(e) => setIsEtanolOk(e.target.value)}
-                  >
-                    <option value="">Selecione</option>
-                    <option value="yes">Sim</option>
-                    <option value="no">Não</option>
-                  </select>
-                </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Gasolina OK?</p>
-                  <select
-                    id="isOk"
-                    className={styles.SelectField}
-                    value={isGasolinaOk}
-                    onChange={(e) => setIsGasolinaOk(e.target.value)}
-                  >
-                    <option value="">Selecione</option>
-                    <option value="yes">Sim</option>
-                    <option value="no">Não</option>
-                  </select>
+              {docId &&
+                data &&
+                // @ts-ignore
+                data.nozzles &&
+                // @ts-ignore
+                data.nozzles.map((pump, index) => (
+                  <div key={index} className={styles.InputContainer}>
+                    {[1].map((imageIndex) => (
+                      <div key={imageIndex} className={styles.InputField}>
+                        <p className={styles.FieldLabel}>
+                          Imagem {imageIndex} da Bomba {index + 1}
+                        </p>
+                        {pump && pump[`image${imageIndex}`] && (
+                          <img
+                            src={pump[`image${imageIndex}`].url}
+                            alt={`Imagem ${imageIndex} da Bomba ${index + 1}`}
+                            style={{
+                              maxWidth: "11.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+
+              {pumps.map((pump, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  {["image1"].map((imageKey, idx) => (
+                    <div key={idx} className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Imagem {idx + 1} do bico {index + 1}
+                      </p>
+                      <input
+                        id={`file-input-${index}-${idx}`}
+                        type="file"
+                        accept="image/*,video/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleImageChange(index, imageKey, e)}
+                      />
+                      <button
+                        onClick={() =>
+                          // @ts-ignore
+                          document
+                            .getElementById(`file-input-${index}-${idx}`)
+                            .click()
+                        }
+                        className={styles.MidiaField}
+                      >
+                        Carregue a Imagem {idx + 1}
+                      </button>
+                      {pump[`${imageKey}File`] && (
+                        <img
+                          src={pump[`${imageKey}Preview`]}
+                          alt={`Preview da Imagem ${idx + 1} do bico ${
+                            index + 1
+                          }`}
+                          style={{
+                            maxWidth: "11.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              </div>
+              ))}
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>
@@ -688,106 +724,6 @@ export default function NewPost() {
                     onChange={(e) => setObservations(e.target.value)}
                     rows={3}
                   />
-                </div>
-              </div>
-
-              {
-                // @ts-ignore
-                docId && data && data.images && (
-                  <div>
-                    {
-                      // @ts-ignore
-                      data.images.map((image, index) => (
-                        <div key={index} className={styles.InputField}>
-                          <p className={styles.FieldLabel}>
-                            Imagem {image.type}
-                          </p>
-                          <img
-                            src={image.imageUrl}
-                            alt={`Preview do teste de ${image.type}`}
-                            style={{
-                              maxWidth: "17.5rem",
-                              height: "auto",
-                              border: "1px solid #939393",
-                              borderRadius: "20px",
-                            }}
-                          />
-                        </div>
-                      ))
-                    }
-                  </div>
-                )
-              }
-
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem do teste de Etanol</p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    style={{ display: "none" }}
-                    ref={etanolRef}
-                    onChange={handleEtanolImageChange}
-                  />
-                  <button
-                    onClick={() =>
-                      // @ts-ignore
-                      etanolRef.current && etanolRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Carregue sua foto
-                  </button>
-                  {etanolImageUrl && (
-                    <div>
-                      <img
-                        src={etanolImageUrl}
-                        alt="Preview do teste de Etanol"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{etanolFileName}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Imagem do teste de Gasolina Comum (GC)
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    style={{ display: "none" }}
-                    ref={gcRef}
-                    onChange={handleGcImageChange}
-                  />
-                  <button
-                    // @ts-ignore
-                    onClick={() => gcRef.current && gcRef.current.click()}
-                    className={styles.MidiaField}
-                  >
-                    Carregue sua foto
-                  </button>
-                  {gcImageUrl && (
-                    <div>
-                      <img
-                        src={gcImageUrl}
-                        alt="Preview do teste de Gasolina Comum"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{gcFileName}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
