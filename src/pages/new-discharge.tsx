@@ -433,6 +433,7 @@ export default function NewPost() {
     else if (!time) missingField = "Hora";
     else if (!driverName) missingField = "Nome do Motorista";
     else if (!truckPlate) missingField = "Placa do caminhão";
+    else if (!decalitro) missingField = "Decalitro";
     // @ts-ignore
     else if (!truckPlateRef.current?.files[0])
       missingField = "Imagem da Placa do Caminhão";
