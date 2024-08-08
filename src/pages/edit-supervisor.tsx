@@ -103,9 +103,10 @@ export default function NewPost() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const validateForm = () => {
-    const fields = [name, contact, email];
+    const fields = [name, contact, email, password];
 
     return fields.every((field) => {
       if (typeof field === "object") {
@@ -136,6 +137,7 @@ export default function NewPost() {
         name,
         contact,
         email,
+        password,
         type: "supervisor",
       });
 
@@ -168,6 +170,7 @@ export default function NewPost() {
           setName(postData.name);
           setContact(postData.contact);
           setEmail(postData.email);
+          setPassword(postData.password);
 
           if (postData.supervisors) {
             console.log("Supervisors data:", postData.supervisors); // Log para depuração
@@ -252,6 +255,39 @@ export default function NewPost() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder=""
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Senha de acesso</p>
+                  <input
+                    id="password"
+                    type="text"
+                    className={styles.Field}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Foto</p>
+                  <input
+                    id="image"
+                    type="file"
+                    className={styles.Field}
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => {
+                      // @ts-ignore
+                      const file = e.target.files[0];
+                      console.log(file);
+                      // Você pode adicionar a lógica para upload aqui
+                    }}
                   />
                 </div>
               </div>

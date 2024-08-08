@@ -235,6 +235,8 @@ export default function TablePosts({
             <th>Nome do posto</th>
             <th>Data / Hora</th>
             <th>Tanque</th>
+            <th>Produto</th>
+            <th>Placa do caminhão</th>
           </tr>
         </thead>
 
@@ -290,6 +292,16 @@ export default function TablePosts({
               </td>
               <td className={styles.td}>
                 <b>Tanque {item.tankNumber || "N/A"}</b>
+              </td>
+              <td className={styles.td}>
+                <b>{item.product || "N/A"}</b>
+              </td>
+              <td className={styles.td}>
+                <b>
+                  {item.truckPlate
+                    ? item.truckPlate.toString().toUpperCase()
+                    : "N/A"}
+                </b>
               </td>
             </tr>
           ))}
