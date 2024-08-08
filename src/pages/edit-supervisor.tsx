@@ -11,11 +11,26 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import getIpAddress from "ipify";
 
 export default function NewPost() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [ipAddress, setIpAddress] = useState("");
+
+  useEffect(() => {
+    const fetchIpAddress = async () => {
+      try {
+        const ip = await getIpAddress();
+        setIpAddress(ip);
+      } catch (error) {
+        console.error("Error fetching IP address:", error);
+      }
+    };
+
+    fetchIpAddress();
+  }, []);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -139,6 +154,7 @@ export default function NewPost() {
         email,
         password,
         type: "supervisor",
+        ipAddress,
       });
 
       console.log("Supervisor atualizado com ID:", docId);
@@ -288,6 +304,19 @@ export default function NewPost() {
                       console.log(file);
                       // Você pode adicionar a lógica para upload aqui
                     }}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Endereço IP</p>
+                  <input
+                    id="ipAddress"
+                    type="text"
+                    className={styles.Field}
+                    value={ipAddress}
+                    readOnly
                   />
                 </div>
               </div>
