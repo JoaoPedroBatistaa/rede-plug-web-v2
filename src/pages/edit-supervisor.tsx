@@ -288,7 +288,7 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-
+              {/*
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Foto ou vídeo</p>
@@ -319,7 +319,7 @@ export default function NewPost() {
                     readOnly
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
