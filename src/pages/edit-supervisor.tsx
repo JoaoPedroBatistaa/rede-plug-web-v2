@@ -11,7 +11,6 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
-import getIpAddress from "ipify";
 
 export default function NewPost() {
   const router = useRouter();
@@ -22,8 +21,9 @@ export default function NewPost() {
   useEffect(() => {
     const fetchIpAddress = async () => {
       try {
-        const ip = await getIpAddress();
-        setIpAddress(ip);
+        const response = await fetch("https://api.ipify.org?format=json");
+        const data = await response.json();
+        setIpAddress(data.ip);
       } catch (error) {
         console.error("Error fetching IP address:", error);
       }
