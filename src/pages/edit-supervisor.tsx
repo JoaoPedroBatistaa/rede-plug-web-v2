@@ -275,12 +275,12 @@ export default function NewPost() {
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Foto</p>
+                  <p className={styles.FieldLabel}>Foto ou vídeo</p>
                   <input
-                    id="image"
+                    id="media"
                     type="file"
                     className={styles.Field}
-                    accept="image/*"
+                    accept="image/*,video/*"
                     capture="environment"
                     onChange={(e) => {
                       // @ts-ignore
