@@ -1079,7 +1079,7 @@ export default function NewPost() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          managerContact: "5511911534298",
+          managerContact: "5511911345557",
           messageBody: simplifiedMessageBody,
         }),
       });

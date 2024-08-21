@@ -677,7 +677,7 @@ export default function NewPost() {
       return;
     }
 
-    const contacts = ["5511911534298"];
+    const contacts = ["5511911345557"];
     for (const contact of contacts) {
       try {
         const imageResponse = await fetch("/api/send-image-message", {
