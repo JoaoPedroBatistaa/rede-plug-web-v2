@@ -40,6 +40,32 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
+  const handleRefresh = () => {
+    // Limpa o cache e recarrega a página
+    caches
+      .keys()
+      .then((names) => {
+        for (let name of names) caches.delete(name);
+      })
+      .then(() => {
+        const now = new Date();
+        const date = now
+          .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+          .split("/")
+          .reverse()
+          .join("-");
+        const time = now.toLocaleTimeString("pt-BR", {
+          hour12: false,
+          timeZone: "America/Sao_Paulo",
+        });
+
+        localStorage.setItem("loginDate", date);
+        localStorage.setItem("loginTime", time);
+        alert("O sistema agora está na versão mais recente");
+        window.location.reload();
+      });
+  };
+
   return (
     <>
       <Head>
@@ -326,9 +352,10 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               className={`${styles.MenuNavigate} ${
                 activeRoute === "/BudgetSize" ? styles.active : ""
               }`}
+              onClick={handleRefresh}
             >
               <img src="/centralAjudaIcon.svg" className={styles.Pointer}></img>
-              <p className={styles.NavigateItem}>Central de Ajuda</p>
+              <p className={styles.NavigateItem}>Atualizar</p>
             </div>
           </div>
 
