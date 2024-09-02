@@ -56,6 +56,7 @@ export default function HeaderHome() {
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>
+          <img src="/home.svg" alt="" />
           <div className={styles.HeaderTextTitle}>
             Bem vindo de volta, <b>{nome}</b>
           </div>
@@ -63,8 +64,12 @@ export default function HeaderHome() {
         <div className={styles.HeaderTextContainer}>
           <div className={styles.HeaderTextDescription}>
             <p>
-              Aqui você pode realizar ações de forma rápida e fácil ou buscar
-              por outras funcionalidades que esteja precisando{" "}
+              Aqui você pode realizar suas tarefas de forma rápida e eficiente,
+              com acesso direto às funcionalidades mais utilizadas. Estamos aqui
+              para facilitar sua rotina, oferecendo atalhos para as principais
+              atividades e um ambiente intuitivo para que você encontre
+              exatamente o que precisa. Explore os recursos disponíveis e
+              descubra como podemos ajudar a tornar seu dia mais produtivo.
             </p>
           </div>
         </div>

@@ -1,13 +1,10 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import styles from "../../styles/InputSearchList.module.scss";
-import { useState } from "react";
 import { IInputSearchList } from "./type";
 
 const SearchInputList = ({ handleSearchChange }: IInputSearchList) => {
   return (
     <div className={styles.searchContainer}>
-      <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+      <img src="/search.png" alt="" />
       <input
         type="text"
         className={styles.searchInput}

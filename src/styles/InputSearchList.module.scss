@@ -1,12 +1,15 @@
 .searchContainer {
   display: flex;
-  background: #f6f7fa;
-  border-radius: 6px;
-  padding: 24px 16px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 0.8rem 1rem;
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  height: 48px;
-  width: 422px;
+  border: 1px solid #e2e2e2;
+  padding: 0.8rem 1rem;
+
+  width: 50%;
+
+  gap: 1rem;
 }
 
 .searchIcon {
@@ -30,7 +33,7 @@
 }
 @media (max-width: 768px) {
   .searchContainer {
-    width: 200px;
+    width: 220px;
     height: 40px;
   }
   .searchInput {

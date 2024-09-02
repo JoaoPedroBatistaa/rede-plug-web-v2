@@ -163,19 +163,9 @@ export default function Products() {
           <HeaderPosts></HeaderPosts>
           <div className={styles.MainContainer}>
             <div className={styles.ListContainer} id="postos">
-              <div className={styles.topMenuMobile}>
-                <p className={styles.ProductNameMobile}>Supervisores</p>
-              </div>
+              <div className={styles.topMenuMobile}></div>
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
-                  <p className={styles.ProductName}>Supervisores</p>
-                  <div
-                    className={styles.ListMenuFilter}
-                    onClick={() => toggleFilter("foam")}
-                  >
-                    <img src="./Filter.svg"></img>{" "}
-                    <span className={styles.ListMenuFilterText}>Filtros</span>
-                  </div>
                   <SearchInputListPosts
                     handleSearchChange={(e) => handleSearchChange(e)}
                   ></SearchInputListPosts>
@@ -187,46 +177,12 @@ export default function Products() {
                       <span className={styles.maisNoneMobile}>
                         Novo supervisor
                       </span>
-                      <span className={styles.maisNone}> +</span>
+                      <span className={styles.maisNone}>+</span>
                     </button>
                   </Link>
                 </div>
               </div>
-              <div
-                className={`${
-                  filterStates.foam
-                    ? styles.containerFilter
-                    : styles.containerFilterClose
-                }`}
-              >
-                <div className={styles.listFilter}>
-                  <h2>ORDENAR POR:</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="codigoCrescente"
-                      name="ordenarPor"
-                      value="codigoCrescente"
-                      onChange={handleOrderValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="codigoCrescente">Codigo crescente</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="codigoDescrescente"
-                      name="ordenarPor"
-                      value="codigoDescrescente"
-                      onChange={handleOrderValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="codigoDescrescente">
-                      Codigo decrescente
-                    </label>
-                  </div>
-                </div>
-              </div>
+
               <div className={styles.MarginTop}></div>
               <TablePosts
                 searchValue={searchValue}

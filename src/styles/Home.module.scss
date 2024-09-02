@@ -7,31 +7,57 @@
 }
 
 .CardsMenusContainer {
-  flex: 1;
-  padding: 0px 24px;
-  margin-top: -87px;
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
+
+  padding: 0rem 2rem;
+
+  margin-top: -3rem;
 }
 
 .CardsMenus {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  flex-direction: column;
+
+  gap: 2rem;
 }
 
 .CardMenu {
-  height: 212px;
-  width: 276px;
-  box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
+  padding: 2rem;
+
+  border-top: 1px #b6b6b6 solid;
+  border-bottom: 1px #b6b6b6 solid;
+  border-left: 3px #575757 solid;
+  border-right: 1px #b6b6b6 solid;
+
+  box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.041);
+  border-radius: 1rem;
+
   background-color: white;
   color: #000;
+
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+
   flex-direction: column;
-  margin-bottom: 50px;
-  margin-top: 30px;
+
+  &:hover {
+    box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.144);
+
+    border-top: 1px #000000 solid;
+    border-bottom: 1px #000000 solid;
+    border-left: 3px #000000 solid;
+    border-right: 1px #000000 solid;
+
+    .CardMenuText {
+      font-family: "Syne";
+      font-size: 1rem;
+      color: #000000;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+  }
 }
 
 .CardMenuDate {
@@ -51,8 +77,8 @@
 
 .CardMenuTextDate {
   font-family: "Syne";
-  font-size: 1rem;
-  color: #404049;
+  font-size: 24px;
+  color: #000000;
   text-transform: uppercase;
   font-weight: 700;
 
@@ -72,7 +98,6 @@
   font-size: 1rem;
   color: #404049;
   text-transform: uppercase;
-  margin-top: 23px;
   font-weight: 700;
 }
 
@@ -129,14 +154,14 @@
   font-family: "Syne", sans-serif;
   font-size: 26px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
 }
 
 .BudgetSubTitle {
   font-family: "Syne", sans-serif;
   font-size: 20px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
   margin-bottom: 2rem;
   margin-top: 2rem;
 }
@@ -151,7 +176,7 @@
   font-family: "Syne", sans-serif;
   font-size: 26px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
 }
 
 .ButtonsFinish {
@@ -165,7 +190,7 @@
   color: #fff;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   width: 23em;
   height: 2.7rem;
   border-radius: 5px;
@@ -178,7 +203,7 @@
   color: #fff;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   width: 16.25rem;
   height: 2.7rem;
   border-radius: 5px;
@@ -191,7 +216,7 @@
   color: #60616c;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   width: 6.25rem;
   height: 2.7rem;
   border-radius: 5px;
@@ -231,7 +256,7 @@
 
 .FieldLabel {
   font-size: 14px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #404049;
   margin-bottom: -0.5rem;
@@ -409,6 +434,8 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+
+  margin-top: 8rem;
   margin-bottom: 2rem;
 }
 
@@ -465,14 +492,14 @@
 
 .UploadInfo {
   font-size: 12px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #888990;
 }
 
 .FileInfo {
   font-size: 12px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #3c3c3c;
 }
@@ -555,68 +582,57 @@
   margin-left: -1.5rem;
 }
 
-@media (max-width: 1000px) {
-  .CardMenu {
-    margin-top: 45px;
-  }
-}
-
 @media (max-width: 768px) {
-  .Container {
-    height: 1200px;
+  .CardsMenusContainer {
+    display: flex;
+    flex-direction: column;
+
+    padding: 0rem 1rem;
+
+    margin-top: -2.5rem;
   }
+
   .CardsMenus {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
 
-    .CardMenu {
-      width: 350px;
-      height: 110px;
-      flex-direction: row;
-      align-self: center;
-      justify-content: center;
-      text-align: center;
+    gap: 2rem;
+  }
+
+  .CardMenu {
+    padding: 2rem;
+
+    border-top: 1px #b6b6b6 solid;
+    border-bottom: 1px #b6b6b6 solid;
+    border-left: 3px #575757 solid;
+    border-right: 1px #b6b6b6 solid;
+
+    box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.041);
+    border-radius: 1rem;
+
+    background-color: white;
+    color: #000;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    &:hover {
+      background-color: #f5f5f5;
+
+      border-top: 1px #000000 solid;
+      border-bottom: 1px #000000 solid;
+      border-left: 3px #000000 solid;
+      border-right: 1px #000000 solid;
 
       .CardMenuText {
-        height: 50%;
-        text-align: center;
-        justify-content: start;
-        text-align: start;
-        display: flex;
-        margin-left: 30px;
-
-        width: 35%;
-      }
-      img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-      }
-    }
-
-    .CardMenuDate {
-      width: 350px;
-      height: 110px;
-      flex-direction: row;
-      align-self: center;
-      justify-content: center;
-      text-align: center;
-
-      .CardMenuTextDate {
-        height: 50%;
-        text-align: center;
-        justify-content: start;
-        text-align: start;
-        display: flex;
-        margin-left: 30px;
-
-        width: 35%;
-      }
-      img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
+        font-family: "Syne";
+        font-size: 1rem;
+        color: #000000;
+        text-transform: uppercase;
+        font-weight: 700;
       }
     }
   }

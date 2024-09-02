@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import styles from "../styles/ProductFoam.module.scss";
 
-import HeaderNewProduct from "@/components/HeaderNewSupervisor";
+import HeaderNewProduct from "@/components/HeaderEditSupervisor";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,12 +11,31 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import AsyncSelect from "react-select/async";
 
-export default function NewPost() {
+interface PostOption {
+  label: string;
+  value: string;
+}
+
+interface RoutineDay {
+  date: string;
+  firstShift: PostOption | null;
+  secondShift: PostOption | null;
+}
+
+export default function EditSupervisor() {
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [ipAddress, setIpAddress] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [ipAddress, setIpAddress] = useState<string>("");
+  const [posts, setPosts] = useState<PostOption[]>([]);
+
+  const [name, setName] = useState<string>("");
+  const [contact, setContact] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [routine, setRoutine] = useState<RoutineDay[][]>([]);
 
   useEffect(() => {
     const fetchIpAddress = async () => {
@@ -34,35 +53,19 @@ export default function NewPost() {
 
   useEffect(() => {
     const checkLoginDuration = () => {
-      console.log("Checking login duration...");
       const storedDate = localStorage.getItem("loginDate");
       const storedTime = localStorage.getItem("loginTime");
 
       if (storedDate && storedTime) {
         const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-        console.log("Stored login date and time:", storedDateTime);
-
         const now = new Date();
         const maxLoginDuration = 6 * 60 * 60 * 1000;
 
         if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-          console.log("Login duration exceeded 60 seconds. Logging out...");
-
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("userType");
-          localStorage.removeItem("userPost");
-          localStorage.removeItem("posts");
-          localStorage.removeItem("loginDate");
-          localStorage.removeItem("loginTime");
-
+          localStorage.clear();
           alert("Sua sessão expirou. Por favor, faça login novamente.");
           window.location.href = "/";
-        } else {
-          console.log("Login duration within limits.");
         }
-      } else {
-        console.log("No stored login date and time found.");
       }
     };
 
@@ -75,23 +78,40 @@ export default function NewPost() {
     if (!userId) {
       router.push("/");
     }
+  }, [router]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("/api/posts");
+        const data = await response.json();
+        setPosts(
+          data.map((post: any) => ({ label: post.name, value: post.id }))
+        );
+      } catch (error) {
+        console.error("Erro ao buscar postos:", error);
+      }
+    };
+
+    fetchPosts();
   }, []);
 
-  const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const filterPosts = (inputValue: string) => {
+    return posts.filter((post) =>
+      post.label.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  };
+
+  const loadOptions = (
+    inputValue: string,
+    callback: (options: PostOption[]) => void
+  ) => {
+    callback(filterPosts(inputValue));
+  };
 
   const validateForm = () => {
     const fields = [name, contact, email, password];
-
-    return fields.every((field) => {
-      if (typeof field === "object") {
-        // @ts-ignore
-        return Object.values(field).every((value) => value.trim() !== "");
-      }
-      return field.trim() !== "";
-    });
+    return fields.every((field) => field.trim() !== "");
   };
 
   const handleSubmit = async () => {
@@ -104,11 +124,19 @@ export default function NewPost() {
 
     const docId = Array.isArray(router.query.id)
       ? router.query.id[0]
-      : router.query.id;
+      : (router.query.id as string);
 
     try {
-      // @ts-ignore
       const docRef = doc(db, "USERS", docId);
+
+      // Flattening da rotina: transforma o array aninhado em uma lista plana de objetos
+      const flattenedRoutine = routine.flatMap((week, weekIndex) =>
+        week.map((day, dayIndex) => ({
+          ...day,
+          weekIndex,
+          dayIndex,
+        }))
+      );
 
       await updateDoc(docRef, {
         name,
@@ -117,9 +145,8 @@ export default function NewPost() {
         password,
         type: "supervisor",
         ipAddress,
+        routine: flattenedRoutine, // Substitua a rotina aninhada pela versão "achatada"
       });
-
-      console.log("Supervisor atualizado com ID:", docId);
 
       toast.success("Supervisor atualizado com sucesso!");
       router.push("/supervisors");
@@ -130,31 +157,161 @@ export default function NewPost() {
     }
   };
 
+  const getNextMonday = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 (Domingo) a 6 (Sábado)
+    console.log(
+      "Hoje é:",
+      today.toLocaleDateString("pt-BR"),
+      "Dia da semana:",
+      dayOfWeek
+    );
+
+    const daysUntilNextMonday = (1 + 7 - dayOfWeek) % 7;
+    console.log("Dias até a próxima segunda-feira:", daysUntilNextMonday);
+
+    const nextMonday = new Date(today);
+    nextMonday.setDate(today.getDate() + daysUntilNextMonday);
+    console.log(
+      "Próxima segunda-feira será em:",
+      nextMonday.toLocaleDateString("pt-BR")
+    );
+
+    return nextMonday;
+  };
+
+  const handleAddRoutine = () => {
+    const nextMonday = getNextMonday();
+    const newWeek: RoutineDay[] = [];
+
+    console.log(
+      "Iniciando a criação da semana, começando na segunda-feira:",
+      nextMonday.toLocaleDateString("pt-BR")
+    );
+
+    for (let i = 0; i < 6; i++) {
+      const day = new Date(nextMonday);
+      day.setDate(nextMonday.getDate() + i);
+
+      // Inclui os dias de segunda (1) a sábado (6)
+      if (day.getDay() !== 0) {
+        newWeek.push({
+          date: day.toISOString().split("T")[0],
+          firstShift: null,
+          secondShift: null,
+        });
+        console.log(
+          "Dia adicionado à rotina:",
+          day.toLocaleDateString("pt-BR"),
+          "Dia da semana:",
+          day.getDay()
+        );
+      }
+    }
+
+    setRoutine([...routine, newWeek]);
+    console.log("Rotina finalizada:", newWeek);
+  };
+
+  const handleRoutineChange = (
+    weekIndex: number,
+    dayIndex: number,
+    shift: "firstShift" | "secondShift",
+    value: PostOption | null
+  ) => {
+    const updatedRoutine = [...routine];
+    updatedRoutine[weekIndex][dayIndex][shift] = value;
+    setRoutine(updatedRoutine);
+  };
+
+  const renderRoutine = () => {
+    return routine.map((week, weekIndex) => (
+      <div key={weekIndex} className={styles.week}>
+        {week.map((day, dayIndex) => {
+          const dayDate = new Date(day.date);
+          const formattedDate = dayDate.toISOString().split("T")[0]; // Formato ISO da data
+
+          console.log(
+            "Renderizando dia:",
+            formattedDate, // Mostra a data no formato ISO
+            "Data:",
+            day.date,
+            "Dia da semana:",
+            dayDate.getDay()
+          );
+
+          // Renderize apenas os dias, sem considerar o nome do dia da semana
+          return (
+            <div key={dayIndex} className={styles.day}>
+              <p className={styles.dayTitle}>{formattedDate}</p>{" "}
+              {/* Exibe a data no formato ISO */}
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Primeiro turno (8h-14h)</p>
+                  <AsyncSelect
+                    cacheOptions
+                    loadOptions={loadOptions}
+                    defaultOptions={posts}
+                    value={day.firstShift}
+                    onChange={(selectedOption) =>
+                      handleRoutineChange(
+                        weekIndex,
+                        dayIndex,
+                        "firstShift",
+                        selectedOption
+                      )
+                    }
+                    placeholder="Selecione o posto"
+                    className={styles.SelectFieldSearch}
+                  />
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Segundo turno (14h-22h)</p>
+                  <AsyncSelect
+                    cacheOptions
+                    loadOptions={loadOptions}
+                    defaultOptions={posts}
+                    value={day.secondShift}
+                    onChange={(selectedOption) =>
+                      handleRoutineChange(
+                        weekIndex,
+                        dayIndex,
+                        "secondShift",
+                        selectedOption
+                      )
+                    }
+                    placeholder="Selecione o posto"
+                    className={styles.SelectFieldSearch}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const docId = Array.isArray(router.query.id)
         ? router.query.id[0]
-        : router.query.id;
-
-      console.log("Fetching data for docId:", docId); // Log para depuração
+        : (router.query.id as string);
 
       if (docId) {
         const docRef = doc(db, "USERS", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          console.log("Document data:", docSnap.data()); // Log para depuração
           const postData = docSnap.data();
           setName(postData.name);
           setContact(postData.contact);
           setEmail(postData.email);
           setPassword(postData.password);
 
-          if (postData.supervisors) {
-            console.log("Supervisors data:", postData.supervisors); // Log para depuração
+          if (postData.routine) {
+            setRoutine(postData.routine);
           }
-        } else {
-          console.log("No such document!");
         }
       }
     };
@@ -170,7 +327,7 @@ export default function NewPost() {
 `}</style>
       </Head>
 
-      <HeaderNewProduct></HeaderNewProduct>
+      <HeaderNewProduct />
       <ToastContainer />
       <LoadingOverlay isLoading={isLoading} />
 
@@ -234,9 +391,7 @@ export default function NewPost() {
                     placeholder=""
                   />
                 </div>
-              </div>
 
-              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Senha de acesso</p>
                   <input
@@ -249,40 +404,32 @@ export default function NewPost() {
                   />
                 </div>
               </div>
-              {/*
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Foto ou vídeo</p>
-                  <input
-                    id="media"
-                    type="file"
-                    className={styles.Field}
-                    accept="image/*,video/*"
-                    capture="environment"
-                    onChange={(e) => {
-                      // @ts-ignore
-                      const file = e.target.files[0];
-                      console.log(file);
-                      // Você pode adicionar a lógica para upload aqui
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Endereço IP</p>
-                  <input
-                    id="ipAddress"
-                    type="text"
-                    className={styles.Field}
-                    value={ipAddress}
-                    readOnly
-                  />
-                </div>
-              </div> */}
             </div>
           </div>
+
+          <div className={styles.BudgetHead}>
+            <p className={styles.BudgetTitle}>Programação</p>
+            <div className={styles.BudgetHeadS}>
+              <button
+                className={styles.FinishButton}
+                onClick={handleAddRoutine}
+              >
+                <img
+                  src="/plus.png"
+                  alt="Adicionar rotina"
+                  className={styles.buttonImage}
+                />
+                <span className={styles.buttonText}>Nova rotina</span>
+              </button>
+            </div>
+          </div>
+
+          <p className={styles.Notes}>
+            Altere abaixo as rotinas do supervisor, para definir em qual posto
+            ele deverá atuar em determinada data/turno
+          </p>
+
+          {renderRoutine()}
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

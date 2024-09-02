@@ -8,8 +8,6 @@
   width: 100%;
   height: auto;
   border-collapse: collapse;
-
-  overflow-x: hidden;
 }
 
 .table thead {
@@ -22,7 +20,7 @@
 
 .tableHeader {
   height: 100%;
-  background-color: #f6f7fa;
+  background-color: #fff;
   font-family: "Syne";
   font-style: normal;
   font-weight: 600;
@@ -37,6 +35,8 @@
   justify-content: space-around;
   gap: 3px;
   margin: 0 auto;
+
+  border-radius: 16px;
 
   th {
     width: 17%;
@@ -74,18 +74,17 @@
   // margin-left: -7rem;
 
   td {
-    padding: 8px;
-    padding-bottom: 24px;
     height: 60px;
     color: #404049;
     font-family: "Syne";
     font-style: normal;
-    text-align: start;
     align-items: center;
-    margin: 6px auto;
-    width: 10px;
+
+    font-size: 14px;
 
     position: relative;
+
+    margin-top: 1rem;
   }
 
   .td {
@@ -203,6 +202,8 @@
 
 .MarginRight {
   cursor: pointer;
+  width: auto;
+  height: auto;
 }
 
 .dataCadastro {
@@ -246,7 +247,29 @@
   display: flex;
 
   top: 0;
-  right: -1250%;
+  right: -5100%;
+}
+
+.containerMore {
+  z-index: 999;
+  position: absolute;
+  width: 220px;
+  height: 170px;
+  display: flex;
+
+  top: 0;
+  right: -5100%;
+}
+
+.containerMoreP {
+  z-index: 999;
+  position: absolute;
+  width: 220px;
+  height: 170px;
+  display: flex;
+
+  top: 0;
+  right: -5100%;
 }
 
 .containerX {
@@ -277,6 +300,158 @@
   justify-self: center;
   flex-direction: column;
   gap: 2px;
+
+  a {
+    margin-top: 13px;
+    background-color: transparent;
+    border: none;
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 23px;
+    padding: 5px 0px 5px 7px;
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+
+  button {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 25px;
+    padding: 5px 0px 5px 7px;
+
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+
+  .buttonGren {
+    color: #007f00;
+  }
+
+  .buttonRed {
+    color: #d30000;
+  }
+
+  .buttonBlack {
+    color: #000000;
+  }
+}
+
+.containerOptionsMoreB {
+  margin-top: 10px;
+  margin-left: 10px;
+  width: 85%;
+  height: 160px;
+  position: absolute;
+  background: #ffffff;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  flex-direction: column;
+  gap: 2px;
+
+  a {
+    margin-top: 13px;
+    background-color: transparent;
+    border: none;
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 23px;
+    padding: 5px 0px 5px 7px;
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+
+  button {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: start;
+    letter-spacing: 0.05em;
+    width: 90%;
+    color: #25213b;
+    height: 25px;
+    padding: 5px 0px 5px 7px;
+
+    cursor: pointer;
+
+    &:hover {
+      background: #dee2ed;
+      border-radius: 4px;
+    }
+  }
+
+  .buttonGren {
+    color: #007f00;
+  }
+
+  .buttonRed {
+    color: #d30000;
+  }
+
+  .buttonBlack {
+    color: #000000;
+  }
+}
+
+.containerOptionsMoreP {
+  margin-top: 10px;
+  margin-left: 10px;
+  width: 85%;
+  height: 160px;
+  position: absolute;
+  background: #ffffff;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  flex-direction: column;
+  gap: 2px;
+
+  z-index: 99999;
 
   a {
     margin-top: 13px;
@@ -384,6 +559,7 @@
 @media (max-width: 768px) {
   .tableContianer {
     height: 100%;
+    overflow-x: auto; /* Scroll apenas no container da tabela */
   }
 
   .RodapeContainer {
@@ -395,32 +571,173 @@
   }
 
   .tableHeader {
+    display: flex;
     justify-content: center;
+    flex-wrap: nowrap; /* Mantém todos os elementos na mesma linha sem quebrar */
+    margin-left: 8rem;
 
     th {
-      width: 40%;
-      font-size: 7px;
+      flex: 0 0 47%; /* Ajuste para fixar a largura dos 'th' */
+      font-size: 10px;
+      text-align: center;
     }
 
     .thNone {
-      width: 10px;
+      width: 10px; /* Ajuste na largura se necessário */
     }
   }
 
   .table .budgetItem {
-    width: 100;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between; /* Melhora o espaçamento entre células */
+    width: 100%;
     cursor: pointer;
 
     .td {
-      width: 30%;
-      font-size: 10px;
+      flex: 0 0 35%; /* Flex 'none' com base percentual para fixar a largura */
+      font-size: 10px; /* Ajusta o tamanho da fonte para legibilidade */
+      text-align: center; /* Centraliza o conteúdo dentro do 'td' */
     }
 
     .diasUteis {
-      font-size: 8px;
+      font-size: 8px; /* Ajuste fino para itens específicos se necessário */
+    }
+  }
+}
+
+.confirmOverlay {
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.confirmBox {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 32px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  animation: slideUp 1s ease-out;
+
+  .cancel {
+    background-color: #ffffff;
+    border-color: #0047ad;
+
+    color: #0047ad;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: "Syne", sans-serif;
+
+    width: 100%;
+
+    text-transform: uppercase;
+
+    border-radius: 1rem;
+
+    padding: 0.7rem 0;
+
+    cursor: pointer;
+
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    &:hover {
+      background-color: #0047ad;
+      color: #fff;
+    }
+  }
+
+  .confirm {
+    background-color: #0047ad;
+    border-color: #0047ad;
+
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: "Syne", sans-serif;
+
+    text-transform: uppercase;
+
+    width: 100%;
+
+    border-radius: 1rem;
+
+    padding: 0.7rem 0;
+
+    cursor: pointer;
+
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    &:hover {
+      background-color: #00265e;
+      color: #fff;
+    }
+  }
+
+  .statusSelect {
+    background-color: #fff;
+    border-color: #0047ad;
+
+    color: #0047ad;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: "Syne", sans-serif;
+
+    width: 100%;
+    min-width: 20vw;
+
+    border-radius: 1rem;
+
+    padding: 0.7rem 0.5rem;
+
+    margin-bottom: 2rem;
+
+    cursor: pointer;
+
+    transition: background-color 0.3s ease, color 0.3s ease; // Adiciona transição suave
+  }
+
+  img {
+    width: 100px;
+    height: auto;
+  }
+
+  p {
+    color: #000;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: "Syne", sans-serif;
+    text-align: center;
+    max-width: 50vw; // Padrão para dispositivos menores
+
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+
+    @media (min-width: 768px) {
+      // Considera 768px como ponto de quebra para desktop
+      max-width: 25vw; // Largura máxima para desktops
     }
   }
 }

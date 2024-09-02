@@ -1,3 +1,42 @@
+.whats {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  right: 1.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.336);
+  z-index: 1000;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+  &:hover {
+    animation: pulse 1s infinite;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .whats {
+    display: block;
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .Container {
   display: flex;
   flex-direction: row;
@@ -6,34 +45,194 @@
   background-color: #ffffffff;
 }
 
+.data {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+
+  margin-bottom: 2rem;
+
+  .dataOne {
+    display: flex;
+    flex-direction: row;
+
+    padding: 2rem;
+
+    gap: 2rem;
+
+    border: 1px solid #e2e2e2;
+    border-radius: 2rem;
+
+    width: 100%;
+
+    .title {
+      font-size: 40px;
+      font-weight: 600;
+      font-family: "Syne", sans-serif;
+      color: #404049;
+    }
+
+    .desc {
+      font-size: 20px;
+      font-weight: 500;
+      font-family: "Syne", sans-serif;
+      color: #939393;
+    }
+  }
+}
+
+.simpleBanner {
+  display: flex;
+  flex-direction: column;
+
+  padding: 2rem 2rem;
+
+  img {
+    height: 25px;
+    width: 32px;
+  }
+
+  .head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    gap: 1rem;
+
+    margin-bottom: 1.5rem;
+
+    .title {
+      font-size: 32px;
+      font-weight: 600;
+      font-family: "Syne", sans-serif;
+      color: #404049;
+    }
+  }
+
+  .description {
+    font-size: 16px;
+    font-weight: 500;
+    font-family: "Syne", sans-serif;
+    color: #939393;
+
+    max-width: 50%;
+  }
+}
+
+.banner {
+  display: flex;
+  flex-direction: column;
+
+  padding: 2rem 2rem;
+  background-image: url("/back.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  border-radius: 2rem;
+
+  margin-bottom: 2rem;
+
+  .head {
+    display: flex;
+    flex-direction: row;
+
+    gap: 1rem;
+
+    margin-bottom: 1.5rem;
+
+    .title {
+      font-size: 32px;
+      font-weight: 600;
+      font-family: "Syne", sans-serif;
+      color: #fff;
+    }
+  }
+
+  .description {
+    font-size: 16px;
+    font-weight: 500;
+    font-family: "Syne", sans-serif;
+    color: #fff;
+
+    max-width: 50%;
+
+    margin-bottom: 3.5rem;
+  }
+
+  button {
+    border: none;
+    background-color: #fff;
+
+    padding: 1rem 0;
+
+    border-radius: 1rem;
+
+    width: 25%;
+
+    font-size: 14px;
+    font-weight: 700;
+    font-family: "Syne", sans-serif;
+    color: #0047ad;
+
+    cursor: pointer;
+  }
+}
+
+.newButton {
+  border: none;
+  background-color: #0047ad;
+
+  padding: 1rem 0;
+
+  border-radius: 1rem;
+
+  width: 100%;
+
+  min-width: 12rem;
+
+  font-size: 14px;
+  font-weight: 700;
+  font-family: "Syne", sans-serif;
+  color: #fff;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: #00265e;
+  }
+}
+
 .MainContainer {
   flex: 1;
   padding: 0px 24px;
-  margin-top: -183px;
   justify-content: center;
-}
 
-@media (min-width: 1160px) {
-  .ListContainer {
-    max-width: 80vw;
-  }
+  margin-top: 1.5rem;
 }
 
 .ListContainer {
   display: flex;
   background: #ffffff;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  border-radius: 2rem;
   padding: 15px 20px;
   flex-direction: column;
 
+  border: 1px solid #e2e2e2;
+
+  margin-top: -4rem;
   margin-bottom: 2rem;
+
+  width: 100%;
 }
 
 .ListMenu {
   display: flex;
   width: 100%;
   align-items: center;
+
+  margin-bottom: 0.5rem;
 }
 
 .MarginTop {
@@ -81,17 +280,29 @@
 }
 
 .ListMenuButton {
-  background: #0bb07b;
-  border-radius: 6px;
-  height: 39px;
-  width: 135px;
-  border: 0;
-  text-transform: uppercase;
-  cursor: pointer;
+  border: none;
+  background-color: #000000;
 
+  padding: 1rem 0;
+
+  border-radius: 1rem;
+
+  width: 100%;
+
+  min-width: 12rem;
+
+  font-size: 14px;
+  font-weight: 700;
+  font-family: "Syne", sans-serif;
   color: #fff;
 
-  margin-left: 32px;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: #000000;
+  }
 }
 
 .AumentoPorcent {
@@ -113,7 +324,7 @@
 
   justify-content: center;
 
-  background-color: #f6f7fa;
+  background-color: #fff;
   padding-left: 8px;
   padding-right: 8px;
   padding-bottom: 8px;
@@ -126,10 +337,9 @@
 }
 
 .ListMenuFilter {
-  width: 99px;
-  height: 40px;
-  border: 1px solid #c6c2de;
-  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e2e2e2;
+  border-radius: 16px;
   margin-right: 16px;
   display: flex;
   align-items: center;
@@ -140,8 +350,8 @@
 .ListMenuFilterText {
   font-family: "Syne";
   font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
+  font-weight: 500;
+  font-size: 18px;
   line-height: 20px;
   color: #404049;
   margin-left: 8px;
@@ -240,14 +450,14 @@
   font-family: "Syne", sans-serif;
   font-size: 26px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
 }
 
 .BudgetSubTitle {
   font-family: "Syne", sans-serif;
   font-size: 20px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
   margin-bottom: 2rem;
   margin-top: 2rem;
 }
@@ -262,7 +472,7 @@
   font-family: "Syne", sans-serif;
   font-size: 26px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
 }
 
 .ButtonsFinish {
@@ -276,7 +486,7 @@
   color: #fff;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   width: 23em;
   height: 2.7rem;
   border-radius: 5px;
@@ -289,7 +499,7 @@
   color: #fff;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   width: 16.25rem;
   height: 2.7rem;
   border-radius: 5px;
@@ -302,7 +512,7 @@
   color: #60616c;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   width: 6.25rem;
   height: 2.7rem;
   border-radius: 5px;
@@ -342,7 +552,7 @@
 
 .FieldLabel {
   font-size: 14px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #404049;
   margin-bottom: -0.5rem;
@@ -352,7 +562,7 @@
   width: 17.5rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #f6f7fa;
+  background-color: #fff;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
@@ -366,7 +576,7 @@
   width: 26rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #f6f7fa;
+  background-color: #fff;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
@@ -380,7 +590,7 @@
   width: 8rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #f6f7fa;
+  background-color: #fff;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
@@ -395,7 +605,7 @@
   padding-right: 12.5rem;
   padding-bottom: 0.55rem;
   padding-top: 0.55rem;
-  background-color: #f6f7fa;
+  background-color: #fff;
   border-radius: 5px;
   border: solid 1px;
   border-color: #4040492d;
@@ -410,7 +620,7 @@
   height: 2.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #f6f7fa;
+  background-color: #fff;
   border-radius: 5px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
@@ -423,7 +633,7 @@
   width: 17.5rem;
   height: 2.5rem;
   padding-left: 1rem;
-  background-color: #f6f7fa;
+  background-color: #fff;
   border-radius: 5px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
@@ -436,7 +646,7 @@
   width: 26rem;
   height: 2.5rem;
   padding-left: 1rem;
-  background-color: #f6f7fa;
+  background-color: #fff;
   border-radius: 5px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
@@ -576,14 +786,14 @@
 
 .UploadInfo {
   font-size: 12px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #888990;
 }
 
 .FileInfo {
   font-size: 12px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #3c3c3c;
 }
@@ -754,8 +964,75 @@
     padding-bottom: 18rem;
   }
 
-  .MainContainer {
-    margin-top: -8rem;
+  .Copy {
+    max-width: 70%;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+  }
+
+  .banner {
+    display: flex;
+    flex-direction: column;
+
+    padding: 2rem 2rem;
+    background-image: url("/back.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    border-radius: 2rem;
+
+    margin-bottom: 3rem;
+
+    .head {
+      display: flex;
+      flex-direction: row;
+
+      gap: 1rem;
+
+      margin-bottom: 1.5rem;
+
+      .title {
+        font-size: 26px;
+        font-weight: 600;
+        font-family: "Syne", sans-serif;
+        color: #fff;
+      }
+    }
+
+    .description {
+      font-size: 14px;
+      font-weight: 500;
+      font-family: "Syne", sans-serif;
+      color: #fff;
+
+      max-width: 100%;
+
+      margin-bottom: 3.5rem;
+    }
+
+    button {
+      display: none;
+    }
+  }
+
+  .simpleBanner {
+    padding: 2rem 0rem;
+    margin-bottom: 1rem;
+    .description {
+      max-width: 100%;
+    }
+  }
+
+  .newButton {
+    display: none;
+  }
+
+  .data {
+    flex-direction: column;
   }
 
   .ListMenuFilterText {
@@ -775,13 +1052,21 @@
   }
 
   .ListMenuButton {
-    width: 30px;
+    width: 32px;
     height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
 
+    min-width: 0;
+
+    border-radius: 0.6rem;
+
     margin-left: 0px;
+
+    padding: 0 0;
+
+    margin-top: -0.4rem;
   }
 
   .ListMenuFilter {
@@ -839,7 +1124,7 @@
 
     justify-content: center;
 
-    background-color: #f6f7fa;
+    background-color: #fff;
     padding-left: 8px;
     padding-right: 8px;
     padding-bottom: 8px;

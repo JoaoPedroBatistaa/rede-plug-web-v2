@@ -38,7 +38,7 @@ export default function HeaderBudget() {
             onClick={handleOpenMenu}
           />
         </div>
-        <p className={styles.NewBudget}>NOVO SUPERVISOR</p>
+        <p className={styles.NewBudget}>EDITAR SUPERVISOR</p>
         <Link href="/supervisors">
           <img
             src="/close.png"

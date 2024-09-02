@@ -7,10 +7,11 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import InputMask from "react-input-mask"; // Importa a biblioteca de máscara
 
 export default function NewPost() {
   const router = useRouter();
@@ -65,9 +66,10 @@ export default function NewPost() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const validateForm = () => {
-    const fields = [name, contact, email];
+    const fields = [name, contact, email, password];
 
     return fields.every((field) => {
       if (typeof field === "object") {
@@ -91,14 +93,11 @@ export default function NewPost() {
         name,
         contact,
         email,
+        password, // Usa a senha fornecida
         type: "supervisor",
       });
 
       console.log("Supervisor adicionado com ID:", postRef.id);
-
-      await updateDoc(doc(db, "USERS", postRef.id), {
-        password: postRef.id,
-      });
 
       toast.success("Supervisor adicionado com sucesso!");
       router.push("/supervisors");
@@ -158,12 +157,12 @@ export default function NewPost() {
 
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Contato</p>
-                  <input
+                  <InputMask
                     id="contact"
-                    type="text"
-                    className={styles.Field}
+                    mask="9999999999999"
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
+                    className={styles.Field}
                     placeholder=""
                   />
                 </div>
@@ -178,6 +177,18 @@ export default function NewPost() {
                     className={styles.Field}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder=""
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Senha</p>
+                  <input
+                    id="password"
+                    type="password"
+                    className={styles.Field}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder=""
                   />
                 </div>

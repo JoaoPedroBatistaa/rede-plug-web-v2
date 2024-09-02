@@ -244,7 +244,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 </>
               ))}
 
-            {typeUser === "admin" && (
+            {/* {typeUser === "admin" && (
               <>
                 <div
                   className={`${styles.MenuNavigate} ${
@@ -259,7 +259,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                   </Link>
                 </div>
               </>
-            )}
+            )} */}
           </div>
 
           <div className={styles.MenuContainer}>
@@ -324,24 +324,6 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 </div>
               </>
             )}
-
-            <div
-              className={`${styles.MenuNavigate} ${
-                activeRoute === "/BudgetPerfil" ? styles.active : ""
-              }`}
-            >
-              <img src="/configIcon.svg" className={styles.Pointer}></img>
-              <p className={styles.NavigateItem}>Configurações</p>
-            </div>
-
-            <div
-              className={`${styles.MenuNavigate} ${
-                activeRoute === "/BudgetGlass" ? styles.active : ""
-              }`}
-            >
-              <img src="/contaIcon.svg" className={styles.Pointer}></img>
-              <p className={styles.NavigateItem}>Conta</p>
-            </div>
           </div>
 
           <div className={styles.MenuContainer}>
@@ -360,7 +342,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
 
           <div onClick={handleLogout}>
             <div
-              className={`${styles.MenuNavigate} ${
+              className={`${styles.MenuNavigateEnd} ${
                 activeRoute === "/" ? styles.active : ""
               }`}
             >

@@ -10,6 +10,7 @@
   padding-left: 24px;
   padding-right: 24px;
 }
+
 .menuSamduba {
   display: flex;
   align-items: center;
@@ -17,6 +18,7 @@
   width: 10%;
   margin-right: 5px;
 }
+
 .HeaderSearch {
   display: flex;
   width: 100%;
@@ -24,8 +26,14 @@
 }
 
 .HeaderTextContainer {
-  width: 50%;
+  width: 65%;
   display: flex;
+
+  flex-direction: row;
+
+  align-items: flex-end;
+
+  gap: 1rem;
 }
 
 .HeaderTextTitle {
@@ -39,6 +47,8 @@
   font-size: 16px;
   color: #fff;
   margin-top: 20px;
+
+  font-weight: 400;
 }
 
 .HeaderContainerIcons {
@@ -60,14 +70,47 @@
 .NewBudget {
   color: #ffffff;
   font-size: 20px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
 }
 
 @media (max-width: 768px) {
+  .HeaderContainer {
+    height: 24rem;
+    padding-bottom: 2rem;
+  }
+
   .HeaderTextContainer {
     width: 100%;
+    display: flex;
+
+    flex-direction: row;
+
+    align-items: center;
+
+    gap: 0.5rem;
+
+    img {
+      height: 26px;
+      width: auto;
+    }
   }
+
+  .HeaderTextTitle {
+    font-family: "Syne";
+    font-size: 20px;
+    color: #fff;
+  }
+
+  .HeaderTextDescription {
+    font-family: "Syne";
+    font-size: 16px;
+    color: #fff;
+    margin-top: 20px;
+
+    font-weight: 400;
+  }
+
   #HeaderIcon {
     display: none;
     width: 1290192811px;

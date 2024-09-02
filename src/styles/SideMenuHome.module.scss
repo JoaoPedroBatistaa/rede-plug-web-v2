@@ -31,36 +31,70 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+
   gap: 1rem;
   cursor: pointer;
 
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+
   &.active {
     background-color: #c6c6c617;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
 
     .NavigateItem {
       color: #b5b5ba;
     }
+  }
 
-    // .Pointer {
-    //   fill: #7c0000;
-    // }
+  &:hover {
+    background-color: #c6c6c617;
+
+    .NavigateItem {
+      color: #b5b5ba;
+    }
+  }
+}
+
+.MenuNavigateEnd {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 1rem;
+  cursor: pointer;
+
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+
+  margin-top: 2rem;
+
+  &.active {
+    background-color: #c6c6c617;
+
+    .NavigateItem {
+      color: #b5b5ba;
+    }
+  }
+
+  &:hover {
+    background-color: #c6c6c617;
+
+    .NavigateItem {
+      color: #b5b5ba;
+    }
   }
 }
 
 .NavigateItem {
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #b5b5ba79;
 }
 
 .NavigateItemEnd {
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #b5b5ba;
   margin-left: 1.5rem;

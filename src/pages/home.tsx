@@ -55,7 +55,7 @@ export default function Home() {
     }
   }, []);
 
-  const [openMenu, setOpenMenu] = useState(false); // Inicializa o estado openMenu
+  const [openMenu, setOpenMenu] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState("opcao1");
   const [searchText, setSearchText] = useState("");
@@ -63,12 +63,6 @@ export default function Home() {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
-
-  let userId;
-  if (typeof window !== "undefined") {
-    userId = localStorage.getItem("userId");
-  }
-  console.log("ID do usuário:", userId);
 
   return (
     <>
@@ -92,28 +86,24 @@ export default function Home() {
             <div className={styles.CardsMenus}>
               <Link href="/posts">
                 <div className={styles.CardMenu}>
-                  <img src="./postosHome.svg"></img>
                   <span className={styles.CardMenuText}>POSTOS</span>
                 </div>
               </Link>
 
               <Link href="/supervisors">
                 <div className={styles.CardMenu}>
-                  <img src="./supervisoresHome.svg"></img>
                   <span className={styles.CardMenuText}>SUPERVISORES</span>
                 </div>
               </Link>
 
               <Link href="/managers">
                 <div className={styles.CardMenu}>
-                  <img src="./gerentesHome.svg"></img>
                   <span className={styles.CardMenuText}>GERENTES</span>
                 </div>
               </Link>
 
               <Link href="/reports">
                 <div className={styles.CardMenu}>
-                  <img src="./relatoriosHome.svg"></img>
                   <span className={styles.CardMenuText}>RELATÓRIOS</span>
                 </div>
               </Link>

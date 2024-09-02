@@ -45,18 +45,48 @@
   gap: 2.5rem;
 }
 
+.week {
+  display: flex;
+  flex-direction: column;
+
+  padding: 2rem;
+
+  border: 1px solid #939393;
+  border-radius: 1rem;
+
+  gap: 2rem;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+
+  padding-bottom: 0.5rem;
+
+  border-bottom: 1px solid #939393;
+
+  .dayTitle {
+    font-family: "Syne", sans-serif;
+    font-size: 20px;
+    color: #000000;
+    font-weight: 600;
+
+    margin-bottom: 1rem;
+  }
+}
+
 .BudgetTitle {
   font-family: "Syne", sans-serif;
   font-size: 26px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 600;
 }
 
 .TankTitle {
   font-family: "Syne", sans-serif;
   font-size: 20px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
   margin-top: 2rem;
 }
 
@@ -70,14 +100,14 @@
   font-family: "Syne", sans-serif;
   font-size: 26px;
   color: #000000;
-  font-weight: medium;
+  font-weight: 500;
 }
 
 .totalDischarge {
   font-family: "Syne", sans-serif;
   font-size: 20px;
   color: #0bb07b;
-  font-weight: medium;
+  font-weight: 500;
 
   margin-bottom: 1.5rem;
 
@@ -91,14 +121,17 @@
 .FinishButton {
   width: 23em;
   height: 2.7rem;
-  border-radius: 5px;
-  background-color: #0bb07b;
+  border-radius: 1rem;
+  background-color: #000000;
   border: none;
   cursor: pointer;
 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   .buttonImage {
     display: none;
-    padding-left: 0.9rem; // Esconde a imagem por padrão
   }
 
   .buttonText {
@@ -106,12 +139,12 @@
     color: #fff;
     font-family: "Syne", sans-serif;
     font-size: 16px;
-    font-weight: medium;
+    font-weight: 600;
   }
 
   @media (max-width: 768px) {
     .buttonImage {
-      display: block; // Mostra a imagem em telas pequenas
+      display: block;
     }
 
     .buttonText {
@@ -135,7 +168,7 @@
     color: #fff;
     font-family: "Syne", sans-serif;
     font-size: 16px;
-    font-weight: medium;
+    font-weight: 500;
   }
 }
 
@@ -150,7 +183,7 @@
   color: #fff;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
 }
 
 .DeleteButton {
@@ -168,7 +201,7 @@
     color: #fff;
     font-family: "Syne", sans-serif;
     font-size: 16px;
-    font-weight: medium;
+    font-weight: 500;
   }
 }
 
@@ -177,7 +210,7 @@
   color: #fff;
   font-family: "Syne", sans-serif;
   font-size: 16px;
-  font-weight: medium;
+  font-weight: 500;
 
   color: #b00b0b;
 }
@@ -188,6 +221,8 @@
   font-weight: 400;
   color: #222222;
   margin-bottom: 2.5rem;
+
+  max-width: 25%;
 }
 
 .InputContainer {
@@ -214,7 +249,7 @@
 
 .FieldLabel {
   font-size: 14px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #404049;
   margin-bottom: -0.5rem;
@@ -237,7 +272,7 @@
 
 .fileName {
   font-size: 14px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #0bb07b;
 
@@ -256,8 +291,8 @@
   width: 18.5rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #f6f7fa;
-  border-radius: 5px;
+  background-color: #fff;
+  border-radius: 12px;
   border: solid 1px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
@@ -270,8 +305,8 @@
   width: 26rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #f6f7fa;
-  border-radius: 5px;
+  background-color: #fff;
+  border-radius: 12px;
   border: solid 1px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
@@ -284,8 +319,8 @@
   width: 8rem;
   height: 2.5rem;
   padding: 1rem;
-  background-color: #f6f7fa;
-  border-radius: 5px;
+  background-color: #fff;
+  border-radius: 12px;
   border: solid 1px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
@@ -299,8 +334,8 @@
   height: 2.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #f6f7fa;
-  border-radius: 5px;
+  background-color: #fff;
+  border-radius: 12px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
   font-size: 16px;
@@ -312,8 +347,20 @@
   width: 18.5rem;
   height: 2.5rem;
   padding-left: 1rem;
-  background-color: #f6f7fa;
-  border-radius: 5px;
+  background-color: #fff;
+  border-radius: 12px;
+  border-color: #4040492d;
+  font-family: "Syne", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #404049;
+}
+
+.SelectFieldSearch {
+  width: 18.5rem;
+  height: 2.5rem;
+  background-color: #fff;
+  border-radius: 16px;
   border-color: #4040492d;
   font-family: "Syne", sans-serif;
   font-size: 16px;
@@ -477,14 +524,14 @@
 
 .UploadInfo {
   font-size: 12px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #888990;
 }
 
 .FileInfo {
   font-size: 12px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #3c3c3c;
 }
@@ -545,7 +592,7 @@
 
 .titleTank {
   font-size: 18px;
-  font-weight: medium;
+  font-weight: 500;
   font-family: "Syne", sans-serif;
   color: #404049;
   margin-bottom: 1rem;
@@ -555,6 +602,25 @@
 }
 
 @media (max-width: 430px) {
+  .week {
+    display: flex;
+    flex-direction: column;
+
+    padding: 1rem;
+
+    border: 1px solid #939393;
+    border-radius: 1rem;
+
+    gap: 2rem;
+  }
+
+  .day {
+    padding-bottom: 2rem;
+  }
+
+  .Notes {
+    max-width: 80%;
+  }
   .userContent {
     flex-direction: column;
   }
@@ -660,7 +726,7 @@
     height: 2.5rem;
   }
 
-  .FixedDataMedium {
+  .FixedData500 {
     width: 17.5rem;
     height: 2.5rem;
   }
