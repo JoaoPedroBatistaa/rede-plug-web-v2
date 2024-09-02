@@ -21,7 +21,7 @@
 
   @keyframes changeBackground {
     0% {
-      background-image: url("/login1.webp");
+      background-image: url("/login1.png");
     }
     33% {
       background-image: url("/login2.png");
@@ -30,7 +30,7 @@
       background-image: url("/login3.png");
     }
     100% {
-      background-image: url("/login1.webp");
+      background-image: url("/login1.png");
     }
   }
 }
