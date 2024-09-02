@@ -1,13 +1,6 @@
 import HeaderHome from "@/components/HeaderReportsManagersTasks";
 import SideMenuHome from "@/components/SideMenuHome";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -23,78 +16,40 @@ export default function Home() {
   const [taskLinks, setTaskLinks] = useState({});
 
   useEffect(() => {
-    const checkForUpdates = async () => {
-      console.log("Checking for updates...");
-      const updateDoc = doc(db, "UPDATE", "Lp8egidKNeHs9jQ8ozvs");
-      try {
-        const updateSnapshot = await getDoc(updateDoc);
-        const updateData = updateSnapshot.data();
+    const checkLoginDuration = () => {
+      console.log("Checking login duration...");
+      const storedDate = localStorage.getItem("loginDate");
+      const storedTime = localStorage.getItem("loginTime");
 
-        if (updateData) {
-          console.log("Update data retrieved:", updateData);
-          const { date: updateDate, time: updateTime } = updateData;
-          const storedDate = localStorage.getItem("loginDate");
-          const storedTime = localStorage.getItem("loginTime");
+      if (storedDate && storedTime) {
+        const storedDateTime = new Date(`${storedDate}T${storedTime}`);
+        console.log("Stored login date and time:", storedDateTime);
 
-          if (storedDate && storedTime) {
-            console.log("Stored date and time:", storedDate, storedTime);
-            const updateDateTime = new Date(
-              `${updateDate.replace(/\//g, "-")}T${updateTime}`
-            );
-            const storedDateTime = new Date(`${storedDate}T${storedTime}`);
+        const now = new Date();
+        const maxLoginDuration = 6 * 60 * 60 * 1000;
 
-            console.log("Update date and time:", updateDateTime);
-            console.log("Stored date and time:", storedDateTime);
+        if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
+          console.log("Login duration exceeded 60 seconds. Logging out...");
 
-            const now = new Date();
-            const date = now
-              .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
-              .split("/")
-              .reverse()
-              .join("-");
-            const time = now.toLocaleTimeString("pt-BR", {
-              hour12: false,
-              timeZone: "America/Sao_Paulo",
-            });
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userName");
+          localStorage.removeItem("userType");
+          localStorage.removeItem("userPost");
+          localStorage.removeItem("posts");
+          localStorage.removeItem("loginDate");
+          localStorage.removeItem("loginTime");
 
-            if (
-              !isNaN(updateDateTime.getTime()) &&
-              !isNaN(storedDateTime.getTime())
-            ) {
-              if (storedDateTime < updateDateTime) {
-                console.log(
-                  "Stored data is outdated. Clearing cache and reloading..."
-                );
-                // Clear cache and reload
-                caches
-                  .keys()
-                  .then((names) => {
-                    for (let name of names) caches.delete(name);
-                  })
-                  .then(() => {
-                    localStorage.setItem("loginDate", date);
-                    localStorage.setItem("loginTime", time);
-                    alert("O sistema agora está na versão mais recente");
-                    window.location.reload();
-                  });
-              } else {
-                console.log("Stored data is up to date.");
-              }
-            } else {
-              console.log("Invalid date/time format detected.");
-            }
-          } else {
-            console.log("No stored date and time found.");
-          }
+          alert("Sua sessão expirou. Por favor, faça login novamente.");
+          window.location.href = "/";
         } else {
-          console.log("No update data found in the database.");
+          console.log("Login duration within limits.");
         }
-      } catch (error) {
-        console.error("Error fetching update document:", error);
+      } else {
+        console.log("No stored login date and time found.");
       }
     };
 
-    checkForUpdates();
+    checkLoginDuration();
   }, []);
 
   useEffect(() => {
