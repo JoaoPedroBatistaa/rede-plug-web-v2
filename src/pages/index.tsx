@@ -9,6 +9,8 @@ import { collection, db } from "../../firebase";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+type UserType = "manager" | "supervisor" | "post" | "default";
+
 interface User {
   id: string;
   name: string;
@@ -49,62 +51,74 @@ export default function Login() {
     fetchData();
   }, []);
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
 
-    const user = users.find(
-      (user) => user.email === email && user.password === password
-    );
-
-    if (user) {
-      const now = new Date();
-      const date = now
-        .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
-        .split("/")
-        .reverse()
-        .join("-");
-      const time = now.toLocaleTimeString("pt-BR", {
-        hour12: false,
-        timeZone: "America/Sao_Paulo",
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      localStorage.setItem("userId", user.id);
-      localStorage.setItem("userName", user.name);
-      localStorage.setItem("userType", user.type);
-      localStorage.setItem("userPost", user.postName);
-      localStorage.setItem("posts", JSON.stringify(user.posts));
-      localStorage.setItem("loginDate", date);
-      localStorage.setItem("loginTime", time);
+      const data = await response.json();
 
-      toast.success("Login realizado com sucesso!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      if (response.ok) {
+        const { user } = data;
 
-      if (user.type === "manager") {
-        setTimeout(() => {
-          router.push("/managers");
-        }, 2000);
-      } else if (user.type === "supervisor") {
-        setTimeout(() => {
-          router.push("/supervisors-home");
-        }, 2000);
-      } else if (user.type === "post") {
-        setTimeout(() => {
-          router.push("/attendants");
-        }, 2000);
+        const now = new Date();
+        const date = now
+          .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+          .split("/")
+          .reverse()
+          .join("-");
+        const time = now.toLocaleTimeString("pt-BR", {
+          hour12: false,
+          timeZone: "America/Sao_Paulo",
+        });
+
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        localStorage.setItem("userType", user.type);
+        localStorage.setItem("userPost", user.postName);
+        localStorage.setItem("posts", JSON.stringify(user.posts));
+        localStorage.setItem("loginDate", date);
+        localStorage.setItem("loginTime", time);
+
+        toast.success("Login realizado com sucesso!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        if (user.type === "manager") {
+          setTimeout(() => {
+            router.push("/managers");
+          }, 2000);
+        } else if (user.type === "supervisor") {
+          setTimeout(() => {
+            router.push("/supervisors-home");
+          }, 2000);
+        } else if (user.type === "post") {
+          setTimeout(() => {
+            router.push("/attendants");
+          }, 2000);
+        } else {
+          setTimeout(() => {
+            router.push("/home");
+          }, 2000);
+        }
       } else {
-        setTimeout(() => {
-          router.push("/home");
-        }, 2000);
+        setError(data.message || "Email ou senha incorretos");
       }
-    } else {
-      setError("Email ou senha incorretos");
+    } catch (error) {
+      setError("Erro ao conectar com o servidor");
     }
   };
 
@@ -115,14 +129,13 @@ export default function Login() {
           href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
-        <title>Rede Plug</title>
+        <title>Rede Postos</title>
       </Head>
 
       <ToastContainer></ToastContainer>
 
       <div className={styles.Container}>
         <div className={styles.ImageContainer}>
-          <img className={styles.logo} src="/logo.png" alt="logo" />
           <div className={styles.Social}></div>
         </div>
         <div className={styles.LoginContainer}>
@@ -147,10 +160,6 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-
-            <a className={styles.forget} href="">
-              Esqueci minha senha
-            </a>
 
             {error && <p className={styles.erro}>{error}</p>}
 

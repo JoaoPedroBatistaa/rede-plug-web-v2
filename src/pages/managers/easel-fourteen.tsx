@@ -598,7 +598,7 @@ export default function NewPost() {
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>
-              © Rede Plug 2024, todos os direitos reservados
+              © Rede Postos 2024, todos os direitos reservados
             </p>
           </div>
         </div>

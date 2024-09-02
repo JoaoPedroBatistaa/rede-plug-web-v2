@@ -135,7 +135,7 @@ export default function Home() {
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
         `}</style>
-        <title>Rede Plug</title>
+        <title>Rede Postos</title>
       </Head>
 
       <div className={styles.Container}>
@@ -176,7 +176,7 @@ export default function Home() {
 
           <div className={styles.Copyrigt}>
             <p className={styles.Copy}>
-              © Rede Plug 2024, todos os direitos reservados
+              © Rede Postos 2024, todos os direitos reservados
             </p>
           </div>
         </div>

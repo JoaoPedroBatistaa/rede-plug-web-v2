@@ -10,7 +10,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MenuProvider>
       <Head>
-        <title>Rede Plug</title>
+        <title>Rede Postos</title>
         <link rel="icon" href="/fav.png" />
       </Head>
       <SafeComponent {...pageProps} />
