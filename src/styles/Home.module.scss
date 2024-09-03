@@ -1,3 +1,56 @@
+.title {
+  font-family: "Syne";
+  font-size: 24px;
+  color: #000000;
+  font-weight: 700;
+
+  margin-top: 2rem;
+  margin-left: 2rem;
+  margin-bottom: 2rem;
+}
+
+.post {
+  font-family: "Syne";
+  font-size: 14px;
+  color: #000000;
+  font-weight: 600;
+}
+
+.week {
+  display: flex;
+  flex-direction: column;
+
+  padding: 2rem;
+
+  border: 1px solid #939393;
+  border-radius: 1rem;
+
+  gap: 2rem;
+
+  margin-bottom: 3rem;
+
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+
+  padding-bottom: 0.5rem;
+
+  border-bottom: 1px solid #939393;
+
+  .dayTitle {
+    font-family: "Syne", sans-serif;
+    font-size: 20px;
+    color: #000000;
+    font-weight: 600;
+
+    margin-bottom: 1rem;
+  }
+}
+
 .Container {
   display: flex;
   flex-direction: row;
@@ -96,9 +149,14 @@
 .CardMenuText {
   font-family: "Syne";
   font-size: 1rem;
-  color: #404049;
+  color: #484852;
   text-transform: uppercase;
   font-weight: 700;
+
+  span {
+    color: #000;
+    font-size: 1.05rem;
+  }
 }
 
 .OrderContainer {
@@ -427,6 +485,11 @@
   font-size: 14px;
   font-weight: 400;
   color: #404049;
+
+  text-align: center;
+
+  margin-bottom: 4rem;
+  margin-top: 3rem;
 }
 
 .Copyright {
@@ -590,6 +653,15 @@
     padding: 0rem 1rem;
 
     margin-top: -2.5rem;
+  }
+
+  .title {
+    margin-left: 1rem;
+  }
+
+  .week {
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 
   .CardsMenus {

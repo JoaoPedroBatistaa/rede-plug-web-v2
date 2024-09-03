@@ -24,6 +24,11 @@ interface RoutineDay {
   secondShift: PostOption | null;
 }
 
+interface WeekRoutine {
+  week: RoutineDay[];
+  isFromDatabase: boolean; // Agora este campo é sempre presente
+}
+
 export default function EditSupervisor() {
   const router = useRouter();
 
@@ -35,7 +40,7 @@ export default function EditSupervisor() {
   const [contact, setContact] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [routine, setRoutine] = useState<RoutineDay[][]>([]);
+  const [routine, setRoutine] = useState<WeekRoutine[]>([]);
 
   useEffect(() => {
     const fetchIpAddress = async () => {
@@ -129,14 +134,10 @@ export default function EditSupervisor() {
     try {
       const docRef = doc(db, "USERS", docId);
 
-      // Flattening da rotina: transforma o array aninhado em uma lista plana de objetos
-      const flattenedRoutine = routine.flatMap((week, weekIndex) =>
-        week.map((day, dayIndex) => ({
-          ...day,
-          weekIndex,
-          dayIndex,
-        }))
-      );
+      const updatedRoutine = routine.map((weekObj) => ({
+        week: weekObj.week,
+        isFromDatabase: weekObj.isFromDatabase,
+      }));
 
       await updateDoc(docRef, {
         name,
@@ -145,7 +146,7 @@ export default function EditSupervisor() {
         password,
         type: "supervisor",
         ipAddress,
-        routine: flattenedRoutine, // Substitua a rotina aninhada pela versão "achatada"
+        routine: updatedRoutine,
       });
 
       toast.success("Supervisor atualizado com sucesso!");
@@ -159,23 +160,12 @@ export default function EditSupervisor() {
 
   const getNextMonday = () => {
     const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 (Domingo) a 6 (Sábado)
-    console.log(
-      "Hoje é:",
-      today.toLocaleDateString("pt-BR"),
-      "Dia da semana:",
-      dayOfWeek
-    );
+    const dayOfWeek = today.getDay();
 
     const daysUntilNextMonday = (1 + 7 - dayOfWeek) % 7;
-    console.log("Dias até a próxima segunda-feira:", daysUntilNextMonday);
 
     const nextMonday = new Date(today);
     nextMonday.setDate(today.getDate() + daysUntilNextMonday);
-    console.log(
-      "Próxima segunda-feira será em:",
-      nextMonday.toLocaleDateString("pt-BR")
-    );
 
     return nextMonday;
   };
@@ -184,33 +174,22 @@ export default function EditSupervisor() {
     const nextMonday = getNextMonday();
     const newWeek: RoutineDay[] = [];
 
-    console.log(
-      "Iniciando a criação da semana, começando na segunda-feira:",
-      nextMonday.toLocaleDateString("pt-BR")
-    );
-
     for (let i = 0; i < 6; i++) {
       const day = new Date(nextMonday);
       day.setDate(nextMonday.getDate() + i);
-
-      // Inclui os dias de segunda (1) a sábado (6)
       if (day.getDay() !== 0) {
         newWeek.push({
           date: day.toISOString().split("T")[0],
           firstShift: null,
           secondShift: null,
         });
-        console.log(
-          "Dia adicionado à rotina:",
-          day.toLocaleDateString("pt-BR"),
-          "Dia da semana:",
-          day.getDay()
-        );
       }
     }
 
-    setRoutine([...routine, newWeek]);
-    console.log("Rotina finalizada:", newWeek);
+    const newRoutine: WeekRoutine = { week: newWeek, isFromDatabase: false };
+    setRoutine((prevRoutine) => [...prevRoutine, newRoutine]);
+
+    console.log("Nova rotina adicionada:", newRoutine);
   };
 
   const handleRoutineChange = (
@@ -220,76 +199,185 @@ export default function EditSupervisor() {
     value: PostOption | null
   ) => {
     const updatedRoutine = [...routine];
-    updatedRoutine[weekIndex][dayIndex][shift] = value;
+
+    const existingRoutinesCount = updatedRoutine.filter(
+      (weekObj) => weekObj.isFromDatabase
+    ).length;
+
+    console.log("Tentando alterar rotina", {
+      weekIndex,
+      dayIndex,
+      shift,
+      value,
+      existingRoutinesCount,
+    });
+
+    if (weekIndex < existingRoutinesCount) {
+      // Atualizando rotina existente
+      updatedRoutine[weekIndex].week[dayIndex][shift] = value;
+      console.log("Rotina existente atualizada:", updatedRoutine);
+    } else {
+      // Atualizando nova rotina
+      const newRoutineIndex = weekIndex - existingRoutinesCount;
+      updatedRoutine[newRoutineIndex + existingRoutinesCount].week[dayIndex][
+        shift
+      ] = value;
+      console.log("Nova rotina atualizada:", updatedRoutine);
+    }
+
     setRoutine(updatedRoutine);
   };
 
   const renderRoutine = () => {
-    return routine.map((week, weekIndex) => (
-      <div key={weekIndex} className={styles.week}>
-        {week.map((day, dayIndex) => {
-          const dayDate = new Date(day.date);
-          const formattedDate = dayDate.toISOString().split("T")[0]; // Formato ISO da data
+    const daysOfWeek = [
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado",
+    ];
 
-          console.log(
-            "Renderizando dia:",
-            formattedDate, // Mostra a data no formato ISO
-            "Data:",
-            day.date,
-            "Dia da semana:",
-            dayDate.getDay()
-          );
+    return routine
+      .filter((weekObj) => !weekObj.isFromDatabase)
+      .map((weekObj, weekIndex) => (
+        <div key={weekIndex} className={styles.week}>
+          {Array.isArray(weekObj.week) &&
+            weekObj.week.map((day, dayIndex) => {
+              const dayDate = new Date(day.date + "T00:00:00-03:00");
+              const formattedDate = dayDate.toLocaleDateString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              });
 
-          // Renderize apenas os dias, sem considerar o nome do dia da semana
-          return (
-            <div key={dayIndex} className={styles.day}>
-              <p className={styles.dayTitle}>{formattedDate}</p>{" "}
-              {/* Exibe a data no formato ISO */}
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Primeiro turno (8h-14h)</p>
-                  <AsyncSelect
-                    cacheOptions
-                    loadOptions={loadOptions}
-                    defaultOptions={posts}
-                    value={day.firstShift}
-                    onChange={(selectedOption) =>
-                      handleRoutineChange(
-                        weekIndex,
-                        dayIndex,
-                        "firstShift",
-                        selectedOption
-                      )
-                    }
-                    placeholder="Selecione o posto"
-                    className={styles.SelectFieldSearch}
-                  />
+              const dayName = daysOfWeek[dayIndex];
+
+              return (
+                <div key={dayIndex} className={styles.day}>
+                  <p className={styles.dayTitle}>
+                    {`${dayName} - ${formattedDate}`}
+                  </p>
+                  <div className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Primeiro turno (8h-14h)
+                      </p>
+                      <AsyncSelect
+                        cacheOptions
+                        loadOptions={loadOptions}
+                        defaultOptions={posts}
+                        value={day.firstShift}
+                        onChange={(selectedOption) =>
+                          handleRoutineChange(
+                            weekIndex +
+                              routine.filter(
+                                (weekObj) => weekObj.isFromDatabase
+                              ).length,
+                            dayIndex,
+                            "firstShift",
+                            selectedOption
+                          )
+                        }
+                        placeholder="Selecione o posto"
+                        className={styles.SelectFieldSearch}
+                      />
+                    </div>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Segundo turno (14h-22h)
+                      </p>
+                      <AsyncSelect
+                        cacheOptions
+                        loadOptions={loadOptions}
+                        defaultOptions={posts}
+                        value={day.secondShift}
+                        onChange={(selectedOption) =>
+                          handleRoutineChange(
+                            weekIndex +
+                              routine.filter(
+                                (weekObj) => weekObj.isFromDatabase
+                              ).length,
+                            dayIndex,
+                            "secondShift",
+                            selectedOption
+                          )
+                        }
+                        placeholder="Selecione o posto"
+                        className={styles.SelectFieldSearch}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Segundo turno (14h-22h)</p>
-                  <AsyncSelect
-                    cacheOptions
-                    loadOptions={loadOptions}
-                    defaultOptions={posts}
-                    value={day.secondShift}
-                    onChange={(selectedOption) =>
-                      handleRoutineChange(
-                        weekIndex,
-                        dayIndex,
-                        "secondShift",
-                        selectedOption
-                      )
-                    }
-                    placeholder="Selecione o posto"
-                    className={styles.SelectFieldSearch}
-                  />
+              );
+            })}
+        </div>
+      ));
+  };
+
+  const renderExistingRoutine = () => {
+    const daysOfWeek = [
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado",
+    ];
+
+    return routine
+      .filter((weekObj) => weekObj.isFromDatabase)
+      .map((weekObj, weekIndex) => (
+        <div key={weekIndex} className={styles.week}>
+          {Array.isArray(weekObj.week) &&
+            weekObj.week.map((day, dayIndex) => {
+              const dayDate = new Date(day.date + "T00:00:00-03:00");
+              const formattedDate = dayDate.toLocaleDateString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              });
+
+              const dayName = daysOfWeek[dayIndex];
+
+              return (
+                <div key={dayIndex} className={styles.day}>
+                  <p className={styles.dayTitle}>
+                    {`${dayName} - ${formattedDate}`}
+                  </p>
+                  <div className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Primeiro turno (8h-14h)
+                      </p>
+                      <AsyncSelect
+                        cacheOptions
+                        loadOptions={loadOptions}
+                        defaultOptions={posts}
+                        value={day.firstShift}
+                        isDisabled
+                        className={styles.SelectFieldSearch}
+                      />
+                    </div>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Segundo turno (14h-22h)
+                      </p>
+                      <AsyncSelect
+                        cacheOptions
+                        loadOptions={loadOptions}
+                        defaultOptions={posts}
+                        value={day.secondShift}
+                        isDisabled
+                        className={styles.SelectFieldSearch}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    ));
+              );
+            })}
+        </div>
+      ));
   };
 
   useEffect(() => {
@@ -310,7 +398,13 @@ export default function EditSupervisor() {
           setPassword(postData.password);
 
           if (postData.routine) {
-            setRoutine(postData.routine);
+            const existingRoutines = postData.routine.map((routine: any) => ({
+              week: routine.week,
+              isFromDatabase: true,
+            }));
+
+            console.log("Rotinas existentes carregadas:", existingRoutines);
+            setRoutine(existingRoutines);
           }
         }
       }
@@ -430,6 +524,7 @@ export default function EditSupervisor() {
           </p>
 
           {renderRoutine()}
+          {renderExistingRoutine()}
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>

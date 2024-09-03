@@ -1,4 +1,3 @@
-
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '../../../firebase';
@@ -19,7 +18,12 @@ export default async function handler(
             return res.status(401).json({ message: 'Email ou senha incorretos' });
          }
 
-         const user = querySnapshot.docs[0].data();
+         const userDoc = querySnapshot.docs[0];
+         const user = {
+            id: userDoc.id,
+            ...userDoc.data(),
+         };
+
          return res.status(200).json({ user });
       } catch (error) {
          const typedError = error as Error;
@@ -30,4 +34,3 @@ export default async function handler(
       res.status(405).end(`Method ${req.method} Not Allowed`);
    }
 }
-

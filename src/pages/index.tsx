@@ -1,55 +1,18 @@
 import Head from "next/head";
 import styles from "../styles/Login.module.scss";
 
-import { getDocs } from "firebase/firestore";
 import { useRouter } from "next/router";
-import { FormEvent, useEffect, useState } from "react";
-import { collection, db } from "../../firebase";
+import { FormEvent, useState } from "react";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-type UserType = "manager" | "supervisor" | "post" | "default";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  type: string;
-  postName: string;
-  posts: any;
-}
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
 
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const dbCollection = collection(db, "USERS");
-      const userSnapshot = await getDocs(dbCollection);
-      const userList = userSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        const user: User = {
-          id: doc.id,
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          type: data.type,
-          postName: data.postName,
-          posts: data.posts,
-        };
-        return user;
-      });
-      setUsers(userList);
-    };
-    fetchData();
-  }, []);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -79,11 +42,12 @@ export default function Login() {
           timeZone: "America/Sao_Paulo",
         });
 
+        // Salva os dados corretamente no localStorage
         localStorage.setItem("userId", user.id);
         localStorage.setItem("userName", user.name);
         localStorage.setItem("userType", user.type);
-        localStorage.setItem("userPost", user.postName);
-        localStorage.setItem("posts", JSON.stringify(user.posts));
+        localStorage.setItem("userPost", user.postName || ""); // Adiciona verificação para postName
+        localStorage.setItem("posts", JSON.stringify(user.posts || [])); // Verifica se posts está definido
         localStorage.setItem("loginDate", date);
         localStorage.setItem("loginTime", time);
 
@@ -97,6 +61,7 @@ export default function Login() {
           progress: undefined,
         });
 
+        // Redirecionamento baseado no tipo de usuário
         if (user.type === "manager") {
           setTimeout(() => {
             router.push("/managers");
