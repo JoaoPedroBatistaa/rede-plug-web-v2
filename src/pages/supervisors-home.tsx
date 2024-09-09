@@ -1,6 +1,6 @@
 import HeaderHome from "@/components/HeaderSupervisors";
 import SideMenuHome from "@/components/SideMenuHome";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -30,42 +30,48 @@ export default function Home() {
   const [currentDayRoutine, setCurrentDayRoutine] = useState<RoutineDay | null>(
     null
   );
+  const [ipAddress, setIpAddress] = useState<string | null>(null);
+  const [editIp, setEditIp] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkLoginDuration = () => {
-      const storedDate = localStorage.getItem("loginDate");
-      const storedTime = localStorage.getItem("loginTime");
-
-      if (storedDate && storedTime) {
-        const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-        const now = new Date();
-        const maxLoginDuration = 6 * 60 * 60 * 1000;
-
-        if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-          localStorage.clear();
-          alert("Sua sessão expirou. Por favor, faça login novamente.");
-          window.location.href = "/";
-        }
+    const fetchIpAddress = async () => {
+      try {
+        const response = await fetch("https://api.ipify.org?format=json");
+        const data = await response.json();
+        setIpAddress(data.ip);
+      } catch (error) {
+        console.error("Error fetching IP address:", error);
       }
     };
 
-    checkLoginDuration();
+    fetchIpAddress();
   }, []);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    const storedUserId = localStorage.getItem("userId");
+    setUserId(storedUserId);
+
+    if (!storedUserId) {
       router.push("/");
     } else {
-      const fetchRoutine = async () => {
+      const fetchRoutineAndIp = async () => {
         try {
-          const docRef = doc(db, "USERS", userId);
+          const docRef = doc(db, "USERS", storedUserId);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
             const userData = docSnap.data();
             const routineData = userData.routine || [];
             setRoutine(routineData);
+
+            if (userData.IpAddress) {
+              setIpAddress(userData.IpAddress);
+            }
+
+            if (userData.editIp) {
+              setEditIp(userData.editIp);
+            }
 
             const today = new Date().toISOString().split("T")[0];
             const todayRoutine = routineData
@@ -80,9 +86,46 @@ export default function Home() {
         }
       };
 
-      fetchRoutine();
+      fetchRoutineAndIp();
     }
   }, [router]);
+
+  const handleDeviceValidation = async () => {
+    if (!userId || !ipAddress) return;
+
+    try {
+      const docRef = doc(db, "USERS", userId);
+
+      await updateDoc(docRef, {
+        IpAddress: ipAddress,
+        editIp: false,
+      });
+
+      alert("Dispositivo validado com sucesso!");
+      setEditIp(false); // Reseta o estado para evitar múltiplas habilitações
+    } catch (error) {
+      console.error("Erro ao validar o dispositivo:", error);
+      alert("Erro ao validar o dispositivo.");
+    }
+  };
+
+  const renderValidationCard = () => {
+    if (!ipAddress || editIp) {
+      // Se não houver IP cadastrado ou editIp for true, permite cadastro do dispositivo
+      return (
+        <div className={styles.ipCardMenu} onClick={handleDeviceValidation}>
+          <span className={styles.CardMenuText}>Cadastrar dispositivo</span>
+        </div>
+      );
+    } else {
+      // Se o dispositivo já está validado e editIp é false
+      return (
+        <div className={styles.ipCardMenu}>
+          <span className={styles.CardMenuText}>Dispositivo validado</span>
+        </div>
+      );
+    }
+  };
 
   const handleCardClick = (shift: "firstShift" | "secondShift") => {
     const now = new Date();
@@ -111,7 +154,6 @@ export default function Home() {
       "Sábado",
     ];
 
-    // Pegue as últimas três semanas de rotinas
     const recentRoutines = routine.slice(-3);
 
     return recentRoutines.map((weekObj, weekIndex) => (
@@ -208,8 +250,9 @@ export default function Home() {
             </div>
           </div>
 
-          <p className={styles.title}>Programações</p>
-          {renderRoutine()}
+          <p className={styles.title}>Validação do dispositivo</p>
+
+          {renderValidationCard()}
 
           <div className={styles.Copyrigt}>
             <p className={styles.Copy}>

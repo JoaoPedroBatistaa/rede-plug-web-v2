@@ -33,7 +33,8 @@ export default function EditSupervisor() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [ipAddress, setIpAddress] = useState<string>("");
+  const [ipAddress, setIpAddress] = useState("");
+  const [editIp, setEditIp] = useState(false);
   const [posts, setPosts] = useState<PostOption[]>([]);
 
   const [name, setName] = useState<string>("");
@@ -121,32 +122,20 @@ export default function EditSupervisor() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    if (!validateForm()) {
-      toast.error("Por favor, preencha todos os campos obrigatórios.");
-      setIsLoading(false);
-      return;
-    }
-
-    const docId = Array.isArray(router.query.id)
-      ? router.query.id[0]
-      : (router.query.id as string);
-
     try {
-      const docRef = doc(db, "USERS", docId);
+      const docId = Array.isArray(router.query.id)
+        ? router.query.id[0]
+        : (router.query.id as string);
 
-      const updatedRoutine = routine.map((weekObj) => ({
-        week: weekObj.week,
-        isFromDatabase: weekObj.isFromDatabase,
-      }));
+      const docRef = doc(db, "USERS", docId);
 
       await updateDoc(docRef, {
         name,
         contact,
         email,
         password,
-        type: "supervisor",
-        ipAddress,
-        routine: updatedRoutine,
+        IpAddress: ipAddress,
+        editIp,
       });
 
       toast.success("Supervisor atualizado com sucesso!");
@@ -154,6 +143,7 @@ export default function EditSupervisor() {
     } catch (error) {
       console.error("Erro ao atualizar dados:", error);
       toast.error("Erro ao completar o registro.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -397,14 +387,12 @@ export default function EditSupervisor() {
           setEmail(postData.email);
           setPassword(postData.password);
 
-          if (postData.routine) {
-            const existingRoutines = postData.routine.map((routine: any) => ({
-              week: routine.week,
-              isFromDatabase: true,
-            }));
+          if (postData.IpAddress) {
+            setIpAddress(postData.IpAddress);
+          }
 
-            console.log("Rotinas existentes carregadas:", existingRoutines);
-            setRoutine(existingRoutines);
+          if (postData.editIp) {
+            setEditIp(postData.editIp);
           }
         }
       }
@@ -412,6 +400,10 @@ export default function EditSupervisor() {
 
     fetchData();
   }, [router.query.id]);
+
+  const handleEnableNewDevice = () => {
+    setEditIp(true);
+  };
 
   return (
     <>
@@ -498,6 +490,39 @@ export default function EditSupervisor() {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className={styles.BudgetHead}>
+            <p className={styles.BudgetTitle}>Dispositivo do supervisor</p>
+          </div>
+
+          <p className={styles.Notes}>
+            Veja abaixo o endereço IP do dispositivo validado do supervisor no
+            sistema e se desejar habilite a vaidação de um novo dispositivo
+          </p>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Endereço IP cadastrado</p>
+              <input
+                type="text"
+                value={ipAddress}
+                className={styles.Field}
+                disabled
+              />
+            </div>
+
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Habilitar novo dispositivo</p>
+              <button
+                className={styles.locationButton}
+                onClick={handleEnableNewDevice}
+              >
+                {editIp
+                  ? "Habilitado novo cadastro"
+                  : "Habilitar novo cadastro"}
+              </button>
             </div>
           </div>
 

@@ -80,10 +80,36 @@ export default function Login() {
           }, 2000);
         }
       } else {
-        setError(data.message || "Email ou senha incorretos");
+        // Exibe mensagens personalizadas para diferentes tipos de erro
+        if (response.status === 403) {
+          setError(
+            "Dispositivo não autorizado. Verifique com o administrador."
+          );
+        } else {
+          setError(data.message || "Email ou senha incorretos");
+        }
+
+        toast.error(data.message || "Erro ao fazer login.", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       }
     } catch (error) {
       setError("Erro ao conectar com o servidor");
+      toast.error("Erro ao conectar com o servidor.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
