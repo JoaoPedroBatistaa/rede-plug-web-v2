@@ -8,7 +8,7 @@ interface User {
    email?: string;
    password?: string;
    type?: string;
-   IpAddress?: string;
+   IpAddress?: string; // Aqui será armazenado o fingerprintId
    editIp?: boolean;
 }
 
@@ -18,7 +18,10 @@ export default async function handler(
 ) {
    if (req.method === 'POST') {
       try {
-         const { email, password } = req.body;
+         const { email, password, fingerprintId } = req.body; // Recebe o fingerprintId do frontend
+
+         // Log para verificar se o fingerprintId está sendo recebido corretamente
+         console.log("Fingerprint recebido no backend:", fingerprintId);
 
          const usersCollection = collection(db, 'USERS');
          const q = query(usersCollection, where('email', '==', email), where('password', '==', password));
@@ -34,18 +37,13 @@ export default async function handler(
             ...userDoc.data(), // Espalha os dados do Firestore no objeto user
          };
 
-         // Verificar se o tipo é supervisor e as condições do IP
+         // Verificar se o tipo é supervisor e as condições do fingerprintId
          if (user.type === 'supervisor') {
-            const userIpAddress = user.IpAddress;
+            const userFingerprintId = user.IpAddress; // No campo IpAddress estamos armazenando o fingerprintId
             const userEditIp = user.editIp;
 
-            // Obter o IP atual do dispositivo
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            const currentIpAddress = data.ip;
-
             // Verificar as condições para o login
-            if (userEditIp === false && userIpAddress && userIpAddress !== currentIpAddress) {
+            if (userEditIp === false && userFingerprintId && userFingerprintId !== fingerprintId) {
                return res.status(403).json({
                   message: 'Acesso negado: você não está no dispositivo autorizado.',
                });

@@ -1,10 +1,11 @@
 import HeaderHome from "@/components/HeaderSupervisors";
 import SideMenuHome from "@/components/SideMenuHome";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { db } from "../../firebase"; // Certifique-se de que o caminho para o seu firebase.js esteja correto
+import { db } from "../../firebase";
 import styles from "../styles/Home.module.scss";
 
 interface PostOption {
@@ -30,22 +31,35 @@ export default function Home() {
   const [currentDayRoutine, setCurrentDayRoutine] = useState<RoutineDay | null>(
     null
   );
-  const [ipAddress, setIpAddress] = useState<string | null>(null);
+  const [fingerprintId, setFingerprintId] = useState<string | null>(null);
   const [editIp, setEditIp] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [ipStored, setIpStored] = useState<string | null>(null); // Novo estado para armazenar o valor de IpAddress vindo do Firestore
 
   useEffect(() => {
-    const fetchIpAddress = async () => {
+    const fetchFingerprintId = async () => {
       try {
-        const response = await fetch("https://api.ipify.org?format=json");
-        const data = await response.json();
-        setIpAddress(data.ip);
+        // Inicialize o FingerprintJS
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+
+        // Log de todas as informações retornadas pelo FingerprintJS
+        console.log("FingerprintJS result:", result);
+
+        // Obtenha o fingerprintId
+        const fingerprintId = result.visitorId;
+
+        // Log do fingerprintId específico
+        console.log("Fingerprint ID:", fingerprintId);
+
+        // Salve o FingerprintID no estado
+        setFingerprintId(fingerprintId);
       } catch (error) {
-        console.error("Error fetching IP address:", error);
+        console.error("Erro ao capturar o fingerprintId:", error);
       }
     };
 
-    fetchIpAddress();
+    fetchFingerprintId();
   }, []);
 
   useEffect(() => {
@@ -65,8 +79,9 @@ export default function Home() {
             const routineData = userData.routine || [];
             setRoutine(routineData);
 
+            // Aqui, estamos salvando o valor de IpAddress do Firestore, mas não sobrescrevendo o fingerprintId
             if (userData.IpAddress) {
-              setIpAddress(userData.IpAddress);
+              setIpStored(userData.IpAddress); // Usamos este novo estado apenas para armazenar o IpAddress do Firestore
             }
 
             if (userData.editIp) {
@@ -91,34 +106,56 @@ export default function Home() {
   }, [router]);
 
   const handleDeviceValidation = async () => {
-    if (!userId || !ipAddress) return;
+    // Log dos valores iniciais de userId, fingerprintId, e ipStored
+    console.log("Iniciando validação do dispositivo...");
+    console.log("userId:", userId);
+    console.log("fingerprintId:", fingerprintId);
+    console.log("ipStored (salvo no Firestore):", ipStored);
+
+    // Verificação de userId e fingerprintId
+    if (!userId || !fingerprintId) {
+      console.log("Erro: userId ou fingerprintId ausentes.");
+      return;
+    }
 
     try {
+      // Referência do documento no Firestore
       const docRef = doc(db, "USERS", userId);
 
+      // Log da referência do documento
+      console.log("Referência do documento Firestore:", docRef);
+
+      // Atualização no Firestore
       await updateDoc(docRef, {
-        IpAddress: ipAddress,
+        IpAddress: fingerprintId, // Aqui garantimos que estamos usando o fingerprintId corretamente
         editIp: false,
       });
 
+      // Log de sucesso após a atualização no Firestore
+      console.log(
+        "Dispositivo validado com sucesso! IpAddress atualizado para:",
+        fingerprintId
+      );
+
       alert("Dispositivo validado com sucesso!");
-      setEditIp(false); // Reseta o estado para evitar múltiplas habilitações
+
+      // Reseta o estado para evitar múltiplas habilitações
+      setEditIp(false);
     } catch (error) {
-      console.error("Erro ao validar o dispositivo:", error);
+      // Log detalhado do erro
+      console.error("Erro ao validar o dispositivo no Firestore:", error);
       alert("Erro ao validar o dispositivo.");
     }
   };
 
   const renderValidationCard = () => {
-    if (!ipAddress || editIp) {
-      // Se não houver IP cadastrado ou editIp for true, permite cadastro do dispositivo
+    if (!fingerprintId || editIp) {
       return (
         <div className={styles.ipCardMenu} onClick={handleDeviceValidation}>
           <span className={styles.CardMenuText}>Cadastrar dispositivo</span>
         </div>
       );
     } else {
-      // Se o dispositivo já está validado e editIp é false
       return (
         <div className={styles.ipCardMenu}>
           <span className={styles.CardMenuText}>Dispositivo validado</span>

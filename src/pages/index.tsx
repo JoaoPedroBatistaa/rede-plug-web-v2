@@ -2,20 +2,47 @@ import Head from "next/head";
 import styles from "../styles/Login.module.scss";
 
 import { useRouter } from "next/router";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
+import FingerprintJS from "@fingerprintjs/fingerprintjs"; // Importa a biblioteca FingerprintJS
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fingerprintId, setFingerprintId] = useState<string | null>(null); // Armazena o fingerprintId
   const [error, setError] = useState("");
 
   const router = useRouter();
 
+  useEffect(() => {
+    // Função para gerar o FingerprintID
+    const fetchFingerprintId = async () => {
+      const fp = await FingerprintJS.load(); // Inicializa o FingerprintJS
+      const result = await fp.get(); // Obtém o fingerprintId
+      setFingerprintId(result.visitorId); // Armazena o fingerprintId no estado
+      console.log("Fingerprint ID:", result.visitorId); // Log do fingerprintId para depuração
+    };
+
+    fetchFingerprintId();
+  }, []);
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!fingerprintId) {
+      toast.error("Erro ao gerar Fingerprint. Tente novamente.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
 
     try {
       const response = await fetch("/api/login", {
@@ -23,7 +50,7 @@ export default function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, fingerprintId }), // Envia o fingerprintId junto com o email e senha
       });
 
       const data = await response.json();
