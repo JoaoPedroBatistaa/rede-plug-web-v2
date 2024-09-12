@@ -306,13 +306,13 @@ export default function NewPost() {
     );
 
     const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error(
-        "A tarefa limpeza e organização dos banheiros já foi feita hoje!"
-      );
-      setIsLoading(false);
-      return;
-    }
+    // if (!querySnapshot.empty) {
+    //   toast.error(
+    //     "A tarefa limpeza e organização dos banheiros já foi feita hoje!"
+    //   );
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const taskData = {
       date,
@@ -622,7 +622,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {isLoading && <p>Carregando imagem...</p>}
                   {etanolImageUrl && (

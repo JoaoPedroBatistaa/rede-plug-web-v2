@@ -923,7 +923,7 @@ export default function NewPost() {
                         }
                         className={styles.MidiaField}
                       >
-                        Carregue sua foto
+                        Tire sua foto/vídeo
                       </button>
                     </div>
                   </div>

@@ -433,11 +433,11 @@ export default function NewPost() {
     );
 
     const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error("A tarefa bocas de visita já foi feita hoje!");
-      setIsLoading(false);
-      return;
-    }
+    // if (!querySnapshot.empty) {
+    //   toast.error("A tarefa bocas de visita já foi feita hoje!");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const uploadPromises = pumps.map((pump, index) =>
       Promise.all(
@@ -495,7 +495,7 @@ export default function NewPost() {
         return;
       }
 
-      sendMessage(taskData);
+      // sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
@@ -634,21 +634,21 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Bocas de visita</p>
-            <div className={styles.BudgetHeadS}>
-              {!docId && (
+            {!docId && (
+              <div className={styles.FinishTask}>
                 <button
                   className={styles.FinishButton}
                   onClick={saveMeasurement}
                 >
+                  <span className={styles.buttonTask}>Próxima tarefa</span>
                   <img
                     src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />
-                  <span className={styles.buttonText}>Cadastrar tarefa</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <p className={styles.Notes}>
@@ -737,6 +737,7 @@ export default function NewPost() {
                         id={`file-input-${index}-${idx}`}
                         type="file"
                         accept="image/*,video/*"
+                        capture="environment"
                         style={{ display: "none" }}
                         onChange={(e) => handleFileChange(index, imageKey, e)}
                       />

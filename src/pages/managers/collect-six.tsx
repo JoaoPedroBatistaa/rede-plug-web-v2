@@ -513,7 +513,7 @@ export default function NewPost() {
                   onClick={() => etanolRef.current && etanolRef.current.click()}
                   className={styles.MidiaField}
                 >
-                  Carregue sua foto
+                  Tire sua foto/vídeo
                 </button>
                 {etanolImage && (
                   <div>

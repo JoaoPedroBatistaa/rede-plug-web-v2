@@ -1096,7 +1096,7 @@ export default function NewPost() {
                               }
                               className={styles.MidiaField}
                             >
-                              Carregue sua foto
+                              Tire sua foto/vídeo
                             </button>
                             {etanolImages[index] && (
                               <div>
@@ -1168,7 +1168,7 @@ export default function NewPost() {
                               }
                               className={styles.MidiaField}
                             >
-                              Carregue sua foto
+                              Tire sua foto/vídeo
                             </button>
                             {gcImages[index] && (
                               <div>
@@ -1238,7 +1238,7 @@ export default function NewPost() {
                               }
                               className={styles.MidiaField}
                             >
-                              Carregue sua foto
+                              Tire sua foto/vídeo
                             </button>
                             {s10Images[index] && (
                               <div>

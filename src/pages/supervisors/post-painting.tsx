@@ -309,12 +309,12 @@ export default function NewPost() {
     );
 
     const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error("A tarefa pintura do posto já foi feita hoje!");
-      setIsLoading(false);
+    // if (!querySnapshot.empty) {
+    //   toast.error("A tarefa pintura do posto já foi feita hoje!");
+    //   setIsLoading(false);
 
-      return;
-    }
+    //   return;
+    // }
 
     const taskData = {
       date,
@@ -360,7 +360,7 @@ export default function NewPost() {
     }
 
     try {
-      sendMessage(taskData);
+      // sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
@@ -498,21 +498,21 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Pintura do posto</p>
-            <div className={styles.BudgetHeadS}>
-              {!docId && (
+            {!docId && (
+              <div className={styles.FinishTask}>
                 <button
                   className={styles.FinishButton}
                   onClick={saveMeasurement}
                 >
+                  <span className={styles.buttonTask}>Próxima tarefa</span>
                   <img
                     src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />
-                  <span className={styles.buttonText}>Cadastrar tarefa</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <p className={styles.Notes}>
@@ -608,6 +608,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}
@@ -619,7 +620,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {etanolImage && (
                     <div>

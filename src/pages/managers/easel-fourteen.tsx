@@ -529,7 +529,7 @@ export default function NewPost() {
                     onClick={() => maquininhasRefs.current[index]?.click()}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {maquininhasImages[index] && (
                     <div>

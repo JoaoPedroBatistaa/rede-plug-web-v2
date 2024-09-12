@@ -521,7 +521,7 @@ export default function NewPost() {
                     onClick={() => encerranteRefs.current[index]?.click()}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {encerranteImages[index] && (
                     <div>

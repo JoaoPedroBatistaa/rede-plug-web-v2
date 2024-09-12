@@ -322,7 +322,7 @@ export default function NewPost() {
                     onClick={() => triggerFileInput(truckPlateRef)}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                 </div>
               </div>
@@ -420,7 +420,7 @@ export default function NewPost() {
                         onClick={() => triggerFileInput(productQualityRef)}
                         className={styles.MidiaField}
                       >
-                        Carregue sua foto
+                        Tire sua foto/vídeo
                       </button>
                     </div>
                   </div>
@@ -509,7 +509,7 @@ export default function NewPost() {
                         onClick={() => triggerFileInput(weightTemperatureRef)}
                         className={styles.MidiaField}
                       >
-                        Carregue sua foto
+                        Tire sua foto/vídeo
                       </button>
                     </div>
                   </div>
@@ -589,7 +589,7 @@ export default function NewPost() {
                     onClick={() => triggerFileInput(initialMeasurementRef)}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                 </div>
               </div>
@@ -664,7 +664,7 @@ export default function NewPost() {
                     onClick={() => triggerFileInput(finalMeasurementRef)}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                 </div>
               </div>
@@ -828,7 +828,7 @@ export default function NewPost() {
                     onClick={() => triggerFileInput(hydrationRef)}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                 </div>
               </div>
@@ -902,7 +902,7 @@ export default function NewPost() {
                         onClick={() => triggerFileInput(sealRef1)}
                         className={styles.MidiaField}
                       >
-                        Carregue sua foto 1
+                        Tire sua foto/vídeo 1
                       </button>
                       {sealImage1 && (
                         <div>
@@ -959,7 +959,7 @@ export default function NewPost() {
                         onClick={() => triggerFileInput(sealRef2)}
                         className={styles.MidiaField}
                       >
-                        Carregue sua foto 2
+                        Tire sua foto/vídeo 2
                       </button>
                       {sealImage2 && (
                         <div>
@@ -1016,7 +1016,7 @@ export default function NewPost() {
                         onClick={() => triggerFileInput(sealRef3)}
                         className={styles.MidiaField}
                       >
-                        Carregue sua foto 3
+                        Tire sua foto/vídeo 3
                       </button>
                       {sealImage3 && (
                         <div>

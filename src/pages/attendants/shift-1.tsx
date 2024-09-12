@@ -803,7 +803,7 @@ export default function NewPost() {
                           }
                           className={styles.MidiaField}
                         >
-                          Carregue sua foto
+                          Tire sua foto/vídeo
                         </button>
                         {maquininhasImages[0] &&
                           maquininhasImages[0][imageIndex] && (
@@ -868,7 +868,7 @@ export default function NewPost() {
                           }
                           className={styles.MidiaField}
                         >
-                          Carregue sua foto
+                          Tire sua foto/vídeo
                         </button>
                         {maquininhasImages[maquininhaIndex + 1] &&
                           maquininhasImages[maquininhaIndex + 1][0] && (

@@ -430,12 +430,12 @@ export default function NewPost() {
     );
 
     const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error("A tarefa documentos já foi feita hoje!");
-      setIsLoading(false);
+    // if (!querySnapshot.empty) {
+    //   toast.error("A tarefa documentos já foi feita hoje!");
+    //   setIsLoading(false);
 
-      return;
-    }
+    //   return;
+    // }
 
     const taskData = {
       date,
@@ -540,7 +540,7 @@ export default function NewPost() {
     }
 
     try {
-      await sendMessage(taskData);
+      // await sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
@@ -700,21 +700,21 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Documentos</p>
-            <div className={styles.BudgetHeadS}>
-              {!docId && (
+            {!docId && (
+              <div className={styles.FinishTask}>
                 <button
                   className={styles.FinishButton}
                   onClick={saveMeasurement}
                 >
+                  <span className={styles.buttonTask}>Próxima tarefa</span>
                   <img
                     src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />
-                  <span className={styles.buttonText}>Cadastrar tarefa</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <p className={styles.Notes}>
@@ -768,6 +768,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={(e) =>
@@ -786,7 +787,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {etanolImageUrl && (
                     <div>
@@ -828,6 +829,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={gcRef}
                     onChange={(e) =>
@@ -839,7 +841,7 @@ export default function NewPost() {
                     onClick={() => gcRef.current && gcRef.current.click()}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {gcImageUrl && (
                     <div>
@@ -879,6 +881,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={ContratoSocialRef}
                     onChange={(e) =>
@@ -898,7 +901,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {contratoSocialImageUrl && (
                     <div>
@@ -944,6 +947,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={AlvaraFuncionamentoRef}
                     onChange={(e) =>
@@ -963,7 +967,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {alvaraFuncionamentoImageUrl && (
                     <div>
@@ -1005,6 +1009,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={BombeirosRef}
                     onChange={(e) =>
@@ -1023,7 +1028,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {bombeirosImageUrl && (
                     <div>
@@ -1063,6 +1068,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={EpaeRef}
                     onChange={(e) =>
@@ -1079,7 +1085,7 @@ export default function NewPost() {
                     onClick={() => EpaeRef.current && EpaeRef.current.click()}
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {epaeImageUrl && (
                     <div>
@@ -1119,6 +1125,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={BrigadaRef}
                     onChange={(e) =>
@@ -1137,7 +1144,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {brigadaImageUrl && (
                     <div>
@@ -1179,6 +1186,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={LaudoCompressorRef}
                     onChange={(e) =>
@@ -1198,7 +1206,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {laudoCompressorImageUrl && (
                     <div>
@@ -1242,6 +1250,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={LaudoEstanqueidadeRef}
                     onChange={(e) =>
@@ -1261,7 +1270,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {laudoEstanqueidadeImageUrl && (
                     <div>
@@ -1307,6 +1316,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={LaudoEletricaRef}
                     onChange={(e) =>
@@ -1326,7 +1336,7 @@ export default function NewPost() {
                     }
                     className={styles.MidiaField}
                   >
-                    Carregue sua foto
+                    Tire sua foto/vídeo
                   </button>
                   {laudoEletricaImageUrl && (
                     <div>

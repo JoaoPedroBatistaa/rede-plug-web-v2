@@ -256,11 +256,11 @@ export default function NewPost() {
     );
 
     const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error("A tarefa uniformes já foi feita hoje!");
-      setIsLoading(false);
-      return;
-    }
+    // if (!querySnapshot.empty) {
+    //   toast.error("A tarefa uniformes já foi feita hoje!");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const taskData = {
       date,
@@ -300,7 +300,7 @@ export default function NewPost() {
     }
 
     try {
-      sendMessage(taskData);
+      // sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       toast.success("Tarefa salva com sucesso!");
@@ -382,21 +382,21 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Uniformes</p>
-            <div className={styles.BudgetHeadS}>
-              {!docId && (
+            {!docId && (
+              <div className={styles.FinishTask}>
                 <button
                   className={styles.FinishButton}
                   onClick={saveMeasurement}
                 >
+                  <span className={styles.buttonTask}>Próxima tarefa</span>
                   <img
                     src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />
-                  <span className={styles.buttonText}>Cadastrar tarefa</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <p className={styles.Notes}>
