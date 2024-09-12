@@ -173,10 +173,11 @@ export default function Home() {
     } else if (shift === "secondShift" && (hour < 14 || hour >= 22)) {
       alert("Você só pode acessar o segundo turno entre 14h e 22h.");
     } else if (currentDayRoutine && currentDayRoutine[shift]) {
+      // Adiciona tanto o posto quanto o turno à query string
       router.push(
-        `/supervisors-routine?post=${encodeURIComponent(
+        `/supervisors/point?post=${encodeURIComponent(
           currentDayRoutine[shift]?.label || ""
-        )}`
+        )}&shift=${shift}`
       );
     }
   };

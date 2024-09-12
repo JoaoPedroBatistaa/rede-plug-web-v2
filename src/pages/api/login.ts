@@ -37,18 +37,18 @@ export default async function handler(
             ...userDoc.data(), // Espalha os dados do Firestore no objeto user
          };
 
-         // Verificar se o tipo é supervisor e as condições do fingerprintId
-         if (user.type === 'supervisor') {
-            const userFingerprintId = user.IpAddress; // No campo IpAddress estamos armazenando o fingerprintId
-            const userEditIp = user.editIp;
+         // // Verificar se o tipo é supervisor e as condições do fingerprintId
+         // if (user.type === 'supervisor') {
+         //    const userFingerprintId = user.IpAddress; // No campo IpAddress estamos armazenando o fingerprintId
+         //    const userEditIp = user.editIp;
 
-            // Verificar as condições para o login
-            if (userEditIp === false && userFingerprintId && userFingerprintId !== fingerprintId) {
-               return res.status(403).json({
-                  message: 'Acesso negado: você não está no dispositivo autorizado.',
-               });
-            }
-         }
+         //    // Verificar as condições para o login
+         //    if (userEditIp === false && userFingerprintId && userFingerprintId !== fingerprintId) {
+         //       return res.status(403).json({
+         //          message: 'Acesso negado: você não está no dispositivo autorizado.',
+         //       });
+         //    }
+         // }
 
          return res.status(200).json({ user });
       } catch (error) {

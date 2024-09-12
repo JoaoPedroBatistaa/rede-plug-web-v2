@@ -44,20 +44,6 @@ export default function EditSupervisor() {
   const [routine, setRoutine] = useState<WeekRoutine[]>([]);
 
   useEffect(() => {
-    const fetchIpAddress = async () => {
-      try {
-        const response = await fetch("https://api.ipify.org?format=json");
-        const data = await response.json();
-        setIpAddress(data.ip);
-      } catch (error) {
-        console.error("Error fetching IP address:", error);
-      }
-    };
-
-    fetchIpAddress();
-  }, []);
-
-  useEffect(() => {
     const checkLoginDuration = () => {
       const storedDate = localStorage.getItem("loginDate");
       const storedTime = localStorage.getItem("loginTime");
@@ -129,6 +115,11 @@ export default function EditSupervisor() {
 
       const docRef = doc(db, "USERS", docId);
 
+      const updatedRoutine = routine.map((weekObj) => ({
+        week: weekObj.week,
+        isFromDatabase: weekObj.isFromDatabase,
+      }));
+
       await updateDoc(docRef, {
         name,
         contact,
@@ -136,6 +127,7 @@ export default function EditSupervisor() {
         password,
         IpAddress: ipAddress,
         editIp,
+        routine: updatedRoutine,
       });
 
       toast.success("Supervisor atualizado com sucesso!");
@@ -386,13 +378,17 @@ export default function EditSupervisor() {
           setContact(postData.contact);
           setEmail(postData.email);
           setPassword(postData.password);
+          setIpAddress(postData.ipAddress);
 
-          if (postData.IpAddress) {
-            setIpAddress(postData.IpAddress);
-          }
+          // Certifique-se de que as rotinas estão sendo corretamente carregadas
+          if (postData.routine) {
+            const existingRoutines = postData.routine.map((routine: any) => ({
+              week: routine.week,
+              isFromDatabase: true, // Define que essas rotinas vêm do banco de dados
+            }));
 
-          if (postData.editIp) {
-            setEditIp(postData.editIp);
+            console.log("Rotinas existentes carregadas:", existingRoutines);
+            setRoutine(existingRoutines); // Armazena as rotinas no estado
           }
         }
       }

@@ -603,7 +603,45 @@
   text-align: start;
 }
 
+.buttonTask {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Syne", sans-serif;
+  color: #ffffff;
+}
+
 @media (max-width: 430px) {
+  .FinishTask {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    background-color: white;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Sombra projetada para cima */
+    padding: 1rem;
+    text-align: center;
+    z-index: 100; /* Certifique-se de que está acima de outros elementos */
+
+    margin-left: -2rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .FinishButton {
+    border-radius: 1.5rem;
+
+    gap: 1rem;
+  }
+
+  .buttonTask {
+    font-size: 16px;
+    font-weight: 600;
+    font-family: "Syne", sans-serif;
+    color: #ffffff;
+  }
+
   .week {
     display: flex;
     flex-direction: column;
@@ -625,11 +663,6 @@
   }
   .userContent {
     flex-direction: column;
-  }
-
-  .FinishButton {
-    width: 3rem;
-    border-radius: 1.5rem;
   }
 
   .BudgetTitle {

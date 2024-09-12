@@ -358,7 +358,7 @@ export default function NewPost() {
     }
 
     try {
-      sendMessage(taskData);
+      // sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
@@ -497,21 +497,21 @@ export default function NewPost() {
             <p className={styles.BudgetTitle}>
               Limpeza e organização dos banheiros
             </p>
-            <div className={styles.BudgetHeadS}>
-              {!docId && (
+            {!docId && (
+              <div className={styles.FinishTask}>
                 <button
                   className={styles.FinishButton}
                   onClick={saveMeasurement}
                 >
+                  <span className={styles.buttonTask}>Próxima tarefa</span>
                   <img
                     src="/finishBudget.png"
                     alt="Finalizar"
                     className={styles.buttonImage}
                   />
-                  <span className={styles.buttonText}>Cadastrar tarefa</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <p className={styles.Notes}>
@@ -609,10 +609,12 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment" // para capturar da câmera traseira, ou use "user" para a câmera frontal
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}
                   />
+
                   <button
                     onClick={() =>
                       // @ts-ignore
