@@ -17,6 +17,13 @@ export default function DigitalPointTask() {
   const [isInspection, setIsInspection] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
 
+  useEffect(() => {
+    const storedInspection = localStorage.getItem("isInspection");
+    if (storedInspection) {
+      setIsInspection(storedInspection); // Recupera o valor do localStorage
+    }
+  }, []);
+
   // Função para pegar as coordenadas do supervisor
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -117,8 +124,15 @@ export default function DigitalPointTask() {
 
       await addDoc(collection(db, "SUPERVISORS"), taskData);
       toast.success("Tarefa de ponto digital salva com sucesso!");
-      // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(post)}`); // Usando `post` em vez de `postName`
+
+      localStorage.removeItem("isInspection");
+
+      router.push(
+        `/supervisors/surprise-box?post=${encodeURIComponent(
+          // @ts-ignore
+          post
+        )}&shift=${shift}`
+      ); // Usando `post` em vez de `postName`
     } catch (error) {
       console.error("Erro ao salvar a tarefa de ponto digital: ", error);
       toast.error("Erro ao salvar a tarefa.");
@@ -168,7 +182,10 @@ export default function DigitalPointTask() {
                     id="isInspection"
                     className={styles.SelectField}
                     value={isInspection}
-                    onChange={(e) => setIsInspection(e.target.value)}
+                    onChange={(e) => {
+                      setIsInspection(e.target.value);
+                      localStorage.setItem("isInspection", e.target.value); // Salva no localStorage
+                    }}
                   >
                     <option value="">Selecione</option>
                     <option value="yes">Sim</option>

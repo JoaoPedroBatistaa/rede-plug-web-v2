@@ -24,9 +24,10 @@ import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
-
+  const postName = router.query.post;
   const docId = router.query.docId;
+  const shift = router.query.shift;
+
   const [data, setData] = useState(null);
 
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
@@ -36,6 +37,23 @@ export default function NewPost() {
   });
   const [mapUrl, setMapUrl] = useState("");
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+
+  useEffect(() => {
+    // Recupera os valores armazenados no localStorage para os campos
+    const storedDate = localStorage.getItem("date");
+    const storedTime = localStorage.getItem("time");
+    const storedIsOk = localStorage.getItem("isOk");
+    const storedObservations = localStorage.getItem("observations");
+    const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
+    const storedEtanolFileName = localStorage.getItem("etanolFileName");
+
+    if (storedDate) setDate(storedDate);
+    if (storedTime) setTime(storedTime);
+    if (storedIsOk) setIsOk(storedIsOk);
+    if (storedObservations) setObservations(storedObservations);
+    if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
+    if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
+  }, []);
 
   useEffect(() => {
     const checkLoginDuration = () => {
@@ -240,25 +258,28 @@ export default function NewPost() {
   const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
       setIsLoading(true);
       try {
-        let finalFile = file;
+        let compressedFile = file;
         if (file.type.startsWith("image/")) {
-          finalFile = await compressImage(file);
+          compressedFile = await compressImage(file);
         }
         const imageUrl = await uploadImageAndGetUrl(
-          finalFile,
+          compressedFile,
           `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
         );
-        setEtanolImage(finalFile);
+        setEtanolImage(compressedFile);
         setEtanolFileName(file.name);
         setEtanolImageUrl(imageUrl);
+
+        // Armazena no localStorage
+        localStorage.setItem("etanolImageUrl", imageUrl);
+        localStorage.setItem("etanolFileName", file.name);
       } catch (error) {
-        console.error("Erro ao fazer upload da imagem:", error);
-        toast.error("Erro ao fazer upload da imagem.");
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
       } finally {
         setIsLoading(false);
       }
@@ -268,7 +289,10 @@ export default function NewPost() {
   const getLocalISODate = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
-    return date.toISOString().slice(0, 10);
+    return {
+      date: date.toISOString().slice(0, 10),
+      time: date.toISOString().slice(11, 19),
+    };
   };
 
   const saveMeasurement = async () => {
@@ -281,7 +305,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
-    else if (date !== today) {
+    else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
       return;
@@ -300,18 +324,21 @@ export default function NewPost() {
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
-      where("date", "==", date),
+      where("date", "==", today.date),
       where("id", "==", "iluminacao-testeiras"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("supervisorName", "==", userName),
+      where("postName", "==", postName), // Usando `post` em vez de `postName`
+      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
     );
 
     const querySnapshot = await getDocs(q);
-    // if (!querySnapshot.empty) {
-    //   toast.error("A tarefa iluminação das testeiras já foi feita hoje!");
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (!querySnapshot.empty) {
+      toast.error(
+        "A tarefa iluminação das testeiras já foi feita para esse turno hoje!"
+      );
+      setIsLoading(false);
+      return;
+    }
 
     const taskData = {
       date,
@@ -322,7 +349,7 @@ export default function NewPost() {
       isOk,
       observations,
       coordinates,
-
+      shift,
       images: [
         {
           type: "Imagem da tarefa",
@@ -363,8 +390,21 @@ export default function NewPost() {
       console.log("Tarefa salva com ID: ", docRef.id);
 
       toast.success("Tarefa salva com sucesso!");
+
+      localStorage.removeItem("date");
+      localStorage.removeItem("time");
+      localStorage.removeItem("isOk");
+      localStorage.removeItem("observations");
+      localStorage.removeItem("etanolImageUrl");
+      localStorage.removeItem("etanolFileName");
+
       // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
+      router.push(
+        `/supervisors/lining?post=${encodeURIComponent(
+          // @ts-ignore
+          postName
+        )}&shift=${shift}`
+      );
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
@@ -378,104 +418,6 @@ export default function NewPost() {
     const uploadResult = await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
-  }
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
-
-  async function shortenUrl(originalUrl: string): Promise<string> {
-    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
-
-    try {
-      const response = await fetch("/api/shorten-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ originalURL: originalUrl }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Falha ao encurtar URL:", data);
-        throw new Error(`Erro ao encurtar URL: ${data.message}`);
-      }
-
-      const data = await response.json();
-      const shortUrl = data.shortUrl;
-      console.log(`URL encurtada: ${shortUrl}`);
-
-      return shortUrl;
-    } catch (error) {
-      console.error("Erro ao encurtar URL:", error);
-      throw error;
-    }
-  }
-
-  async function sendMessage(data: {
-    date: string | number | Date;
-    isOk: any;
-    observations: any;
-    images: any[];
-    time: any;
-    postName: any;
-    supervisorName: any;
-  }) {
-    const formattedDate = formatDate(data.date);
-
-    const status = data.isOk === "yes" ? "OK" : "NÃO OK";
-    const observationsMsg = data.observations
-      ? `*Observações:* ${data.observations}`
-      : "_*Sem observações adicionais*_";
-
-    let imagesDescription = "";
-    if (data.images && data.images.length > 0) {
-      imagesDescription = await Promise.all(
-        data.images.map(async (image, index) => {
-          const shortUrl = await shortenUrl(image.imageUrl);
-          return `*Imagem ${index + 1}:* ${shortUrl}\n`;
-        })
-      ).then((descriptions) => descriptions.join("\n"));
-    }
-
-    const messageBody = `*Iluminação das testeiras*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Supervisor:* ${data.supervisorName}\n\n*Status:* ${status}\n${imagesDescription}\n\n${observationsMsg}`;
-
-    const postsRef = collection(db, "USERS");
-    const q = query(postsRef, where("name", "==", data.supervisorName));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.error("Nenhum supervisor encontrado com o nome especificado.");
-      throw new Error("Supervisor não encontrado");
-    }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.contact;
-
-    console.log(managerContact);
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem de iluminação das testeiras enviada com sucesso!");
   }
 
   return (
@@ -525,7 +467,10 @@ export default function NewPost() {
                     type="date"
                     className={styles.Field}
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    onChange={(e) => {
+                      setDate(e.target.value);
+                      localStorage.setItem("date", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
@@ -537,11 +482,15 @@ export default function NewPost() {
                     type="time"
                     className={styles.Field}
                     value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    onChange={(e) => {
+                      setTime(e.target.value);
+                      localStorage.setItem("time", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
               </div>
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>OK?</p>
@@ -549,7 +498,10 @@ export default function NewPost() {
                     id="isOk"
                     className={styles.SelectField}
                     value={isOk}
-                    onChange={(e) => setIsOk(e.target.value)}
+                    onChange={(e) => {
+                      setIsOk(e.target.value);
+                      localStorage.setItem("isOk", e.target.value); // Armazena no localStorage
+                    }}
                   >
                     <option value="">Selecione</option>
                     <option value="yes">Sim</option>
@@ -562,7 +514,10 @@ export default function NewPost() {
                     id="observations"
                     className={styles.Field}
                     value={observations}
-                    onChange={(e) => setObservations(e.target.value)}
+                    onChange={(e) => {
+                      setObservations(e.target.value);
+                      localStorage.setItem("observations", e.target.value); // Armazena no localStorage
+                    }}
                     rows={3}
                   />
                 </div>
@@ -617,10 +572,10 @@ export default function NewPost() {
                   >
                     Tire sua foto/vídeo
                   </button>
-                  {etanolImage && (
+                  {etanolImageUrl && (
                     <div>
                       <img
-                        src={URL.createObjectURL(etanolImage)}
+                        src={etanolImageUrl}
                         alt="Preview do teste de Etanol"
                         style={{
                           maxWidth: "17.5rem",
@@ -628,8 +583,6 @@ export default function NewPost() {
                           border: "1px solid #939393",
                           borderRadius: "20px",
                         }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(etanolImage)}
                       />
                       <p className={styles.fileName}>{etanolFileName}</p>
                     </div>

@@ -15,10 +15,38 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { db } from "../../../firebase";
+import { useEffect, useRef, useState } from "react";
+import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
+import { uploadBytes } from "firebase/storage";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -37,15 +65,20 @@ export default function NewPost() {
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
 
   useEffect(() => {
+    // Recupera os valores armazenados no localStorage para os campos
     const storedDate = localStorage.getItem("date");
     const storedTime = localStorage.getItem("time");
     const storedIsOk = localStorage.getItem("isOk");
     const storedObservations = localStorage.getItem("observations");
+    const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
+    const storedEtanolFileName = localStorage.getItem("etanolFileName");
 
     if (storedDate) setDate(storedDate);
     if (storedTime) setTime(storedTime);
     if (storedIsOk) setIsOk(storedIsOk);
     if (storedObservations) setObservations(storedObservations);
+    if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
+    if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
   }, []);
 
   useEffect(() => {
@@ -125,6 +158,12 @@ export default function NewPost() {
 
   const [isOk, setIsOk] = useState("");
   const [observations, setObservations] = useState("");
+
+  const etanolRef = useRef(null);
+
+  const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null); // State to store the URL of the uploaded image
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -216,6 +255,31 @@ export default function NewPost() {
     return points;
   };
 
+  const handleEtanolImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setIsLoading(true);
+    // @ts-ignore
+    const file = event.target.files[0];
+    if (file) {
+      const isImage = file.type.startsWith("image/");
+      const uploadFile = isImage ? await compressImage(file) : file;
+      const path = `supervisors/${date}/${file.name}_${Date.now()}`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, uploadFile);
+      const fileUrl = await getDownloadURL(storageRef);
+
+      setEtanolImage(file);
+      setEtanolFileName(file.name);
+      setEtanolImageUrl(fileUrl); // Set the URL to the state
+
+      // Armazena as informações da imagem no localStorage
+      localStorage.setItem("etanolImageUrl", fileUrl);
+      localStorage.setItem("etanolFileName", file.name);
+    }
+    setIsLoading(false);
+  };
+
   const getLocalISODate = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
@@ -241,8 +305,8 @@ export default function NewPost() {
 
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
+    else if (!etanolImage) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -257,7 +321,7 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", today.date),
-      where("id", "==", "atendimento"),
+      where("id", "==", "regua"),
       where("supervisorName", "==", userName),
       where("postName", "==", postName), // Usando `post` em vez de `postName`
       where("shift", "==", shift) // Também verificamos se o turno já foi salvo
@@ -265,7 +329,7 @@ export default function NewPost() {
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A tarefa atendimento já foi feita para esse turno hoje!");
+      toast.error("A tarefa aferidores já foi feita para esse turno hoje!");
       setIsLoading(false);
       return;
     }
@@ -276,11 +340,14 @@ export default function NewPost() {
       supervisorName: userName,
       userName,
       postName,
-      shift,
       isOk,
       observations,
       coordinates,
-      id: "atendimento",
+      shift,
+      images: etanolImageUrl
+        ? [{ imageUrl: etanolImageUrl, fileName: etanolFileName }]
+        : [],
+      id: "regua",
     };
 
     // @ts-ignore
@@ -307,8 +374,7 @@ export default function NewPost() {
     }
 
     try {
-      // @ts-ignore
-      // await sendMessage(taskData);
+      // sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
@@ -319,10 +385,12 @@ export default function NewPost() {
       localStorage.removeItem("time");
       localStorage.removeItem("isOk");
       localStorage.removeItem("observations");
+      localStorage.removeItem("etanolImageUrl");
+      localStorage.removeItem("etanolFileName");
 
       // @ts-ignore
       router.push(
-        `/supervisors/track-cleaning?post=${encodeURIComponent(
+        `/supervisors/compressor?post=${encodeURIComponent(
           // @ts-ignore
           postName
         )}&shift=${shift}`
@@ -330,6 +398,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -348,7 +418,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Atendimento</p>
+            <p className={styles.BudgetTitle}>Qualidade da régua</p>
             {!docId && (
               <div className={styles.FinishTask}>
                 <button
@@ -366,9 +436,7 @@ export default function NewPost() {
             )}
           </div>
 
-          <p className={styles.Notes}>
-            Informe abaixo as informações do atendimento
-          </p>
+          <p className={styles.Notes}>Informe abaixo as informações da régua</p>
 
           <div className={styles.userContent}>
             <div className={styles.userData}>
@@ -382,7 +450,7 @@ export default function NewPost() {
                     value={date}
                     onChange={(e) => {
                       setDate(e.target.value);
-                      localStorage.setItem("date", e.target.value); // Salva no localStorage
+                      localStorage.setItem("date", e.target.value); // Armazena no localStorage
                     }}
                     placeholder=""
                   />
@@ -397,13 +465,12 @@ export default function NewPost() {
                     value={time}
                     onChange={(e) => {
                       setTime(e.target.value);
-                      localStorage.setItem("time", e.target.value); // Salva no localStorage
+                      localStorage.setItem("time", e.target.value); // Armazena no localStorage
                     }}
                     placeholder=""
                   />
                 </div>
               </div>
-
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>OK?</p>
@@ -413,7 +480,7 @@ export default function NewPost() {
                     value={isOk}
                     onChange={(e) => {
                       setIsOk(e.target.value);
-                      localStorage.setItem("isOk", e.target.value); // Salva no localStorage
+                      localStorage.setItem("isOk", e.target.value); // Armazena no localStorage
                     }}
                   >
                     <option value="">Selecione</option>
@@ -429,10 +496,77 @@ export default function NewPost() {
                     value={observations}
                     onChange={(e) => {
                       setObservations(e.target.value);
-                      localStorage.setItem("observations", e.target.value); // Salva no localStorage
+                      localStorage.setItem("observations", e.target.value); // Armazena no localStorage
                     }}
                     rows={3}
                   />
+                </div>
+              </div>
+
+              {docId &&
+                // @ts-ignore
+                data?.images.map((image, index) => (
+                  <div key={index} className={styles.InputField}>
+                    <p className={styles.titleTank}>Aferidores</p>
+                    <p className={styles.FieldLabel}>Imagem da tarefa</p>
+
+                    {image && (
+                      <div>
+                        <img
+                          src={image.imageUrl}
+                          alt={`Preview da tarefa ${index + 1}`}
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                          onLoad={() =>
+                            // @ts-ignore
+                            URL.revokeObjectURL(image)
+                          }
+                        />
+                        <p className={styles.fileName}>{image.fileName}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    capture="environment"
+                    style={{ display: "none" }}
+                    ref={etanolRef}
+                    onChange={handleEtanolImageChange}
+                  />
+                  <button
+                    onClick={() =>
+                      // @ts-ignore
+                      etanolRef.current && etanolRef.current.click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Tire sua foto/vídeo
+                  </button>
+                  {etanolImageUrl && (
+                    <div>
+                      <img
+                        src={etanolImageUrl}
+                        alt="Preview do teste de Etanol"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                      <p className={styles.fileName}>{etanolFileName}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

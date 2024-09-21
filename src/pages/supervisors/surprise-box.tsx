@@ -27,7 +27,6 @@ export default function NewPost() {
   const shift = router.query.shift;
 
   const [data, setData] = useState(null);
-
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [postCoordinates, setPostCoordinates] = useState({
     lat: null,
@@ -35,6 +34,13 @@ export default function NewPost() {
   });
   const [mapUrl, setMapUrl] = useState("");
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [managerName, setManagerName] = useState("");
+  const [isOk, setIsOk] = useState("");
+  const [observations, setObservations] = useState("");
 
   useEffect(() => {
     const storedDate = localStorage.getItem("date");
@@ -47,84 +53,6 @@ export default function NewPost() {
     if (storedIsOk) setIsOk(storedIsOk);
     if (storedObservations) setObservations(storedObservations);
   }, []);
-
-  useEffect(() => {
-    const checkLoginDuration = () => {
-      console.log("Checking login duration...");
-      const storedDate = localStorage.getItem("loginDate");
-      const storedTime = localStorage.getItem("loginTime");
-
-      if (storedDate && storedTime) {
-        const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-        console.log("Stored login date and time:", storedDateTime);
-
-        const now = new Date();
-        const maxLoginDuration = 6 * 60 * 60 * 1000;
-
-        if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-          console.log("Login duration exceeded 60 seconds. Logging out...");
-
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("userType");
-          localStorage.removeItem("userPost");
-          localStorage.removeItem("posts");
-          localStorage.removeItem("loginDate");
-          localStorage.removeItem("loginTime");
-
-          alert("Sua sessão expirou. Por favor, faça login novamente.");
-          window.location.href = "/";
-        } else {
-          console.log("Login duration within limits.");
-        }
-      } else {
-        console.log("No stored login date and time found.");
-      }
-    };
-
-    checkLoginDuration();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!docId) return;
-
-      try {
-        const docRef = doc(db, "SUPERVISORS", docId as string);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const fetchedData = docSnap.data();
-
-          // @ts-ignore
-          setData(fetchedData);
-          setDate(fetchedData.date);
-          setTime(fetchedData.time);
-          setObservations(fetchedData.observations);
-          setIsOk(fetchedData.isOk);
-
-          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
-        } else {
-          console.log("No such document!");
-        }
-      } catch (error) {
-        console.error("Error getting document:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [docId]);
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [managerName, setManagerName] = useState("");
-
-  const [isOk, setIsOk] = useState("");
-  const [observations, setObservations] = useState("");
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -155,6 +83,91 @@ export default function NewPost() {
   }, [date, time, isOk, observations, managerName]);
 
   useEffect(() => {
+    const checkForUpdates = async () => {
+      const updateDoc = doc(db, "UPDATE", "Lp8egidKNeHs9jQ8ozvs");
+      try {
+        const updateSnapshot = await getDoc(updateDoc);
+        const updateData = updateSnapshot.data();
+
+        if (updateData) {
+          const { date: updateDate, time: updateTime } = updateData;
+          const storedDate = localStorage.getItem("loginDate");
+          const storedTime = localStorage.getItem("loginTime");
+
+          if (storedDate && storedTime) {
+            const updateDateTime = new Date(
+              `${updateDate.replace(/\//g, "-")}T${updateTime}`
+            );
+            const storedDateTime = new Date(`${storedDate}T${storedTime}`);
+
+            const now = new Date();
+            const date = now
+              .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+              .split("/")
+              .reverse()
+              .join("-");
+            const time = now.toLocaleTimeString("pt-BR", {
+              hour12: false,
+              timeZone: "America/Sao_Paulo",
+            });
+
+            if (
+              !isNaN(updateDateTime.getTime()) &&
+              !isNaN(storedDateTime.getTime())
+            ) {
+              if (storedDateTime < updateDateTime) {
+                caches
+                  .keys()
+                  .then((names) => {
+                    for (let name of names) caches.delete(name);
+                  })
+                  .then(() => {
+                    localStorage.setItem("loginDate", date);
+                    localStorage.setItem("loginTime", time);
+                    alert("O sistema agora está na versão mais recente");
+                    window.location.reload();
+                  });
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching update document:", error);
+      }
+    };
+
+    checkForUpdates();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!docId) return;
+
+      try {
+        const docRef = doc(db, "SUPERVISORS", docId as string);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const fetchedData = docSnap.data();
+          // @ts-ignore
+          setData(fetchedData);
+          setDate(fetchedData.date);
+          setTime(fetchedData.time);
+          setObservations(fetchedData.observations);
+          setIsOk(fetchedData.isOk);
+          console.log("Supervisor data fetched: ", fetchedData);
+        }
+      } catch (error) {
+        console.error("Error getting document:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [docId]);
+
+  useEffect(() => {
     const fetchPostCoordinates = async () => {
       if (!postName) return;
 
@@ -178,6 +191,15 @@ export default function NewPost() {
 
     fetchPostCoordinates();
   }, [postName]);
+
+  const getLocalISODate = () => {
+    const date = new Date();
+    date.setHours(date.getHours() - 3);
+    return {
+      date: date.toISOString().slice(0, 10),
+      time: date.toISOString().slice(11, 19),
+    };
+  };
 
   const calculateCoordinatesInRadius = (
     center: { lat: number; lng: number },
@@ -216,15 +238,6 @@ export default function NewPost() {
     return points;
   };
 
-  const getLocalISODate = () => {
-    const date = new Date();
-    date.setHours(date.getHours() - 3);
-    return {
-      date: date.toISOString().slice(0, 10),
-      time: date.toISOString().slice(11, 19),
-    };
-  };
-
   const saveMeasurement = async () => {
     setIsLoading(true);
 
@@ -232,22 +245,18 @@ export default function NewPost() {
 
     let missingField = "";
     const today = getLocalISODate();
-    console.log(today);
 
     if (!date) missingField = "Data";
     else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -257,7 +266,7 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", today.date),
-      where("id", "==", "atendimento"),
+      where("id", "==", "caixa-surpresa"),
       where("supervisorName", "==", userName),
       where("postName", "==", postName), // Usando `post` em vez de `postName`
       where("shift", "==", shift) // Também verificamos se o turno já foi salvo
@@ -265,7 +274,9 @@ export default function NewPost() {
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A tarefa atendimento já foi feita para esse turno hoje!");
+      toast.error(
+        "A tarefa de caixa surpresa já foi feita para esse turno hoje!"
+      );
       setIsLoading(false);
       return;
     }
@@ -279,9 +290,11 @@ export default function NewPost() {
       shift,
       isOk,
       observations,
+      id: "caixa-surpresa",
       coordinates,
-      id: "atendimento",
     };
+
+    console.log("Task data: ", taskData);
 
     // @ts-ignore
     const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
@@ -307,12 +320,7 @@ export default function NewPost() {
     }
 
     try {
-      // @ts-ignore
-      // await sendMessage(taskData);
-
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
-      console.log("Tarefa salva com ID: ", docRef.id);
-
       toast.success("Tarefa salva com sucesso!");
 
       localStorage.removeItem("date");
@@ -322,7 +330,7 @@ export default function NewPost() {
 
       // @ts-ignore
       router.push(
-        `/supervisors/track-cleaning?post=${encodeURIComponent(
+        `/supervisors/uniforms?post=${encodeURIComponent(
           // @ts-ignore
           postName
         )}&shift=${shift}`
@@ -336,19 +344,18 @@ export default function NewPost() {
   return (
     <>
       <Head>
-        <style>{`
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
-`}</style>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');`}</style>
       </Head>
 
-      <HeaderNewProduct></HeaderNewProduct>
+      <HeaderNewProduct />
       <ToastContainer />
       <LoadingOverlay isLoading={isLoading} />
 
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Atendimento</p>
+            <p className={styles.BudgetTitle}>Caixa Supresa</p>
             {!docId && (
               <div className={styles.FinishTask}>
                 <button
@@ -367,7 +374,7 @@ export default function NewPost() {
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações do atendimento
+            Informe abaixo as informações do caixa surpresa
           </p>
 
           <div className={styles.userContent}>
@@ -436,6 +443,17 @@ export default function NewPost() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className={styles.InputContainer}>
+            <iframe
+              src={mapUrl}
+              width="320"
+              height="280"
+              loading="lazy"
+              style={{ border: 0 }}
+              allowFullScreen
+            ></iframe>
           </div>
 
           <div className={styles.Copyright}>

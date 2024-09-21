@@ -50,9 +50,10 @@ async function compressImage(file: File) {
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
-
+  const postName = router.query.post;
   const docId = router.query.docId;
+  const shift = router.query.shift;
+
   const [data, setData] = useState(null);
 
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
@@ -62,6 +63,19 @@ export default function NewPost() {
   });
   const [mapUrl, setMapUrl] = useState("");
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+
+  useEffect(() => {
+    // Recupera os valores armazenados no localStorage
+    const storedDate = localStorage.getItem("date");
+    const storedTime = localStorage.getItem("time");
+    const storedObservations = localStorage.getItem("observations");
+    const storedPumps = localStorage.getItem("pumps");
+
+    if (storedDate) setDate(storedDate);
+    if (storedTime) setTime(storedTime);
+    if (storedObservations) setObservations(storedObservations);
+    if (storedPumps) setPumps(JSON.parse(storedPumps)); // Converte de volta para array de objetos
+  }, []);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -292,19 +306,6 @@ export default function NewPost() {
     }
   }, [postName]);
 
-  const updatePumps = (num: number) => {
-    setPumps(
-      // @ts-ignore
-      Array.from({ length: num }, (_, index) => ({
-        image1File: null,
-        image1Preview: "",
-        image1Url: "",
-        image1Name: "",
-        ok: "",
-      }))
-    );
-  };
-
   const handleImageChange = async (
     pumpIndex: number,
     imageKey: string,
@@ -333,6 +334,7 @@ export default function NewPost() {
       newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
 
       setPumps(newPumps);
+      localStorage.setItem("pumps", JSON.stringify(newPumps)); // Armazena no localStorage
       setIsLoading(false);
     }
   };
@@ -342,6 +344,9 @@ export default function NewPost() {
     // @ts-ignore
     newPumps[pumpIndex].ok = value;
     setPumps(newPumps);
+
+    // Armazena no localStorage
+    localStorage.setItem("pumps", JSON.stringify(newPumps));
   };
 
   const initializePumps = (num: any) => {
@@ -356,7 +361,10 @@ export default function NewPost() {
   const getLocalISODate = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
-    return date.toISOString().slice(0, 10);
+    return {
+      date: date.toISOString().slice(0, 10),
+      time: date.toISOString().slice(11, 19),
+    };
   };
 
   const saveMeasurement = async () => {
@@ -369,7 +377,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
-    else if (date !== today) {
+    else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
       return;
@@ -405,18 +413,19 @@ export default function NewPost() {
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
-      where("date", "==", date),
+      where("date", "==", today.date),
       where("id", "==", "game"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("supervisorName", "==", userName),
+      where("postName", "==", postName), // Usando `post` em vez de `postName`
+      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
     );
 
     const querySnapshot = await getDocs(q);
-    // if (!querySnapshot.empty) {
-    //   toast.error("A tarefa game já foi feita hoje!");
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (!querySnapshot.empty) {
+      toast.error("A tarefa game já foi feita para esse turno hoje!");
+      setIsLoading(false);
+      return;
+    }
 
     const pumpsData = pumps.map((pump) => ({
       // @ts-ignore
@@ -433,7 +442,7 @@ export default function NewPost() {
       postName,
       observations,
       coordinates,
-
+      shift,
       nozzles: pumpsData,
       id: "game",
     };
@@ -468,8 +477,19 @@ export default function NewPost() {
       console.log("Tarefa salva com ID: ", docRef.id);
 
       toast.success("Tarefa salva com sucesso!");
+
+      localStorage.removeItem("date");
+      localStorage.removeItem("time");
+      localStorage.removeItem("observations");
+      localStorage.removeItem("pumps");
+
       // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
+      router.push(
+        `/supervisors/fuel-sell-test?post=${encodeURIComponent(
+          // @ts-ignore
+          postName
+        )}&shift=${shift}`
+      );
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a tarefa.");
@@ -482,107 +502,6 @@ export default function NewPost() {
     const uploadResult = await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
-  }
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
-
-  async function shortenUrl(originalUrl: string): Promise<string> {
-    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
-
-    try {
-      const response = await fetch("/api/shorten-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ originalURL: originalUrl }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Falha ao encurtar URL:", data);
-        throw new Error(`Erro ao encurtar URL: ${data.message}`);
-      }
-
-      const data = await response.json();
-      const shortUrl = data.shortUrl;
-      console.log(`URL encurtada: ${shortUrl}`);
-
-      return shortUrl;
-    } catch (error) {
-      console.error("Erro ao encurtar URL:", error);
-      throw error;
-    }
-  }
-
-  async function sendMessage(data: {
-    date: string | number | Date;
-    nozzles: any[];
-    time: any;
-    postName: any;
-    supervisorName: any;
-    observations: any;
-  }) {
-    const formattedDate = formatDate(data.date);
-
-    let pumpDescriptions = await Promise.all(
-      data.nozzles.map(async (pump, index) => {
-        const status = pump.ok === "yes" ? "OK" : "NÃO OK";
-
-        const imageUrl = pump.image1.url
-          ? await shortenUrl(pump.image1.url)
-          : "*Sem imagem*";
-        return `*Bicos ${index + 1}:* ${status}\n*Imagem:* ${imageUrl}\n`;
-      })
-    ).then((descriptions) => descriptions.join("\n"));
-
-    const messageBody = `*Game*\n\n*Data:* ${formattedDate}\n*Hora:* ${
-      data.time
-    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
-      data.supervisorName
-    }\n\n${pumpDescriptions}\n\n${
-      data.observations
-        ? `*Observações:* ${data.observations}`
-        : "_*Sem observações adicionais*_"
-    }`;
-
-    const postsRef = collection(db, "USERS");
-    const q = query(postsRef, where("name", "==", data.supervisorName));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.error("Nenhum supervisor encontrado com o nome especificado.");
-      throw new Error("Supervisor não encontrado");
-    }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.contact;
-
-    console.log(managerContact);
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem de inspeção de bocas de visita enviada com sucesso!");
   }
 
   return (
@@ -630,7 +549,10 @@ export default function NewPost() {
                     type="date"
                     className={styles.Field}
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    onChange={(e) => {
+                      setDate(e.target.value);
+                      localStorage.setItem("date", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
@@ -642,7 +564,10 @@ export default function NewPost() {
                     type="time"
                     className={styles.Field}
                     value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    onChange={(e) => {
+                      setTime(e.target.value);
+                      localStorage.setItem("time", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
@@ -757,7 +682,10 @@ export default function NewPost() {
                     id="observations"
                     className={styles.Field}
                     value={observations}
-                    onChange={(e) => setObservations(e.target.value)}
+                    onChange={(e) => {
+                      setObservations(e.target.value);
+                      localStorage.setItem("observations", e.target.value); // Armazena no localStorage
+                    }}
                     rows={3}
                   />
                 </div>

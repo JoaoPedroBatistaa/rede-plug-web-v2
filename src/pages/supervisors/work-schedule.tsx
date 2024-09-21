@@ -16,16 +16,16 @@ import {
   where,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db, getDownloadURL, ref, storage } from "../../../firebase";
+import { db } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
-import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
-
+  const postName = router.query.post;
   const docId = router.query.docId;
+  const shift = router.query.shift;
+
   const [data, setData] = useState(null);
 
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
@@ -35,6 +35,27 @@ export default function NewPost() {
   });
   const [mapUrl, setMapUrl] = useState("");
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+
+  useEffect(() => {
+    const storedDate = localStorage.getItem("date");
+    const storedTime = localStorage.getItem("time");
+    const storedObservations = localStorage.getItem("observations");
+    const storedUseMachinesTurn1 = localStorage.getItem("useMachinesTurn1");
+    const storedUseMachinesTurn2 = localStorage.getItem("useMachinesTurn2");
+    const storedUseMachinesTurn3 = localStorage.getItem("useMachinesTurn3");
+    const storedUseMachinesIntermediate = localStorage.getItem(
+      "useMachinesIntermediate"
+    );
+
+    if (storedDate) setDate(storedDate);
+    if (storedTime) setTime(storedTime);
+    if (storedObservations) setObservations(storedObservations);
+    if (storedUseMachinesTurn1) setUseMachinesTurn1(storedUseMachinesTurn1);
+    if (storedUseMachinesTurn2) setUseMachinesTurn2(storedUseMachinesTurn2);
+    if (storedUseMachinesTurn3) setUseMachinesTurn3(storedUseMachinesTurn3);
+    if (storedUseMachinesIntermediate)
+      setUseMachinesIntermediate(storedUseMachinesIntermediate);
+  }, []);
 
   useEffect(() => {
     const checkLoginDuration = () => {
@@ -213,9 +234,11 @@ export default function NewPost() {
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
-    return date.toISOString().slice(0, 10);
+    return {
+      date: date.toISOString().slice(0, 10),
+      time: date.toISOString().slice(11, 19),
+    };
   };
 
   const saveMeasurement = async () => {
@@ -228,7 +251,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
-    else if (date !== today) {
+    else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
 
@@ -254,19 +277,21 @@ export default function NewPost() {
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
-      where("date", "==", date),
+      where("date", "==", today.date),
       where("id", "==", "escala-trabalho"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("supervisorName", "==", userName),
+      where("postName", "==", postName), // Usando `post` em vez de `postName`
+      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
     );
 
     const querySnapshot = await getDocs(q);
-    // if (!querySnapshot.empty) {
-    //   toast.error("A tarefa escala de trabalho já foi feita hoje!");
-    //   setIsLoading(false);
-
-    //   return;
-    // }
+    if (!querySnapshot.empty) {
+      toast.error(
+        "A tarefa escala de trabalho já foi feita para esse turno hoje!"
+      );
+      setIsLoading(false);
+      return;
+    }
 
     const taskData = {
       date,
@@ -276,7 +301,7 @@ export default function NewPost() {
       postName,
       observations,
       coordinates,
-
+      shift,
       qtdTurn1: useMachinesTurn1,
       qtdTurn2: useMachinesTurn2,
       qtdTurn3: useMachinesTurn3,
@@ -314,89 +339,27 @@ export default function NewPost() {
       console.log("Tarefa salva com ID: ", docRef.id);
 
       toast.success("Tarefa salva com sucesso!");
+
+      localStorage.removeItem("date");
+      localStorage.removeItem("time");
+      localStorage.removeItem("useMachinesTurn1");
+      localStorage.removeItem("useMachinesTurn2");
+      localStorage.removeItem("useMachinesTurn3");
+      localStorage.removeItem("useMachinesIntermediate");
+      localStorage.removeItem("observations");
+
       // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
+      router.push(
+        `/supervisors/fiscal-notes?post=${encodeURIComponent(
+          // @ts-ignore
+          postName
+        )}&shift=${shift}`
+      );
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
     }
   };
-
-  async function uploadImageAndGetUrl(imageFile: File, path: string) {
-    const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, imageFile);
-    const downloadUrl = await getDownloadURL(uploadResult.ref);
-    return downloadUrl;
-  }
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
-
-  async function sendMessage(data: {
-    date: string | number | Date;
-    time: any;
-    postName: any;
-    supervisorName: any;
-    qtdTurn1: any;
-    qtdTurn2: any;
-    qtdTurn3: any;
-    qtdIntermediate: any;
-    observations: any;
-  }) {
-    const formattedDate = formatDate(data.date); // Assumindo uma função de formatação de data existente
-
-    // Montar o corpo da mensagem
-    const messageBody = `*Escala de Trabalho*\n\n*Data:* ${formattedDate}\n*Hora:* ${
-      data.time
-    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
-      data.supervisorName
-    }\n\n*Detalhes dos turnos*\n\n*Turno 1:* ${data.qtdTurn1}\n*Turno 2:* ${
-      data.qtdTurn2
-    }\n*Turno 3:* ${data.qtdTurn3}\n*Intermediário:* ${
-      data.qtdIntermediate
-    }\n\n\n${
-      data.observations
-        ? `*Observações:* ${data.observations}`
-        : "_*Sem observações adicionais*_"
-    }`;
-
-    const postsRef = collection(db, "USERS");
-    const q = query(postsRef, where("name", "==", data.supervisorName));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.error("Nenhum supervisor encontrado com o nome especificado.");
-      throw new Error("Supervisor não encontrado");
-    }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.contact;
-
-    console.log(managerContact);
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem de escala de trabalho enviada com sucesso!");
-  }
 
   return (
     <>
@@ -445,7 +408,10 @@ export default function NewPost() {
                     type="date"
                     className={styles.Field}
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    onChange={(e) => {
+                      setDate(e.target.value);
+                      localStorage.setItem("date", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
@@ -457,24 +423,15 @@ export default function NewPost() {
                     type="time"
                     className={styles.Field}
                     value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    onChange={(e) => {
+                      setTime(e.target.value);
+                      localStorage.setItem("time", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
               </div>
-              {/* <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Nome do supervisor</p>
-                  <input
-                    id="driverName"
-                    type="text"
-                    className={styles.Field}
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder=""
-                  />
-                </div>
-              </div> */}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Turno 1</p>
@@ -483,7 +440,10 @@ export default function NewPost() {
                     type="number"
                     className={styles.Field}
                     value={useMachinesTurn1}
-                    onChange={(e) => setUseMachinesTurn1(e.target.value)}
+                    onChange={(e) => {
+                      setUseMachinesTurn1(e.target.value);
+                      localStorage.setItem("useMachinesTurn1", e.target.value); // Armazena no localStorage
+                    }}
                   />
                 </div>
                 <div className={styles.InputField}>
@@ -493,7 +453,10 @@ export default function NewPost() {
                     type="number"
                     className={styles.Field}
                     value={useMachinesTurn2}
-                    onChange={(e) => setUseMachinesTurn2(e.target.value)}
+                    onChange={(e) => {
+                      setUseMachinesTurn2(e.target.value);
+                      localStorage.setItem("useMachinesTurn2", e.target.value); // Armazena no localStorage
+                    }}
                   />
                 </div>
                 <div className={styles.InputField}>
@@ -503,7 +466,10 @@ export default function NewPost() {
                     type="number"
                     className={styles.Field}
                     value={useMachinesTurn3}
-                    onChange={(e) => setUseMachinesTurn3(e.target.value)}
+                    onChange={(e) => {
+                      setUseMachinesTurn3(e.target.value);
+                      localStorage.setItem("useMachinesTurn3", e.target.value); // Armazena no localStorage
+                    }}
                   />
                 </div>
                 <div className={styles.InputField}>
@@ -513,7 +479,13 @@ export default function NewPost() {
                     type="number"
                     className={styles.Field}
                     value={useMachinesIntermediate}
-                    onChange={(e) => setUseMachinesIntermediate(e.target.value)}
+                    onChange={(e) => {
+                      setUseMachinesIntermediate(e.target.value);
+                      localStorage.setItem(
+                        "useMachinesIntermediate",
+                        e.target.value
+                      ); // Armazena no localStorage
+                    }}
                   />
                 </div>
               </div>
@@ -524,7 +496,10 @@ export default function NewPost() {
                     id="observations"
                     className={styles.Field}
                     value={observations}
-                    onChange={(e) => setObservations(e.target.value)}
+                    onChange={(e) => {
+                      setObservations(e.target.value);
+                      localStorage.setItem("observations", e.target.value); // Armazena no localStorage
+                    }}
                     rows={3}
                   />
                 </div>

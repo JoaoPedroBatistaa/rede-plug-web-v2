@@ -50,9 +50,10 @@ async function compressImage(file: File) {
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
-
+  const postName = router.query.post;
   const docId = router.query.docId;
+  const shift = router.query.shift;
+
   const [data, setData] = useState(null);
 
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
@@ -278,38 +279,6 @@ export default function NewPost() {
     return points;
   };
 
-  const handleEtanolImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      const compressedFile = await compressImage(file);
-      const url = await uploadImageAndGetUrl(
-        compressedFile,
-        `etanol/${compressedFile.name}`
-      );
-      setEtanolImageUrl(url);
-      setEtanolFileName(file.name);
-    }
-  };
-
-  const handleGcImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      const compressedFile = await compressImage(file);
-      const url = await uploadImageAndGetUrl(
-        compressedFile,
-        `gc/${compressedFile.name}`
-      );
-      setGcImageUrl(url);
-      setGcFileName(file.name);
-    }
-  };
-
   const [numberOfPumps, setNumberOfPumps] = useState(0);
   const [pumps, setPumps] = useState([]);
 
@@ -334,58 +303,6 @@ export default function NewPost() {
       fetchPostDetails();
     }
   }, [postName]);
-
-  const updatePumps = (num: number) => {
-    setPumps(
-      // @ts-ignore
-      Array.from({ length: num }, (_, index) => ({
-        image1File: null,
-        image1Preview: "",
-        image1Url: "",
-        image1Name: "",
-        image2File: null,
-        image2Preview: "",
-        image2Url: "",
-        image2Name: "",
-        ok: "",
-      }))
-    );
-  };
-
-  const handleImageChange = async (
-    pumpIndex: number,
-    imageKey: string,
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const newFile = event.target.files[0];
-    if (newFile) {
-      const compressedFile = await compressImage(newFile);
-      const url = await uploadImageAndGetUrl(
-        compressedFile,
-        `pumps/${compressedFile.name}`
-      );
-      const newPumps = [...pumps];
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = newFile;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(newFile);
-      // @ts-ignore
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Url`] = url;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
-
-      setPumps(newPumps);
-    }
-  };
-
-  const handleSelectChange = (pumpIndex: number, value: string) => {
-    const newPumps = [...pumps];
-    // @ts-ignore
-    newPumps[pumpIndex].ok = value;
-    setPumps(newPumps);
-  };
 
   const handleFileChange = async (
     pumpIndex: number,
@@ -451,7 +368,10 @@ export default function NewPost() {
   const getLocalISODate = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
-    return date.toISOString().slice(0, 10);
+    return {
+      date: date.toISOString().slice(0, 10),
+      time: date.toISOString().slice(11, 19),
+    };
   };
 
   const saveMeasurement = async () => {
@@ -464,7 +384,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
-    else if (date !== today) {
+    else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
       return;
@@ -495,18 +415,19 @@ export default function NewPost() {
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
-      where("date", "==", date),
+      where("date", "==", today.date),
       where("id", "==", "vira"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("supervisorName", "==", userName),
+      where("postName", "==", postName), // Usando `post` em vez de `postName`
+      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
     );
 
     const querySnapshot = await getDocs(q);
-    // if (!querySnapshot.empty) {
-    //   toast.error("A tarefa vira já foi feita hoje!");
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (!querySnapshot.empty) {
+      toast.error("A tarefa vira já foi feita para esse turno hoje!");
+      setIsLoading(false);
+      return;
+    }
 
     const pumpsData = pumps.map((pump) => ({
       // @ts-ignore
@@ -523,7 +444,7 @@ export default function NewPost() {
       postName,
       observations,
       coordinates,
-
+      shift,
       pumps: pumpsData,
       id: "vira",
     };
@@ -543,13 +464,13 @@ export default function NewPost() {
 
     console.log(`Supervisor is within radius: ${isWithinRadius}`);
 
-    if (!isWithinRadius) {
-      toast.error(
-        "Você não está dentro do raio permitido para realizar essa tarefa."
-      );
-      setIsLoading(false);
-      return;
-    }
+    // if (!isWithinRadius) {
+    //   toast.error(
+    //     "Você não está dentro do raio permitido para realizar essa tarefa."
+    //   );
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     // sendMessage(taskData);
 
@@ -558,8 +479,14 @@ export default function NewPost() {
       console.log("Tarefa salva com ID: ", docRef.id);
 
       toast.success("Tarefa salva com sucesso!");
+
       // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
+      router.push(
+        `/supervisors/use-machines?post=${encodeURIComponent(
+          // @ts-ignore
+          postName
+        )}&shift=${shift}`
+      );
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
@@ -572,108 +499,6 @@ export default function NewPost() {
     const uploadResult = await uploadBytes(storageRef, imageFile);
     const downloadUrl = await getDownloadURL(uploadResult.ref);
     return downloadUrl;
-  }
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
-
-  async function shortenUrl(originalUrl: string): Promise<string> {
-    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
-
-    try {
-      const response = await fetch("/api/shorten-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ originalURL: originalUrl }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Falha ao encurtar URL:", data);
-        throw new Error(`Erro ao encurtar URL: ${data.message}`);
-      }
-
-      const data = await response.json();
-      const shortUrl = data.shortUrl;
-      console.log(`URL encurtada: ${shortUrl}`);
-
-      return shortUrl;
-    } catch (error) {
-      console.error("Erro ao encurtar URL:", error);
-      throw error;
-    }
-  }
-
-  async function sendMessage(data: {
-    date: string | number | Date;
-    pumps: any[];
-    time: any;
-    postName: any;
-    supervisorName: any;
-    observations: any;
-  }) {
-    const formattedDate = formatDate(data.date);
-
-    let pumpDescriptions = await Promise.all(
-      data.pumps.map(async (pump, index) => {
-        const imageInfo1 = pump.image1.url
-          ? `*Imagem 1:* ${await shortenUrl(pump.image1.url)}`
-          : "*Sem imagem 1*";
-        const imageInfo2 = pump.image2.url
-          ? `*Imagem 2:* ${await shortenUrl(pump.image2.url)}`
-          : "*Sem imagem 2*";
-        return `*Bomba ${index + 1}:* \n${imageInfo1}\n${imageInfo2}\n`;
-      })
-    ).then((descriptions) => descriptions.join("\n"));
-
-    const messageBody = `*Vira*\n\n*Data:* ${formattedDate}\n*Data:* ${
-      data.time
-    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
-      data.supervisorName
-    }\n\n*Detalhes das Bombas*\n\n${pumpDescriptions}\n\n${
-      data.observations
-        ? `*Observações:* ${data.observations}`
-        : "_*Sem observações adicionais*_"
-    }`;
-
-    const postsRef = collection(db, "USERS");
-    const q = query(postsRef, where("name", "==", data.supervisorName));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.error("Nenhum supervisor encontrado com o nome especificado.");
-      throw new Error("Supervisor não encontrado");
-    }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.contact;
-
-    console.log(managerContact);
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem de limpeza das bombas enviada com sucesso!");
   }
 
   return (

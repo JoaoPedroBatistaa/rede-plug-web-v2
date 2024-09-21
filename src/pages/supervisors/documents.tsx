@@ -57,9 +57,10 @@ async function uploadImageAndGetUrl(imageFile: File, path: string) {
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
-
+  const postName = router.query.post;
   const docId = router.query.docId;
+  const shift = router.query.shift;
+
   const [data, setData] = useState(null);
 
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
@@ -372,9 +373,11 @@ export default function NewPost() {
 
   const getLocalISODate = () => {
     const date = new Date();
-    // Ajustar para o fuso horário -03:00
     date.setHours(date.getHours() - 3);
-    return date.toISOString().slice(0, 10);
+    return {
+      date: date.toISOString().slice(0, 10),
+      time: date.toISOString().slice(11, 19),
+    };
   };
 
   const saveMeasurement = async () => {
@@ -387,7 +390,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
-    else if (date !== today) {
+    else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
 
@@ -423,19 +426,19 @@ export default function NewPost() {
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
-      where("date", "==", date),
+      where("date", "==", today.date),
       where("id", "==", "documentos"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("supervisorName", "==", userName),
+      where("postName", "==", postName), // Usando `post` em vez de `postName`
+      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
     );
 
     const querySnapshot = await getDocs(q);
-    // if (!querySnapshot.empty) {
-    //   toast.error("A tarefa documentos já foi feita hoje!");
-    //   setIsLoading(false);
-
-    //   return;
-    // }
+    if (!querySnapshot.empty) {
+      toast.error("A tarefa documentos já foi feita para esse turno hoje!");
+      setIsLoading(false);
+      return;
+    }
 
     const taskData = {
       date,
@@ -455,7 +458,7 @@ export default function NewPost() {
       isLaudoEletricaOk,
       observations,
       coordinates,
-
+      shift,
       images: [],
       id: "documentos",
     };
@@ -546,8 +549,9 @@ export default function NewPost() {
       console.log("Tarefa salva com ID: ", docRef.id);
 
       toast.success("Tarefa salva com sucesso!");
+
       // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
+      router.push(`/supervisors-home`);
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
@@ -555,134 +559,6 @@ export default function NewPost() {
       setIsLoading(false);
     }
   };
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
-
-  async function shortenUrl(originalUrl: string): Promise<string> {
-    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
-
-    try {
-      const response = await fetch("/api/shorten-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ originalURL: originalUrl }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Falha ao encurtar URL:", data);
-        throw new Error(`Erro ao encurtar URL: ${data.message}`);
-      }
-
-      const data = await response.json();
-      const shortUrl = data.shortUrl;
-      console.log(`URL encurtada: ${shortUrl}`);
-
-      return shortUrl;
-    } catch (error) {
-      console.error("Erro ao encurtar URL:", error);
-      throw error;
-    }
-  }
-
-  async function sendMessage(data: {
-    date: any;
-    time?: string;
-    supervisorName: any;
-    userName?: string | null;
-    postName: any;
-    isANPOk: any;
-    isLicencaOperacaoOk: any;
-    isAlvaraFuncionamentoOk: any;
-    isBombeirosOk: any;
-    isBrigadaOk: any;
-    isContratoSocialOk: any;
-    isEpaeOk: any;
-    isLaudoCompressorOk: any;
-    isLaudoEstanqueidadeOk: any;
-    isLaudoEletricaOk: any;
-    observations: any;
-    images: any;
-    id?: string;
-  }) {
-    const formattedDate = formatDate(data.date);
-
-    const complianceList = [
-      `ANP: ${data.isANPOk === "yes" ? "OK" : "NÃO OK"}`,
-      `Licença de Operação: ${
-        data.isLicencaOperacaoOk === "yes" ? "OK" : "NÃO OK"
-      }`,
-      `Alvará de Funcionamento: ${
-        data.isAlvaraFuncionamentoOk === "yes" ? "OK" : "NÃO OK"
-      }`,
-      `Alvará dos Bombeiros: ${data.isBombeirosOk === "yes" ? "OK" : "NÃO OK"}`,
-      `Brigada: ${data.isBrigadaOk === "yes" ? "OK" : "NÃO OK"}`,
-      `Contrato Social: ${data.isContratoSocialOk === "yes" ? "OK" : "NÃO OK"}`,
-      `EPAE: ${data.isEpaeOk === "yes" ? "OK" : "NÃO OK"}`,
-      `Laudo Compressor: ${
-        data.isLaudoCompressorOk === "yes" ? "OK" : "NÃO OK"
-      }`,
-      `Laudo Estanqueidade: ${
-        data.isLaudoEstanqueidadeOk === "yes" ? "OK" : "NÃO OK"
-      }`,
-      `Laudo Elétrica: ${data.isLaudoEletricaOk === "yes" ? "OK" : "NÃO OK"}`,
-    ].join("\n");
-
-    let imagesDescriptions = await Promise.all(
-      data.images.map(async (image: { imageUrl: string; type: any }) => {
-        const shortUrl = await shortenUrl(image.imageUrl);
-        return `${image.type}: ${shortUrl}`;
-      })
-    ).then((descriptions) => descriptions.join("\n"));
-
-    const messageBody = `*Documentos*\n\nData: ${formattedDate}\nPosto: ${
-      data.postName
-    }\nSupervisor: ${
-      data.supervisorName
-    }\n\n*Conformidade*\n\n${complianceList}\n\n*Imagens*\n\n${imagesDescriptions}\n\nObservações: ${
-      data.observations || "Sem observações adicionais"
-    }`;
-
-    const postsRef = collection(db, "USERS");
-    const q = query(postsRef, where("name", "==", data.supervisorName));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.error("Nenhum supervisor encontrado com o nome especificado.");
-      throw new Error("Supervisor não encontrado");
-    }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.contact;
-
-    console.log(managerContact);
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem de verificação de documentos enviada com sucesso!");
-  }
 
   return (
     <>

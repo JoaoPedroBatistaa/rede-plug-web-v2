@@ -50,8 +50,9 @@ async function compressImage(file: File) {
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
+  const postName = router.query.post;
   const docId = router.query.docId;
+  const shift = router.query.shift;
 
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +71,18 @@ export default function NewPost() {
   });
   const [mapUrl, setMapUrl] = useState("");
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+
+  useEffect(() => {
+    const storedDate = localStorage.getItem("date");
+    const storedTime = localStorage.getItem("time");
+    const storedObservations = localStorage.getItem("observations");
+    const storedPumps = JSON.parse(localStorage.getItem("pumps") || "[]");
+
+    if (storedDate) setDate(storedDate);
+    if (storedTime) setTime(storedTime);
+    if (storedObservations) setObservations(storedObservations);
+    if (storedPumps.length > 0) setPumps(storedPumps);
+  }, []);
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -221,8 +234,7 @@ export default function NewPost() {
     event: ChangeEvent<HTMLInputElement>
   ) => {
     setIsLoading(true);
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
       const isImage = file.type.startsWith("image/");
       const uploadFile = isImage ? await compressImage(file) : file;
@@ -240,29 +252,29 @@ export default function NewPost() {
       };
       setPumps(updatedPumps);
 
-      const updatedPumpUrls = [...pumpUrls];
-      // @ts-ignore
-      updatedPumpUrls[pumpIndex] = {
-        // @ts-ignore
-        ...updatedPumpUrls[pumpIndex],
-        [`${imageKey}Url`]: fileUrl,
-      };
-      setPumpUrls(updatedPumpUrls);
+      // Atualiza o localStorage com as novas URLs de imagens
+      localStorage.setItem("pumps", JSON.stringify(updatedPumps));
     }
     setIsLoading(false);
   };
 
   const handleSelectChange = (pumpIndex: number, value: string) => {
-    const newPumps = [...pumps];
+    const updatedPumps = [...pumps];
     // @ts-ignore
-    newPumps[pumpIndex] = { ...newPumps[pumpIndex], ok: value };
-    setPumps(newPumps);
+    updatedPumps[pumpIndex] = { ...updatedPumps[pumpIndex], ok: value };
+    setPumps(updatedPumps);
+
+    // Atualiza o localStorage com os valores de seleção
+    localStorage.setItem("pumps", JSON.stringify(updatedPumps));
   };
 
   const getLocalISODate = () => {
     const date = new Date();
-    date.setHours(date.getHours() - 3); // Ajustar para o fuso horário -03:00
-    return date.toISOString().slice(0, 10);
+    date.setHours(date.getHours() - 3);
+    return {
+      date: date.toISOString().slice(0, 10),
+      time: date.toISOString().slice(11, 19),
+    };
   };
 
   const saveMeasurement = async () => {
@@ -275,7 +287,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
-    else if (date !== today) {
+    else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
       return;
@@ -304,18 +316,21 @@ export default function NewPost() {
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
       managersRef,
-      where("date", "==", date),
+      where("date", "==", today.date),
       where("id", "==", "identificacao-fornecedor"),
-      where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("supervisorName", "==", userName),
+      where("postName", "==", postName), // Usando `post` em vez de `postName`
+      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
     );
 
     const querySnapshot = await getDocs(q);
-    // if (!querySnapshot.empty) {
-    //   toast.error("A tarefa identificação de fornecedor já foi feita hoje!");
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (!querySnapshot.empty) {
+      toast.error(
+        "A tarefa identificação do fornecedor já foi feita para esse turno hoje!"
+      );
+      setIsLoading(false);
+      return;
+    }
 
     const taskData = {
       date,
@@ -325,7 +340,7 @@ export default function NewPost() {
       postName,
       observations,
       coordinates,
-
+      shift,
       pumps: pumpUrls,
       id: "identificacao-fornecedor",
     };
@@ -357,117 +372,25 @@ export default function NewPost() {
       // await sendMessage(taskData);
       await addDoc(collection(db, "SUPERVISORS"), taskData);
       toast.success("Tarefa salva com sucesso!");
+
+      localStorage.removeItem("date");
+      localStorage.removeItem("time");
+      localStorage.removeItem("observations");
+      localStorage.removeItem("pumps");
+
       // @ts-ignore
-      router.push(`/supervisors-routine?post=${encodeURIComponent(postName)}`);
+      router.push(
+        `/supervisors/price-signs?post=${encodeURIComponent(
+          // @ts-ignore
+          postName
+        )}&shift=${shift}`
+      );
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
       setIsLoading(false);
     }
   };
-
-  async function shortenUrl(originalUrl: string): Promise<string> {
-    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
-
-    try {
-      const response = await fetch("/api/shorten-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ originalURL: originalUrl }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Falha ao encurtar URL:", data);
-        throw new Error(`Erro ao encurtar URL: ${data.message}`);
-      }
-
-      const data = await response.json();
-      const shortUrl = data.shortUrl;
-      console.log(`URL encurtada: ${shortUrl}`);
-
-      return shortUrl;
-    } catch (error) {
-      console.error("Erro ao encurtar URL:", error);
-      throw error;
-    }
-  }
-
-  async function sendMessage(data: {
-    date: string | number | Date;
-    pumps: any[];
-    time: any;
-    postName: any;
-    supervisorName: any;
-    observations: any;
-  }) {
-    const formattedDate = formatDate(data.date);
-
-    let pumpDescriptions = await Promise.all(
-      data.pumps.map(async (pump, index) => {
-        const status = pump.ok === "yes" ? "OK" : "NÃO OK";
-        const imageInfo1 = pump.image1Url
-          ? `*Imagem 1:* ${await shortenUrl(pump.image1Url)}`
-          : "*Sem imagem 1*";
-        const imageInfo2 = pump.image2Url
-          ? `*Imagem 2:* ${await shortenUrl(pump.image2Url)}`
-          : "*Sem imagem 2*";
-        return `*Bomba ${
-          index + 1
-        }:* ${status}\n${imageInfo1}\n${imageInfo2}\n`;
-      })
-    ).then((descriptions) => descriptions.join("\n"));
-
-    const messageBody = `*Identificação do fornecedor*\n\n*Data:* ${formattedDate}\n*Hora:* ${
-      data.time
-    }\n*Posto:* ${data.postName}\n*Supervisor:* ${
-      data.supervisorName
-    }\n\n*Detalhes das Bombas*\n\n${pumpDescriptions}\n\n${
-      data.observations
-        ? `*Observações:* ${data.observations}`
-        : "_*Sem observações adicionais*_"
-    }`;
-
-    const postsRef = collection(db, "USERS");
-    const q = query(postsRef, where("name", "==", data.supervisorName));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.error("Nenhum supervisor encontrado com o nome especificado.");
-      throw new Error("Supervisor não encontrado");
-    }
-
-    const postData = querySnapshot.docs[0].data();
-    const managerContact = postData.contact;
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
-    }
-
-    console.log("Mensagem de limpeza das bombas enviada com sucesso!");
-  }
-
-  function formatDate(dateString: string | number | Date) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Adicionando um dia
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString().substr(-2);
-    return `${day}/${month}/${year}`;
-  }
 
   return (
     <>
@@ -516,7 +439,10 @@ export default function NewPost() {
                     type="date"
                     className={styles.Field}
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    onChange={(e) => {
+                      setDate(e.target.value);
+                      localStorage.setItem("date", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
@@ -528,7 +454,10 @@ export default function NewPost() {
                     type="time"
                     className={styles.Field}
                     value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    onChange={(e) => {
+                      setTime(e.target.value);
+                      localStorage.setItem("time", e.target.value); // Armazena no localStorage
+                    }}
                     placeholder=""
                   />
                 </div>
@@ -588,6 +517,7 @@ export default function NewPost() {
                         id={`file-input-${index}-${idx}`}
                         type="file"
                         accept="image/*,video/*"
+                        capture="environment"
                         style={{ display: "none" }}
                         onChange={(e) => handleFileChange(index, imageKey, e)}
                       />
@@ -642,7 +572,10 @@ export default function NewPost() {
                     id="observations"
                     className={styles.Field}
                     value={observations}
-                    onChange={(e) => setObservations(e.target.value)}
+                    onChange={(e) => {
+                      setObservations(e.target.value);
+                      localStorage.setItem("observations", e.target.value); // Armazena no localStorage
+                    }}
                     rows={3}
                   />
                 </div>
