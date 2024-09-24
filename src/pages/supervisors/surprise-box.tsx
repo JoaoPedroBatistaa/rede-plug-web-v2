@@ -311,13 +311,13 @@ export default function NewPost() {
 
     console.log(`Supervisor is within radius: ${isWithinRadius}`);
 
-    if (!isWithinRadius) {
-      toast.error(
-        "Você não está dentro do raio permitido para realizar essa tarefa."
-      );
-      setIsLoading(false);
-      return;
-    }
+    // if (!isWithinRadius) {
+    //   toast.error(
+    //     "Você não está dentro do raio permitido para realizar essa tarefa."
+    //   );
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     try {
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);

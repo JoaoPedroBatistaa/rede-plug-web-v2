@@ -1,7 +1,15 @@
 import HeaderHome from "@/components/HeaderSupervisors";
 import SideMenuHome from "@/components/SideMenuHome";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -24,6 +32,11 @@ interface WeekRoutine {
   isFromDatabase: boolean;
 }
 
+interface Task {
+  id: string;
+  route: string;
+}
+
 export default function Home() {
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
@@ -36,29 +49,65 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [ipStored, setIpStored] = useState<string | null>(null); // Novo estado para armazenar o valor de IpAddress vindo do Firestore
 
+  const tasksOrder: Task[] = [
+    { id: "digital_point", route: "/supervisors/point" },
+    { id: "caixa-surpresa", route: "/supervisors/surprise-box" },
+    { id: "uniformes", route: "/supervisors/uniforms" },
+    { id: "atendimento", route: "/supervisors/service" },
+    { id: "limpeza-pista", route: "/supervisors/track-cleaning" },
+    { id: "limpeza-bombas", route: "/supervisors/bombs-cleaning" },
+    { id: "limpeza-testeiras", route: "/supervisors/front-cleaning" },
+    { id: "limpeza-banheiros", route: "/supervisors/bathroom-cleaning" },
+    { id: "vestiario", route: "/supervisors/locker-room" },
+    { id: "troca-oleo", route: "/supervisors/oil-change" },
+    { id: "pintura-posto", route: "/supervisors/post-painting" },
+    { id: "canaletas", route: "/supervisors/channels" },
+    { id: "iluminacao-pista", route: "/supervisors/runway-lightning" },
+    { id: "iluminacao-testeiras", route: "/supervisors/front-lightning" },
+    { id: "forro", route: "/supervisors/lining" },
+    {
+      id: "identificacao-fornecedor",
+      route: "/supervisors/supplier-identification",
+    },
+    { id: "placas-faixa-preco", route: "/supervisors/price-signs" },
+    { id: "extintores", route: "/supervisors/extinguishers" },
+    { id: "aferidores", route: "/supervisors/gauges" },
+    { id: "regua", route: "/supervisors/ruler" },
+    { id: "compressor", route: "/supervisors/compressor" },
+    { id: "calibrador", route: "/supervisors/calibrator" },
+    { id: "bocas-visita", route: "/supervisors/manholes" },
+    {
+      id: "bocas-descarga-e-cadeados",
+      route: "/supervisors/discharge-nozzles-and-padlocks",
+    },
+    { id: "canetas", route: "/supervisors/pens" },
+    { id: "bicos", route: "/supervisors/nozzles" },
+    { id: "bicos-parados", route: "/supervisors/nozzles-stopped" },
+    { id: "mangueiras", route: "/supervisors/hoses" },
+    { id: "lacre-bombas", route: "/supervisors/bomb-seal" },
+    { id: "passagem-bomba", route: "/supervisors/bomb-passage" },
+    { id: "game", route: "/supervisors/game" },
+    { id: "teste-combustiveis-venda", route: "/supervisors/fuel-sell-test" },
+    { id: "calibragem-bombas", route: "/supervisors/pump-calibration" },
+    { id: "vira", route: "/supervisors/turn" },
+    { id: "maquininhas-uso", route: "/supervisors/use-machines" },
+    { id: "maquininhas-quebradas", route: "/supervisors/broken-machines" },
+    { id: "escala-trabalho", route: "/supervisors/work-schedule" },
+    { id: "notas-fiscais", route: "/supervisors/fiscal-notes" },
+    { id: "documentos", route: "/supervisors/documents" },
+  ];
+
   useEffect(() => {
     const fetchFingerprintId = async () => {
       try {
-        // Inicialize o FingerprintJS
         const fp = await FingerprintJS.load();
         const result = await fp.get();
-
-        // Log de todas as informações retornadas pelo FingerprintJS
-        console.log("FingerprintJS result:", result);
-
-        // Obtenha o fingerprintId
         const fingerprintId = result.visitorId;
-
-        // Log do fingerprintId específico
-        console.log("Fingerprint ID:", fingerprintId);
-
-        // Salve o FingerprintID no estado
         setFingerprintId(fingerprintId);
       } catch (error) {
         console.error("Erro ao capturar o fingerprintId:", error);
       }
     };
-
     fetchFingerprintId();
   }, []);
 
@@ -79,9 +128,8 @@ export default function Home() {
             const routineData = userData.routine || [];
             setRoutine(routineData);
 
-            // Aqui, estamos salvando o valor de IpAddress do Firestore, mas não sobrescrevendo o fingerprintId
             if (userData.IpAddress) {
-              setIpStored(userData.IpAddress); // Usamos este novo estado apenas para armazenar o IpAddress do Firestore
+              setIpStored(userData.IpAddress);
             }
 
             if (userData.editIp) {
@@ -106,43 +154,20 @@ export default function Home() {
   }, [router]);
 
   const handleDeviceValidation = async () => {
-    // Log dos valores iniciais de userId, fingerprintId, e ipStored
-    console.log("Iniciando validação do dispositivo...");
-    console.log("userId:", userId);
-    console.log("fingerprintId:", fingerprintId);
-    console.log("ipStored (salvo no Firestore):", ipStored);
-
-    // Verificação de userId e fingerprintId
     if (!userId || !fingerprintId) {
       console.log("Erro: userId ou fingerprintId ausentes.");
       return;
     }
 
     try {
-      // Referência do documento no Firestore
       const docRef = doc(db, "USERS", userId);
-
-      // Log da referência do documento
-      console.log("Referência do documento Firestore:", docRef);
-
-      // Atualização no Firestore
       await updateDoc(docRef, {
-        IpAddress: fingerprintId, // Aqui garantimos que estamos usando o fingerprintId corretamente
+        IpAddress: fingerprintId,
         editIp: false,
       });
-
-      // Log de sucesso após a atualização no Firestore
-      console.log(
-        "Dispositivo validado com sucesso! IpAddress atualizado para:",
-        fingerprintId
-      );
-
       alert("Dispositivo validado com sucesso!");
-
-      // Reseta o estado para evitar múltiplas habilitações
       setEditIp(false);
     } catch (error) {
-      // Log detalhado do erro
       console.error("Erro ao validar o dispositivo no Firestore:", error);
       alert("Erro ao validar o dispositivo.");
     }
@@ -164,7 +189,48 @@ export default function Home() {
     }
   };
 
-  const handleCardClick = (shift: "firstShift" | "secondShift") => {
+  // Busca as tarefas já concluídas na collection SUPERVISORS com base em supervisorName, shift e date
+  const getCompletedTasks = async (
+    shift: "firstShift" | "secondShift",
+    date: string
+  ) => {
+    const userName = localStorage.getItem("userName"); // Obtenha o userName do localStorage
+    if (!userName) {
+      console.error("Erro: Nome de usuário não encontrado no localStorage.");
+      return [];
+    }
+
+    const collectionRef = collection(db, "SUPERVISORS");
+    const querySnapshot = await getDocs(
+      query(
+        collectionRef,
+        where("date", "==", date),
+        where("shift", "==", shift),
+        where("supervisorName", "==", userName)
+      )
+    );
+
+    const completedTasks = querySnapshot.docs.map((doc) => doc.data().id);
+    console.log("Tarefas concluídas:", completedTasks); // Log das tarefas concluídas
+    return completedTasks;
+  };
+
+  const getNextTask = async (
+    shift: "firstShift" | "secondShift",
+    date: string
+  ) => {
+    const completedTasks = await getCompletedTasks(shift, date);
+
+    for (const task of tasksOrder) {
+      if (!completedTasks.includes(task.id)) {
+        return task.route; // Retorna a rota da próxima tarefa
+      }
+    }
+
+    return null; // Se todas as tarefas foram concluídas
+  };
+
+  const handleCardClick = async (shift: "firstShift" | "secondShift") => {
     const now = new Date();
     const hour = now.getHours();
 
@@ -173,12 +239,17 @@ export default function Home() {
     } else if (shift === "secondShift" && (hour < 14 || hour >= 22)) {
       alert("Você só pode acessar o segundo turno entre 14h e 22h.");
     } else if (currentDayRoutine && currentDayRoutine[shift]) {
-      // Adiciona tanto o posto quanto o turno à query string
-      router.push(
-        `/supervisors/point?post=${encodeURIComponent(
-          currentDayRoutine[shift]?.label || ""
-        )}&shift=${shift}`
-      );
+      const nextTaskRoute = await getNextTask(shift, currentDayRoutine.date);
+
+      if (nextTaskRoute) {
+        router.push(
+          `${nextTaskRoute}?post=${encodeURIComponent(
+            currentDayRoutine[shift]?.label || ""
+          )}&shift=${shift}`
+        );
+      } else {
+        alert("Todas as tarefas para este turno já foram concluídas.");
+      }
     }
   };
 
