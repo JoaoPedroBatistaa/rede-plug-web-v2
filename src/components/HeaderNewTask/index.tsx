@@ -13,7 +13,7 @@ export default function HeaderBudget() {
   };
 
   const handleBack = () => {
-    router.back(); // Função para voltar para a página anterior
+    router.push("/supervisors-home"); // Função para voltar para a página anterior
   };
 
   return (

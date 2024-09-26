@@ -1,15 +1,7 @@
 import HeaderNewProduct from "@/components/HeaderNewTask";
 import LoadingOverlay from "@/components/Loading";
 import imageCompression from "browser-image-compression";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { uploadBytes } from "firebase/storage";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -27,17 +19,7 @@ async function compressImage(file: File) {
   };
 
   try {
-    console.log(
-      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
-    );
     const compressedFile = await imageCompression(file, options);
-    console.log(
-      `Tamanho da imagem comprimida: ${(
-        compressedFile.size /
-        1024 /
-        1024
-      ).toFixed(2)} MB`
-    );
     return compressedFile;
   } catch (error) {
     console.error("Erro ao comprimir imagem:", error);
@@ -48,158 +30,36 @@ async function compressImage(file: File) {
 export default function NewPost() {
   const router = useRouter();
   const postName = router.query.post;
-  const docId = router.query.docId;
   const shift = router.query.shift;
 
-  const [data, setData] = useState(null);
-
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [isOk, setIsOk] = useState("");
+  const [observations, setObservations] = useState("");
+  const [notaEtanol, setNotaEtanol] = useState("");
+  const [notaGc, setNotaGc] = useState("");
+  const [notaS10, setNotaS10] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
+  const [gcImageUrl, setGcImageUrl] = useState("");
+  const [s10ImageUrl, setS10ImageUrl] = useState("");
+  const [etanolFileName, setEtanolFileName] = useState("");
+  const [gcFileName, setGcFileName] = useState("");
+  const [s10FileName, setS10FileName] = useState("");
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [postCoordinates, setPostCoordinates] = useState({
     lat: null,
     lng: null,
   });
-  const [mapUrl, setMapUrl] = useState("");
-  const [radiusCoordinates, setRadiusCoordinates] = useState([]);
-
-  useEffect(() => {
-    const storedDate = localStorage.getItem("date");
-    const storedTime = localStorage.getItem("time");
-    const storedObservations = localStorage.getItem("observations");
-    const storedIsOk = localStorage.getItem("isOk");
-    const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
-    const storedEtanolFileName = localStorage.getItem("etanolFileName");
-    const storedGcImageUrl = localStorage.getItem("gcImageUrl");
-    const storedGcFileName = localStorage.getItem("gcFileName");
-
-    if (storedDate) setDate(storedDate);
-    if (storedTime) setTime(storedTime);
-    if (storedObservations) setObservations(storedObservations);
-    if (storedIsOk) setIsOk(storedIsOk);
-    if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
-    if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
-    if (storedGcImageUrl) setGcImageUrl(storedGcImageUrl);
-    if (storedGcFileName) setGcFileName(storedGcFileName);
-  }, []);
-
-  useEffect(() => {
-    const checkForUpdates = async () => {
-      console.log("Checking for updates...");
-      const updateDoc = doc(db, "UPDATE", "Lp8egidKNeHs9jQ8ozvs");
-      try {
-        const updateSnapshot = await getDoc(updateDoc);
-        const updateData = updateSnapshot.data();
-
-        if (updateData) {
-          console.log("Update data retrieved:", updateData);
-          const { date: updateDate, time: updateTime } = updateData;
-          const storedDate = localStorage.getItem("loginDate");
-          const storedTime = localStorage.getItem("loginTime");
-
-          if (storedDate && storedTime) {
-            console.log("Stored date and time:", storedDate, storedTime);
-            const updateDateTime = new Date(
-              `${updateDate.replace(/\//g, "-")}T${updateTime}`
-            );
-            const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-
-            console.log("Update date and time:", updateDateTime);
-            console.log("Stored date and time:", storedDateTime);
-
-            const now = new Date();
-            const date = now
-              .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
-              .split("/")
-              .reverse()
-              .join("-");
-            const time = now.toLocaleTimeString("pt-BR", {
-              hour12: false,
-              timeZone: "America/Sao_Paulo",
-            });
-
-            if (
-              !isNaN(updateDateTime.getTime()) &&
-              !isNaN(storedDateTime.getTime())
-            ) {
-              if (storedDateTime < updateDateTime) {
-                console.log(
-                  "Stored data is outdated. Clearing cache and reloading..."
-                );
-                caches
-                  .keys()
-                  .then((names) => {
-                    for (let name of names) caches.delete(name);
-                  })
-                  .then(() => {
-                    localStorage.setItem("loginDate", date);
-                    localStorage.setItem("loginTime", time);
-                    alert("O sistema agora está na versão mais recente");
-                    window.location.reload();
-                  });
-              } else {
-                console.log("Stored data is up to date.");
-              }
-            } else {
-              console.log("Invalid date/time format detected.");
-            }
-          } else {
-            console.log("No stored date and time found.");
-          }
-        } else {
-          console.log("No update data found in the database.");
-        }
-      } catch (error) {
-        console.error("Error fetching update document:", error);
-      }
-    };
-
-    checkForUpdates();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!docId) return;
-
-      try {
-        const docRef = doc(db, "SUPERVISORS", docId as string);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const fetchedData = docSnap.data();
-          // @ts-ignore
-          setData(fetchedData);
-          setDate(fetchedData.date);
-          setTime(fetchedData.time);
-          setObservations(fetchedData.observations);
-          setIsOk(fetchedData.isOk);
-
-          console.log(fetchedData);
-        } else {
-          console.log("No such document!");
-        }
-      } catch (error) {
-        console.error("Error getting document:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [docId]);
-
   const [isLoading, setIsLoading] = useState(false);
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [managerName, setManagerName] = useState("");
-  const [isOk, setIsOk] = useState("");
-  const [observations, setObservations] = useState("");
+
   const etanolRef = useRef(null);
   const gcRef = useRef(null);
-  const [etanolImage, setEtanolImage] = useState<File | null>(null);
-  const [etanolFileName, setEtanolFileName] = useState("");
-  const [etanolImageUrl, setEtanolImageUrl] = useState("");
-  const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcFileName, setGcFileName] = useState("");
-  const [gcImageUrl, setGcImageUrl] = useState("");
+  const s10Ref = useRef(null);
+
+  useEffect(() => {
+    fetchCoordinates();
+    fetchPostCoordinates();
+  }, [postName]);
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -211,48 +71,33 @@ export default function NewPost() {
             // @ts-ignore
             lng: position.coords.longitude,
           });
-          console.log(
-            `Supervisor coordinates obtained: lat=${position.coords.latitude}, lng=${position.coords.longitude}`
-          );
         },
         (error) => {
           console.error("Error obtaining location:", error);
-          setCoordinates({ lat: null, lng: null });
         }
       );
-    } else {
-      console.log("Geolocation is not available in this browser.");
     }
   };
 
-  useEffect(() => {
-    fetchCoordinates();
-  }, [date, time, isOk, observations, managerName]);
+  const fetchPostCoordinates = async () => {
+    if (!postName) return;
 
-  useEffect(() => {
-    const fetchPostCoordinates = async () => {
-      if (!postName) return;
+    try {
+      const postsRef = collection(db, "POSTS");
+      const q = query(postsRef, where("name", "==", postName));
+      const querySnapshot = await getDocs(q);
 
-      try {
-        const postsRef = collection(db, "POSTS");
-        const q = query(postsRef, where("name", "==", postName));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          const postData = querySnapshot.docs[0].data();
-          setPostCoordinates({
-            lat: postData.location.lat,
-            lng: postData.location.lng,
-          });
-          console.log("Post coordinates fetched: ", postData.location);
-        }
-      } catch (error) {
-        console.error("Error fetching post coordinates:", error);
+      if (!querySnapshot.empty) {
+        const postData = querySnapshot.docs[0].data();
+        setPostCoordinates({
+          lat: postData.location.lat,
+          lng: postData.location.lng,
+        });
       }
-    };
-
-    fetchPostCoordinates();
-  }, [postName]);
+    } catch (error) {
+      console.error("Error fetching post coordinates:", error);
+    }
+  };
 
   const calculateCoordinatesInRadius = (
     center: { lat: number; lng: number },
@@ -286,37 +131,25 @@ export default function NewPost() {
         });
       }
     }
-
-    console.log("Radius coordinates calculated: ", points);
     return points;
   };
 
   const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
       setIsLoading(true);
       try {
-        let compressedFile = file;
-        if (file.type.startsWith("image/")) {
-          compressedFile = await compressImage(file);
-        }
+        const compressedFile = await compressImage(file);
         const imageUrl = await uploadImageAndGetUrl(
           compressedFile,
-          `supervisors/${getLocalISODate()}/${
-            compressedFile.name
-          }_${Date.now()}`
+          `etanol/${compressedFile.name}`
         );
-        setEtanolImage(compressedFile);
         setEtanolFileName(compressedFile.name);
         setEtanolImageUrl(imageUrl);
-        localStorage.setItem("etanolFileName", compressedFile.name); // Armazena no localStorage
-        localStorage.setItem("etanolImageUrl", imageUrl); // Armazena no localStorage
       } catch (error) {
-        console.error("Erro ao fazer upload da imagem:", error);
-        toast.error("Erro ao fazer upload da imagem.");
+        console.error("Error uploading image:", error);
       } finally {
         setIsLoading(false);
       }
@@ -326,33 +159,51 @@ export default function NewPost() {
   const handleGcImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
       setIsLoading(true);
       try {
-        let compressedFile = file;
-        if (file.type.startsWith("image/")) {
-          compressedFile = await compressImage(file);
-        }
+        const compressedFile = await compressImage(file);
         const imageUrl = await uploadImageAndGetUrl(
           compressedFile,
-          `supervisors/${getLocalISODate()}/${
-            compressedFile.name
-          }_${Date.now()}`
+          `gc/${compressedFile.name}`
         );
-        setGcImage(compressedFile);
         setGcFileName(compressedFile.name);
         setGcImageUrl(imageUrl);
-        localStorage.setItem("gcFileName", compressedFile.name); // Armazena no localStorage
-        localStorage.setItem("gcImageUrl", imageUrl); // Armazena no localStorage
       } catch (error) {
-        console.error("Erro ao fazer upload da imagem:", error);
-        toast.error("Erro ao fazer upload da imagem.");
+        console.error("Error uploading image:", error);
       } finally {
         setIsLoading(false);
       }
     }
+  };
+
+  const handleS10ImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsLoading(true);
+      try {
+        const compressedFile = await compressImage(file);
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `s10/${compressedFile.name}`
+        );
+        setS10FileName(compressedFile.name);
+        setS10ImageUrl(imageUrl);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const uploadImageAndGetUrl = async (imageFile: File, path: string) => {
+    const storageRef = ref(storage, path);
+    const uploadResult = await uploadBytes(storageRef, imageFile);
+    return await getDownloadURL(uploadResult.ref);
   };
 
   const getLocalISODate = () => {
@@ -367,83 +218,22 @@ export default function NewPost() {
   const saveMeasurement = async () => {
     setIsLoading(true);
 
-    fetchCoordinates();
-
-    let missingField = "";
     const today = getLocalISODate();
-    console.log(today);
-
-    if (!date) missingField = "Data";
-    else if (date !== today.date) {
+    if (!date || date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
       return;
-    } else if (!time) missingField = "Hora";
-    else if (!isOk) missingField = "Está ok?";
-    else if (!etanolImageUrl && !gcImageUrl)
-      missingField = "Fotos do Teste dos Combustíveis";
-    if (missingField) {
-      toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
+    }
+    if (!time) {
+      toast.error("Por favor, preencha o campo obrigatório: Hora.");
       setIsLoading(false);
       return;
-    }
-
-    const userName = localStorage.getItem("userName");
-
-    const managersRef = collection(db, "SUPERVISORS");
-    const q = query(
-      managersRef,
-      where("date", "==", today.date),
-      where("id", "==", "notas-fiscais"),
-      where("supervisorName", "==", userName),
-      where("postName", "==", postName), // Usando `post` em vez de `postName`
-      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
-    );
-
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error("A tarefa notas fiscais já foi feita para esse turno hoje!");
-      setIsLoading(false);
-      return;
-    }
-
-    const taskData = {
-      date,
-      time,
-      supervisorName: userName,
-      userName,
-      postName,
-      isOk,
-      observations,
-      coordinates,
-      shift,
-      images: [],
-      id: "notas-fiscais",
-    };
-
-    const uploadPromises = [];
-    if (etanolImageUrl) {
-      const etanolPromise = Promise.resolve({
-        type: "Imagem da tarefa",
-        imageUrl: etanolImageUrl,
-        fileName: etanolFileName,
-      });
-      uploadPromises.push(etanolPromise);
-    }
-
-    if (gcImageUrl) {
-      const gcPromise = Promise.resolve({
-        type: "Imagem 02 da tarefa",
-        imageUrl: gcImageUrl,
-        fileName: gcFileName,
-      });
-      uploadPromises.push(gcPromise);
     }
 
     // @ts-ignore
     const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
     // @ts-ignore
-    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+    radiusCoords.push(postCoordinates);
 
     const isWithinRadius = radiusCoords.some(
       (coord) =>
@@ -453,8 +243,6 @@ export default function NewPost() {
         Math.abs(coord.lng - coordinates.lng) < 0.0001
     );
 
-    console.log(`Supervisor is within radius: ${isWithinRadius}`);
-
     if (!isWithinRadius) {
       toast.error(
         "Você não está dentro do raio permitido para realizar essa tarefa."
@@ -463,56 +251,72 @@ export default function NewPost() {
       return;
     }
 
+    const taskData = {
+      date,
+      time,
+      postName,
+      isOk,
+      observations,
+      coordinates,
+      shift,
+      images: [],
+      id: "notas-fiscais",
+      notaEtanol,
+      notaGc,
+      notaS10,
+    };
+
+    const uploadPromises = [];
+    if (etanolImageUrl) {
+      uploadPromises.push({
+        type: "Imagem do Etanol",
+        imageUrl: etanolImageUrl,
+        fileName: etanolFileName,
+      });
+    }
+    if (gcImageUrl) {
+      uploadPromises.push({
+        type: "Imagem da Gasolina Comum",
+        imageUrl: gcImageUrl,
+        fileName: gcFileName,
+      });
+    }
+    if (s10ImageUrl) {
+      uploadPromises.push({
+        type: "Imagem do Diesel S10",
+        imageUrl: s10ImageUrl,
+        fileName: s10FileName,
+      });
+    }
+
+    // @ts-ignore
+    taskData.images = await Promise.all(uploadPromises);
+
     try {
-      const images = await Promise.all(uploadPromises);
-      // @ts-ignore
-      taskData.images = images;
-
-      // sendMessage(taskData);
-
-      const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
-      console.log("Tarefa salva com ID: ", docRef.id);
-
+      await addDoc(collection(db, "SUPERVISORS"), taskData);
       toast.success("Tarefa salva com sucesso!");
 
-      localStorage.removeItem("date");
-      localStorage.removeItem("time");
-      localStorage.removeItem("etanolImageUrl");
-      localStorage.removeItem("etanolFileName");
-      localStorage.removeItem("gcImageUrl");
-      localStorage.removeItem("gcFileName");
-      localStorage.removeItem("observations");
-      localStorage.removeItem("isOk");
-
-      // @ts-ignore
       router.push(
-        `/supervisors/documents?post=${encodeURIComponent(
-          // @ts-ignore
-          postName
-        )}&shift=${shift}`
+        // @ts-ignore
+        `/supervisors/documents?post=${encodeURIComponent(postName)}&shift=${
+          shift as string
+        }`
       );
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  async function uploadImageAndGetUrl(imageFile: File, path: string) {
-    const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, imageFile);
-    const downloadUrl = await getDownloadURL(uploadResult.ref);
-    return downloadUrl;
-  }
 
   return (
     <>
       <Head>
-        <style>{`
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
-`}</style>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');`}</style>
       </Head>
 
-      <HeaderNewProduct></HeaderNewProduct>
+      <HeaderNewProduct />
       <ToastContainer />
       <LoadingOverlay isLoading={isLoading} />
 
@@ -520,125 +324,70 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Notas fiscais</p>
-            {!docId && (
-              <div className={styles.FinishTask}>
-                <button
-                  className={styles.FinishButton}
-                  onClick={saveMeasurement}
-                >
-                  <span className={styles.buttonTask}>Próxima tarefa</span>
-                  <img
-                    src="/finishBudget.png"
-                    alt="Finalizar"
-                    className={styles.buttonImage}
-                  />
-                </button>
-              </div>
-            )}
+            <button className={styles.FinishButton} onClick={saveMeasurement}>
+              <span className={styles.buttonTask}>Próxima tarefa</span>
+              <img
+                src="/finishBudget.png"
+                alt="Finalizar"
+                className={styles.buttonImage}
+              />
+            </button>
           </div>
 
           <p className={styles.Notes}>
             Informe abaixo as informações das notas fiscais
           </p>
 
-          <div className={styles.userContent}>
-            <div className={styles.userData}>
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Data</p>
-                  <input
-                    id="date"
-                    type="date"
-                    className={styles.Field}
-                    value={date}
-                    onChange={(e) => {
-                      setDate(e.target.value);
-                      localStorage.setItem("date", e.target.value); // Armazena no localStorage
-                    }}
-                    placeholder=""
-                  />
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Hora</p>
-                  <input
-                    id="time"
-                    type="time"
-                    className={styles.Field}
-                    value={time}
-                    onChange={(e) => {
-                      setTime(e.target.value);
-                      localStorage.setItem("time", e.target.value); // Armazena no localStorage
-                    }}
-                    placeholder=""
-                  />
-                </div>
+          <div>
+            <div className={styles.InputContainer}>
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Data</p>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className={styles.Field}
+                />
               </div>
-
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>OK?</p>
-                  <select
-                    id="isOk"
-                    className={styles.SelectField}
-                    value={isOk}
-                    onChange={(e) => {
-                      setIsOk(e.target.value);
-                      localStorage.setItem("isOk", e.target.value); // Armazena no localStorage
-                    }}
-                  >
-                    <option value="">Selecione</option>
-                    <option value="yes">Sim</option>
-                    <option value="no">Não</option>
-                  </select>
-                </div>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Observações</p>
-                  <textarea
-                    id="observations"
-                    className={styles.Field}
-                    value={observations}
-                    onChange={(e) => {
-                      setObservations(e.target.value);
-                      localStorage.setItem("observations", e.target.value); // Armazena no localStorage
-                    }}
-                    rows={3}
-                  />
-                </div>
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Hora</p>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className={styles.Field}
+                />
               </div>
+            </div>
 
-              {docId &&
-                // @ts-ignore
-                data?.images.map((image, index) => (
-                  <div key={index} className={styles.InputField}>
-                    <p className={styles.titleTank}>Imagem {index + 1}</p>
-                    <p className={styles.FieldLabel}>Imagem da maquininha</p>
+            <div className={styles.InputContainer}>
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Observações</p>
+                <textarea
+                  value={observations}
+                  onChange={(e) => setObservations(e.target.value)}
+                  className={styles.Field}
+                  rows={3}
+                />
+              </div>
+            </div>
 
-                    {image && (
-                      <div>
-                        <img
-                          src={image.imageUrl}
-                          alt={`Preview do encerrante do bico ${index + 1}`}
-                          style={{
-                            maxWidth: "17.5rem",
-                            height: "auto",
-                            border: "1px solid #939393",
-                            borderRadius: "20px",
-                          }}
-                          onLoad={() =>
-                            // @ts-ignore
-                            URL.revokeObjectURL(image)
-                          }
-                        />
-                        <p className={styles.fileName}>{image.fileName}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-              <div className={styles.InputContainer}>
+            <div className={styles.InputContainer}>
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Nota Etanol (OK/Não OK)</p>
+                <select
+                  value={notaEtanol}
+                  onChange={(e) => setNotaEtanol(e.target.value)}
+                  className={styles.SelectField}
+                >
+                  <option value="">Selecione</option>
+                  <option value="ok">OK</option>
+                  <option value="naoOk">Não OK</option>
+                </select>
+              </div>
+              {notaEtanol === "ok" && (
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
+                  <p className={styles.FieldLabel}>Imagem do Etanol</p>
                   <input
                     type="file"
                     accept="image/*,video/*"
@@ -656,7 +405,7 @@ export default function NewPost() {
                   >
                     Tire sua foto/vídeo
                   </button>
-                  {etanolImage && (
+                  {etanolImageUrl && (
                     <div>
                       <img
                         src={etanolImageUrl}
@@ -672,9 +421,25 @@ export default function NewPost() {
                     </div>
                   )}
                 </div>
+              )}
+            </div>
 
+            <div className={styles.InputContainer}>
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Nota GC (OK/Não OK)</p>
+                <select
+                  value={notaGc}
+                  onChange={(e) => setNotaGc(e.target.value)}
+                  className={styles.SelectField}
+                >
+                  <option value="">Selecione</option>
+                  <option value="ok">OK</option>
+                  <option value="naoOk">Não OK</option>
+                </select>
+              </div>
+              {notaGc === "ok" && (
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem 2 da tarefa</p>
+                  <p className={styles.FieldLabel}>Imagem da Gasolina Comum</p>
                   <input
                     type="file"
                     accept="image/*,video/*"
@@ -690,7 +455,7 @@ export default function NewPost() {
                   >
                     Tire sua foto/vídeo
                   </button>
-                  {gcImage && (
+                  {gcImageUrl && (
                     <div>
                       <img
                         src={gcImageUrl}
@@ -706,14 +471,58 @@ export default function NewPost() {
                     </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
-          </div>
 
-          <div className={styles.Copyright}>
-            <p className={styles.Copy}>
-              © Rede Postos 2024, todos os direitos reservados
-            </p>
+            <div className={styles.InputContainer}>
+              <div className={styles.InputField}>
+                <p className={styles.FieldLabel}>Nota S10 (OK/Não OK)</p>
+                <select
+                  value={notaS10}
+                  onChange={(e) => setNotaS10(e.target.value)}
+                  className={styles.SelectField}
+                >
+                  <option value="">Selecione</option>
+                  <option value="ok">OK</option>
+                  <option value="naoOk">Não OK</option>
+                </select>
+              </div>
+              {notaS10 === "ok" && (
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem do Diesel S10</p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    capture="environment"
+                    style={{ display: "none" }}
+                    ref={s10Ref}
+                    onChange={handleS10ImageChange}
+                  />
+                  <button
+                    // @ts-ignore
+                    onClick={() => s10Ref.current && s10Ref.current.click()}
+                    className={styles.MidiaField}
+                  >
+                    Tire sua foto/vídeo
+                  </button>
+                  {s10ImageUrl && (
+                    <div>
+                      <img
+                        src={s10ImageUrl}
+                        alt="Preview do teste de Diesel S10"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                      <p className={styles.fileName}>{s10FileName}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

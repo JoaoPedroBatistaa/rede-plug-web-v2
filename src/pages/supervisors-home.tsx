@@ -89,7 +89,7 @@ export default function Home() {
     { id: "game", route: "/supervisors/game" },
     { id: "teste-combustiveis-venda", route: "/supervisors/fuel-sell-test" },
     { id: "calibragem-bombas", route: "/supervisors/pump-calibration" },
-    { id: "vira", route: "/supervisors/turn" },
+    { id: "combustiveis-defesa", route: "/supervisors/turn" },
     { id: "maquininhas-uso", route: "/supervisors/use-machines" },
     { id: "maquininhas-quebradas", route: "/supervisors/broken-machines" },
     { id: "escala-trabalho", route: "/supervisors/work-schedule" },

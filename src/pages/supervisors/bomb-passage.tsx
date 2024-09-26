@@ -15,11 +15,38 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
+
+async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    console.log(
+      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+    );
+    const compressedFile = await imageCompression(file, options);
+    console.log(
+      `Tamanho da imagem comprimida: ${(
+        compressedFile.size /
+        1024 /
+        1024
+      ).toFixed(2)} MB`
+    );
+    return compressedFile;
+  } catch (error) {
+    console.error("Erro ao comprimir imagem:", error);
+    throw error;
+  }
+}
 
 export default function NewPost() {
   const router = useRouter();
@@ -51,40 +78,77 @@ export default function NewPost() {
   }, []);
 
   useEffect(() => {
-    const checkLoginDuration = () => {
-      console.log("Checking login duration...");
-      const storedDate = localStorage.getItem("loginDate");
-      const storedTime = localStorage.getItem("loginTime");
+    const checkForUpdates = async () => {
+      console.log("Checking for updates...");
+      const updateDoc = doc(db, "UPDATE", "Lp8egidKNeHs9jQ8ozvs");
+      try {
+        const updateSnapshot = await getDoc(updateDoc);
+        const updateData = updateSnapshot.data();
 
-      if (storedDate && storedTime) {
-        const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-        console.log("Stored login date and time:", storedDateTime);
+        if (updateData) {
+          console.log("Update data retrieved:", updateData);
+          const { date: updateDate, time: updateTime } = updateData;
+          const storedDate = localStorage.getItem("loginDate");
+          const storedTime = localStorage.getItem("loginTime");
 
-        const now = new Date();
-        const maxLoginDuration = 6 * 60 * 60 * 1000;
+          if (storedDate && storedTime) {
+            console.log("Stored date and time:", storedDate, storedTime);
+            const updateDateTime = new Date(
+              `${updateDate.replace(/\//g, "-")}T${updateTime}`
+            );
+            const storedDateTime = new Date(`${storedDate}T${storedTime}`);
 
-        if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-          console.log("Login duration exceeded 60 seconds. Logging out...");
+            console.log("Update date and time:", updateDateTime);
+            console.log("Stored date and time:", storedDateTime);
 
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("userType");
-          localStorage.removeItem("userPost");
-          localStorage.removeItem("posts");
-          localStorage.removeItem("loginDate");
-          localStorage.removeItem("loginTime");
+            const now = new Date();
+            const date = now
+              .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+              .split("/")
+              .reverse()
+              .join("-");
+            const time = now.toLocaleTimeString("pt-BR", {
+              hour12: false,
+              timeZone: "America/Sao_Paulo",
+            });
 
-          alert("Sua sessão expirou. Por favor, faça login novamente.");
-          window.location.href = "/";
+            if (
+              !isNaN(updateDateTime.getTime()) &&
+              !isNaN(storedDateTime.getTime())
+            ) {
+              if (storedDateTime < updateDateTime) {
+                console.log(
+                  "Stored data is outdated. Clearing cache and reloading..."
+                );
+                caches
+                  .keys()
+                  .then((names) => {
+                    for (let name of names) caches.delete(name);
+                  })
+                  .then(() => {
+                    localStorage.setItem("loginDate", date);
+                    localStorage.setItem("loginTime", time);
+                    alert("O sistema agora está na versão mais recente");
+                    window.location.reload();
+                  });
+              } else {
+                console.log("Stored data is up to date.");
+              }
+            } else {
+              console.log("Invalid date/time format detected.");
+            }
+          } else {
+            console.log("No stored date and time found.");
+          }
         } else {
-          console.log("Login duration within limits.");
+          console.log("No update data found in the database.");
         }
-      } else {
-        console.log("No stored login date and time found.");
+      } catch (error) {
+        console.error("Error fetching update document:", error);
       }
     };
 
-    checkLoginDuration();
+    checkForUpdates();
   }, []);
 
   useEffect(() => {
@@ -132,9 +196,11 @@ export default function NewPost() {
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
   const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
   const [gcImage, setGcImage] = useState<File | null>(null);
   const [gcFileName, setGcFileName] = useState("");
+  const [gcImageUrl, setGcImageUrl] = useState("");
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -261,10 +327,42 @@ export default function NewPost() {
     localStorage.setItem("pumps", JSON.stringify(newPumps));
   };
 
+  const handleFileChange = async (
+    pumpIndex: number,
+    imageKey: string,
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    // @ts-ignore
+    const file = event.target.files[0];
+    if (file) {
+      setIsLoading(true);
+      const compressedFile = await compressImage(file);
+      const url = await uploadImageAndGetUrl(
+        compressedFile,
+        `pumps/${file.name}`
+      );
+      const newPumps = [...pumps];
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}File`] = file;
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(file);
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Url`] = url;
+      // @ts-ignore
+      newPumps[pumpIndex][`${imageKey}Name`] = file.name;
+
+      setPumps(newPumps);
+
+      // Armazena no localStorage
+      localStorage.setItem("pumps", JSON.stringify(newPumps));
+
+      setIsLoading(false);
+    }
+  };
+
   const initializePumps = (num: any) => {
     const newPumps = Array.from({ length: num }, () => ({
       image1File: null,
-      image2File: null,
     }));
     // @ts-ignore
     setPumps(newPumps);
@@ -294,7 +392,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -302,7 +399,6 @@ export default function NewPost() {
       return;
     }
 
-    // Verificação de campos para cada bomba
     for (let pump of pumps) {
       // @ts-ignore
       if (!pump.ok) {
@@ -310,6 +406,10 @@ export default function NewPost() {
         break;
       }
       // @ts-ignore
+      if (!pump.image1File) {
+        missingField = "Cada bomba deve ter pelo menos uma imagem";
+        break;
+      }
     }
 
     if (missingField) {
@@ -319,7 +419,6 @@ export default function NewPost() {
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -339,66 +438,53 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     }
-    const uploadPromises = pumps.map((pump, index) =>
-      Promise.all(
-        ["image1", "image2"].map((key) =>
-          pump[`${key}File`]
-            ? uploadImageAndGetUrl(
-                pump[`${key}File`],
-                `supervisors/${date}/${pump[`${key}Name`]}_${Date.now()}`
-              ).then((imageUrl) => ({
-                url: imageUrl,
-                name: pump[`${key}Name`],
-              }))
-            : Promise.resolve({ url: null, name: null })
-        )
-      ).then((results) => ({
+
+    const pumpsData = pumps.map((pump) => ({
+      // @ts-ignore
+      ok: pump.ok,
+      // @ts-ignore
+      image1: { url: pump.image1Url, name: pump.image1Name },
+    }));
+
+    const taskData = {
+      date,
+      time,
+      supervisorName: userName,
+      userName,
+      postName,
+      observations,
+      coordinates,
+      shift,
+      pumps: pumpsData,
+      id: "passagem-bomba",
+    };
+
+    // @ts-ignore
+    const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
+    // @ts-ignore
+    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+
+    const isWithinRadius = radiusCoords.some(
+      (coord) =>
         // @ts-ignore
-        ok: pump.ok,
-      }))
+        Math.abs(coord.lat - coordinates.lat) < 0.0001 &&
+        // @ts-ignore
+        Math.abs(coord.lng - coordinates.lng) < 0.0001
     );
 
-    try {
-      const pumpsData = await Promise.all(uploadPromises);
+    console.log(`Supervisor is within radius: ${isWithinRadius}`);
 
-      const taskData = {
-        date,
-        time,
-        supervisorName: userName,
-        userName,
-        postName,
-        observations,
-        coordinates,
-        shift,
-        pumps: pumpsData,
-        id: "passagem-bomba",
-      };
-
-      // @ts-ignore
-      const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
-      // @ts-ignore
-      radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
-
-      const isWithinRadius = radiusCoords.some(
-        (coord) =>
-          // @ts-ignore
-          Math.abs(coord.lat - coordinates.lat) < 0.0001 &&
-          // @ts-ignore
-          Math.abs(coord.lng - coordinates.lng) < 0.0001
+    if (!isWithinRadius) {
+      toast.error(
+        "Você não está dentro do raio permitido para realizar essa tarefa."
       );
+      setIsLoading(false);
+      return;
+    }
 
-      console.log(`Supervisor is within radius: ${isWithinRadius}`);
+    // sendMessage(taskData);
 
-      if (!isWithinRadius) {
-        toast.error(
-          "Você não está dentro do raio permitido para realizar essa tarefa."
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      // sendMessage(taskData);
-
+    try {
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
 
@@ -508,7 +594,7 @@ export default function NewPost() {
                 // @ts-ignore
                 data.pumps.map((pump, index) => (
                   <div key={index} className={styles.InputContainer}>
-                    {/* {[1, 2].map((imageIndex) => (
+                    {[1].map((imageIndex) => (
                       <div key={imageIndex} className={styles.InputField}>
                         <p className={styles.FieldLabel}>
                           Imagem {imageIndex} da Bomba {index + 1}
@@ -526,9 +612,9 @@ export default function NewPost() {
                           />
                         )}
                       </div>
-                    ))} */}
+                    ))}
                     <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>Bomba {index + 1} OK?</p>
+                      <p className={styles.FieldLabel}>OK?</p>
                       <select
                         className={styles.SelectField}
                         value={pump && pump.ok ? pump.ok : ""}
@@ -546,8 +632,48 @@ export default function NewPost() {
 
               {pumps.map((pump, index) => (
                 <div key={index} className={styles.InputContainer}>
+                  {["image1"].map((imageKey, idx) => (
+                    <div key={idx} className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Video {idx + 1} da Bomba {index + 1}
+                      </p>
+                      <input
+                        id={`file-input-${index}-${idx}`}
+                        type="file"
+                        accept="video/*"
+                        capture="environment"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleFileChange(index, imageKey, e)}
+                      />
+                      <button
+                        onClick={() =>
+                          // @ts-ignore
+                          document
+                            .getElementById(`file-input-${index}-${idx}`)
+                            .click()
+                        }
+                        className={styles.MidiaField}
+                      >
+                        Carregue o vídeo {idx + 1}
+                      </button>
+                      {pump[`${imageKey}File`] && (
+                        <img
+                          src={pump[`${imageKey}Preview`]}
+                          alt={`Preview da Imagem ${idx + 1} da Bomba ${
+                            index + 1
+                          }`}
+                          style={{
+                            maxWidth: "11.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
                   <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Bomba {index + 1} OK?</p>
+                    <p className={styles.FieldLabel}>OK?</p>
                     <select
                       className={styles.SelectField}
                       // @ts-ignore

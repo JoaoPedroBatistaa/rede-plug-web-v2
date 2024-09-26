@@ -15,7 +15,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { db } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
@@ -27,14 +27,35 @@ export default function NewPost() {
   const shift = router.query.shift;
 
   const [data, setData] = useState(null);
-
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [postCoordinates, setPostCoordinates] = useState({
     lat: null,
     lng: null,
   });
-  const [mapUrl, setMapUrl] = useState("");
-  const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+  const [qtd, setQtd] = useState(0); // Controla a quantidade de campos de imagem
+  const [images, setImages] = useState([]); // Para armazenar as imagens e seus URLs
+  const inputRefs = useRef([]); // Array de referências dos inputs de imagem
+
+  const handleImageChange = (
+    index: number,
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const updatedImages = [...images];
+      // @ts-ignore
+      updatedImages[index] = URL.createObjectURL(file); // Simula preview da imagem
+      setImages(updatedImages);
+    }
+  };
+
+  const handleQtdChange = (e: { target: { value: string } }) => {
+    const newQtd = Number(e.target.value);
+    setQtd(newQtd);
+    // @ts-ignore
+    setImages(new Array(newQtd).fill(null)); // Inicializa o array com `null` para cada imagem
+    localStorage.setItem("qtd", e.target.value); // Armazena no localStorage
+  };
 
   useEffect(() => {
     const storedDate = localStorage.getItem("date");
@@ -64,7 +85,7 @@ export default function NewPost() {
         const maxLoginDuration = 6 * 60 * 60 * 1000;
 
         if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-          console.log("Login duration exceeded 60 seconds. Logging out...");
+          console.log("Login duration exceeded. Logging out...");
 
           localStorage.removeItem("userId");
           localStorage.removeItem("userName");
@@ -121,13 +142,9 @@ export default function NewPost() {
   }, [docId]);
 
   const [isLoading, setIsLoading] = useState(false);
-
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [managerName, setManagerName] = useState("");
-
   const [isOk, setIsOk] = useState("");
-  const [qtd, setQtd] = useState(0);
   const [observations, setObservations] = useState("");
 
   const fetchCoordinates = () => {
@@ -156,7 +173,7 @@ export default function NewPost() {
 
   useEffect(() => {
     fetchCoordinates();
-  }, [date, time, isOk, observations, managerName]);
+  }, [date, time, isOk, observations]);
 
   useEffect(() => {
     const fetchPostCoordinates = async () => {
@@ -184,12 +201,12 @@ export default function NewPost() {
   }, [postName]);
 
   const calculateCoordinatesInRadius = (
-    center: { lat: number; lng: number },
+    center: { lat: any; lng: any },
     radius = 200,
     stepSize = 2
   ) => {
     const points = [];
-    const earthRadius = 6371000;
+    const earthRadius = 6371000; // Raio da Terra em metros
 
     const lat1 = (center.lat * Math.PI) / 180;
     const lng1 = (center.lng * Math.PI) / 180;
@@ -216,7 +233,6 @@ export default function NewPost() {
       }
     }
 
-    console.log("Radius coordinates calculated: ", points);
     return points;
   };
 
@@ -231,7 +247,6 @@ export default function NewPost() {
 
   const saveMeasurement = async () => {
     setIsLoading(true);
-
     fetchCoordinates();
 
     let missingField = "";
@@ -242,22 +257,18 @@ export default function NewPost() {
     else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
     else if (!qtd) missingField = "Quantidade";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
     const userName = localStorage.getItem("userName");
-    // const postName = localStorage.getItem("userPost");
 
     const managersRef = collection(db, "SUPERVISORS");
     const q = query(
@@ -265,8 +276,8 @@ export default function NewPost() {
       where("date", "==", today.date),
       where("id", "==", "placas-faixa-preco"),
       where("supervisorName", "==", userName),
-      where("postName", "==", postName), // Usando `post` em vez de `postName`
-      where("shift", "==", shift) // Também verificamos se o turno já foi salvo
+      where("postName", "==", postName),
+      where("shift", "==", shift)
     );
 
     const querySnapshot = await getDocs(q);
@@ -292,10 +303,9 @@ export default function NewPost() {
       id: "placas-faixa-preco",
     };
 
-    // @ts-ignore
     const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
     // @ts-ignore
-    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+    radiusCoords.push(postCoordinates); // Adiciona a coordenada principal do posto
 
     const isWithinRadius = radiusCoords.some(
       (coord) =>
@@ -304,8 +314,6 @@ export default function NewPost() {
         // @ts-ignore
         Math.abs(coord.lng - coordinates.lng) < 0.0001
     );
-
-    console.log(`Supervisor is within radius: ${isWithinRadius}`);
 
     if (!isWithinRadius) {
       toast.error(
@@ -316,9 +324,6 @@ export default function NewPost() {
     }
 
     try {
-      // @ts-ignore
-      // await sendMessage(taskData);
-
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
       console.log("Tarefa salva com ID: ", docRef.id);
 
@@ -330,7 +335,6 @@ export default function NewPost() {
       localStorage.removeItem("qtd");
       localStorage.removeItem("observations");
 
-      // @ts-ignore
       router.push(
         `/supervisors/extinguishers?post=${encodeURIComponent(
           // @ts-ignore
@@ -340,6 +344,8 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -392,9 +398,8 @@ export default function NewPost() {
                     value={date}
                     onChange={(e) => {
                       setDate(e.target.value);
-                      localStorage.setItem("date", e.target.value); // Armazena no localStorage
+                      localStorage.setItem("date", e.target.value);
                     }}
-                    placeholder=""
                   />
                 </div>
 
@@ -407,9 +412,8 @@ export default function NewPost() {
                     value={time}
                     onChange={(e) => {
                       setTime(e.target.value);
-                      localStorage.setItem("time", e.target.value); // Armazena no localStorage
+                      localStorage.setItem("time", e.target.value);
                     }}
-                    placeholder=""
                   />
                 </div>
               </div>
@@ -423,7 +427,7 @@ export default function NewPost() {
                     value={isOk}
                     onChange={(e) => {
                       setIsOk(e.target.value);
-                      localStorage.setItem("isOk", e.target.value); // Armazena no localStorage
+                      localStorage.setItem("isOk", e.target.value);
                     }}
                   >
                     <option value="">Selecione</option>
@@ -431,6 +435,7 @@ export default function NewPost() {
                     <option value="no">Não</option>
                   </select>
                 </div>
+
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Quantidade</p>
                   <input
@@ -438,13 +443,55 @@ export default function NewPost() {
                     type="number"
                     className={styles.Field}
                     value={qtd}
-                    onChange={(e) => {
-                      setQtd(Number(e.target.value));
-                      localStorage.setItem("qtd", e.target.value); // Armazena no localStorage
-                    }}
+                    onChange={handleQtdChange}
                   />
                 </div>
               </div>
+
+              {/* Renderiza campos de upload de imagem */}
+              {Array.from({ length: qtd }).map((_, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <p className={styles.FieldLabel}>Imagem {index + 1}</p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    capture="environment"
+                    style={{ display: "none" }}
+                    // @ts-ignore
+                    ref={(el) => (inputRefs.current[index] = el)} // Armazena as referências dos inputs
+                    onChange={(event) => handleImageChange(index, event)}
+                  />
+
+                  <button
+                    onClick={() =>
+                      inputRefs.current[index] &&
+                      // @ts-ignore
+                      inputRefs.current[index].click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Tire sua foto/vídeo
+                  </button>
+
+                  {isLoading && <p>Carregando imagem...</p>}
+                  {images[index] && (
+                    <div>
+                      <img
+                        src={images[index]}
+                        alt={`Preview da Imagem ${index + 1}`}
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                      <p className={styles.fileName}>Imagem {index + 1}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>
@@ -454,7 +501,7 @@ export default function NewPost() {
                     value={observations}
                     onChange={(e) => {
                       setObservations(e.target.value);
-                      localStorage.setItem("observations", e.target.value); // Armazena no localStorage
+                      localStorage.setItem("observations", e.target.value);
                     }}
                     rows={3}
                   />
