@@ -77,9 +77,13 @@ export default function EditSupervisor() {
       try {
         const response = await fetch("/api/posts");
         const data = await response.json();
-        setPosts(
-          data.map((post: any) => ({ label: post.name, value: post.id }))
-        );
+        const sortedPosts = data
+          .map((post: any) => ({ label: post.name, value: post.id }))
+          .sort((a: { label: string }, b: { label: string }) =>
+            a.label.localeCompare(b.label)
+          );
+
+        setPosts(sortedPosts);
       } catch (error) {
         console.error("Erro ao buscar postos:", error);
       }
@@ -120,15 +124,22 @@ export default function EditSupervisor() {
         isFromDatabase: weekObj.isFromDatabase,
       }));
 
-      await updateDoc(docRef, {
+      // Montando o objeto de atualização sem `IpAddress` se ele for undefined
+      const updateData: any = {
         name,
         contact,
         email,
         password,
-        IpAddress: ipAddress,
         editIp,
         routine: updatedRoutine,
-      });
+      };
+
+      // Somente adicionar IpAddress se ele estiver definido
+      if (ipAddress) {
+        updateData.IpAddress = ipAddress;
+      }
+
+      await updateDoc(docRef, updateData);
 
       toast.success("Supervisor atualizado com sucesso!");
       router.push("/supervisors");
