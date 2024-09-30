@@ -91,7 +91,7 @@ export default function Login() {
         // Redirecionamento baseado no tipo de usuário
         if (user.type === "manager") {
           setTimeout(() => {
-            router.push("/managers");
+            router.push("/");
           }, 2000);
         } else if (user.type === "supervisor") {
           setTimeout(() => {
@@ -99,7 +99,7 @@ export default function Login() {
           }, 2000);
         } else if (user.type === "post") {
           setTimeout(() => {
-            router.push("/attendants");
+            router.push("/");
           }, 2000);
         } else {
           setTimeout(() => {

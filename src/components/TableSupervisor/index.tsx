@@ -37,6 +37,7 @@ export default function TablePosts({
 
   useEffect(() => {
     let isComponentMounted = true;
+
     const fetchData = async () => {
       const path = "USERS";
 
@@ -45,7 +46,7 @@ export default function TablePosts({
         where("type", "==", "supervisor")
       );
       const querySnapshot = await getDocs(dbQuery);
-      const postsList = querySnapshot.docs.map((doc) => ({
+      let postsList = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
         email: doc.data().email,
@@ -53,12 +54,16 @@ export default function TablePosts({
         password: doc.data().password,
       }));
 
+      // Ordena os supervisores por nome em ordem alfabética
+      postsList = postsList.sort((a, b) => a.name.localeCompare(b.name));
+
       if (isComponentMounted) {
         setTeste(postsList);
         setFilteredData(postsList);
         console.log("Set data: ", postsList);
       }
     };
+
     fetchData();
 
     return () => {

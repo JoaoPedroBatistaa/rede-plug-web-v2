@@ -96,17 +96,17 @@ export default function Home() {
                 </div>
               </Link>
 
-              <Link href="/managers">
+              {/* <Link href="/managers">
                 <div className={styles.CardMenu}>
                   <span className={styles.CardMenuText}>GERENTES</span>
                 </div>
-              </Link>
-
+              </Link> */}
+              {/*
               <Link href="/reports">
                 <div className={styles.CardMenu}>
                   <span className={styles.CardMenuText}>RELATÓRIOS</span>
                 </div>
-              </Link>
+              </Link> */}
             </div>
           </div>
 

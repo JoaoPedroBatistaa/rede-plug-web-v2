@@ -81,7 +81,7 @@
   font-family: "Syne", sans-serif;
   font-size: 26px;
   color: #000000;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .TankTitle {
@@ -158,8 +158,8 @@
 .NewButton {
   width: 21em;
   height: 2.7rem;
-  border-radius: 10px;
-  background-color: #0bb07b;
+  border-radius: 16px;
+  background-color: #000000;
   border: none;
   cursor: pointer;
 
@@ -170,14 +170,14 @@
     color: #fff;
     font-family: "Syne", sans-serif;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 
 .locationButton {
   width: 18.5em;
   height: 2.5rem;
-  border-radius: 10px;
+  border-radius: 16px;
   background-color: #000000;
   border: none;
   cursor: pointer;
@@ -191,19 +191,19 @@
 .DeleteButton {
   width: 21em;
   height: 2.7rem;
-  border-radius: 10px;
+  border-radius: 16px;
   background-color: #b00b0b;
   border: none;
   cursor: pointer;
 
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 
   .buttonText {
     display: block; // Mostra o texto por padrão
     color: #fff;
     font-family: "Syne", sans-serif;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 

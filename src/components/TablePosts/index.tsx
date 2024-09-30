@@ -235,7 +235,7 @@ export default function TablePosts({
             <th className={styles.thNone}></th>
             <th>Nome</th>
             <th>E-mail</th>
-            <th>Localização</th>
+            <th>Gerente</th>
           </tr>
         </thead>
 
@@ -301,7 +301,7 @@ export default function TablePosts({
               </td>
 
               <td className={styles.td}>
-                <b>Confira na edição</b>
+                <b>{item.managers[0].managerName}</b>
               </td>
             </tr>
           ))}

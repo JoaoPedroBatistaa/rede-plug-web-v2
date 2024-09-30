@@ -1,14 +1,21 @@
 import Head from "next/head";
-import styles from "../../styles/Header.Request.module.scss";
-import { useMenu } from "../Context/context";
+import { useState } from "react";
+import { useMenu } from "../../components/Context/context";
+import styles from "../../styles/Header.Home.module.scss";
 
-export default function HeaderRequests() {
+export default function HeaderHome() {
+  const [searchText, setSearchText] = useState("");
+
   const { openMenu, setOpenMenu } = useMenu();
 
   const handleOpenMenu = () => {
     setOpenMenu(!openMenu);
     console.log(openMenu);
   };
+
+  const nome =
+    typeof window !== "undefined" ? localStorage.getItem("userName") : null;
+
   return (
     <>
       <Head>
@@ -18,34 +25,29 @@ export default function HeaderRequests() {
       </Head>
       <div className={styles.HeaderContainer}>
         <div className={styles.HeaderSearch}>
-          <div className={styles.menuSamduba}>
+          <div className={styles.menuSamduba} onClick={handleOpenMenu}>
             {" "}
-            <img
-              src="./menuSamduba.svg"
-              height={20}
-              width={26}
-              alt=""
-              onClick={handleOpenMenu}
-            />
+            <img src="/menuSamduba.svg" height={20} width={26} alt="" />
           </div>
-          <div className={styles.HeaderTextTitle}>
-            <b>Postos</b>
-          </div>
+
+          {/* <Link href="/HomeResults">
+            <SearchInput></SearchInput>
+          </Link> */}
           <div className={styles.HeaderContainerIcons}>
             <img
-              src="./iconSino.png"
+              src="/iconSino.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}
             />
             <img
-              src="./iconProfile.png"
+              src="/iconProfile.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}
             />
             <img
-              src="./iconInterro.png"
+              src="/iconInterro.png"
               className={styles.HeaderIcon}
               height={20}
               width={20}
@@ -54,10 +56,19 @@ export default function HeaderRequests() {
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>
+          <img src="/post.png" alt="" />
+          <div className={styles.HeaderTextTitle}>Postos</div>
+        </div>
+        <div className={styles.HeaderTextContainer}>
           <div className={styles.HeaderTextDescription}>
             <p>
-              Aqui você pode realizar ações de forma rápida e fácil sobre os
-              postos cadastrados na sua base de dados
+              Bem-vindo à área de postos, onde você tem o controle total para
+              gerenciar e monitorar as operações de forma eficaz. Aqui, você
+              encontrará ferramentas poderosas para acompanhar o desempenho da
+              equipe, analisar métricas em tempo real e tomar decisões
+              informadas. Aproveite os recursos exclusivos desta página para
+              otimizar processos, resolver problemas rapidamente e garantir que
+              tudo esteja funcionando perfeitamente.
             </p>
           </div>
         </div>
