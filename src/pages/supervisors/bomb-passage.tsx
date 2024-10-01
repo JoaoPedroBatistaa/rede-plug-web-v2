@@ -327,38 +327,65 @@ export default function NewPost() {
     localStorage.setItem("pumps", JSON.stringify(newPumps));
   };
 
-  const handleFileChange = async (
+  // Helper function to check if the file is an image
+  // Helper function to check if the file is an image
+  function isImage(file: File) {
+    return file && file.type && file.type.startsWith("image/");
+  }
+
+  async function handleFileChange(
     pumpIndex: number,
     imageKey: string,
     event: ChangeEvent<HTMLInputElement>
-  ) => {
+  ) {
     // @ts-ignore
     const file = event.target.files[0];
     if (file) {
       setIsLoading(true);
-      const compressedFile = await compressImage(file);
-      const url = await uploadImageAndGetUrl(
-        compressedFile,
-        `pumps/${file.name}`
-      );
-      const newPumps = [...pumps];
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}File`] = file;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(file);
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Url`] = url;
-      // @ts-ignore
-      newPumps[pumpIndex][`${imageKey}Name`] = file.name;
 
-      setPumps(newPumps);
+      // Check if the file is an image before attempting compression
+      if (isImage(file)) {
+        const compressedFile = await compressImage(file);
+        const url = await uploadImageAndGetUrl(
+          compressedFile,
+          `pumps/${file.name}`
+        );
 
-      // Armazena no localStorage
-      localStorage.setItem("pumps", JSON.stringify(newPumps));
+        // Update the pumps array with the compressed image data
+        const newPumps = [...pumps];
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}File`] = compressedFile;
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Preview`] =
+          URL.createObjectURL(compressedFile);
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Url`] = url;
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Name`] = compressedFile.name;
+
+        setPumps(newPumps);
+      } else {
+        // If it's not an image, handle the file normally (no compression)
+        const url = await uploadImageAndGetUrl(file, `pumps/${file.name}`);
+
+        // @ts-ignore
+        const newPumps = [...pumps];
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}File`] = file;
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Preview`] = URL.createObjectURL(file);
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Url`] = url;
+        // @ts-ignore
+        newPumps[pumpIndex][`${imageKey}Name`] = file.name;
+
+        setPumps(newPumps);
+        localStorage.setItem("pumps", JSON.stringify(newPumps));
+      }
 
       setIsLoading(false);
     }
-  };
+  }
 
   const initializePumps = (num: any) => {
     const newPumps = Array.from({ length: num }, () => ({
@@ -657,18 +684,39 @@ export default function NewPost() {
                         Carregue o vídeo {idx + 1}
                       </button>
                       {pump[`${imageKey}File`] && (
-                        <img
-                          src={pump[`${imageKey}Preview`]}
-                          alt={`Preview da Imagem ${idx + 1} da Bomba ${
-                            index + 1
-                          }`}
-                          style={{
-                            maxWidth: "11.5rem",
-                            height: "auto",
-                            border: "1px solid #939393",
-                            borderRadius: "20px",
-                          }}
-                        />
+                        <>
+                          {isImage(pump[`${imageKey}File`]) ? (
+                            <img
+                              src={pump[`${imageKey}Preview`]}
+                              alt={`Preview da Imagem ${idx + 1} da Bomba ${
+                                index + 1
+                              }`}
+                              style={{
+                                maxWidth: "11.5rem",
+                                height: "auto",
+                                border: "1px solid #939393",
+                                borderRadius: "20px",
+                              }}
+                            />
+                          ) : (
+                            <video
+                              controls
+                              style={{
+                                maxWidth: "11.5rem",
+                                height: "auto",
+                                border: "1px solid #939393",
+                                borderRadius: "20px",
+                              }}
+                            >
+                              <source
+                                src={pump[`${imageKey}Preview`]}
+                                // @ts-ignore
+                                type={pump[`${imageKey}File`].type}
+                              />
+                              Seu navegador não suporta o elemento de vídeo.
+                            </video>
+                          )}
+                        </>
                       )}
                     </div>
                   ))}
