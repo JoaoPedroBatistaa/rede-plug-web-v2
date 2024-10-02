@@ -620,7 +620,6 @@ export default function NewPost() {
                         <option value="GA">GA</option>
                         <option value="ET">ET</option>
                         <option value="EA">EA</option>
-                        <option value="SECO">SECO</option>
                         <option value="S10">S10</option>
                       </select>
                     </div>
@@ -783,7 +782,7 @@ export default function NewPost() {
                       <option value="GA">GA</option>
                       <option value="ET">ET</option>
                       <option value="EA">EA</option>
-                      <option value="SECO">SECO</option>
+                      <option value="DESATIVADO">DESATIVADO</option>
                       <option value="S10">S10</option>
                     </select>
                   </div>
