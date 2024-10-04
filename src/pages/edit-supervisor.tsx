@@ -348,7 +348,14 @@ export default function EditSupervisor() {
                         loadOptions={loadOptions}
                         defaultOptions={posts}
                         value={day.firstShift}
-                        isDisabled
+                        onChange={(selectedOption) =>
+                          handleRoutineChange(
+                            weekIndex,
+                            dayIndex,
+                            "firstShift",
+                            selectedOption
+                          )
+                        } // Permite editar
                         className={styles.SelectFieldSearch}
                       />
                     </div>
@@ -361,7 +368,14 @@ export default function EditSupervisor() {
                         loadOptions={loadOptions}
                         defaultOptions={posts}
                         value={day.secondShift}
-                        isDisabled
+                        onChange={(selectedOption) =>
+                          handleRoutineChange(
+                            weekIndex,
+                            dayIndex,
+                            "secondShift",
+                            selectedOption
+                          )
+                        } // Permite editar
                         className={styles.SelectFieldSearch}
                       />
                     </div>
