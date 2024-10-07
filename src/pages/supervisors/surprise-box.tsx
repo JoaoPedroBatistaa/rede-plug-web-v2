@@ -996,6 +996,7 @@ export default function NewPost() {
                         <input
                           type="file"
                           accept="image/*,video/*"
+                          capture="environment"
                           style={{ display: "none" }}
                           ref={(el) => {
                             // @ts-ignore
@@ -1059,6 +1060,7 @@ export default function NewPost() {
                         <input
                           type="file"
                           accept="image/*,video/*"
+                          capture="environment"
                           style={{ display: "none" }}
                           ref={(el) => {
                             // @ts-ignore
@@ -1484,6 +1486,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     style={{ display: "none" }}
                     ref={mediaRef}
                     // @ts-ignore

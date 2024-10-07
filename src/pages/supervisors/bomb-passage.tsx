@@ -434,7 +434,7 @@ export default function NewPost() {
       }
       // @ts-ignore
       if (!pump.image1File) {
-        missingField = "Cada bomba deve ter pelo menos uma imagem";
+        missingField = "Cada bomba deve ter pelo menos um vídeo...";
         break;
       }
     }
