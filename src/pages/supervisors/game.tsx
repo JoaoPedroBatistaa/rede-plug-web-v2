@@ -196,7 +196,23 @@ export default function NewPost() {
 
           if (storedPumps) {
             // Se houver dados no localStorage, restaura os dados de lá
-            setPumps(JSON.parse(storedPumps));
+            const pumpsFromStorage = JSON.parse(storedPumps);
+
+            // Checa se o número de bicos armazenados corresponde ao número de bicos do Firestore
+            if (pumpsFromStorage.length === postData.nozzles.length) {
+              // Se o número de bicos coincidir, use os dados armazenados
+              const pumpsWithDefaults = pumpsFromStorage.map(
+                (pump: any, index: number) => ({
+                  ...initializePump(), // Preenche com campos vazios onde faltar
+                  ...pump, // Mantém os valores já preenchidos
+                })
+              );
+              setPumps(pumpsWithDefaults);
+            } else {
+              // Se o número de bicos não coincidir, inicializa novamente
+              setNumberOfPumps(postData.nozzles.length || []);
+              initializePumps(postData.nozzles.length || []);
+            }
           } else {
             // Caso contrário, inicializa as pumps com base nos dados do Firestore
             setNumberOfPumps(postData.nozzles.length || []);
@@ -211,15 +227,17 @@ export default function NewPost() {
     fetchPostDetails();
   }, [postName]);
 
-  const initializePumps = (num: number) => {
-    const newPumps = Array.from({ length: num }, () => ({
-      image1File: null,
-      image1Url: "",
-      liters: "", // Campo para Litros bomba
-      percentage: "", // Campo para Porcentagem
-      ok: "",
-    }));
+  // Função auxiliar para inicializar um pump vazio
+  const initializePump = () => ({
+    image1File: null,
+    image1Url: "",
+    liters: "", // Campo para Litros bomba
+    percentage: "", // Campo para Porcentagem
+    ok: "",
+  });
 
+  const initializePumps = (num: number) => {
+    const newPumps = Array.from({ length: num }, () => initializePump());
     // @ts-ignore
     setPumps(newPumps);
   };
