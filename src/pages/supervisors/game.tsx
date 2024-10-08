@@ -63,6 +63,28 @@ export default function NewPost() {
   const [numberOfPumps, setNumberOfPumps] = useState(0);
   const [pumps, setPumps] = useState([]);
 
+  useEffect(() => {
+    const storedPumps = localStorage.getItem("pumps");
+    if (storedPumps) {
+      setPumps(JSON.parse(storedPumps)); // Converte o JSON armazenado de volta para o array de objetos
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("pumps", JSON.stringify(pumps));
+  }, [pumps]);
+
+  useEffect(() => {
+    // Recupera os valores armazenados no localStorage para os campos
+    const storedDate = localStorage.getItem("date");
+    const storedTime = localStorage.getItem("time");
+    const storedObservations = localStorage.getItem("observations");
+
+    if (storedDate) setDate(storedDate);
+    if (storedTime) setTime(storedTime);
+    if (storedObservations) setObservations(storedObservations);
+  }, []);
+
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -92,6 +114,72 @@ export default function NewPost() {
   }, [date, time, observations]);
 
   useEffect(() => {
+    const fetchPostCoordinates = async () => {
+      if (!postName) return;
+
+      console.log("Fetching post coordinates for:", postName);
+
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const postData = querySnapshot.docs[0].data();
+          setPostCoordinates({
+            lat: postData.location.lat,
+            lng: postData.location.lng,
+          });
+          console.log("Post coordinates fetched: ", postData.location);
+        } else {
+          console.log("No posts found with this name.");
+        }
+      } catch (error) {
+        console.error("Error fetching post coordinates:", error);
+      }
+    };
+
+    fetchPostCoordinates();
+  }, [postName]);
+
+  const calculateCoordinatesInRadius = (
+    center: { lat: number; lng: number },
+    radius = 200,
+    stepSize = 2
+  ) => {
+    const points = [];
+    const earthRadius = 6371000;
+
+    const lat1 = (center.lat * Math.PI) / 180;
+    const lng1 = (center.lng * Math.PI) / 180;
+
+    for (let angle = 0; angle < 360; angle += stepSize) {
+      const bearing = (angle * Math.PI) / 180;
+
+      for (let dist = 0; dist <= radius; dist += stepSize) {
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(dist / earthRadius) +
+            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
+        );
+        const lng2 =
+          lng1 +
+          Math.atan2(
+            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
+            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+          );
+
+        points.push({
+          lat: (lat2 * 180) / Math.PI,
+          lng: (lng2 * 180) / Math.PI,
+        });
+      }
+    }
+
+    console.log("Radius coordinates calculated: ", points);
+    return points;
+  };
+
+  useEffect(() => {
     const fetchPostDetails = async () => {
       if (!postName) return;
 
@@ -102,18 +190,28 @@ export default function NewPost() {
 
         querySnapshot.forEach((doc) => {
           const postData = doc.data();
-          setNumberOfPumps(postData.nozzles.length || []);
-          initializePumps(postData.nozzles.length || []);
+
+          // Verifica se já temos dados salvos no localStorage para `pumps`
+          const storedPumps = localStorage.getItem("pumps");
+
+          if (storedPumps) {
+            // Se houver dados no localStorage, restaura os dados de lá
+            setPumps(JSON.parse(storedPumps));
+          } else {
+            // Caso contrário, inicializa as pumps com base nos dados do Firestore
+            setNumberOfPumps(postData.nozzles.length || []);
+            initializePumps(postData.nozzles.length || []);
+          }
         });
       } catch (error) {
-        console.error("Error fetching post details:.", error);
+        console.error("Error fetching post details:", error);
       }
     };
 
     fetchPostDetails();
   }, [postName]);
 
-  const initializePumps = (num: any) => {
+  const initializePumps = (num: number) => {
     const newPumps = Array.from({ length: num }, () => ({
       image1File: null,
       image1Url: "",
@@ -121,6 +219,7 @@ export default function NewPost() {
       percentage: "", // Campo para Porcentagem
       ok: "",
     }));
+
     // @ts-ignore
     setPumps(newPumps);
   };
@@ -130,18 +229,15 @@ export default function NewPost() {
     imageKey: string,
     event: ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const newFile = event.target.files[0];
+    const newFile = event.target.files?.[0];
     if (newFile) {
       setIsLoading(true);
-      let compressedFile = newFile;
-      if (newFile.type.startsWith("image/")) {
-        compressedFile = await compressImage(newFile);
-      }
+      const compressedFile = await compressImage(newFile); // Supondo que você tem uma função compressImage
       const url = await uploadImageAndGetUrl(
         compressedFile,
         `pumps/${compressedFile.name}`
       );
+
       const newPumps = [...pumps];
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}File`] = newFile;
@@ -152,11 +248,12 @@ export default function NewPost() {
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
 
-      setPumps(newPumps);
+      setPumps(newPumps); // Atualiza o estado e salva no localStorage automaticamente
       setIsLoading(false);
     }
   };
 
+  // Função para lidar com alterações no campo Litros
   const handleLitersChange = (pumpIndex: number, value: string) => {
     const newPumps = [...pumps];
     // @ts-ignore
@@ -169,14 +266,15 @@ export default function NewPost() {
       newPumps[pumpIndex].percentage = percentage.toFixed(1);
     }
 
-    setPumps(newPumps);
+    setPumps(newPumps); // Atualiza o estado e salva no localStorage automaticamente
   };
 
+  // Função para lidar com a alteração do select "OK?"
   const handleSelectChange = (pumpIndex: number, value: string) => {
     const newPumps = [...pumps];
     // @ts-ignore
     newPumps[pumpIndex].ok = value;
-    setPumps(newPumps);
+    setPumps(newPumps); // Atualiza o estado e salva no localStorage automaticamente
   };
 
   const getLocalISODate = () => {
@@ -324,43 +422,6 @@ export default function NewPost() {
     return downloadUrl;
   }
 
-  const calculateCoordinatesInRadius = (
-    center: { lat: number; lng: number },
-    radius = 200,
-    stepSize = 2
-  ) => {
-    const points = [];
-    const earthRadius = 6371000;
-
-    const lat1 = (center.lat * Math.PI) / 180;
-    const lng1 = (center.lng * Math.PI) / 180;
-
-    for (let angle = 0; angle < 360; angle += stepSize) {
-      const bearing = (angle * Math.PI) / 180;
-
-      for (let dist = 0; dist <= radius; dist += stepSize) {
-        const lat2 = Math.asin(
-          Math.sin(lat1) * Math.cos(dist / earthRadius) +
-            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
-        );
-        const lng2 =
-          lng1 +
-          Math.atan2(
-            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
-            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
-          );
-
-        points.push({
-          lat: (lat2 * 180) / Math.PI,
-          lng: (lng2 * 180) / Math.PI,
-        });
-      }
-    }
-
-    console.log("Radius coordinates calculated: ", points);
-    return points;
-  };
-
   return (
     <>
       <Head>
@@ -455,7 +516,7 @@ export default function NewPost() {
                     </button>
                     {pump[`${imageKey}File`] && (
                       <img
-                        src={pump[`${imageKey}Preview`]}
+                        src={pump[`${imageKey}Url`]}
                         alt={`Preview da Imagem ${idx + 1} do bico ${
                           index + 1
                         }`}
@@ -509,21 +570,22 @@ export default function NewPost() {
               </div>
             ))}
 
-            <div className={styles.InputContainer}>
-              <div className={styles.InputField}>
-                <p className={styles.FieldLabel}>Observações</p>
-                <textarea
-                  id="observations"
-                  className={styles.Field}
-                  value={observations}
-                  onChange={(e) => {
-                    setObservations(e.target.value);
-                    localStorage.setItem("observations", e.target.value);
-                  }}
-                  rows={3}
-                />
-              </div>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Observações</p>
+              <textarea
+                id="observations"
+                className={styles.Field}
+                value={observations}
+                onChange={(e) => {
+                  setObservations(e.target.value);
+                  localStorage.setItem("observations", e.target.value);
+                }}
+                rows={3}
+              />
             </div>
+            <div className={styles.InputContainer}></div>
+            <div className={styles.InputContainer}></div>
+            <div className={styles.InputContainer}></div>
           </div>
         </div>
       </div>

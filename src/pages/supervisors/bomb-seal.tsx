@@ -644,6 +644,7 @@ export default function NewPost() {
                         id={`file-input-${index}-${idx}`}
                         type="file"
                         accept="image/*,video/*"
+                        capture="environment"
                         style={{ display: "none" }}
                         onChange={(e) => handleFileChange(index, imageKey, e)}
                       />

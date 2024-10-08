@@ -391,6 +391,13 @@ export default function NewPost() {
 
       toast.success("Tarefa salva com sucesso!");
 
+      localStorage.removeItem("date");
+      localStorage.removeItem("time");
+      localStorage.removeItem("isOk");
+      localStorage.removeItem("observations");
+      localStorage.removeItem("etanolImageUrl");
+      localStorage.removeItem("etanolFileName");
+
       // @ts-ignore
       router.push(
         `/supervisors/post-painting?post=${encodeURIComponent(
