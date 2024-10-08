@@ -1,7 +1,7 @@
 import HeaderNewProduct from "@/components/HeaderNewTask";
 import LoadingOverlay from "@/components/Loading";
 import imageCompression from "browser-image-compression";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { uploadBytes } from "firebase/storage";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -70,7 +70,36 @@ export default function NewPost() {
 
   useEffect(() => {
     fetchCoordinates();
-  }, []);
+  }, [date, time, observations]);
+
+  useEffect(() => {
+    const fetchPostCoordinates = async () => {
+      if (!postName) return;
+
+      console.log("Fetching post coordinates for:", postName);
+
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const postData = querySnapshot.docs[0].data();
+          setPostCoordinates({
+            lat: postData.location.lat,
+            lng: postData.location.lng,
+          });
+          console.log("Post coordinates fetched: ", postData.location);
+        } else {
+          console.log("No posts found with this name.");
+        }
+      } catch (error) {
+        console.error("Error fetching post coordinates:", error);
+      }
+    };
+
+    fetchPostCoordinates();
+  }, [postName]);
 
   const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
