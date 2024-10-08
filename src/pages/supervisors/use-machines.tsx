@@ -73,8 +73,8 @@ export default function NewPost() {
     if (storedDate) setDate(storedDate);
     if (storedTime) setTime(storedTime);
     if (storedObservations) setObservations(storedObservations);
-    if (storedUseMachines) setUseMachines(Number(storedUseMachines));
-    if (storedStuckMachines) setStuckMachines(Number(storedStuckMachines));
+    if (storedUseMachines) setUseMachines(storedUseMachines);
+    if (storedStuckMachines) setStuckMachines(storedStuckMachines);
     if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
     if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
   }, []);
@@ -191,8 +191,8 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
-  const [stuckMachines, setStuckMachines] = useState(0);
-  const [useMachines, setUseMachines] = useState(0);
+  const [stuckMachines, setStuckMachines] = useState("");
+  const [useMachines, setUseMachines] = useState("");
   const [observations, setObservations] = useState("");
 
   const etanolRef = useRef(null);
@@ -548,7 +548,7 @@ export default function NewPost() {
                     className={styles.Field}
                     value={useMachines}
                     onChange={(e) => {
-                      setUseMachines(Number(e.target.value));
+                      setUseMachines(e.target.value);
                       localStorage.setItem("useMachines", e.target.value); // Armazena no localStorage
                     }}
                   />
@@ -561,7 +561,7 @@ export default function NewPost() {
                     className={styles.Field}
                     value={stuckMachines}
                     onChange={(e) => {
-                      setStuckMachines(Number(e.target.value));
+                      setStuckMachines(e.target.value);
                       localStorage.setItem("stuckMachines", e.target.value); // Armazena no localStorage
                     }}
                   />
