@@ -15,10 +15,12 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { db } from "../../../firebase";
+import { useEffect, useRef, useState } from "react";
+import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
+import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
@@ -42,11 +44,15 @@ export default function NewPost() {
     const storedTime = localStorage.getItem("time");
     const storedIsOk = localStorage.getItem("isOk");
     const storedObservations = localStorage.getItem("observations");
+    const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
+    const storedEtanolFileName = localStorage.getItem("etanolFileName");
 
     if (storedDate) setDate(storedDate);
     if (storedTime) setTime(storedTime);
     if (storedIsOk) setIsOk(storedIsOk);
     if (storedObservations) setObservations(storedObservations);
+    if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
+    if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
   }, []);
 
   useEffect(() => {
@@ -126,6 +132,12 @@ export default function NewPost() {
 
   const [isOk, setIsOk] = useState("");
   const [observations, setObservations] = useState("");
+
+  const etanolRef = useRef(null);
+
+  const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState("");
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -217,6 +229,63 @@ export default function NewPost() {
     return points;
   };
 
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleEtanolImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsLoading(true);
+      try {
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(file.name);
+        setEtanolImageUrl(imageUrl);
+
+        // Armazena no localStorage
+        localStorage.setItem("etanolImageUrl", imageUrl);
+        localStorage.setItem("etanolFileName", file.name);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const getLocalISODate = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
@@ -244,6 +313,7 @@ export default function NewPost() {
     } else if (!time) missingField = "Hora";
     // else if (!managerName) missingField = "Nome do supervisor";
     else if (!isOk) missingField = "Está ok?";
+    else if (!etanolImageUrl) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -281,6 +351,13 @@ export default function NewPost() {
       userName,
       postName,
       shift,
+      images: [
+        {
+          type: "Imagem da tarefa",
+          imageUrl: etanolImageUrl,
+          fileName: etanolFileName,
+        },
+      ],
       isOk,
       observations,
       coordinates,
@@ -320,6 +397,8 @@ export default function NewPost() {
       localStorage.removeItem("time");
       localStorage.removeItem("isOk");
       localStorage.removeItem("observations");
+      localStorage.removeItem("etanolImageUrl");
+      localStorage.removeItem("etanolFileName");
 
       // @ts-ignore
       router.push(
@@ -333,6 +412,13 @@ export default function NewPost() {
       toast.error("Erro ao salvar a medição.");
     }
   };
+
+  async function uploadImageAndGetUrl(imageFile: File, path: string) {
+    const storageRef = ref(storage, path);
+    const uploadResult = await uploadBytes(storageRef, imageFile);
+    const downloadUrl = await getDownloadURL(uploadResult.ref);
+    return downloadUrl;
+  }
 
   return (
     <>
@@ -422,6 +508,45 @@ export default function NewPost() {
                     <option value="no">Não</option>
                   </select>
                 </div>
+
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Imagem da tarefa</p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={etanolRef}
+                      onChange={handleEtanolImageChange}
+                    />
+                    <button
+                      onClick={() =>
+                        // @ts-ignore
+                        etanolRef.current && etanolRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {etanolImageUrl && (
+                      <div>
+                        <img
+                          src={etanolImageUrl}
+                          alt="Preview do teste de Etanol"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>{etanolFileName}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>
                   <textarea

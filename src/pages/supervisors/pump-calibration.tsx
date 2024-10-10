@@ -467,7 +467,7 @@ export default function NewPost() {
 
       // @ts-ignore
       router.push(
-        `/supervisors/turn?post=${encodeURIComponent(
+        `/supervisors/game?post=${encodeURIComponent(
           // @ts-ignore
           postName
         )}&shift=${shift}`
@@ -591,7 +591,7 @@ export default function NewPost() {
                   {["image1"].map((imageKey, idx) => (
                     <div key={idx} className={styles.InputField}>
                       <p className={styles.FieldLabel}>
-                        Imagem {idx + 1} do bico {index + 1}
+                        Imagem do bico {index + 1}
                       </p>
                       <input
                         id={`file-input-${index}-${idx}`}
@@ -628,8 +628,35 @@ export default function NewPost() {
                       )}
                     </div>
                   ))}
+
+                  <div className={styles.InputContainer}>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>
+                        Litragem bomba bico {index + 1}
+                      </p>
+                      <input
+                        id={`liters-input-${index}`}
+                        type="text"
+                        className={styles.Field}
+                        // @ts-ignore
+                        value={pump.liters || ""}
+                        onChange={(e) => {
+                          const newPumps = [...pumps];
+                          // @ts-ignore
+                          newPumps[index].liters = e.target.value;
+                          setPumps(newPumps);
+                          localStorage.setItem(
+                            "pumps",
+                            JSON.stringify(newPumps)
+                          ); // Atualiza os dados dos pumps no localStorage
+                        }}
+                        placeholder={`Informe a litragem da bomba ${index + 1}`}
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>

@@ -191,7 +191,7 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    else if (!etanolImageUrl) missingField = "Fotos da tarefa";
+    else if (useMachines && !etanolImageUrl) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -374,43 +374,45 @@ export default function NewPost() {
                   </div>
                 ))}
 
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={etanolRef}
-                    onChange={handleEtanolImageChange}
-                  />
-                  <button
-                    onClick={() =>
-                      // @ts-ignore
-                      etanolRef.current && etanolRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {etanolImageUrl && (
-                    <div>
-                      <img
-                        src={etanolImageUrl}
-                        alt="Preview da imagem da tarefa"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{etanolFileName}</p>
-                    </div>
-                  )}
+              {useMachines > 0 && (
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Imagem da tarefa</p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={etanolRef}
+                      onChange={handleEtanolImageChange}
+                    />
+                    <button
+                      onClick={() =>
+                        // @ts-ignore
+                        etanolRef.current && etanolRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {etanolImageUrl && (
+                      <div>
+                        <img
+                          src={etanolImageUrl}
+                          alt="Preview da imagem da tarefa"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>{etanolFileName}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

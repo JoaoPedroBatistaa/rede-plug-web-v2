@@ -452,7 +452,7 @@ export default function NewPost() {
 
       // @ts-ignore
       router.push(
-        `/supervisors/pump-calibration?post=${encodeURIComponent(
+        `/supervisors/turn?post=${encodeURIComponent(
           // @ts-ignore
           postName
         )}&shift=${shift}`

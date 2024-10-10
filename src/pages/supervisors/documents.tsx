@@ -389,34 +389,49 @@ export default function NewPost() {
     const today = getLocalISODate();
     console.log(today);
 
-    if (!date) missingField = "Data";
-    else if (date !== today.date) {
+    if (!date) {
+      missingField = "Data";
+    } else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
-    } else if (!time) missingField = "Hora";
-    // else if (!managerName) missingField = "Nome do supervisor";
-    else if (!isANPOk) missingField = "ANP ok?";
-    else if (!isLicencaOperacaoOk)
+    } else if (!time) {
+      missingField = "Hora";
+    } else if (!isANPOk) {
+      missingField = "ANP ok?";
+    } else if (!isLicencaOperacaoOk) {
       missingField = "Licença de Operação está ok?";
-    else if (
-      !etanolImageUrl &&
-      !gcImageUrl &&
-      !contratoSocialImageUrl &&
-      !alvaraFuncionamentoImageUrl &&
-      bombeirosImageUrl &&
-      !epaeImageUrl &&
-      brigadaImageUrl &&
-      !laudoCompressorImageUrl &&
-      !laudoEstanqueidadeImageUrl &&
-      !laudoEletricaImageUrl
-    )
-      missingField = "Fotos do Documento";
+    } else if (isANPOk === "yes" && !etanolImageUrl) {
+      missingField = "Imagem do ANP";
+    } else if (isLicencaOperacaoOk === "yes" && !gcImageUrl) {
+      missingField = "Imagem da Licença de Operação";
+    } else if (isContratoSocialOk === "yes" && !contratoSocialImageUrl) {
+      missingField = "Imagem do Contrato Social";
+    } else if (
+      isAlvaraFuncionamentoOk === "yes" &&
+      !alvaraFuncionamentoImageUrl
+    ) {
+      missingField = "Imagem do Alvará de Funcionamento";
+    } else if (isBombeirosOk === "yes" && !bombeirosImageUrl) {
+      missingField = "Imagem do Alvará dos Bombeiros";
+    } else if (isEpaeOk === "yes" && !epaeImageUrl) {
+      missingField = "Imagem do EPAE";
+    } else if (isBrigadaOk === "yes" && !brigadaImageUrl) {
+      missingField = "Imagem da Brigada";
+    } else if (isLaudoCompressorOk === "yes" && !laudoCompressorImageUrl) {
+      missingField = "Imagem do Laudo Compressor";
+    } else if (
+      isLaudoEstanqueidadeOk === "yes" &&
+      !laudoEstanqueidadeImageUrl
+    ) {
+      missingField = "Imagem do Laudo Estanqueidade";
+    } else if (isLaudoEletricaOk === "yes" && !laudoEletricaImageUrl) {
+      missingField = "Imagem do Laudo Elétrica e Para Raio";
+    }
+
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -639,48 +654,50 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem do ANP</p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={etanolRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setEtanolImageUrl,
-                        setEtanolFileName,
-                        etanolRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      // @ts-ignore
-                      etanolRef.current && etanolRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {etanolImageUrl && (
-                    <div>
-                      <img
-                        src={etanolImageUrl}
-                        alt="Preview do ANP"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{etanolFileName}</p>
-                    </div>
-                  )}
-                </div>
+                {isANPOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Imagem do ANP</p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={etanolRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setEtanolImageUrl,
+                          setEtanolFileName,
+                          etanolRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        // @ts-ignore
+                        etanolRef.current && etanolRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {etanolImageUrl && (
+                      <div>
+                        <img
+                          src={etanolImageUrl}
+                          alt="Preview do ANP"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>{etanolFileName}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -698,43 +715,52 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Imagem da Licença de Operação
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={gcRef}
-                    onChange={(e) =>
-                      handleImageChange(e, setGcImageUrl, setGcFileName, gcRef)
-                    }
-                  />
-                  <button
-                    // @ts-ignore
-                    onClick={() => gcRef.current && gcRef.current.click()}
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {gcImageUrl && (
-                    <div>
-                      <img
-                        src={gcImageUrl}
-                        alt="Preview da Licença de Operação"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{gcFileName}</p>
-                    </div>
-                  )}
-                </div>
+                {isLicencaOperacaoOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>
+                      Imagem da Licença de Operação
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={gcRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setGcImageUrl,
+                          setGcFileName,
+                          gcRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        // @ts-ignore
+                        gcRef.current && gcRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {gcImageUrl && (
+                      <div>
+                        <img
+                          src={gcImageUrl}
+                          alt="Preview da Licença de Operação"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>{gcFileName}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -752,51 +778,55 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem do Contrato Social</p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={ContratoSocialRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setContratoSocialImageUrl,
-                        setContratoSocialFileName,
-                        ContratoSocialRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      ContratoSocialRef.current &&
-                      // @ts-ignore
-                      ContratoSocialRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {contratoSocialImageUrl && (
-                    <div>
-                      <img
-                        src={contratoSocialImageUrl}
-                        alt="Preview do Contrato Social"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>
-                        {contratoSocialFileName}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {isContratoSocialOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>
+                      Imagem do Contrato Social
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={ContratoSocialRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setContratoSocialImageUrl,
+                          setContratoSocialFileName,
+                          ContratoSocialRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        ContratoSocialRef.current &&
+                        // @ts-ignore
+                        ContratoSocialRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {contratoSocialImageUrl && (
+                      <div>
+                        <img
+                          src={contratoSocialImageUrl}
+                          alt="Preview do Contrato Social"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>
+                          {contratoSocialFileName}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -816,53 +846,55 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Imagem do Alvará de funcionamento
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={AlvaraFuncionamentoRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setAlvaraFuncionamentoImageUrl,
-                        setAlvaraFuncionamentoFileName,
-                        AlvaraFuncionamentoRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      AlvaraFuncionamentoRef.current &&
-                      // @ts-ignore
-                      AlvaraFuncionamentoRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {alvaraFuncionamentoImageUrl && (
-                    <div>
-                      <img
-                        src={alvaraFuncionamentoImageUrl}
-                        alt="Preview do Alvará de funcionamento"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>
-                        {alvaraFuncionamentoFileName}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {isAlvaraFuncionamentoOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>
+                      Imagem do Alvará de funcionamento
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={AlvaraFuncionamentoRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setAlvaraFuncionamentoImageUrl,
+                          setAlvaraFuncionamentoFileName,
+                          AlvaraFuncionamentoRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        AlvaraFuncionamentoRef.current &&
+                        // @ts-ignore
+                        AlvaraFuncionamentoRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {alvaraFuncionamentoImageUrl && (
+                      <div>
+                        <img
+                          src={alvaraFuncionamentoImageUrl}
+                          alt="Preview do Alvará de funcionamento"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>
+                          {alvaraFuncionamentoFileName}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -880,48 +912,51 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem dos Bombeiros</p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={BombeirosRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setBombeirosImageUrl,
-                        setBombeirosFileName,
-                        BombeirosRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      // @ts-ignore
-                      BombeirosRef.current && BombeirosRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {bombeirosImageUrl && (
-                    <div>
-                      <img
-                        src={bombeirosImageUrl}
-                        alt="Preview dos Bombeiros"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{bombeirosFileName}</p>
-                    </div>
-                  )}
-                </div>
+                {isBombeirosOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Imagem dos Bombeiros</p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={BombeirosRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setBombeirosImageUrl,
+                          setBombeirosFileName,
+                          BombeirosRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        BombeirosRef.current &&
+                        // @ts-ignore
+                        BombeirosRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {bombeirosImageUrl && (
+                      <div>
+                        <img
+                          src={bombeirosImageUrl}
+                          alt="Preview dos Bombeiros"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>{bombeirosFileName}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -939,46 +974,51 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem do EPAE</p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={EpaeRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setEpaeImageUrl,
-                        setEpaeFileName,
-                        EpaeRef
-                      )
-                    }
-                  />
-                  <button
-                    // @ts-ignore
-                    onClick={() => EpaeRef.current && EpaeRef.current.click()}
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {epaeImageUrl && (
-                    <div>
-                      <img
-                        src={epaeImageUrl}
-                        alt="Preview do EPAE"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{epaeFileName}</p>
-                    </div>
-                  )}
-                </div>
+                {isEpaeOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Imagem do EPAE</p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={EpaeRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setEpaeImageUrl,
+                          setEpaeFileName,
+                          EpaeRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        EpaeRef.current &&
+                        // @ts-ignore
+                        EpaeRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {epaeImageUrl && (
+                      <div>
+                        <img
+                          src={epaeImageUrl}
+                          alt="Preview do EPAE"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>{epaeFileName}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -996,48 +1036,51 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem da Brigada</p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={BrigadaRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setBrigadaImageUrl,
-                        setBrigadaFileName,
-                        BrigadaRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      // @ts-ignore
-                      BrigadaRef.current && BrigadaRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {brigadaImageUrl && (
-                    <div>
-                      <img
-                        src={brigadaImageUrl}
-                        alt="Preview da Brigada"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{brigadaFileName}</p>
-                    </div>
-                  )}
-                </div>
+                {isBrigadaOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Imagem da Brigada</p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={BrigadaRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setBrigadaImageUrl,
+                          setBrigadaFileName,
+                          BrigadaRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        BrigadaRef.current &&
+                        // @ts-ignore
+                        BrigadaRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {brigadaImageUrl && (
+                      <div>
+                        <img
+                          src={brigadaImageUrl}
+                          alt="Preview da Brigada"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>{brigadaFileName}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -1055,53 +1098,55 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Imagem do Laudo Compressor
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={LaudoCompressorRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setLaudoCompressorImageUrl,
-                        setLaudoCompressorFileName,
-                        LaudoCompressorRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      LaudoCompressorRef.current &&
-                      // @ts-ignore
-                      LaudoCompressorRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {laudoCompressorImageUrl && (
-                    <div>
-                      <img
-                        src={laudoCompressorImageUrl}
-                        alt="Preview do Laudo Compressor"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>
-                        {laudoCompressorFileName}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {isLaudoCompressorOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>
+                      Imagem do Laudo Compressor
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={LaudoCompressorRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setLaudoCompressorImageUrl,
+                          setLaudoCompressorFileName,
+                          LaudoCompressorRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        LaudoCompressorRef.current &&
+                        // @ts-ignore
+                        LaudoCompressorRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {laudoCompressorImageUrl && (
+                      <div>
+                        <img
+                          src={laudoCompressorImageUrl}
+                          alt="Preview do Laudo Compressor"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>
+                          {laudoCompressorFileName}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -1119,53 +1164,55 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Imagem do Laudo Estanqueidade
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={LaudoEstanqueidadeRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setLaudoEstanqueidadeImageUrl,
-                        setLaudoEstanqueidadeFileName,
-                        LaudoEstanqueidadeRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      LaudoEstanqueidadeRef.current &&
-                      // @ts-ignore
-                      LaudoEstanqueidadeRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {laudoEstanqueidadeImageUrl && (
-                    <div>
-                      <img
-                        src={laudoEstanqueidadeImageUrl}
-                        alt="Preview do Laudo Estanqueidade"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>
-                        {laudoEstanqueidadeFileName}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {isLaudoEstanqueidadeOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>
+                      Imagem do Laudo Estanqueidade
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={LaudoEstanqueidadeRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setLaudoEstanqueidadeImageUrl,
+                          setLaudoEstanqueidadeFileName,
+                          LaudoEstanqueidadeRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        LaudoEstanqueidadeRef.current &&
+                        // @ts-ignore
+                        LaudoEstanqueidadeRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {laudoEstanqueidadeImageUrl && (
+                      <div>
+                        <img
+                          src={laudoEstanqueidadeImageUrl}
+                          alt="Preview do Laudo Estanqueidade"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>
+                          {laudoEstanqueidadeFileName}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.InputContainer}>
@@ -1185,51 +1232,55 @@ export default function NewPost() {
                   </select>
                 </div>
 
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Imagem do Laudo Elétrica e Para Raio
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={LaudoEletricaRef}
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setLaudoEletricaImageUrl,
-                        setLaudoEletricaFileName,
-                        LaudoEletricaRef
-                      )
-                    }
-                  />
-                  <button
-                    onClick={() =>
-                      LaudoEletricaRef.current &&
-                      // @ts-ignore
-                      LaudoEletricaRef.current.click()
-                    }
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {laudoEletricaImageUrl && (
-                    <div>
-                      <img
-                        src={laudoEletricaImageUrl}
-                        alt="Preview do Laudo Elétrica e Para Raio"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{laudoEletricaFileName}</p>
-                    </div>
-                  )}
-                </div>
+                {isLaudoEletricaOk === "yes" && (
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>
+                      Imagem do Laudo Elétrica e Para Raio
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      style={{ display: "none" }}
+                      ref={LaudoEletricaRef}
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setLaudoEletricaImageUrl,
+                          setLaudoEletricaFileName,
+                          LaudoEletricaRef
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        LaudoEletricaRef.current &&
+                        // @ts-ignore
+                        LaudoEletricaRef.current.click()
+                      }
+                      className={styles.MidiaField}
+                    >
+                      Tire sua foto/vídeo
+                    </button>
+                    {laudoEletricaImageUrl && (
+                      <div>
+                        <img
+                          src={laudoEletricaImageUrl}
+                          alt="Preview do Laudo Elétrica e Para Raio"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                        <p className={styles.fileName}>
+                          {laudoEletricaFileName}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {
