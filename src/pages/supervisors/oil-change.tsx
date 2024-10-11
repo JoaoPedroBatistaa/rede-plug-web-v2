@@ -375,21 +375,7 @@ export default function NewPost() {
 
     console.log(`Supervisor is within radius: ${isWithinRadius}`);
 
-    if (!isWithinRadius) {
-      // Chama o endpoint para salvar a localização do supervisor
-      await fetch("/api/logSupervisorLocation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          supervisorName: localStorage.getItem("userName"),
-          coordinates,
-          postName,
-          shift,
-        }),
-      });
-
+    if (!isWithinRadius && coordinates.lat && coordinates.lng) {
       toast.error(
         "Você não está dentro do raio permitido para realizar essa tarefa."
       );

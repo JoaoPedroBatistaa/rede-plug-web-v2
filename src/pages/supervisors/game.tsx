@@ -401,7 +401,7 @@ export default function NewPost() {
         Math.abs(coord.lng - coordinates.lng) < 0.0001
     );
 
-    if (!isWithinRadius) {
+    if (!isWithinRadius && coordinates.lat && coordinates.lng) {
       toast.error(
         "Você não está dentro do raio permitido para realizar essa tarefa."
       );
