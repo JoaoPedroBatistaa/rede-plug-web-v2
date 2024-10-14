@@ -125,7 +125,7 @@ export default function NewPost() {
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Novo supervisor</p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton} onClick={handleSubmit}>
+              <button className={styles.editButton} onClick={handleSubmit}>
                 <img
                   src="/finishBudget.png"
                   alt="Finalizar"

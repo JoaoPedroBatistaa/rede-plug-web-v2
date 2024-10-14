@@ -6,6 +6,32 @@
   background-color: #ffffffff;
 }
 
+.graph {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  margin-bottom: 2.5rem;
+}
+
+.IncompleteTasksList {
+  font-family: "Syne", sans-serif;
+
+  margin-left: 1.5rem;
+
+  max-width: 90%;
+
+  list-style-type: circle;
+
+  margin-top: -1.5rem;
+
+  li {
+    margin-top: 1rem;
+  }
+}
+
 .openMediaLink {
   color: #fff;
   padding: 0.6rem 3rem;
@@ -155,6 +181,41 @@
   }
 }
 
+.editButton {
+  width: 23em;
+  height: 2.7rem;
+  border-radius: 1rem;
+  background-color: #000000;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .buttonImage {
+    display: none;
+  }
+
+  .buttonText {
+    display: block; // Mostra o texto por padrão
+    color: #fff;
+    font-family: "Syne", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .buttonImage {
+      display: block;
+    }
+
+    .buttonText {
+      display: none; // Esconde o texto em telas pequenas
+    }
+  }
+}
+
 .NewButton {
   width: 21em;
   height: 2.7rem;
@@ -223,6 +284,17 @@
   font-weight: 400;
   color: #222222;
   margin-bottom: 2.5rem;
+
+  max-width: 25%;
+}
+
+.subNotes {
+  font-family: "Syne", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #222222;
+  margin-bottom: 2.5rem;
+  margin-top: 2.5rem;
 
   max-width: 25%;
 }
@@ -611,6 +683,10 @@
 }
 
 @media (max-width: 430px) {
+  .BudgetHead {
+    align-items: center;
+  }
+
   .FinishTask {
     position: fixed;
     bottom: 0;
@@ -633,6 +709,22 @@
     border-radius: 1.5rem;
 
     gap: 1rem;
+  }
+
+  .editButton {
+    width: 6rem;
+  }
+
+  .SelectFieldSearch {
+    width: 14.5rem;
+    height: 2.5rem;
+    background-color: #fff;
+    border-radius: 16px;
+    border-color: #4040492d;
+    font-family: "Syne", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #404049;
   }
 
   .buttonTask {
@@ -661,6 +753,10 @@
   .Notes {
     max-width: 80%;
   }
+
+  .subNotes {
+    max-width: 80%;
+  }
   .userContent {
     flex-direction: column;
   }
@@ -668,8 +764,6 @@
   .BudgetTitle {
     font-size: 20px;
     max-width: 14rem;
-
-    margin-top: 2rem;
   }
 
   .Copyright {

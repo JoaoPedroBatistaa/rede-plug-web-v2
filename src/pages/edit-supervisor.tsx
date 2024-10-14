@@ -443,7 +443,7 @@ export default function EditSupervisor() {
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Editar supervisor</p>
             <div className={styles.BudgetHeadS}>
-              <button className={styles.FinishButton} onClick={handleSubmit}>
+              <button className={styles.editButton} onClick={handleSubmit}>
                 <img
                   src="/finishBudget.png"
                   alt="Finalizar"
@@ -548,12 +548,31 @@ export default function EditSupervisor() {
           </div>
 
           <div className={styles.BudgetHead}>
+            <p className={styles.BudgetTitle}>Produtividade do supervisor</p>
+          </div>
+
+          <p className={styles.Notes}>
+            Clique abaixo para que possa ver o relatório de produtividade do
+            supervisor com base nas tarefas atribuidas a ele na programação
+          </p>
+
+          <div className={styles.InputContainer}>
+            <div className={styles.InputField}>
+              <button
+                className={styles.locationButton}
+                onClick={() =>
+                  router.push(`/supervisor-productivity?id=${router.query.id}`)
+                }
+              >
+                Ver produtividade
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Programação</p>
             <div className={styles.BudgetHeadS}>
-              <button
-                className={styles.FinishButton}
-                onClick={handleAddRoutine}
-              >
+              <button className={styles.editButton} onClick={handleAddRoutine}>
                 <img
                   src="/plus.png"
                   alt="Adicionar rotina"
