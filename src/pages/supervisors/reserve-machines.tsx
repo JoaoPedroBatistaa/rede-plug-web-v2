@@ -342,7 +342,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    else if (useMachines && !etanolImageUrl) missingField = "Fotos da tarefa";
     else if (!useMachines) missingField = "Quantidade";
 
     if (missingField) {

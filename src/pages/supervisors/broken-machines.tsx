@@ -191,7 +191,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
-    else if (useMachines && !etanolImageUrl) missingField = "Fotos da tarefa";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
