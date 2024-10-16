@@ -203,7 +203,7 @@ export default function NewPost() {
   const calculateCoordinatesInRadius = (
     center: { lat: any; lng: any },
     radius = 200,
-    stepSize = 2
+    stepSize = 1
   ) => {
     const points = [];
     const earthRadius = 6371000; // Raio da Terra em metros
