@@ -82,7 +82,6 @@ export default function DigitalPointTask() {
     fetchPostCoordinates();
   }, [postName]);
 
-  // Função para salvar o horário local com fuso -03:00
   const getLocalISODateTime = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
