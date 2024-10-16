@@ -59,8 +59,6 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
           timeZone: "America/Sao_Paulo",
         });
 
-        localStorage.setItem("loginDate", date);
-        localStorage.setItem("loginTime", time);
         alert("O sistema agora está na versão mais recente");
         window.location.reload();
       });

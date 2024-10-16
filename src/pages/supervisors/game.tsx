@@ -271,7 +271,6 @@ export default function NewPost() {
     }
   };
 
-  // Função para lidar com alterações no campo Litros
   const handleLitersChange = (pumpIndex: number, value: string) => {
     const newPumps = [...pumps];
     // @ts-ignore
@@ -279,7 +278,7 @@ export default function NewPost() {
 
     const liters = parseFloat(value);
     if (!isNaN(liters)) {
-      const percentage = ((liters - 20) / 20) * 100;
+      const percentage = ((liters - 1) / 1) * 100;
       // @ts-ignore
       newPumps[pumpIndex].percentage = percentage.toFixed(1);
     }

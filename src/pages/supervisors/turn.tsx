@@ -376,6 +376,8 @@ export default function NewPost() {
                   />
                 </div>
               </div>
+
+              <div className={styles.space}></div>
             </div>
           </div>
         </div>

@@ -324,14 +324,16 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Notas fiscais</p>
-            <button className={styles.FinishButton} onClick={saveMeasurement}>
-              <span className={styles.buttonTask}>Próxima tarefa</span>
-              <img
-                src="/finishBudget.png"
-                alt="Finalizar"
-                className={styles.buttonImage}
-              />
-            </button>
+            <div className={styles.FinishTask}>
+              <button className={styles.FinishButton} onClick={saveMeasurement}>
+                <span className={styles.buttonTask}>Próxima tarefa</span>
+                <img
+                  src="/finishBudget.png"
+                  alt="Finalizar"
+                  className={styles.buttonImage}
+                />
+              </button>
+            </div>
           </div>
 
           <p className={styles.Notes}>

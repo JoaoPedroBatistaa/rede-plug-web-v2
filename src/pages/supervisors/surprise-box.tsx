@@ -751,7 +751,6 @@ export default function NewPost() {
 
     fetchCoordinates();
 
-    let missingField = "";
     const today = getLocalISODate();
     console.log(today);
 
@@ -784,13 +783,30 @@ export default function NewPost() {
       return;
     }
 
+    let missingField = "";
+
+    // Verificação para todos os campos obrigatórios
     if (!date) missingField = "Data";
     else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
+    else if (!etPrice) missingField = "Preço ET";
+    else if (!gcPrice) missingField = "Preço GC";
+    else if (!gaPrice) missingField = "Preço GA";
+    else if (!s10Price) missingField = "Preço S10";
+    else if (!etSales) missingField = "Vendas ET";
+    else if (!gcSales) missingField = "Vendas GC";
+    else if (!gaSales) missingField = "Vendas GA";
+    else if (!s10Sales) missingField = "Vendas S10";
+    else if (!totalLiters) missingField = "Total de Litros";
+    else if (!cash) missingField = "Dinheiro";
+    else if (!debit) missingField = "Débito";
+    else if (!credit) missingField = "Crédito";
+    else if (!pix) missingField = "Pix";
 
+    // Caso tenha algum campo faltando, exibe o erro correspondente
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
