@@ -11,8 +11,13 @@ import styles from "../../styles/ProductFoam.module.scss";
 
 export default function DigitalPointTask() {
   const router = useRouter();
-  const { post, shift } = router.query; // Extraindo post e shift da query
+  const postName = router.query.post;
+  const shift = router.query.shift;
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  const [postCoordinates, setPostCoordinates] = useState({
+    lat: null,
+    lng: null,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [isInspection, setIsInspection] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
@@ -24,7 +29,6 @@ export default function DigitalPointTask() {
     }
   }, []);
 
-  // Função para pegar as coordenadas do supervisor
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -49,6 +53,35 @@ export default function DigitalPointTask() {
     }
   };
 
+  useEffect(() => {
+    fetchCoordinates();
+  }, []);
+
+  useEffect(() => {
+    const fetchPostCoordinates = async () => {
+      if (!postName) return;
+
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const postData = querySnapshot.docs[0].data();
+          setPostCoordinates({
+            lat: postData.location.lat,
+            lng: postData.location.lng,
+          });
+          console.log("Post coordinates fetched: ", postData.location);
+        }
+      } catch (error) {
+        console.error("Error fetching post coordinates:", error);
+      }
+    };
+
+    fetchPostCoordinates();
+  }, [postName]);
+
   // Função para salvar o horário local com fuso -03:00
   const getLocalISODateTime = () => {
     const date = new Date();
@@ -68,7 +101,7 @@ export default function DigitalPointTask() {
   }, []);
 
   const saveMeasurement = async () => {
-    if (!post || !shift) {
+    if (!postName || !shift) {
       toast.error(
         "Posto ou turno não definido. Por favor, recarregue a página."
       );
@@ -81,6 +114,7 @@ export default function DigitalPointTask() {
     }
 
     setIsLoading(true);
+    fetchCoordinates();
 
     const today = getLocalISODateTime();
 
@@ -94,12 +128,35 @@ export default function DigitalPointTask() {
       date: today.date,
       time: today.time,
       supervisorName: userName,
-      postName: post, // Usando `post` em vez de `postName`
+      postName, // Usando `post` em vez de `postName`
       shift, // Incluímos o turno (shift) no salvamento do documento
       isInspection,
       coordinates,
       id: "digital_point",
     };
+
+    // @ts-ignore
+    const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
+    // @ts-ignore
+    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+
+    const isWithinRadius = radiusCoords.some(
+      (coord: { lat: number; lng: number }) =>
+        // @ts-ignore
+        Math.abs(coord.lat - coordinates.lat) < 0.0001 &&
+        // @ts-ignore
+        Math.abs(coord.lng - coordinates.lng) < 0.0001
+    );
+
+    console.log(`Supervisor is within radius: ${isWithinRadius}`);
+
+    if (!isWithinRadius && coordinates.lat && coordinates.lng) {
+      toast.error(
+        "Você não está dentro do raio permitido para realizar essa tarefa."
+      );
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Verifica se a tarefa já foi realizada hoje
@@ -109,7 +166,7 @@ export default function DigitalPointTask() {
         where("date", "==", today.date),
         where("id", "==", "digital_point"),
         where("supervisorName", "==", userName),
-        where("postName", "==", post), // Usando `post` em vez de `postName`
+        where("postName", "==", postName), // Usando `post` em vez de `postName`
         where("shift", "==", shift) // Também verificamos se o turno já foi salvo
       );
 
