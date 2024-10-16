@@ -164,8 +164,8 @@ export default function DigitalPointTask() {
       date: today.date,
       time: today.time,
       supervisorName: userName,
-      postName, // Usando `post` em vez de `postName`
-      shift, // Incluímos o turno (shift) no salvamento do documento
+      postName,
+      shift,
       isInspection,
       coordinates,
       id: "digital_point",
@@ -202,8 +202,8 @@ export default function DigitalPointTask() {
         where("date", "==", today.date),
         where("id", "==", "digital_point"),
         where("supervisorName", "==", userName),
-        where("postName", "==", postName), // Usando `post` em vez de `postName`
-        where("shift", "==", shift) // Também verificamos se o turno já foi salvo
+        where("postName", "==", postName),
+        where("shift", "==", shift)
       );
 
       const querySnapshot = await getDocs(q);
@@ -216,19 +216,21 @@ export default function DigitalPointTask() {
       }
 
       await addDoc(collection(db, "SUPERVISORS"), taskData);
-      toast.success("Tarefa de ponto digital salva com sucesso!");
 
+      toast.success("Tarefa de ponto digital salva com sucesso!");
       localStorage.removeItem("isInspection");
 
       router.push(
         `/supervisors/surprise-box?post=${encodeURIComponent(
           // @ts-ignore
-          post
+          postName
         )}&shift=${shift}`
-      ); // Usando `post` em vez de `postName`
+      );
     } catch (error) {
       console.error("Erro ao salvar a tarefa de ponto digital: ", error);
-      toast.error("Erro ao salvar a tarefa.");
+      toast.error(
+        "Erro inesperado ao salvar a tarefa. Tente novamente mais tarde."
+      );
     } finally {
       setIsLoading(false);
     }
