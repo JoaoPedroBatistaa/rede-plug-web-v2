@@ -116,7 +116,7 @@ export default function EditPost() {
   const calculateCoordinatesInRadius = (
     center: { lat: number; lng: number },
     radius = 200,
-    stepSize = 1
+    stepSize = 0.1
   ) => {
     const points = [];
     const earthRadius = 6371000; // Radius of the Earth in meters
