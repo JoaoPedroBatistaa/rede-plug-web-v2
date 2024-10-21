@@ -566,6 +566,7 @@ export default function EditPost() {
         password, // Atualiza a senha do frentista na coleção POSTS
         tanks,
         nozzles,
+        bombs,
         managers: updatedManagersWithPasswords,
       };
 
