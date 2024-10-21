@@ -65,6 +65,7 @@ export default function Home() {
     { id: "iluminacao-pista", route: "/supervisors/runway-lightning" },
     { id: "iluminacao-testeiras", route: "/supervisors/front-lightning" },
     { id: "forro", route: "/supervisors/lining" },
+    { id: "placas-sinalizacao", route: "/supervisors/traffic-signs" },
     {
       id: "identificacao-fornecedor",
       route: "/supervisors/supplier-identification",
