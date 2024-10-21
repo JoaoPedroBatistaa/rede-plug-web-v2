@@ -352,7 +352,7 @@ export default function NewPost() {
       isOk,
       observations,
       coordinates,
-
+      shift,
       images: [
         {
           type: "Imagem da tarefa",
