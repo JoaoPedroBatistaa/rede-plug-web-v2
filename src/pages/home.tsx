@@ -10,42 +10,42 @@ import { ChangeEvent, useEffect, useState } from "react";
 export default function Home() {
   const router = useRouter();
 
-  useEffect(() => {
-    const checkLoginDuration = () => {
-      console.log("Checking login duration...");
-      const storedDate = localStorage.getItem("loginDate");
-      const storedTime = localStorage.getItem("loginTime");
+  // useEffect(() => {
+  // //   const checkLoginDuration = () => {
+  // //     console.log("Checking login duration...");
+  // //     const storedDate = localStorage.getItem("loginDate");
+  // //     const storedTime = localStorage.getItem("loginTime");
 
-      if (storedDate && storedTime) {
-        const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-        console.log("Stored login date and time:", storedDateTime);
+  // //     if (storedDate && storedTime) {
+  // //       const storedDateTime = new Date(`${storedDate}T${storedTime}`);
+  // //       console.log("Stored login date and time:", storedDateTime);
 
-        const now = new Date();
-        const maxLoginDuration = 6 * 60 * 60 * 1000;
+  // //       const now = new Date();
+  // //       const maxLoginDuration = 6 * 60 * 60 * 1000;
 
-        if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-          console.log("Login duration exceeded 60 seconds. Logging out...");
+  // //       if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
+  // //         console.log("Login duration exceeded 60 seconds. Logging out...");
 
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("userType");
-          localStorage.removeItem("userPost");
-          localStorage.removeItem("posts");
-          localStorage.removeItem("loginDate");
-          localStorage.removeItem("loginTime");
+  // //         localStorage.removeItem("userId");
+  // //         localStorage.removeItem("userName");
+  // //         localStorage.removeItem("userType");
+  // //         localStorage.removeItem("userPost");
+  // //         localStorage.removeItem("posts");
+  // //         localStorage.removeItem("loginDate");
+  // //         localStorage.removeItem("loginTime");
 
-          alert("Sua sessão expirou. Por favor, faça login novamente.");
-          window.location.href = "/";
-        } else {
-          console.log("Login duration within limits.");
-        }
-      } else {
-        console.log("No stored login date and time found.");
-      }
-    };
+  // //         alert("Sua sessão expirou. Por favor, faça login novamente.");
+  // //         window.location.href = "/";
+  // //       } else {
+  // //         console.log("Login duration within limits.");
+  // //       }
+  // //     } else {
+  // //       console.log("No stored login date and time found.");
+  // //     }
+  // //   };
 
-    checkLoginDuration();
-  }, []);
+  // //   checkLoginDuration();
+  // // }, []);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -62,6 +62,30 @@ export default function Home() {
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+  };
+
+  const handleRefresh = () => {
+    // Limpa o cache e recarrega a página
+    caches
+      .keys()
+      .then((names) => {
+        for (let name of names) caches.delete(name);
+      })
+      .then(() => {
+        const now = new Date();
+        const date = now
+          .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+          .split("/")
+          .reverse()
+          .join("-");
+        const time = now.toLocaleTimeString("pt-BR", {
+          hour12: false,
+          timeZone: "America/Sao_Paulo",
+        });
+
+        alert("O sistema agora está na versão mais recente");
+        window.location.reload();
+      });
   };
 
   return (
@@ -108,6 +132,12 @@ export default function Home() {
                 </div>
               </Link> */}
             </div>
+          </div>
+
+          <p className={styles.title}>Atualizar aplicação</p>
+
+          <div className={styles.ipCardMenu} onClick={handleRefresh}>
+            <span className={styles.CardMenuText}>Atualizar</span>
           </div>
 
           <div className={styles.Copyright}>

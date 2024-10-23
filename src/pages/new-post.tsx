@@ -26,42 +26,42 @@ export default function NewPost() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const checkLoginDuration = () => {
-      console.log("Checking login duration...");
-      const storedDate = localStorage.getItem("loginDate");
-      const storedTime = localStorage.getItem("loginTime");
+  // useEffect(() => {
+  // //   const checkLoginDuration = () => {
+  // //     console.log("Checking login duration...");
+  // //     const storedDate = localStorage.getItem("loginDate");
+  // //     const storedTime = localStorage.getItem("loginTime");
 
-      if (storedDate && storedTime) {
-        const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-        console.log("Stored login date and time:", storedDateTime);
+  // //     if (storedDate && storedTime) {
+  // //       const storedDateTime = new Date(`${storedDate}T${storedTime}`);
+  // //       console.log("Stored login date and time:", storedDateTime);
 
-        const now = new Date();
-        const maxLoginDuration = 6 * 60 * 60 * 1000;
+  // //       const now = new Date();
+  // //       const maxLoginDuration = 6 * 60 * 60 * 1000;
 
-        if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-          console.log("Login duration exceeded 60 seconds. Logging out...");
+  // //       if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
+  // //         console.log("Login duration exceeded 60 seconds. Logging out...");
 
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("userType");
-          localStorage.removeItem("userPost");
-          localStorage.removeItem("posts");
-          localStorage.removeItem("loginDate");
-          localStorage.removeItem("loginTime");
+  // //         localStorage.removeItem("userId");
+  // //         localStorage.removeItem("userName");
+  // //         localStorage.removeItem("userType");
+  // //         localStorage.removeItem("userPost");
+  // //         localStorage.removeItem("posts");
+  // //         localStorage.removeItem("loginDate");
+  // //         localStorage.removeItem("loginTime");
 
-          alert("Sua sessão expirou. Por favor, faça login novamente.");
-          window.location.href = "/";
-        } else {
-          console.log("Login duration within limits.");
-        }
-      } else {
-        console.log("No stored login date and time found.");
-      }
-    };
+  // //         alert("Sua sessão expirou. Por favor, faça login novamente.");
+  // //         window.location.href = "/";
+  // //       } else {
+  // //         console.log("Login duration within limits.");
+  // //       }
+  // //     } else {
+  // //       console.log("No stored login date and time found.");
+  // //     }
+  // //   };
 
-    checkLoginDuration();
-  }, []);
+  // //   checkLoginDuration();
+  // // }, []);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");

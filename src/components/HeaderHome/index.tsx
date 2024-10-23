@@ -65,11 +65,7 @@ export default function HeaderHome() {
           <div className={styles.HeaderTextDescription}>
             <p>
               Aqui você pode realizar suas tarefas de forma rápida e eficiente,
-              com acesso direto às funcionalidades mais utilizadas. Estamos aqui
-              para facilitar sua rotina, oferecendo atalhos para as principais
-              atividades e um ambiente intuitivo para que você encontre
-              exatamente o que precisa. Explore os recursos disponíveis e
-              descubra como podemos ajudar a tornar seu dia mais produtivo.
+              com acesso direto às funcionalidades mais utilizadas.
             </p>
           </div>
         </div>

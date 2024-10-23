@@ -240,16 +240,59 @@ export default function Home() {
     } else if (shift === "secondShift" && (hour < 14 || hour >= 22)) {
       alert("Você só pode acessar o segundo turno entre 14h e 22h.");
     } else if (currentDayRoutine && currentDayRoutine[shift]) {
-      const nextTaskRoute = await getNextTask(shift, currentDayRoutine.date);
+      const completedTasks = await getCompletedTasks(
+        shift,
+        currentDayRoutine.date
+      );
 
-      if (nextTaskRoute) {
-        router.push(
-          `${nextTaskRoute}?post=${encodeURIComponent(
-            currentDayRoutine[shift]?.label || ""
-          )}&shift=${shift}`
-        );
+      // Verifica se o loginRequiredTime foi feito nos últimos 30 minutos
+      const loginRequiredTime = localStorage.getItem("loginRequiredTime");
+      if (completedTasks.length === 0) {
+        if (loginRequiredTime) {
+          const lastLoginRequired = new Date(loginRequiredTime);
+          const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
+
+          if (lastLoginRequired > thirtyMinutesAgo) {
+            // O loginRequiredTime foi feito nos últimos 30 minutos, então permitir prosseguir
+            const nextTaskRoute = await getNextTask(
+              shift,
+              currentDayRoutine.date
+            );
+
+            if (nextTaskRoute) {
+              router.push(
+                `${nextTaskRoute}?post=${encodeURIComponent(
+                  currentDayRoutine[shift]?.label || ""
+                )}&shift=${shift}`
+              );
+            } else {
+              alert("Todas as tarefas para este turno já foram concluídas.");
+            }
+            return;
+          }
+        }
+
+        // Caso contrário, exibir o alerta e redirecionar para a página de login
+        alert("Para começar as tarefas do turno, você deve refazer o login.");
+        router.push("/");
+
+        // Salva a data e horário no localStorage
+        const nowString = now.toISOString();
+        localStorage.setItem("loginRequiredTime", nowString);
       } else {
-        alert("Todas as tarefas para este turno já foram concluídas.");
+        const nextTaskRoute = await getNextTask(shift, currentDayRoutine.date);
+
+        if (nextTaskRoute) {
+          router.push(
+            `${nextTaskRoute}?post=${encodeURIComponent(
+              currentDayRoutine[shift]?.label || ""
+            )}&shift=${shift}`
+          );
+
+          // Apaga o campo no localStorage para evitar alertas repetidos
+        } else {
+          alert("Todas as tarefas para este turno já foram concluídas.");
+        }
       }
     }
   };
@@ -308,6 +351,30 @@ export default function Home() {
     ));
   };
 
+  const handleRefresh = () => {
+    // Limpa o cache e recarrega a página
+    caches
+      .keys()
+      .then((names) => {
+        for (let name of names) caches.delete(name);
+      })
+      .then(() => {
+        const now = new Date();
+        const date = now
+          .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+          .split("/")
+          .reverse()
+          .join("-");
+        const time = now.toLocaleTimeString("pt-BR", {
+          hour12: false,
+          timeZone: "America/Sao_Paulo",
+        });
+
+        alert("O sistema agora está na versão mais recente");
+        window.location.reload();
+      });
+  };
+
   return (
     <>
       <Head>
@@ -363,6 +430,12 @@ export default function Home() {
           <p className={styles.title}>Validação do dispositivo</p>
 
           {renderValidationCard()}
+
+          <p className={styles.title}>Atualizar aplicação</p>
+
+          <div className={styles.ipCardMenu} onClick={handleRefresh}>
+            <span className={styles.CardMenuText}>Atualizar</span>
+          </div>
 
           <div className={styles.Copyrigt}>
             <p className={styles.Copy}>

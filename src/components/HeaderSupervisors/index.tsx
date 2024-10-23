@@ -66,8 +66,6 @@ export default function HeaderHome() {
             <p>
               Aqui você pode acessar sua programação diária de forma rápida e
               eficiente, além de visualizar e realizar todas as tarefas do dia.
-              Aproveite as funcionalidades disponíveis para otimizar sua rotina
-              e garantir que tudo esteja em ordem.
             </p>
           </div>
         </div>
