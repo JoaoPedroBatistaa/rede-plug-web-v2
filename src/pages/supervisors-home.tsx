@@ -86,6 +86,7 @@ export default function Home() {
     { id: "bicos-parados", route: "/supervisors/nozzles-stopped" },
     { id: "mangueiras", route: "/supervisors/hoses" },
     { id: "lacre-bombas", route: "/supervisors/bomb-seal" },
+    { id: "limpeza-samp", route: "/supervisors/samp-cleaning" },
     { id: "passagem-bomba", route: "/supervisors/bomb-passage" },
     { id: "calibragem-bombas", route: "/supervisors/pump-calibration" },
     { id: "game", route: "/supervisors/game" },

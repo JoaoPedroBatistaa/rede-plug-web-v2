@@ -500,7 +500,7 @@ export default function NewPost() {
 
       // @ts-ignore
       router.push(
-        `/supervisors/bomb-passage?post=${encodeURIComponent(
+        `/supervisors/samp-cleaning?post=${encodeURIComponent(
           // @ts-ignore
           postName
         )}&shift=${shift}`

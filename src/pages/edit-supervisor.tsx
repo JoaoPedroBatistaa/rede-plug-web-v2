@@ -318,73 +318,72 @@ export default function EditSupervisor() {
       "Sábado",
     ];
 
-    return routine
+    // Filtra apenas a última rotina do banco de dados (a última com isFromDatabase como true)
+    const lastDatabaseRoutine = routine
       .filter((weekObj) => weekObj.isFromDatabase)
-      .map((weekObj, weekIndex) => (
-        <div key={weekIndex} className={styles.week}>
-          {Array.isArray(weekObj.week) &&
-            weekObj.week.map((day, dayIndex) => {
-              const dayDate = new Date(day.date + "T00:00:00-03:00");
-              const formattedDate = dayDate.toLocaleDateString("pt-BR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              });
+      .slice(-1); // Pega apenas o último elemento
 
-              const dayName = daysOfWeek[dayIndex];
+    return lastDatabaseRoutine.map((weekObj, weekIndex) => (
+      <div key={weekIndex} className={styles.week}>
+        {Array.isArray(weekObj.week) &&
+          weekObj.week.map((day, dayIndex) => {
+            const dayDate = new Date(day.date + "T00:00:00-03:00");
+            const formattedDate = dayDate.toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
 
-              return (
-                <div key={dayIndex} className={styles.day}>
-                  <p className={styles.dayTitle}>
-                    {`${dayName} - ${formattedDate}`}
-                  </p>
-                  <div className={styles.InputContainer}>
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>
-                        Primeiro turno (8h-14h)
-                      </p>
-                      <AsyncSelect
-                        cacheOptions
-                        loadOptions={loadOptions}
-                        defaultOptions={posts}
-                        value={day.firstShift}
-                        onChange={(selectedOption) =>
-                          handleRoutineChange(
-                            weekIndex,
-                            dayIndex,
-                            "firstShift",
-                            selectedOption
-                          )
-                        } // Permite editar
-                        className={styles.SelectFieldSearch}
-                      />
-                    </div>
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>
-                        Segundo turno (14h-22h)
-                      </p>
-                      <AsyncSelect
-                        cacheOptions
-                        loadOptions={loadOptions}
-                        defaultOptions={posts}
-                        value={day.secondShift}
-                        onChange={(selectedOption) =>
-                          handleRoutineChange(
-                            weekIndex,
-                            dayIndex,
-                            "secondShift",
-                            selectedOption
-                          )
-                        } // Permite editar
-                        className={styles.SelectFieldSearch}
-                      />
-                    </div>
+            const dayName = daysOfWeek[dayIndex];
+
+            return (
+              <div key={dayIndex} className={styles.day}>
+                <p className={styles.dayTitle}>
+                  {`${dayName} - ${formattedDate}`}
+                </p>
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Primeiro turno (8h-14h)</p>
+                    <AsyncSelect
+                      cacheOptions
+                      loadOptions={loadOptions}
+                      defaultOptions={posts}
+                      value={day.firstShift}
+                      onChange={(selectedOption) =>
+                        handleRoutineChange(
+                          weekIndex,
+                          dayIndex,
+                          "firstShift",
+                          selectedOption
+                        )
+                      } // Permite editar
+                      className={styles.SelectFieldSearch}
+                    />
+                  </div>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Segundo turno (14h-22h)</p>
+                    <AsyncSelect
+                      cacheOptions
+                      loadOptions={loadOptions}
+                      defaultOptions={posts}
+                      value={day.secondShift}
+                      onChange={(selectedOption) =>
+                        handleRoutineChange(
+                          weekIndex,
+                          dayIndex,
+                          "secondShift",
+                          selectedOption
+                        )
+                      } // Permite editar
+                      className={styles.SelectFieldSearch}
+                    />
                   </div>
                 </div>
-              );
-            })}
-        </div>
-      ));
+              </div>
+            );
+          })}
+      </div>
+    ));
   };
 
   useEffect(() => {

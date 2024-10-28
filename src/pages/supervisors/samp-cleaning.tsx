@@ -22,32 +22,6 @@ import LoadingOverlay from "@/components/Loading";
 import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
 
-async function compressImage(file: File) {
-  const options = {
-    maxSizeMB: 1,
-    maxWidthOrHeight: 1920,
-    useWebWorker: true,
-  };
-
-  try {
-    console.log(
-      `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
-    );
-    const compressedFile = await imageCompression(file, options);
-    console.log(
-      `Tamanho da imagem comprimida: ${(
-        compressedFile.size /
-        1024 /
-        1024
-      ).toFixed(2)} MB`
-    );
-    return compressedFile;
-  } catch (error) {
-    console.error("Erro ao comprimir imagem:", error);
-    throw error;
-  }
-}
-
 export default function NewPost() {
   const router = useRouter();
   const postName = router.query.post;
@@ -65,25 +39,20 @@ export default function NewPost() {
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
 
   useEffect(() => {
+    // Recupera os valores armazenados no localStorage para os campos
     const storedDate = localStorage.getItem("date");
     const storedTime = localStorage.getItem("time");
+    const storedIsOk = localStorage.getItem("isOk");
     const storedObservations = localStorage.getItem("observations");
-    const storedIsEtanolOk = localStorage.getItem("isEtanolOk");
-    const storedIsGasolinaOk = localStorage.getItem("isGasolinaOk");
     const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
     const storedEtanolFileName = localStorage.getItem("etanolFileName");
-    const storedGcImageUrl = localStorage.getItem("gcImageUrl");
-    const storedGcFileName = localStorage.getItem("gcFileName");
 
     if (storedDate) setDate(storedDate);
     if (storedTime) setTime(storedTime);
+    if (storedIsOk) setIsOk(storedIsOk);
     if (storedObservations) setObservations(storedObservations);
-    if (storedIsEtanolOk) setIsEtanolOk(storedIsEtanolOk);
-    if (storedIsGasolinaOk) setIsGasolinaOk(storedIsGasolinaOk);
     if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
     if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
-    if (storedGcImageUrl) setGcImageUrl(storedGcImageUrl);
-    if (storedGcFileName) setGcFileName(storedGcFileName);
   }, []);
 
   // useEffect(() => {
@@ -139,10 +108,9 @@ export default function NewPost() {
           setDate(fetchedData.date);
           setTime(fetchedData.time);
           setObservations(fetchedData.observations);
-          setIsEtanolOk(fetchedData.isEtanolOk);
-          setIsGasolinaOk(fetchedData.isGasolinaOk);
+          setIsOk(fetchedData.isOk);
 
-          console.log(fetchedData);
+          console.log(fetchedData); // Verifica se os dados foram corretamente buscados
         } else {
           console.log("No such document!");
         }
@@ -162,24 +130,14 @@ export default function NewPost() {
   const [time, setTime] = useState("");
   const [managerName, setManagerName] = useState("");
 
-  const [isEtanolOk, setIsEtanolOk] = useState("");
-  const [isGasolinaOk, setIsGasolinaOk] = useState("");
+  const [isOk, setIsOk] = useState("");
   const [observations, setObservations] = useState("");
 
   const etanolRef = useRef(null);
-  const gcRef = useRef(null);
 
   const [etanolImage, setEtanolImage] = useState<File | null>(null);
-  const [etanolImageUrl, setEtanolImageUrl] = useState("");
   const [etanolFileName, setEtanolFileName] = useState("");
-
-  const [gcImage, setGcImage] = useState<File | null>(null);
-  const [gcImageUrl, setGcImageUrl] = useState("");
-  const [gcFileName, setGcFileName] = useState("");
-
-  const [pesoEtanol, setPesoEtanol] = useState("");
-  const [temperaturaEtanol, setTemperaturaEtanol] = useState("");
-  const [qualidadeGasolina, setQualidadeGasolina] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -207,7 +165,7 @@ export default function NewPost() {
 
   useEffect(() => {
     fetchCoordinates();
-  }, [date, time, observations, managerName]);
+  }, [date, time, isOk, observations, managerName]);
 
   useEffect(() => {
     const fetchPostCoordinates = async () => {
@@ -271,53 +229,60 @@ export default function NewPost() {
     return points;
   };
 
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 1, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
   const handleEtanolImageChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
       setIsLoading(true);
-      let compressedFile = file;
-      if (file.type.startsWith("image/")) {
-        compressedFile = await compressImage(file);
+      try {
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODate()}/${file.name}_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(file.name);
+        setEtanolImageUrl(imageUrl);
+
+        // Armazena no localStorage
+        localStorage.setItem("etanolImageUrl", imageUrl);
+        localStorage.setItem("etanolFileName", file.name);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
+      } finally {
+        setIsLoading(false);
       }
-      const url = await uploadImageAndGetUrl(
-        compressedFile,
-        `supervisors/${compressedFile.name}`
-      );
-      setEtanolImage(file);
-      setEtanolFileName(file.name);
-      setEtanolImageUrl(url);
-
-      localStorage.setItem("etanolImageUrl", url); // Armazena no localStorage
-      localStorage.setItem("etanolFileName", file.name); // Armazena no localStorage
-      setIsLoading(false);
-    }
-  };
-
-  const handleGcImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // @ts-ignore
-    const file = event.target.files[0];
-    if (file) {
-      setIsLoading(true);
-      let compressedFile = file;
-      if (file.type.startsWith("image/")) {
-        compressedFile = await compressImage(file);
-      }
-      const url = await uploadImageAndGetUrl(
-        compressedFile,
-        `fuelTests/${compressedFile.name}`
-      );
-      setGcImage(file);
-      setGcFileName(file.name);
-      setGcImageUrl(url);
-
-      localStorage.setItem("gcImageUrl", url); // Armazena no localStorage
-      localStorage.setItem("gcFileName", file.name); // Armazena no localStorage
-      setIsLoading(false);
     }
   };
 
@@ -343,17 +308,14 @@ export default function NewPost() {
     else if (date !== today.date) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
-
       return;
     } else if (!time) missingField = "Hora";
-    else if (!isEtanolOk) missingField = "Etanol está ok?";
-    else if (!isGasolinaOk) missingField = "Gasolina está ok?";
-    else if (!etanolImage && !gcImage)
-      missingField = "Fotos do Teste dos Combustíveis";
+    else if (!isOk) missingField = "Está ok?";
+    else if (!etanolImageUrl) missingField = "Fotos da tarefa";
+
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
       setIsLoading(false);
-
       return;
     }
 
@@ -363,7 +325,7 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", today.date),
-      where("id", "==", "teste-combustiveis-venda"),
+      where("id", "==", "limpeza-samp"),
       where("supervisorName", "==", userName),
       where("postName", "==", postName), // Usando `post` em vez de `postName`
       where("shift", "==", shift) // Também verificamos se o turno já foi salvo
@@ -372,7 +334,7 @@ export default function NewPost() {
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       toast.error(
-        "A tarefa teste dos combústiveis de venda já foi feita para esse turno hoje!"
+        "A tarefa limpeza do samp já foi feita para esse turno hoje!"
       );
       setIsLoading(false);
       return;
@@ -384,34 +346,19 @@ export default function NewPost() {
       supervisorName: userName,
       userName,
       postName,
-      isEtanolOk,
-      isGasolinaOk,
-      pesoEtanol,
-      temperaturaEtanol,
-      qualidadeGasolina,
+      isOk,
       observations,
       coordinates,
       shift,
-      images: [],
-      id: "teste-combustiveis-venda",
+      images: [
+        {
+          type: "Imagem da tarefa",
+          imageUrl: etanolImageUrl,
+          fileName: etanolFileName,
+        },
+      ],
+      id: "limpeza-samp",
     };
-
-    const images = [];
-    if (etanolImage) {
-      images.push({
-        type: "Etanol",
-        imageUrl: etanolImageUrl,
-        fileName: etanolFileName,
-      });
-    }
-
-    if (gcImage) {
-      images.push({
-        type: "GC",
-        imageUrl: gcImageUrl,
-        fileName: gcFileName,
-      });
-    }
 
     // @ts-ignore
     const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
@@ -437,9 +384,6 @@ export default function NewPost() {
     }
 
     try {
-      // @ts-ignore
-      taskData.images = images;
-
       // sendMessage(taskData);
 
       const docRef = await addDoc(collection(db, "SUPERVISORS"), taskData);
@@ -449,17 +393,14 @@ export default function NewPost() {
 
       localStorage.removeItem("date");
       localStorage.removeItem("time");
+      localStorage.removeItem("isOk");
       localStorage.removeItem("observations");
-      localStorage.removeItem("isEtanolOk");
-      localStorage.removeItem("isGasolinaOk");
       localStorage.removeItem("etanolImageUrl");
       localStorage.removeItem("etanolFileName");
-      localStorage.removeItem("gcImageUrl");
-      localStorage.removeItem("gcFileName");
 
       // @ts-ignore
       router.push(
-        `/supervisors/turn?post=${encodeURIComponent(
+        `/supervisors/bomb-passage?post=${encodeURIComponent(
           // @ts-ignore
           postName
         )}&shift=${shift}`
@@ -467,7 +408,6 @@ export default function NewPost() {
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
-      setIsLoading(false);
     }
   };
 
@@ -493,7 +433,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Teste combustíveis de venda</p>
+            <p className={styles.BudgetTitle}>Limpeza do samp</p>
             {!docId && (
               <div className={styles.FinishTask}>
                 <button
@@ -512,7 +452,7 @@ export default function NewPost() {
           </div>
 
           <p className={styles.Notes}>
-            Informe abaixo as informações do teste dos combústiveis de venda
+            Informe abaixo as informações da limpeza do samp
           </p>
 
           <div className={styles.userContent}>
@@ -548,16 +488,17 @@ export default function NewPost() {
                   />
                 </div>
               </div>
+
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Etanol OK?</p>
+                  <p className={styles.FieldLabel}>OK?</p>
                   <select
                     id="isOk"
                     className={styles.SelectField}
-                    value={isEtanolOk}
+                    value={isOk}
                     onChange={(e) => {
-                      setIsEtanolOk(e.target.value);
-                      localStorage.setItem("isEtanolOk", e.target.value); // Armazena no localStorage
+                      setIsOk(e.target.value);
+                      localStorage.setItem("isOk", e.target.value); // Armazena no localStorage
                     }}
                   >
                     <option value="">Selecione</option>
@@ -565,58 +506,6 @@ export default function NewPost() {
                     <option value="no">Não</option>
                   </select>
                 </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Gasolina OK?</p>
-                  <select
-                    id="isOk"
-                    className={styles.SelectField}
-                    value={isGasolinaOk}
-                    onChange={(e) => {
-                      setIsGasolinaOk(e.target.value);
-                      localStorage.setItem("isGasolinaOk", e.target.value); // Armazena no localStorage
-                    }}
-                  >
-                    <option value="">Selecione</option>
-                    <option value="yes">Sim</option>
-                    <option value="no">Não</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.InputContainer}>
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Peso Etanol</p>
-                  <input
-                    type="text"
-                    className={styles.Field}
-                    value={pesoEtanol}
-                    onChange={(e) => setPesoEtanol(e.target.value)}
-                  />
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Temperatura Etanol</p>
-                  <input
-                    type="text"
-                    className={styles.Field}
-                    value={temperaturaEtanol}
-                    onChange={(e) => setTemperaturaEtanol(e.target.value)}
-                  />
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Qualidade Gasolina</p>
-                  <input
-                    type="text"
-                    className={styles.Field}
-                    value={qualidadeGasolina}
-                    onChange={(e) => setQualidadeGasolina(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Observações</p>
                   <textarea
@@ -632,45 +521,49 @@ export default function NewPost() {
                 </div>
               </div>
 
-              {
+              {docId &&
                 // @ts-ignore
-                docId && data && data.images && (
-                  <div>
-                    {
-                      // @ts-ignore
-                      data.images.map((image, index) => (
-                        <div key={index} className={styles.InputField}>
-                          <p className={styles.FieldLabel}>
-                            Imagem {image.type}
-                          </p>
-                          <img
-                            src={image.imageUrl}
-                            alt={`Preview do teste de ${image.type}`}
-                            style={{
-                              maxWidth: "17.5rem",
-                              height: "auto",
-                              border: "1px solid #939393",
-                              borderRadius: "20px",
-                            }}
-                          />
-                        </div>
-                      ))
-                    }
+                data?.images.map((image, index) => (
+                  <div key={index} className={styles.InputField}>
+                    <p className={styles.titleTank}>
+                      Limpeza e organização dos banheiros
+                    </p>
+                    <p className={styles.FieldLabel}>Imagem da tarefa</p>
+
+                    {image && (
+                      <div>
+                        <img
+                          src={image.imageUrl}
+                          alt={`Preview do encerrante do bico ${index + 1}`}
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                          onLoad={() =>
+                            // @ts-ignore
+                            URL.revokeObjectURL(image)
+                          }
+                        />
+                        <p className={styles.fileName}>{image.fileName}</p>
+                      </div>
+                    )}
                   </div>
-                )
-              }
+                ))}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem do teste de Etanol</p>
+                  <p className={styles.FieldLabel}>Imagem da tarefa</p>
                   <input
                     type="file"
                     accept="image/*,video/*"
-                    capture="environment"
+                    capture="environment" // para capturar da câmera traseira, ou use "user" para a câmera frontal
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={handleEtanolImageChange}
                   />
+
                   <button
                     onClick={() =>
                       // @ts-ignore
@@ -680,6 +573,7 @@ export default function NewPost() {
                   >
                     Tire sua foto/vídeo
                   </button>
+                  {isLoading && <p>Carregando imagem...</p>}
                   {etanolImageUrl && (
                     <div>
                       <img
@@ -693,42 +587,6 @@ export default function NewPost() {
                         }}
                       />
                       <p className={styles.fileName}>{etanolFileName}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>
-                    Imagem do teste de Gasolina Comum (GC)
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    capture="environment"
-                    style={{ display: "none" }}
-                    ref={gcRef}
-                    onChange={handleGcImageChange}
-                  />
-                  <button
-                    // @ts-ignore
-                    onClick={() => gcRef.current && gcRef.current.click()}
-                    className={styles.MidiaField}
-                  >
-                    Tire sua foto/vídeo
-                  </button>
-                  {gcImageUrl && (
-                    <div>
-                      <img
-                        src={gcImageUrl}
-                        alt="Preview do teste de Gasolina Comum"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
-                      <p className={styles.fileName}>{gcFileName}</p>
                     </div>
                   )}
                 </div>
