@@ -1104,6 +1104,12 @@
 }
 
 @media (max-width: 768px) {
+  .ListContainer {
+    padding: 1rem 0rem;
+
+    padding-bottom: 2rem;
+  }
+
   .searchContainer {
     width: 200px;
     height: 40px;
@@ -1140,19 +1146,23 @@
     flex-direction: row;
     align-items: center;
 
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
   }
 
   .ProductNameMobile {
     display: block;
     font-family: "Syne";
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 20px;
     line-height: 20px;
     color: #404049;
-    margin-left: 8px;
+    margin-left: 32px;
     margin-right: 16px;
+
+    margin-top: 1rem;
+
+    margin-bottom: -2rem;
   }
 
   .searchInput {

@@ -167,50 +167,9 @@ export default function Products() {
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Rotina das 6h</p>
-                  <div
-                    className={styles.ListMenuFilter}
-                    onClick={() => toggleFilter("foam")}
-                  >
-                    <img src="./Filter.svg"></img>{" "}
-                    <span className={styles.ListMenuFilterText}>Filtros</span>
-                  </div>
                 </div>
               </div>
-              <div
-                className={`${
-                  filterStates.foam
-                    ? styles.containerFilter
-                    : styles.containerFilterClose
-                }`}
-              >
-                <div className={styles.listFilter}>
-                  <h2>ORDENAR POR:</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="codigoCrescente"
-                      name="ordenarPor"
-                      value="codigoCrescente"
-                      onChange={handleOrderValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="codigoCrescente">Codigo crescente</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="codigoDescrescente"
-                      name="ordenarPor"
-                      value="codigoDescrescente"
-                      onChange={handleOrderValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="codigoDescrescente">
-                      Codigo decrescente
-                    </label>
-                  </div>
-                </div>
-              </div>
+
               <div className={styles.MarginTop}></div>
               <TablePosts
                 searchValue={searchValue}

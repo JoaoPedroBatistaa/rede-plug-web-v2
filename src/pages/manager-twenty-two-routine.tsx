@@ -167,13 +167,13 @@ export default function Products() {
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Rotina das 22h</p>
-                  <div
+                  {/* <div
                     className={styles.ListMenuFilter}
                     onClick={() => toggleFilter("foam")}
                   >
                     <img src="./Filter.svg"></img>{" "}
                     <span className={styles.ListMenuFilterText}>Filtros</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div

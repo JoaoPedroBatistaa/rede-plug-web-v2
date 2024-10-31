@@ -368,7 +368,7 @@ export default function NewPost() {
             <p className={styles.BudgetTitle}>
               Quantidade vendida no dia anterior 6h
             </p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               {!docId && (
                 <button
                   className={styles.FinishButton}

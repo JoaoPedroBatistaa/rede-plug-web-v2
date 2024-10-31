@@ -195,7 +195,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                 )} */}
               </>
             )}
-            {/*
+
             {typeUser !== "post" && (
               <>
                 <div
@@ -218,7 +218,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                   </Link>
                 </div>
               </>
-            )} */}
+            )}
             {/*
             {typeUser === "post" ||
               (typeUser === "admin" && (

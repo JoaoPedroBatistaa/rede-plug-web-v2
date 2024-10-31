@@ -133,7 +133,7 @@ export default function Login() {
         // Redirecionamento baseado no tipo de usuário e refresh após login
         setTimeout(() => {
           if (user.type === "manager") {
-            router.push("/").then(() => handleRefresh()); // Chama handleRefresh após redirecionar
+            router.push("/managers").then(() => handleRefresh()); // Chama handleRefresh após redirecionar
           } else if (user.type === "supervisor") {
             router.push("/supervisors-home").then(() => handleRefresh()); // Chama handleRefresh após redirecionar
           } else if (user.type === "post") {

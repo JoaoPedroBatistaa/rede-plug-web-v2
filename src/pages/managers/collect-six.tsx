@@ -403,7 +403,7 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Recolhe 6h</p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               {!docId && (
                 <button className={styles.FinishButton} onClick={saveFuelTest}>
                   <img
@@ -503,6 +503,7 @@ export default function NewPost() {
                 <p className={styles.FieldLabel}>Imagem do recolhe</p>
                 <input
                   type="file"
+                  capture="environment"
                   accept="image/*,video/*"
                   style={{ display: "none" }}
                   ref={etanolRef}

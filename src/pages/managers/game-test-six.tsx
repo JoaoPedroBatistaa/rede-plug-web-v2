@@ -410,7 +410,7 @@ export default function NewPost() {
             <p className={styles.BudgetTitle}>
               Teste do game na proveta de 1L 6h
             </p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               {!docId && (
                 <button className={styles.FinishButton} onClick={saveGameTest}>
                   <img
@@ -516,6 +516,7 @@ export default function NewPost() {
                   <p className={styles.FieldLabel}>Imagem do teste</p>
                   <input
                     type="file"
+                    capture="environment"
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     // @ts-ignore

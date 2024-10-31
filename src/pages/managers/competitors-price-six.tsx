@@ -419,7 +419,7 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Preço dos concorrentes 6h</p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               {!docId && (
                 <button
                   className={styles.FinishButton}

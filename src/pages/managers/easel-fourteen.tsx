@@ -411,7 +411,7 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Verificação dos cavaletes</p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               {!docId && (
                 <button
                   className={styles.FinishButton}
@@ -517,6 +517,7 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
+                    capture="environment"
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     // @ts-ignore

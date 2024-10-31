@@ -110,13 +110,13 @@ export default function Home() {
                   <span className={styles.CardMenuText}>ROTINA 22H</span>
                 </div>
               </Link>
-
+              {/*
               <Link href="/new-discharge">
                 <div className={styles.CardMenu}>
                   <img src="./discharge.svg"></img>
                   <span className={styles.CardMenuText}>NOVA DESCARGA</span>
                 </div>
-              </Link>
+              </Link> */}
             </div>
           </div>
 

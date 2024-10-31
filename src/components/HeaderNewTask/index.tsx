@@ -13,15 +13,20 @@ export default function HeaderBudget() {
   };
 
   const handleBack = () => {
-    router.push("/supervisors-home"); // Função para voltar para a página anterior
+    const userType = localStorage.getItem("userType"); // Obtendo userType do localStorage
+    if (userType === "manager") {
+      router.push("/managers"); // Redireciona para /managers se for manager
+    } else {
+      router.push("/supervisors-home"); // Redireciona para /supervisors-home caso contrário
+    }
   };
 
   return (
     <>
       <Head>
         <style>{`
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
-`}</style>
+          @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+        `}</style>
       </Head>
 
       <div className={styles.HeaderContainer}>

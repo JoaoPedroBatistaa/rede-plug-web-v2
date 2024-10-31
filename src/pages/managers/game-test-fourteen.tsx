@@ -409,7 +409,7 @@ export default function NewPost() {
             <p className={styles.BudgetTitle}>
               Teste do game na proveta de 1L 14h
             </p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               {!docId && (
                 <button className={styles.FinishButton} onClick={saveGameTest}>
                   <img
@@ -517,6 +517,7 @@ export default function NewPost() {
                     type="file"
                     accept="image/*,video/*"
                     style={{ display: "none" }}
+                    capture="environment"
                     // @ts-ignore
                     ref={(el) => (encerranteRefs.current[index] = el)}
                     onChange={(event) => handleImageChange(index, event)}

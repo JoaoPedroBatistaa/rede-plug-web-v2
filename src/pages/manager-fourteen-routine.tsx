@@ -167,13 +167,6 @@ export default function Products() {
               <div className={styles.ListMenu}>
                 <div className={styles.ListMenu}>
                   <p className={styles.ProductName}>Rotina das 14h</p>
-                  <div
-                    className={styles.ListMenuFilter}
-                    onClick={() => toggleFilter("foam")}
-                  >
-                    <img src="./Filter.svg"></img>{" "}
-                    <span className={styles.ListMenuFilterText}>Filtros</span>
-                  </div>
                 </div>
               </div>
               <div

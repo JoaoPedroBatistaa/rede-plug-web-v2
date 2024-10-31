@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "../../styles/TableProducts.module.scss";
+import styles from "../../styles/TableRoutines.module.scss";
 
 import { deleteDoc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { collection, db, doc } from "../../../firebase";
@@ -268,9 +268,9 @@ export default function TablePosts({
         <thead>
           <tr className={styles.tableHeader}>
             <th className={styles.thNone}></th>
-            <th>Tarefa</th>
+            {/* <th>Tarefa</th>
             <th>Realizada por</th>
-            <th>Horário</th>
+            <th>Horário</th> */}
           </tr>
         </thead>
 
@@ -315,7 +315,7 @@ export default function TablePosts({
                 onClick={handleTaskClick}
                 style={{ cursor: isFinished ? "default" : "pointer" }}
               >
-                <td className={styles.tdWithRelative}>
+                {/* <td className={styles.tdWithRelative}>
                   <img
                     src="./More.png"
                     width={5}
@@ -327,16 +327,16 @@ export default function TablePosts({
                       handleClickImg(event, task.id);
                     }}
                   />
-                </td>
+                </td> */}
                 <td className={styles.td}>
                   <b>{task.name}</b>
                 </td>
-                <td className={styles.td}>
+                {/* <td className={styles.td}>
                   <b>{managerName}</b>
                 </td>
                 <td className={styles.td}>
                   <b>{time}</b>
-                </td>
+                </td> */}
               </tr>
             );
           })}
