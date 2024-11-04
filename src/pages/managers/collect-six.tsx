@@ -275,7 +275,7 @@ export default function NewPost() {
     };
 
     try {
-      await sendMessage(fuelTestData);
+      // await sendMessage(fuelTestData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), fuelTestData);
       console.log("Recolhe salvo com ID: ", docRef.id);

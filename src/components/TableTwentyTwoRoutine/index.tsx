@@ -281,11 +281,11 @@ export default function TablePosts({
               name: "Medição dos Tanques",
               link: "/managers/tank-measurement-twenty-two",
             },
-            {
-              id: "encerrante-bico-22h",
-              name: "Encerrantes",
-              link: "/managers/nozzle-closure-twenty-two",
-            },
+            // {
+            //   id: "encerrante-bico-22h",
+            //   name: "Encerrantes",
+            //   link: "/managers/nozzle-closure-twenty-two",
+            // },
             {
               id: "foto-maquininhas-22h",
               name: "Maquininhas",

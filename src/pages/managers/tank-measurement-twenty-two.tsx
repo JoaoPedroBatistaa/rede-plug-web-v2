@@ -434,10 +434,10 @@ export default function NewPost() {
     }
 
     try {
-      // @ts-ignore
-      await sendMainMessage(measurementData);
-      // @ts-ignore
-      await sendAdditionalMessages(measurementData);
+      // // @ts-ignore
+      // await sendMainMessage(measurementData);
+      // // @ts-ignore
+      // await sendAdditionalMessages(measurementData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);

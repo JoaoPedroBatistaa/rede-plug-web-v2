@@ -277,7 +277,7 @@ export default function NewPost() {
     };
 
     try {
-      await sendMessage(photoMachinesData);
+      // await sendMessage(photoMachinesData);
 
       const docRef = await addDoc(
         collection(db, "MANAGERS"),

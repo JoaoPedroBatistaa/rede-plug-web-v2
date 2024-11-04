@@ -188,11 +188,11 @@ export default function TablePosts({
               name: "Medição dos Tanques",
               link: "/managers/tank-measurement-six",
             },
-            {
-              id: "encerrante-bico-6h",
-              name: "Encerrantes",
-              link: "/managers/nozzle-closure-six",
-            },
+            // {
+            //   id: "encerrante-bico-6h",
+            //   name: "Encerrantes",
+            //   link: "/managers/nozzle-closure-six",
+            // },
             {
               id: "teste-combustiveis-6h",
               name: "Teste dos Combustíveis",

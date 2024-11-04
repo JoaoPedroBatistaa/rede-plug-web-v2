@@ -280,11 +280,11 @@ export default function TablePosts({
               name: "Medição dos Tanques",
               link: "/managers/tank-measurement-fourteen",
             },
-            {
-              id: "encerrante-bico-14h",
-              name: "Encerrantes",
-              link: "/managers/nozzle-closure-fourteen",
-            },
+            // {
+            //   id: "encerrante-bico-14h",
+            //   name: "Encerrantes",
+            //   link: "/managers/nozzle-closure-fourteen",
+            // },
             {
               id: "foto-maquininhas-14h",
               name: "Maquininhas",
