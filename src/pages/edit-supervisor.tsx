@@ -186,37 +186,25 @@ export default function EditSupervisor() {
   };
 
   const handleRoutineChange = (
-    weekIndex: number,
     dayIndex: number,
     shift: "firstShift" | "secondShift",
     value: PostOption | null
   ) => {
     const updatedRoutine = [...routine];
 
-    const existingRoutinesCount = updatedRoutine.filter(
-      (weekObj) => weekObj.isFromDatabase
-    ).length;
+    // Identifica o índice da última semana (maior índice)
+    const lastWeekIndex = updatedRoutine.length - 1;
 
-    console.log("Tentando alterar rotina", {
-      weekIndex,
+    console.log("Tentando alterar a última rotina", {
       dayIndex,
       shift,
       value,
-      existingRoutinesCount,
+      lastWeekIndex,
     });
 
-    if (weekIndex < existingRoutinesCount) {
-      // Atualizando rotina existente
-      updatedRoutine[weekIndex].week[dayIndex][shift] = value;
-      console.log("Rotina existente atualizada:", updatedRoutine);
-    } else {
-      // Atualizando nova rotina
-      const newRoutineIndex = weekIndex - existingRoutinesCount;
-      updatedRoutine[newRoutineIndex + existingRoutinesCount].week[dayIndex][
-        shift
-      ] = value;
-      console.log("Nova rotina atualizada:", updatedRoutine);
-    }
+    // Atualiza o turno na última semana
+    updatedRoutine[lastWeekIndex].week[dayIndex][shift] = value;
+    console.log("Última semana atualizada:", updatedRoutine);
 
     setRoutine(updatedRoutine);
   };
@@ -263,10 +251,6 @@ export default function EditSupervisor() {
                         value={day.firstShift}
                         onChange={(selectedOption) =>
                           handleRoutineChange(
-                            weekIndex +
-                              routine.filter(
-                                (weekObj) => weekObj.isFromDatabase
-                              ).length,
                             dayIndex,
                             "firstShift",
                             selectedOption
@@ -287,10 +271,6 @@ export default function EditSupervisor() {
                         value={day.secondShift}
                         onChange={(selectedOption) =>
                           handleRoutineChange(
-                            weekIndex +
-                              routine.filter(
-                                (weekObj) => weekObj.isFromDatabase
-                              ).length,
                             dayIndex,
                             "secondShift",
                             selectedOption
@@ -351,12 +331,11 @@ export default function EditSupervisor() {
                       value={day.firstShift}
                       onChange={(selectedOption) =>
                         handleRoutineChange(
-                          weekIndex,
                           dayIndex,
                           "firstShift",
                           selectedOption
                         )
-                      } // Permite editar
+                      }
                       className={styles.SelectFieldSearch}
                     />
                   </div>
@@ -369,12 +348,11 @@ export default function EditSupervisor() {
                       value={day.secondShift}
                       onChange={(selectedOption) =>
                         handleRoutineChange(
-                          weekIndex,
                           dayIndex,
                           "secondShift",
                           selectedOption
                         )
-                      } // Permite editar
+                      }
                       className={styles.SelectFieldSearch}
                     />
                   </div>
