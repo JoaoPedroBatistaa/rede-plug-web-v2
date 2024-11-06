@@ -56,13 +56,14 @@ export default function HeaderHome() {
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>
+          <img src="/reports.png" alt="" />
           <div className={styles.HeaderTextTitle}>Relatórios</div>
         </div>
         <div className={styles.HeaderTextContainer}>
           <div className={styles.HeaderTextDescription}>
             <p>
               Aqui você pode realizar ações de forma rápida e fácil ou buscar
-              por outras funcionalidades que esteja precisando{" "}
+              por outras funcionalidades que esteja precisando...
             </p>
           </div>
         </div>

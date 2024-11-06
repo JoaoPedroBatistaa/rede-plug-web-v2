@@ -259,7 +259,6 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               </>
             )} */}
           </div>
-          {/*
           <div className={styles.MenuContainer}>
             <p className={styles.Steps}>Parâmetros</p>
 
@@ -284,7 +283,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               </>
             )}
 
-            {typeUser !== "post" && (
+            {/* {typeUser !== "post" && (
               <>
                 <div
                   className={`${styles.MenuNavigate} ${
@@ -321,8 +320,8 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                   </Link>
                 </div>
               </>
-            )}
-          </div> */}
+            )} */}
+          </div>
 
           <div className={styles.MenuContainer}>
             <p className={styles.Steps}>Ajuda</p>

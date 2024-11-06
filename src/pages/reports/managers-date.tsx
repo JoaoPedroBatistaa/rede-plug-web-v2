@@ -135,8 +135,8 @@ export default function Home() {
                 // @ts-ignore
                 .sort((a, b) => new Date(b.date) - new Date(a.date)) // Ordenando as datas
                 .map((taskGroup, index) => (
-                  <div key={index} className={styles.CardMenuDate}>
-                    <p className={styles.CardMenuTextDate}>
+                  <div key={index} className={styles.CardMenu}>
+                    <p className={styles.CardMenuText}>
                       <a
                         href={`/reports/managers-tasks?post=${encodeURIComponent(
                           // @ts-ignore

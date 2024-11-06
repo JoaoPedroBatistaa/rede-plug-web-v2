@@ -61,8 +61,10 @@ export default function HeaderHome() {
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>
+          <img src="/reports.png" alt="" />
+
           <div className={styles.HeaderTextTitle}>
-            Relatórios -- Supervisor: {managerName} -- Datas
+            Relatórios: Supervisor: {managerName}: Datas
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>

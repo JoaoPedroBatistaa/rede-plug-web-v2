@@ -221,7 +221,7 @@ export default function Home() {
                       // @ts-ignore
                       taskLink.id
                     }
-                    className={`${styles.CardMenuDate} ${
+                    className={`${styles.CardMenu} ${
                       isTaskExist ? styles.GreenText : styles.RedText
                     }`}
                   >

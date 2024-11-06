@@ -112,7 +112,7 @@ export default function Home() {
                   key={index}
                 >
                   <div className={styles.CardMenu}>
-                    <img src="./postosHome.svg" alt="Posto" />
+                    {/* <img src="./postosHome.svg" alt="Posto" /> */}
                     <span className={styles.CardMenuText}>
                       {
                         // @ts-ignore

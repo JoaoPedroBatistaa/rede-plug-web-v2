@@ -1,12 +1,14 @@
 import HeaderNewProduct from "@/components/HeaderNewTask";
 import LoadingOverlay from "@/components/Loading";
+import imageCompression from "browser-image-compression";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { uploadBytes } from "firebase/storage";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { db } from "../../../firebase";
+import { db, getDownloadURL, ref, storage } from "../../../firebase";
 import styles from "../../styles/ProductFoam.module.scss";
 
 export default function DigitalPointTask() {
@@ -22,11 +24,22 @@ export default function DigitalPointTask() {
   const [isInspection, setIsInspection] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
 
+  const etanolRef = useRef(null);
+
+  const [etanolImage, setEtanolImage] = useState<File | null>(null);
+  const [etanolFileName, setEtanolFileName] = useState("");
+  const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
+
   useEffect(() => {
     const storedInspection = localStorage.getItem("isInspection");
+    const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
+    const storedEtanolFileName = localStorage.getItem("etanolFileName");
+
     if (storedInspection) {
       setIsInspection(storedInspection); // Recupera o valor do localStorage
     }
+    if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
+    if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
   }, []);
 
   const fetchCoordinates = () => {
@@ -119,6 +132,63 @@ export default function DigitalPointTask() {
     return points;
   };
 
+  async function compressImage(file: File) {
+    const options = {
+      maxSizeMB: 1, // Tamanho máximo do arquivo final em megabytes
+      maxWidthOrHeight: 1920, // Dimensão máxima (largura ou altura) da imagem após a compressão
+      useWebWorker: true, // Utiliza Web Workers para melhorar o desempenho
+    };
+
+    try {
+      console.log(
+        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
+      );
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Tamanho da imagem comprimida: ${(
+          compressedFile.size /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  const handleEtanolImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsLoading(true);
+      try {
+        let compressedFile = file;
+        if (file.type.startsWith("image/")) {
+          compressedFile = await compressImage(file);
+        }
+        const imageUrl = await uploadImageAndGetUrl(
+          compressedFile,
+          `supervisors/${getLocalISODateTime()}/${file.name}_${Date.now()}`
+        );
+        setEtanolImage(compressedFile);
+        setEtanolFileName(file.name);
+        setEtanolImageUrl(imageUrl);
+
+        // Armazena no localStorage
+        localStorage.setItem("etanolImageUrl", imageUrl);
+        localStorage.setItem("etanolFileName", file.name);
+      } catch (error) {
+        console.error("Erro ao fazer upload do arquivo:", error);
+        toast.error("Erro ao fazer upload do arquivo.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const getLocalISODateTime = () => {
     const date = new Date();
     date.setHours(date.getHours() - 3);
@@ -168,6 +238,13 @@ export default function DigitalPointTask() {
       shift,
       isInspection,
       coordinates,
+      images: [
+        {
+          type: "Imagem da tarefa",
+          imageUrl: etanolImageUrl,
+          fileName: etanolFileName,
+        },
+      ],
       id: "digital_point",
     };
 
@@ -236,6 +313,13 @@ export default function DigitalPointTask() {
     }
   };
 
+  async function uploadImageAndGetUrl(imageFile: File, path: string) {
+    const storageRef = ref(storage, path);
+    const uploadResult = await uploadBytes(storageRef, imageFile);
+    const downloadUrl = await getDownloadURL(uploadResult.ref);
+    return downloadUrl;
+  }
+
   return (
     <>
       <Head>
@@ -286,6 +370,46 @@ export default function DigitalPointTask() {
                     <option value="yes">Sim</option>
                     <option value="no">Não</option>
                   </select>
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem da placa do posto</p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    capture="environment" // para capturar da câmera traseira, ou use "user" para a câmera frontal
+                    style={{ display: "none" }}
+                    ref={etanolRef}
+                    onChange={handleEtanolImageChange}
+                  />
+
+                  <button
+                    onClick={() =>
+                      // @ts-ignore
+                      etanolRef.current && etanolRef.current.click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Tire sua foto/vídeo
+                  </button>
+                  {isLoading && <p>Carregando imagem...</p>}
+                  {etanolImageUrl && (
+                    <div>
+                      <img
+                        src={etanolImageUrl}
+                        alt="Preview do teste de Etanol"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                      />
+                      <p className={styles.fileName}>{etanolFileName}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -75,13 +75,15 @@ export default function HeaderHome() {
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>
+          <img src="/reports.png" alt="" />
+
           <div className={styles.HeaderTextTitle}>
-            Relatórios -- Gerente: {managerName} -- Data:{" "}
+            Relatórios: Gerente: {managerName}: Data:{" "}
             {
               // @ts-ignore
               formatDate(date)
-            }{" "}
-            -- Tarefas
+            }
+            : Tarefas
           </div>
         </div>
         <div className={styles.HeaderTextContainer}>

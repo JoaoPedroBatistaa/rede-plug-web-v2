@@ -76,7 +76,7 @@ export default function Home() {
                   <span className={styles.CardMenuText}>Gerentes</span>
                 </div>
               </Link>
-              <Link
+              {/* <Link
                 href={{
                   pathname: "/discharges", // @ts-ignore
                   query: { post: router.query.post },
@@ -97,7 +97,7 @@ export default function Home() {
                   <img src="/supervisoresHome.svg" alt="Frentistas" />
                   <span className={styles.CardMenuText}>Frentistas</span>
                 </div>
-              </Link>
+              </Link> */}
               <Link
                 href={{
                   pathname: "/reports/supervisors",
