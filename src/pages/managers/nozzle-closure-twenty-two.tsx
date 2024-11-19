@@ -277,7 +277,7 @@ export default function NewPost() {
     };
 
     try {
-      // await sendMessage(nozzleClosureData);
+      await sendMessage(nozzleClosureData);
 
       const docRef = await addDoc(
         collection(db, "MANAGERS"),

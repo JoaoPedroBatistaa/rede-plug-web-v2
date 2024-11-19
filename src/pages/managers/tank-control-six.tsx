@@ -275,7 +275,7 @@ export default function NewPost() {
     };
 
     try {
-      // await sendMessage(tankControlData);
+      await sendMessage(tankControlData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), tankControlData);
       console.log("Controle de tanque salvo com ID: ", docRef.id);

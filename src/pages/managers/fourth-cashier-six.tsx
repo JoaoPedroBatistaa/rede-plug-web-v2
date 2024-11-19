@@ -259,7 +259,7 @@ export default function NewPost() {
 
     try {
       // @ts-ignore
-      // await sendMessage(fourthCashierData);
+      await sendMessage(fourthCashierData);
 
       const docRef = await addDoc(
         collection(db, "MANAGERS"),

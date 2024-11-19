@@ -277,7 +277,7 @@ export default function NewPost() {
     };
 
     try {
-      // await sendMessage(verificationCavaletesData);
+      await sendMessage(verificationCavaletesData);
 
       const docRef = await addDoc(
         collection(db, "MANAGERS"),

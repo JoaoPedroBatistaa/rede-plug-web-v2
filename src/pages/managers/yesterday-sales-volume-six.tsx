@@ -247,7 +247,7 @@ export default function NewPost() {
       photoMachinesData.images = images;
 
       // @ts-ignore
-      // sendMessageSalesData(photoMachinesData);
+      sendMessageSalesData(photoMachinesData);
 
       const docRef = await addDoc(
         collection(db, "MANAGERS"),
