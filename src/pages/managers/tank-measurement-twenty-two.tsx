@@ -628,7 +628,27 @@ export default function NewPost() {
       return;
     }
 
-    const contacts = ["5511911345557"];
+    let contactNumber;
+    try {
+      // Busca o número de telefone no Firestore
+      const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
+      const phoneDoc = await getDoc(phoneDocRef);
+
+      if (phoneDoc.exists()) {
+        contactNumber = phoneDoc.data().leoNumber;
+        console.log(`Número de contato obtido: ${contactNumber}`);
+      } else {
+        console.error("Documento PHONES não encontrado.");
+        toast.error("Falha ao obter o número de contato.");
+        return;
+      }
+    } catch (error) {
+      console.error(`Erro ao buscar o número de contato: ${error}`);
+      toast.error("Erro ao buscar o número de contato.");
+      return;
+    }
+
+    const contacts = [contactNumber]; // Use o número buscado dinamicamente
     for (const contact of contacts) {
       try {
         const imageResponse = await fetch("/api/send-image-message", {
@@ -657,7 +677,7 @@ export default function NewPost() {
         }
 
         console.log(`Mensagem de imagem enviada com sucesso para ${contact}`);
-        toast.success(`Mensagem de imagem enviada com sucesso para ${contact}`);
+        toast.success(`Mensagem de imagem enviada com sucesso para o Gestor`);
       } catch (error) {
         console.error(
           `Erro ao enviar mensagem de imagem para ${contact}: ${error}`
