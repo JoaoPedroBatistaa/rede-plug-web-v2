@@ -580,27 +580,12 @@ export default function NewPost() {
     );
     console.log("Sorted tanks:", sortedTanks);
 
-    console.log("Ethanol data:", data.ethanolData);
-    console.log("Gasoline data:", data.gasolineData);
-    console.log("S10 data:", data.s10Data);
-
     sortedTanks.forEach((tank: { product: string; tankNumber: number }) => {
-      console.log(
-        `Processing tank number ${tank.tankNumber}, product ${tank.product}`
-      );
       if (tank.product === "ET") {
         const ethanol = data.ethanolData.find(
           (eth: any) => eth.tankNumber === tank.tankNumber
         );
-        console.log(
-          `Checking ethanol data for tank number ${tank.tankNumber}:`,
-          ethanol
-        );
         if (ethanol) {
-          console.log(
-            `Found ethanol data for tank number ${tank.tankNumber}:`,
-            ethanol
-          );
           const tankTitle = `Tanque ${tank.tankNumber} - ET Venda`;
           messageBody +=
             `*${tankTitle}*\n` +
@@ -614,24 +599,12 @@ export default function NewPost() {
           } else {
             messageBody += `\n`;
           }
-        } else {
-          console.log(
-            `No ethanol data found for tank number ${tank.tankNumber}`
-          );
         }
       } else if (tank.product === "GC") {
         const gasoline = data.gasolineData.find(
           (gas: any) => gas.tankNumber === tank.tankNumber
         );
-        console.log(
-          `Checking gasoline data for tank number ${tank.tankNumber}:`,
-          gasoline
-        );
         if (gasoline) {
-          console.log(
-            `Found gasoline data for tank number ${tank.tankNumber}:`,
-            gasoline
-          );
           const tankTitle = `Tanque ${tank.tankNumber} - GC Venda`;
           messageBody +=
             `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n`;
@@ -643,24 +616,12 @@ export default function NewPost() {
           } else {
             messageBody += `\n`;
           }
-        } else {
-          console.log(
-            `No gasoline data found for tank number ${tank.tankNumber}`
-          );
         }
       } else if (tank.product === "S10") {
         const s10 = data.s10Data.find(
           (s: any) => s.tankNumber === tank.tankNumber
         );
-        console.log(
-          `Checking S10 data for tank number ${tank.tankNumber}:`,
-          s10
-        );
         if (s10) {
-          console.log(
-            `Found S10 data for tank number ${tank.tankNumber}:`,
-            s10
-          );
           const tankTitle = `Tanque ${tank.tankNumber} - S10 Venda`;
           messageBody += `*${tankTitle}*\n` + `*Peso:* ${s10.s10Weight}\n`;
           const s10Image = imagesDescription.find(
@@ -671,8 +632,6 @@ export default function NewPost() {
           } else {
             messageBody += `\n`;
           }
-        } else {
-          console.log(`No S10 data found for tank number ${tank.tankNumber}`);
         }
       }
     });
@@ -693,7 +652,26 @@ export default function NewPost() {
 
     console.log("Contato do gerente:", managerContact);
 
+    // Adicionando contato do eduNumber
+    let eduNumber;
+    try {
+      const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
+      const phoneDoc = await getDoc(phoneDocRef);
+
+      if (phoneDoc.exists()) {
+        eduNumber = phoneDoc.data().eduNumber;
+        console.log(`eduNumber obtido: ${eduNumber}`);
+      } else {
+        console.error("Documento PHONES não encontrado.");
+        toast.error("Falha ao obter eduNumber.");
+      }
+    } catch (error) {
+      console.error(`Erro ao buscar eduNumber: ${error}`);
+      toast.error("Erro ao buscar eduNumber.");
+    }
+
     const contacts = [managerContact];
+    if (eduNumber) contacts.push(eduNumber);
 
     for (const contact of contacts) {
       await sendIndividualMessage(contact, messageBody);
@@ -716,10 +694,10 @@ export default function NewPost() {
     });
 
     if (!response.ok) {
-      throw new Error(`Falha ao enviar mensagem via WhatsApp para ${contact}`);
+      throw new Error(`Falha ao enviar mensagem via WhatsApp `);
     }
 
-    console.log(`Mensagem enviada com sucesso para ${contact}!`);
+    console.log(`Mensagem enviada com sucesso `);
   }
 
   return (
