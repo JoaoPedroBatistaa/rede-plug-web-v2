@@ -224,11 +224,11 @@ export default function DigitalPointTask() {
 
     const today = getLocalISODateTime();
 
-    if (!isInspection) {
-      toast.error("Por favor, selecione se há fiscalização.");
-      setIsLoading(false);
-      return;
-    }
+    // if (!isInspection) {
+    //   toast.error("Por favor, selecione se há fiscalização.");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const taskData = {
       date: today.date,
@@ -263,13 +263,13 @@ export default function DigitalPointTask() {
 
     console.log(`Supervisor is within radius: ${isWithinRadius}`);
 
-    // if (!isWithinRadius && coordinates.lat && coordinates.lng) {
-    //   toast.error(
-    //     "Você não está dentro do raio permitido para realizar essa tarefa."
-    //   );
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (!isWithinRadius && coordinates.lat && coordinates.lng) {
+      toast.error(
+        "Você não está dentro do raio permitido para realizar essa tarefa."
+      );
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Verifica se a tarefa já foi realizada hoje
@@ -354,7 +354,7 @@ export default function DigitalPointTask() {
 
           <div className={styles.userContent}>
             <div className={styles.userData}>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Havendo fiscalização?</p>
                   <select
@@ -371,7 +371,7 @@ export default function DigitalPointTask() {
                     <option value="no">Não</option>
                   </select>
                 </div>
-              </div>
+              </div> */}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>

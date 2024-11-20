@@ -127,11 +127,11 @@ export default function DigitalPointTask() {
       return;
     }
 
-    if (!isInspection) {
-      toast.error("Por favor, selecione se há fiscalização.");
-      setIsLoading(false);
-      return;
-    }
+    // if (!isInspection) {
+    //   toast.error("Por favor, selecione se há fiscalização.");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const taskData = {
       date: today.date,
@@ -226,7 +226,7 @@ export default function DigitalPointTask() {
 
           <div className={styles.userContent}>
             <div className={styles.userData}>
-              <div className={styles.InputContainer}>
+              {/* <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Havendo fiscalização?</p>
                   <select
@@ -243,7 +243,7 @@ export default function DigitalPointTask() {
                     <option value="no">Não</option>
                   </select>
                 </div>
-              </div>
+              </div> */}
 
               <div className={styles.InputContainer}>
                 <div className={styles.InputField}>
