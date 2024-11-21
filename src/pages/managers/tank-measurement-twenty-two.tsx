@@ -383,6 +383,7 @@ export default function NewPost() {
     console.log(today);
 
     if (!date) missingField = "Data";
+    if (!measurementSheetUrl) missingField = "Planilha de medição";
     else if (date !== today) {
       toast.error("Você deve cadastrar a data correta de hoje!");
       setIsLoading(false);
@@ -420,6 +421,7 @@ export default function NewPost() {
       userName,
       postName,
       measurements: [],
+      measurementSheet: measurementSheetUrl || "",
       id: "medicao-tanques-22h",
     };
 
@@ -434,16 +436,14 @@ export default function NewPost() {
     }
 
     try {
-      // @ts-ignore
       await sendMainMessage(measurementData);
-      // @ts-ignore
       await sendAdditionalMessages(measurementData);
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);
 
       toast.success("Medição salva com sucesso!");
-      router.push("/manager-twenty-two-routine");
+      router.push("/manager-six-routine");
     } catch (error) {
       console.error("Erro ao salvar os dados da medição:", error);
       toast.error("Erro ao salvar a medição.");
@@ -501,16 +501,16 @@ export default function NewPost() {
   }
 
   async function sendMainMessage(data: {
-    date: any;
+    date: string | number | Date;
     time: any;
-    managerName: any;
-    userName?: string | null;
     postName: any;
+    managerName: any;
     measurements: any;
     measurementSheet: any;
     id?: string;
   }) {
     const formattedDate = formatDate(data.date);
+
     const shortUrls = await Promise.all(
       data.measurements.map((measurement: { imageUrl: string }) =>
         shortenUrl(measurement.imageUrl)
@@ -535,8 +535,19 @@ export default function NewPost() {
         }
       )
       .join("\n");
+    const measurementSheetUrl = data.measurementSheet
+      ? await shortenUrl(data.measurementSheet)
+      : "";
 
-    const messageBody = `*Nova Medição dos Tanques às 22h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes das Medições*\n\n${measurements}`;
+    const messageBody = `*Nova Medição dos Tanques às 22h*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+      data.time
+    }\n*Posto:* ${data.postName}\n*Gerente:* ${
+      data.managerName
+    }\n\n*Detalhes das Medições*\n\n${measurements}${
+      measurementSheetUrl
+        ? `\n*Planilha de Medição:* ${measurementSheetUrl}\n`
+        : ""
+    }`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -550,36 +561,77 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
 
-    console.log(managerContact);
+    console.log(`Enviando mensagem para o contato: ${managerContact}`);
 
+    let authToken;
     try {
-      const response = await fetch("/api/send-message", {
+      const authResponse = await fetch("/api/auth-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          managerContact: managerContact,
-          messageBody,
+          email: "admredeplug@gmail.com",
+          password: "Sc125687!",
+        }),
+      });
+
+      const authResponseBody = await authResponse.json();
+      console.log(
+        `Resposta completa do login de autenticação: ${authResponseBody}`
+      );
+
+      if (!authResponse.ok) {
+        console.error(
+          `Erro na resposta ao obter token de autenticação: ${authResponseBody}`
+        );
+        throw new Error("Falha ao obter token de autenticação");
+      }
+
+      authToken = authResponseBody.data.token;
+
+      console.log(`Token de autenticação obtido: ${authToken}`);
+    } catch (error) {
+      console.error(`Erro ao obter token de autenticação: ${error}`);
+      toast.error("Falha ao obter token de autenticação");
+      return;
+    }
+
+    try {
+      // Enviar a imagem usando o endpoint de send-image-message
+      const response = await fetch("/api/send-image-message-full", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contacts: [managerContact],
+          messageBody: {
+            title: "*Nova Medição de Tanques às 22h*",
+            body: messageBody,
+            measurementSheetUrl: data.measurementSheet,
+          },
+          authToken: authToken,
         }),
       });
 
       if (!response.ok) {
         const errorMessage = await response.text();
-        console.error(
-          `Erro na resposta ao enviar mensagem completa: ${errorMessage}`
-        );
-        throw new Error(
-          `Falha ao enviar mensagem via WhatsApp para ${managerContact}`
-        );
+        console.error(`Erro ao enviar mensagem de imagem: ${errorMessage}`);
+        throw new Error("Falha ao enviar mensagem de imagem via WhatsApp");
       }
 
-      console.log(`Mensagem enviada com sucesso para ${managerContact}`);
-      toast.success(`Mensagem enviada com sucesso para ${managerContact}`);
+      console.log(
+        `Mensagem de imagem enviada com sucesso para ${managerContact}`
+      );
     } catch (error) {
-      console.error(`Erro ao enviar mensagem completa: ${error}`);
-      toast.error(`Falha ao enviar mensagem para ${managerContact}`);
+      console.error(
+        `Erro ao enviar mensagem de imagem para ${managerContact}: ${error}`
+      );
+      throw error;
     }
+
+    console.log("Mensagem de imagem enviada com sucesso!");
   }
 
   async function sendAdditionalMessages(data: {
@@ -752,6 +804,46 @@ export default function NewPost() {
                     onChange={(e) => setTime(e.target.value)}
                     placeholder=""
                   />
+                </div>
+              </div>
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Planilha de Medição</p>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    style={{ display: "none" }}
+                    ref={measurementSheetInputRef}
+                    onChange={handleMeasurementSheetChange}
+                  />
+                  <button
+                    onClick={() =>
+                      measurementSheetInputRef.current &&
+                      measurementSheetInputRef.current.click()
+                    }
+                    className={styles.MidiaField}
+                  >
+                    Carregue sua planilha de medição
+                  </button>
+                  {measurementSheet && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(measurementSheet)}
+                        alt="Visualização da planilha de medição"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(measurementSheet)}
+                      />
+                      <p className={styles.fileName}>
+                        {measurementSheetFileName}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

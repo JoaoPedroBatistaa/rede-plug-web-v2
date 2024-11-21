@@ -235,11 +235,11 @@ export default function TablePosts({
               link: "/managers/competitors-price-six",
             },
 
-            {
-              id: "verificacao-cavaletes-14h",
-              name: "Cavaletes",
-              link: "/managers/easel-fourteen",
-            },
+            // {
+            //   id: "verificacao-cavaletes-14h",
+            //   name: "Cavaletes",
+            //   link: "/managers/easel-fourteen",
+            // },
           ].map((task) => {
             // @ts-ignore
             const taskRecord = todayTasks.find((t) => t.id === task.id);

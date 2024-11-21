@@ -501,16 +501,16 @@ export default function NewPost() {
   }
 
   async function sendMainMessage(data: {
-    date: any;
+    date: string | number | Date;
     time: any;
-    managerName: any;
-    userName?: string | null;
     postName: any;
+    managerName: any;
     measurements: any;
     measurementSheet: any;
     id?: string;
   }) {
     const formattedDate = formatDate(data.date);
+
     const shortUrls = await Promise.all(
       data.measurements.map((measurement: { imageUrl: string }) =>
         shortenUrl(measurement.imageUrl)
@@ -561,36 +561,77 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
 
-    console.log(managerContact);
+    console.log(`Enviando mensagem para o contato: ${managerContact}`);
 
+    let authToken;
     try {
-      const response = await fetch("/api/send-message", {
+      const authResponse = await fetch("/api/auth-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          managerContact: managerContact,
-          messageBody,
+          email: "admredeplug@gmail.com",
+          password: "Sc125687!",
+        }),
+      });
+
+      const authResponseBody = await authResponse.json();
+      console.log(
+        `Resposta completa do login de autenticação: ${authResponseBody}`
+      );
+
+      if (!authResponse.ok) {
+        console.error(
+          `Erro na resposta ao obter token de autenticação: ${authResponseBody}`
+        );
+        throw new Error("Falha ao obter token de autenticação");
+      }
+
+      authToken = authResponseBody.data.token;
+
+      console.log(`Token de autenticação obtido: ${authToken}`);
+    } catch (error) {
+      console.error(`Erro ao obter token de autenticação: ${error}`);
+      toast.error("Falha ao obter token de autenticação");
+      return;
+    }
+
+    try {
+      // Enviar a imagem usando o endpoint de send-image-message
+      const response = await fetch("/api/send-image-message-full", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contacts: [managerContact],
+          messageBody: {
+            title: "*Nova Medição de Tanques às 6h*",
+            body: messageBody,
+            measurementSheetUrl: data.measurementSheet,
+          },
+          authToken: authToken,
         }),
       });
 
       if (!response.ok) {
         const errorMessage = await response.text();
-        console.error(
-          `Erro na resposta ao enviar mensagem completa: ${errorMessage}`
-        );
-        throw new Error(
-          `Falha ao enviar mensagem via WhatsApp para ${managerContact}`
-        );
+        console.error(`Erro ao enviar mensagem de imagem: ${errorMessage}`);
+        throw new Error("Falha ao enviar mensagem de imagem via WhatsApp");
       }
 
-      console.log(`Mensagem enviada com sucesso para ${managerContact}`);
-      toast.success(`Mensagem enviada com sucesso para ${managerContact}`);
+      console.log(
+        `Mensagem de imagem enviada com sucesso para ${managerContact}`
+      );
     } catch (error) {
-      console.error(`Erro ao enviar mensagem completa: ${error}`);
-      toast.error(`Falha ao enviar mensagem para ${managerContact}`);
+      console.error(
+        `Erro ao enviar mensagem de imagem para ${managerContact}: ${error}`
+      );
+      throw error;
     }
+
+    console.log("Mensagem de imagem enviada com sucesso!");
   }
 
   async function sendAdditionalMessages(data: {
