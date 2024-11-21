@@ -21,8 +21,6 @@ import { db, storage } from "../../../firebase";
 
 import LoadingOverlay from "@/components/Loading";
 
-import imageCompression from "browser-image-compression";
-
 interface Tank {
   product: string;
   saleDefense: string;
@@ -46,16 +44,11 @@ export default function NewPost() {
   const [gasolineData, setGasolineData] = useState<any[]>([]);
   const [s10Data, setS10Data] = useState<any[]>([]);
 
-  const [etanolImages, setEtanolImages] = useState<(File | null)[]>([]);
-  const [etanolFileNames, setEtanolFileNames] = useState<string[]>([]);
-  const [gcImages, setGcImages] = useState<(File | null)[]>([]);
-  const [gcFileNames, setGcFileNames] = useState<string[]>([]);
-  const [s10Images, setS10Images] = useState<(File | null)[]>([]);
-  const [s10FileNames, setS10FileNames] = useState<string[]>([]);
+  const [taskMedia, setTaskMedia] = useState<File | null>(null);
+  const [taskMediaName, setTaskMediaName] = useState("");
+  const [taskMediaUrl, setTaskMediaUrl] = useState("");
 
-  const etanolRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const gcRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const s10Refs = useRef<(HTMLInputElement | null)[]>([]);
+  const taskMediaRef = useRef<HTMLInputElement | null>(null);
 
   // useEffect(() => {
   // //   const checkLoginDuration = () => {
@@ -147,12 +140,6 @@ export default function NewPost() {
             ...prevData,
             tanks: postData.tanks,
           }));
-          setEtanolImages(Array(postData.tanks.length).fill(null));
-          setEtanolFileNames(Array(postData.tanks.length).fill(""));
-          setGcImages(Array(postData.tanks.length).fill(null));
-          setGcFileNames(Array(postData.tanks.length).fill(""));
-          setS10Images(Array(postData.tanks.length).fill(null));
-          setS10FileNames(Array(postData.tanks.length).fill(""));
         }
       } catch (error) {
         console.error("Error fetching post details:", error);
@@ -204,200 +191,36 @@ export default function NewPost() {
     });
   };
 
-  async function compressImage(file: File) {
-    const options = {
-      maxSizeMB: 2,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-
-    try {
-      console.log(
-        `Tamanho original da imagem: ${(file.size / 1024 / 1024).toFixed(2)} MB`
-      );
-      const compressedFile = await imageCompression(file, options);
-      console.log(
-        `Tamanho da imagem comprimida: ${(
-          compressedFile.size /
-          1024 /
-          1024
-        ).toFixed(2)} MB`
-      );
-      return compressedFile;
-    } catch (error) {
-      console.error("Erro ao comprimir imagem:", error);
-      throw error;
-    }
-  }
-
-  const getUserPost = () => {
-    return localStorage.getItem("userPost");
-  };
-
-  const handleEtanolImageChange = async (
-    index: number,
-    tankNumber: number,
+  const handleTaskMediaChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = event.target.files;
-    const userPost = getUserPost();
-
     if (files && files.length > 0) {
       const file = files[0];
-      setIsLoading(true);
-      try {
-        let processedFile = file;
 
-        if (file.type.startsWith("image/")) {
-          processedFile = await compressImage(file);
-        }
-
-        const imageUrl = await uploadImageAndGetUrl(
-          processedFile,
-          `fuelTests/${getLocalISODate()}/etanol_${
-            processedFile.name
-          }_${Date.now()}`
-        );
-
-        setFetchedData((prev: any) => {
-          const updatedImages = [...(prev.images || [])];
-          updatedImages[index] = {
-            ...updatedImages[index],
-            imageUrl,
-            fileName: processedFile.name,
-            type: `Etanol ${tankNumber}`,
-          };
-          return { ...prev, images: updatedImages };
-        });
-
-        setEtanolImages((prev) => {
-          const updated = [...prev];
-          updated[index] = processedFile;
-          return updated;
-        });
-
-        setEtanolFileNames((prev) => {
-          const updated = [...prev];
-          updated[index] = processedFile.name;
-          return updated;
-        });
-      } catch (error) {
-        console.error("Erro ao fazer upload da imagem de etanol:", error);
-        toast.error("Erro ao fazer upload da imagem de etanol.");
-      } finally {
-        setIsLoading(false);
+      // Verifica o tamanho do arquivo (máximo 10MB)
+      const maxFileSize = 10 * 1024 * 1024; // 10MB em bytes
+      if (file.size > maxFileSize) {
+        toast.error("O arquivo deve ter no máximo 10MB.");
+        return;
       }
-    }
-  };
 
-  const handleGcImageChange = async (
-    index: number,
-    tankNumber: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = event.target.files;
-    const userPost = getUserPost();
-
-    if (files && files.length > 0) {
-      const file = files[0];
       setIsLoading(true);
+      setTaskMedia(file);
+      setTaskMediaName(file.name);
+
       try {
-        let processedFile = file;
+        // Faz o upload da mídia e obtém a URL
+        const path = `uploads/tasks/${file.name}`;
+        const uploadedUrl = await uploadImageAndGetUrl(file, path);
 
-        if (file.type.startsWith("image/")) {
-          processedFile = await compressImage(file);
-        }
+        console.log("URL da mídia carregada:", uploadedUrl);
 
-        const imageUrl = await uploadImageAndGetUrl(
-          processedFile,
-          `fuelTests/${getLocalISODate()}/gc_${
-            processedFile.name
-          }_${Date.now()}`
-        );
-
-        setFetchedData((prev: any) => {
-          const updatedImages = [...(prev.images || [])];
-          updatedImages[index] = {
-            ...updatedImages[index],
-            imageUrl,
-            fileName: processedFile.name,
-            type: `GC ${tankNumber}`,
-          };
-          return { ...prev, images: updatedImages };
-        });
-
-        setGcImages((prev) => {
-          const updated = [...prev];
-          updated[index] = processedFile;
-          return updated;
-        });
-
-        setGcFileNames((prev) => {
-          const updated = [...prev];
-          updated[index] = processedFile.name;
-          return updated;
-        });
+        // Atualiza o estado com a URL da mídia
+        setTaskMediaUrl(uploadedUrl);
       } catch (error) {
-        console.error(
-          "Erro ao fazer upload da imagem de gasolina comum:",
-          error
-        );
-        toast.error("Erro ao fazer upload da imagem de gasolina comum.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleS10ImageChange = async (
-    index: number,
-    tankNumber: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = event.target.files;
-
-    if (files && files.length > 0) {
-      const file = files[0];
-      setIsLoading(true);
-      try {
-        let processedFile = file;
-
-        if (file.type.startsWith("image/")) {
-          processedFile = await compressImage(file);
-        }
-
-        const imageUrl = await uploadImageAndGetUrl(
-          processedFile,
-          `fuelTests/${getLocalISODate()}/s10_${
-            processedFile.name
-          }_${Date.now()}`
-        );
-
-        setFetchedData((prev: any) => {
-          const updatedImages = [...(prev.images || [])];
-          updatedImages[index] = {
-            ...updatedImages[index],
-            imageUrl,
-            fileName: processedFile.name,
-            type: `S10 ${tankNumber}`,
-          };
-          return { ...prev, images: updatedImages };
-        });
-
-        setS10Images((prev) => {
-          const updated = [...prev];
-          updated[index] = processedFile;
-          return updated;
-        });
-
-        setS10FileNames((prev) => {
-          const updated = [...prev];
-          updated[index] = processedFile.name;
-          return updated;
-        });
-      } catch (error) {
-        console.error("Erro ao fazer upload da imagem de S10:", error);
-        toast.error("Erro ao fazer upload da imagem de S10.");
+        console.error("Erro durante o upload da mídia:", error);
+        toast.error("Erro ao fazer upload da mídia.");
       } finally {
         setIsLoading(false);
       }
@@ -439,7 +262,7 @@ export default function NewPost() {
       managersRef,
       where("date", "==", date),
       where("userName", "==", userName),
-      where("id", "==", "teste-combustiveis-14")
+      where("id", "==", "teste-combustiveis-14h")
     );
 
     const querySnapshot = await getDocs(q);
@@ -448,16 +271,6 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     }
-
-    const images: { type: string; imageUrl: string; fileName: string }[] = [];
-
-    (fetchedData?.images || []).forEach((image: any) => {
-      images.push({
-        type: image.type,
-        imageUrl: image.imageUrl,
-        fileName: image.fileName,
-      });
-    });
 
     const ethanolDataFiltered = ethanolData.filter((data: any) => data);
     const gasolineDataFiltered = gasolineData.filter((data: any) => data);
@@ -472,8 +285,8 @@ export default function NewPost() {
       ethanolData: ethanolDataFiltered,
       gasolineData: gasolineDataFiltered,
       s10Data: s10DataFiltered,
-      images,
       tanks: fetchedData?.tanks || [],
+      taskMediaUrl,
       id: "teste-combustiveis-14h",
     };
 
@@ -509,35 +322,6 @@ export default function NewPost() {
     return `${day}/${month}/${year}`;
   }
 
-  async function shortenUrl(originalUrl: string): Promise<string> {
-    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
-
-    try {
-      const response = await fetch("/api/shorten-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ originalURL: originalUrl }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Falha ao encurtar URL:", data);
-        throw new Error(`Erro ao encurtar URL: ${data.message}`);
-      }
-
-      const data = await response.json();
-      const shortUrl = data.shortUrl;
-      console.log(`URL encurtada: ${shortUrl}`);
-
-      return shortUrl;
-    } catch (error) {
-      console.error("Erro ao encurtar URL:", error);
-      throw error;
-    }
-  }
-
   async function sendMessage(data: {
     date: any;
     time: any;
@@ -547,24 +331,10 @@ export default function NewPost() {
     ethanolData: any;
     gasolineData: any;
     s10Data: any;
-    images: any;
     tanks: any;
     id?: string;
   }) {
     const formattedDate = formatDate(data.date);
-
-    // Processar as URLs das imagens
-    console.log("Iniciando processamento das URLs das imagens.");
-    const imagesDescription = await Promise.all(
-      data.images.map(async (image: { imageUrl: string; type: any }) => {
-        console.log(`Encurtando URL da imagem: ${image.imageUrl}`);
-        const shortUrl = await shortenUrl(image.imageUrl);
-        console.log(`URL encurtada: ${shortUrl}`);
-        return { type: image.type, url: shortUrl };
-      })
-    );
-
-    console.log("Descrições das imagens processadas:", imagesDescription);
 
     let messageBody =
       `*Novo Teste de Combustíveis às 14h*\n\n` +
@@ -591,14 +361,6 @@ export default function NewPost() {
             `*${tankTitle}*\n` +
             `*Temperatura:* ${ethanol.ethanolTemperature}\n` +
             `*Peso:* ${ethanol.ethanolWeight}\n`;
-          const ethanolImage = imagesDescription.find(
-            (image) => image.type === `Etanol ${tank.tankNumber}`
-          );
-          if (ethanolImage) {
-            messageBody += `*Imagem:* ${ethanolImage.url}\n\n`;
-          } else {
-            messageBody += `\n`;
-          }
         }
       } else if (tank.product === "GC") {
         const gasoline = data.gasolineData.find(
@@ -608,14 +370,6 @@ export default function NewPost() {
           const tankTitle = `Tanque ${tank.tankNumber} - GC Venda`;
           messageBody +=
             `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n`;
-          const gcImage = imagesDescription.find(
-            (image) => image.type === `GC ${tank.tankNumber}`
-          );
-          if (gcImage) {
-            messageBody += `*Imagem:* ${gcImage.url}\n\n`;
-          } else {
-            messageBody += `\n`;
-          }
         }
       } else if (tank.product === "S10") {
         const s10 = data.s10Data.find(
@@ -624,20 +378,13 @@ export default function NewPost() {
         if (s10) {
           const tankTitle = `Tanque ${tank.tankNumber} - S10 Venda`;
           messageBody += `*${tankTitle}*\n` + `*Peso:* ${s10.s10Weight}\n`;
-          const s10Image = imagesDescription.find(
-            (image) => image.type === `S10 ${tank.tankNumber}`
-          );
-          if (s10Image) {
-            messageBody += `*Imagem:* ${s10Image.url}\n\n`;
-          } else {
-            messageBody += `\n`;
-          }
         }
       }
     });
 
     console.log("Mensagem final gerada:", messageBody);
 
+    // Obtendo detalhes do contato do gerente
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
     const querySnapshot = await getDocs(q);
@@ -652,7 +399,7 @@ export default function NewPost() {
 
     console.log("Contato do gerente:", managerContact);
 
-    // Adicionando contato do eduNumber
+    // Obtendo o eduNumber
     let eduNumber;
     try {
       const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
@@ -671,33 +418,73 @@ export default function NewPost() {
     }
 
     const contacts = [managerContact];
-    if (eduNumber) contacts.push(eduNumber);
+    // if (eduNumber) contacts.push(eduNumber);
 
+    // Autenticando para obter o token
+    let authToken;
+    try {
+      const authResponse = await fetch("/api/auth-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "admredeplug@gmail.com",
+          password: "Sc125687!",
+        }),
+      });
+
+      const authResponseBody = await authResponse.json();
+      if (!authResponse.ok) {
+        console.error("Erro ao obter token de autenticação:", authResponseBody);
+        throw new Error("Falha ao obter token de autenticação");
+      }
+
+      authToken = authResponseBody.data.token;
+      console.log(`Token de autenticação obtido: ${authToken}`);
+    } catch (error) {
+      console.error(`Erro ao obter token de autenticação: ${error}`);
+      toast.error("Erro ao obter token de autenticação.");
+      return;
+    }
+
+    // Enviando mensagem de imagem para todos os contatos
     for (const contact of contacts) {
-      await sendIndividualMessage(contact, messageBody);
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Intervalo de 2 segundos
+      try {
+        const response = await fetch("/api/send-video-message-full", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contacts: [contact],
+            messageBody: {
+              title: "*Novo Teste de Combustíveis às 6h*",
+              body: messageBody,
+              measurementSheetUrl: taskMediaUrl, // URL da imagem/vídeo
+            },
+            authToken: authToken,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          console.error(
+            `Erro ao enviar mensagem de imagem para ${contact}: ${errorMessage}`
+          );
+          throw new Error("Falha ao enviar mensagem de imagem via WhatsApp");
+        }
+
+        console.log(`Mensagem de imagem enviada com sucesso para ${contact}`);
+      } catch (error) {
+        console.error(
+          `Erro ao enviar mensagem de imagem para ${contact}: ${error}`
+        );
+      }
+
+      // Adiciona um intervalo entre os envios
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
-  }
-
-  async function sendIndividualMessage(contact: string, messageBody: string) {
-    console.log(`Enviando mensagem para ${contact}`);
-
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact: contact,
-        messageBody,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Falha ao enviar mensagem via WhatsApp `);
-    }
-
-    console.log(`Mensagem enviada com sucesso `);
   }
 
   return (
@@ -850,122 +637,6 @@ export default function NewPost() {
                                   />
                                 </div>
                               )}
-                              <div className={styles.InputField}>
-                                <p className={styles.FieldLabel}>
-                                  Imagem do teste de {tank.product}
-                                </p>
-                                {fetchedData.images?.find(
-                                  (img: any) =>
-                                    img.type ===
-                                    `${
-                                      tank.product === "ET"
-                                        ? "Etanol"
-                                        : tank.product
-                                    } ${tank.tankNumber}`
-                                ) && (
-                                  <div>
-                                    {[
-                                      ".mp4",
-                                      ".mov",
-                                      ".avi",
-                                      ".MOV",
-                                      ".MP4",
-                                      ".AVI",
-                                    ].some((ext) =>
-                                      fetchedData.images
-                                        .find(
-                                          (img: any) =>
-                                            img.type ===
-                                            `${
-                                              tank.product === "ET"
-                                                ? "Etanol"
-                                                : tank.product
-                                            } ${tank.tankNumber}`
-                                        )
-                                        .imageUrl.includes(ext)
-                                    ) ? (
-                                      <video
-                                        controls
-                                        style={{
-                                          maxWidth: "17.5rem",
-                                          height: "auto",
-                                          border: "1px solid #939393",
-                                          borderRadius: "20px",
-                                        }}
-                                      >
-                                        <source
-                                          src={
-                                            fetchedData.images.find(
-                                              (img: any) =>
-                                                img.type ===
-                                                `${
-                                                  tank.product === "ET"
-                                                    ? "Etanol"
-                                                    : tank.product
-                                                } ${tank.tankNumber}`
-                                            ).imageUrl
-                                          }
-                                          type="video/mp4"
-                                        />
-                                        Your browser does not support the video
-                                        tag.
-                                      </video>
-                                    ) : (
-                                      <img
-                                        src={
-                                          fetchedData.images.find(
-                                            (img: any) =>
-                                              img.type ===
-                                              `${
-                                                tank.product === "ET"
-                                                  ? "Etanol"
-                                                  : tank.product
-                                              } ${tank.tankNumber}`
-                                          ).imageUrl
-                                        }
-                                        alt={`Preview do teste de ${tank.product}`}
-                                        style={{
-                                          maxWidth: "17.5rem",
-                                          height: "auto",
-                                          border: "1px solid #939393",
-                                          borderRadius: "20px",
-                                        }}
-                                      />
-                                    )}
-                                    <p className={styles.fileName}>
-                                      {
-                                        fetchedData.images.find(
-                                          (img: any) =>
-                                            img.type ===
-                                            `${
-                                              tank.product === "ET"
-                                                ? "Etanol"
-                                                : tank.product
-                                            } ${tank.tankNumber}`
-                                        ).fileName
-                                      }
-                                    </p>
-                                    <a
-                                      href={
-                                        fetchedData.images.find(
-                                          (img: any) =>
-                                            img.type ===
-                                            `${
-                                              tank.product === "ET"
-                                                ? "Etanol"
-                                                : tank.product
-                                            } ${tank.tankNumber}`
-                                        ).imageUrl
-                                      }
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className={styles.openMediaLink}
-                                    >
-                                      Abrir mídia
-                                    </a>
-                                  </div>
-                                )}
-                              </div>
                             </>
                           )}
                         </div>
@@ -1049,57 +720,6 @@ export default function NewPost() {
                               placeholder=""
                             />
                           </div>
-                          <div className={styles.InputField}>
-                            <p className={styles.FieldLabel}>
-                              Imagem do teste de Etanol
-                            </p>
-                            <input
-                              type="file"
-                              capture="environment"
-                              accept="image/*,video/*"
-                              style={{ display: "none" }}
-                              ref={(el) => (etanolRefs.current[index] = el)}
-                              onChange={(e) =>
-                                handleEtanolImageChange(
-                                  index,
-                                  tank.tankNumber,
-                                  e
-                                )
-                              }
-                            />
-                            <button
-                              onClick={() =>
-                                etanolRefs.current[index] &&
-                                // @ts-ignore
-                                etanolRefs.current[index].click()
-                              }
-                              className={styles.MidiaField}
-                            >
-                              Tire sua foto/vídeo
-                            </button>
-                            {etanolImages[index] && (
-                              <div>
-                                <img
-                                  // @ts-ignore
-                                  src={URL.createObjectURL(etanolImages[index])}
-                                  alt="Preview do teste de Etanol"
-                                  style={{
-                                    maxWidth: "17.5rem",
-                                    height: "auto",
-                                    border: "1px solid #939393",
-                                    borderRadius: "20px",
-                                  }}
-                                  onLoad={() =>
-                                    // @ts-ignore
-                                    URL.revokeObjectURL(etanolImages[index])
-                                  }
-                                />
-                                <p className={styles.fileName}>
-                                  {etanolFileNames[index]}
-                                </p>
-                              </div>
-                            )}
-                          </div>
                         </div>
                       );
                     } else if (tank.product === "GC") {
@@ -1126,53 +746,6 @@ export default function NewPost() {
                               placeholder=""
                             />
                           </div>
-                          <div className={styles.InputField}>
-                            <p className={styles.FieldLabel}>
-                              Imagem do teste de Gasolina Comum (GC)
-                            </p>
-                            <input
-                              type="file"
-                              capture="environment"
-                              accept="image/*,video/*"
-                              style={{ display: "none" }}
-                              ref={(el) => (gcRefs.current[index] = el)}
-                              onChange={(e) =>
-                                handleGcImageChange(index, tank.tankNumber, e)
-                              }
-                            />
-                            <button
-                              onClick={() =>
-                                gcRefs.current[index] &&
-                                // @ts-ignore
-                                gcRefs.current[index].click()
-                              }
-                              className={styles.MidiaField}
-                            >
-                              Tire sua foto/vídeo
-                            </button>
-                            {gcImages[index] && (
-                              <div>
-                                <img
-                                  // @ts-ignore
-                                  src={URL.createObjectURL(gcImages[index])}
-                                  alt="Preview do teste de Gasolina Comum"
-                                  style={{
-                                    maxWidth: "17.5rem",
-                                    height: "auto",
-                                    border: "1px solid #939393",
-                                    borderRadius: "20px",
-                                  }}
-                                  onLoad={() =>
-                                    // @ts-ignore
-                                    URL.revokeObjectURL(gcImages[index])
-                                  }
-                                />
-                                <p className={styles.fileName}>
-                                  {gcFileNames[index]}
-                                </p>
-                              </div>
-                            )}
-                          </div>
                         </div>
                       );
                     } else if (tank.product === "S10") {
@@ -1197,57 +770,45 @@ export default function NewPost() {
                               placeholder=""
                             />
                           </div>
-                          <div className={styles.InputField}>
-                            <p className={styles.FieldLabel}>
-                              Imagem do teste de S10
-                            </p>
-                            <input
-                              type="file"
-                              capture="environment"
-                              accept="image/*,video/*"
-                              style={{ display: "none" }}
-                              ref={(el) => (s10Refs.current[index] = el)}
-                              onChange={(e) =>
-                                handleS10ImageChange(index, tank.tankNumber, e)
-                              }
-                            />
-                            <button
-                              onClick={() =>
-                                s10Refs.current[index] &&
-                                // @ts-ignore
-                                s10Refs.current[index].click()
-                              }
-                              className={styles.MidiaField}
-                            >
-                              Tire sua foto/vídeo
-                            </button>
-                            {s10Images[index] && (
-                              <div>
-                                <img
-                                  // @ts-ignore
-                                  src={URL.createObjectURL(s10Images[index])}
-                                  alt="Preview do teste de S10"
-                                  style={{
-                                    maxWidth: "17.5rem",
-                                    height: "auto",
-                                    border: "1px solid #939393",
-                                    borderRadius: "20px",
-                                  }}
-                                  onLoad={() =>
-                                    // @ts-ignore
-                                    URL.revokeObjectURL(s10Images[index])
-                                  }
-                                />
-                                <p className={styles.fileName}>
-                                  {s10FileNames[index]}
-                                </p>
-                              </div>
-                            )}
-                          </div>
                         </div>
                       );
                     }
                   })}
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Imagem/Vídeo da Tarefa</p>
+                  <input
+                    type="file"
+                    capture="environment"
+                    accept="image/*,video/*"
+                    style={{ display: "none" }}
+                    ref={taskMediaRef}
+                    onChange={handleTaskMediaChange}
+                  />
+                  <button
+                    onClick={() => taskMediaRef.current?.click()}
+                    className={styles.MidiaField}
+                  >
+                    Tire sua foto/vídeo
+                  </button>
+                  {taskMedia && (
+                    <div>
+                      <img
+                        src={URL.createObjectURL(taskMedia)}
+                        alt="Preview da Imagem/Vídeo"
+                        style={{
+                          maxWidth: "17.5rem",
+                          height: "auto",
+                          border: "1px solid #939393",
+                          borderRadius: "20px",
+                        }}
+                        // @ts-ignore
+                        onLoad={() => URL.revokeObjectURL(taskMedia)}
+                      />
+                      <p className={styles.fileName}>{taskMediaName}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
