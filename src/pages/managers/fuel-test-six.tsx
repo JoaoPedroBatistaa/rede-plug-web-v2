@@ -247,6 +247,7 @@ export default function NewPost() {
       setIsLoading(false);
       return;
     } else if (!time) missingField = "Hora";
+    else if (!taskMediaUrl) missingField = "Mídia";
 
     if (missingField) {
       toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
@@ -360,7 +361,7 @@ export default function NewPost() {
           messageBody +=
             `*${tankTitle}*\n` +
             `*Temperatura:* ${ethanol.ethanolTemperature}\n` +
-            `*Peso:* ${ethanol.ethanolWeight}\n`;
+            `*Peso:* ${ethanol.ethanolWeight}\n\n`;
         }
       } else if (tank.product === "GC") {
         const gasoline = data.gasolineData.find(
@@ -369,7 +370,7 @@ export default function NewPost() {
         if (gasoline) {
           const tankTitle = `Tanque ${tank.tankNumber} - GC Venda`;
           messageBody +=
-            `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n`;
+            `*${tankTitle}*\n` + `*Qualidade:* ${gasoline.gasolineQuality}\n\n`;
         }
       } else if (tank.product === "S10") {
         const s10 = data.s10Data.find(
@@ -377,7 +378,7 @@ export default function NewPost() {
         );
         if (s10) {
           const tankTitle = `Tanque ${tank.tankNumber} - S10 Venda`;
-          messageBody += `*${tankTitle}*\n` + `*Peso:* ${s10.s10Weight}\n`;
+          messageBody += `*${tankTitle}*\n` + `*Peso:* ${s10.s10Weight}\n\n`;
         }
       }
     });
