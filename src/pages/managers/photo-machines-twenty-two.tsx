@@ -538,7 +538,6 @@ export default function NewPost() {
                   </p>
                   <input
                     type="file"
-                    capture="environment"
                     accept="image/*,video/*"
                     style={{ display: "none" }}
                     // @ts-ignore
