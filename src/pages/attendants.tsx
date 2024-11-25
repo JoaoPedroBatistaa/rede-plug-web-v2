@@ -79,7 +79,7 @@ export default function Home() {
                 }
                 className={styles.CardMenu}
               >
-                <img src="/routine-14.svg" />
+                <img src="/routine.svg" />
                 <span className={styles.CardMenuText}>TURNO 1</span>
               </div>
 
@@ -90,7 +90,7 @@ export default function Home() {
                 }
                 className={styles.CardMenu}
               >
-                <img src="/routine-22.svg" />
+                <img src="/routine.svg" />
                 <span className={styles.CardMenuText}>TURNO 2</span>
               </div>
 
@@ -101,7 +101,7 @@ export default function Home() {
                 }
                 className={styles.CardMenu}
               >
-                <img src="/routine-6.svg" />
+                <img src="/routine.svg" />
                 <span className={styles.CardMenuText}>TURNO 3</span>
               </div>
             </div>
