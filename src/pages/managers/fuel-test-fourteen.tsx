@@ -777,7 +777,7 @@ export default function NewPost() {
                   })}
 
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Imagem/Vídeo da Tarefa</p>
+                  <p className={styles.FieldLabel}>Vídeo de todos os testes</p>
                   <input
                     type="file"
                     capture="environment"

@@ -6,6 +6,7 @@ import HeaderHome from "@/components/HeaderHome";
 import SideMenuHome from "@/components/SideMenuHome";
 import { collection, getDocs, query, where } from "firebase/firestore"; // Importa as funções necessárias do Firestore
 import { Url } from "next/dist/shared/lib/router/router";
+import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import { db } from "../../firebase"; // Assume que o Firestore está configurado em firebaseConfig
 
@@ -157,6 +158,13 @@ export default function Home() {
                 <img src="./routine-22.svg" />
                 <span className={styles.CardMenuText}>ROTINA 22H</span>
               </div>
+
+              <Link href={"/new-discharge"}>
+                <div className={styles.CardMenu}>
+                  <img src="./discharge.svg" />
+                  <span className={styles.CardMenuText}>NOVA DESCARGA</span>
+                </div>
+              </Link>
             </div>
           </div>
 

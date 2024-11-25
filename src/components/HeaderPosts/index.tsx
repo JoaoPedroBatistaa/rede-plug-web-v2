@@ -63,12 +63,7 @@ export default function HeaderHome() {
           <div className={styles.HeaderTextDescription}>
             <p>
               Bem-vindo à área de postos, onde você tem o controle total para
-              gerenciar e monitorar as operações de forma eficaz. Aqui, você
-              encontrará ferramentas poderosas para acompanhar o desempenho da
-              equipe, analisar métricas em tempo real e tomar decisões
-              informadas. Aproveite os recursos exclusivos desta página para
-              otimizar processos, resolver problemas rapidamente e garantir que
-              tudo esteja funcionando perfeitamente.
+              gerenciar e monitorar as operações de forma eficaz.
             </p>
           </div>
         </div>

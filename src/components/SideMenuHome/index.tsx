@@ -283,7 +283,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
               </>
             )}
 
-            {/* {typeUser !== "post" && (
+            {typeUser !== "post" && (
               <>
                 <div
                   className={`${styles.MenuNavigate} ${
@@ -320,7 +320,7 @@ export default function SideMenuBudget({ activeRoute }: SideMenuBudgetProps) {
                   </Link>
                 </div>
               </>
-            )} */}
+            )}
           </div>
 
           <div className={styles.MenuContainer}>

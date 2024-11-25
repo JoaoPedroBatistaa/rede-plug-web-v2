@@ -6,7 +6,15 @@ import HeaderNewProduct from "@/components/HeaderNewDischarge";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
 import { db, storage } from "../../firebase";
@@ -1024,29 +1032,39 @@ export default function NewPost() {
         }
       }
 
-      // Enviar mensagem simplificada para o número adicional
-      const simplifiedMessageBody = `*Nova Descarga Realizada*\n\n*Data*: ${formattedDate}\n*Hora*: ${data.time}\n*Posto*: ${data.postName}\n*Responsável*: ${data.makerName}\n\n*Motorista*: ${data.driverName}\n*Tanque*: ${data.selectedTankDescription}\n*Produto*: ${data.product}\n${data.totalLiters} litros\n*Decalitro*: ${data.decalitro}\n\n*Observações*: ${data.observations}`;
+      const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
+      const phoneDocSnap = await getDoc(phoneDocRef);
 
-      const simplifiedMessageResponse = await fetch("/api/send-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          managerContact: "5511911345557",
-          messageBody: simplifiedMessageBody,
-        }),
-      });
+      if (phoneDocSnap.exists()) {
+        const leoNumber = phoneDocSnap.data().leoNumber;
+        console.log(leoNumber);
 
-      if (!simplifiedMessageResponse.ok) {
-        const errorMessage = await simplifiedMessageResponse.json();
-        console.error(
-          "Falha ao enviar mensagem simplificada via WhatsApp: ",
-          errorMessage
-        );
-        throw new Error("Falha ao enviar mensagem simplificada via WhatsApp");
+        if (!leoNumber) {
+          throw new Error("Campo 'leoNumber' não encontrado no documento.");
+        }
+
+        // Monta a mensagem
+        const simplifiedMessageBody = `*Nova Descarga Realizada*\n\n*Data*: ${formattedDate}\n*Hora*: ${data.time}\n*Posto*: ${data.postName}\n*Responsável*: ${data.makerName}\n\n*Motorista*: ${data.driverName}\n*Tanque*: ${data.selectedTankDescription}\n*Produto*: ${data.product}\n${data.totalLiters} litros\n*Decalitro*: ${data.decalitro}\n\n*Observações*: ${data.observations}`;
+
+        // Envia a mensagem usando o valor dinâmico de leoNumber
+        const response = await fetch("/api/send-message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            managerContact: leoNumber, // Usa o valor dinâmico do Firestore
+            messageBody: simplifiedMessageBody,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Erro ao enviar a mensagem.");
+        }
+
+        console.log("Mensagem enviada com sucesso!");
       } else {
-        console.log("Mensagem simplificada enviada com sucesso!");
+        throw new Error("Documento não encontrado.");
       }
     } catch (error) {
       console.error("Erro ao enviar mensagem: ", error);
@@ -1070,7 +1088,7 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Nova descarga</p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               <button className={styles.FinishButton} onClick={saveDischarge}>
                 <img
                   src="/finishBudget.png"
