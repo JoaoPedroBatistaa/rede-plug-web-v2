@@ -1040,7 +1040,7 @@ export default function NewPost() {
         console.log(leoNumber);
 
         if (!leoNumber) {
-          throw new Error("Campo 'leoNumber' não encontrado no documento.");
+          throw new Error("Campo leoNumber não encontrado no documento.");
         }
 
         // Monta a mensagem
