@@ -19,37 +19,66 @@ export default function Home() {
 
   const [openMenu, setOpenMenu] = useState(false);
   const [selectedOption, setSelectedOption] = useState("opcao1");
-  const [searchText, setSearchText] = useState("");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
 
   // Função para obter o horário atual em UTC-3
-  const getCurrentHourInTimezone = () => {
+  const getCurrentTimeInTimezone = () => {
     const now = new Date();
     const utcHour = now.getUTCHours();
-    return (utcHour - 3 + 24) % 24;
+    const utcMinutes = now.getUTCMinutes();
+    return {
+      hour: (utcHour - 3 + 24) % 24,
+      minutes: utcMinutes,
+    };
   };
 
   // Função para verificar se o horário é permitido
-  const isAllowedTimeForRoutine = (startHour: number, endHour: number) => {
-    const currentHour = getCurrentHourInTimezone();
-    if (startHour < endHour) {
-      return currentHour >= startHour && currentHour < endHour;
+  const isAllowedTimeForRoutine = (
+    startHour: number,
+    startMinutes: number,
+    endHour: number,
+    endMinutes: number
+  ) => {
+    const { hour, minutes } = getCurrentTimeInTimezone();
+
+    const currentTimeInMinutes = hour * 60 + minutes;
+    const startTimeInMinutes = startHour * 60 + startMinutes;
+    const endTimeInMinutes = endHour * 60 + endMinutes;
+
+    if (startTimeInMinutes < endTimeInMinutes) {
+      // Horário contínuo (ex.: 14:00 às 15:30)
+      return (
+        currentTimeInMinutes >= startTimeInMinutes &&
+        currentTimeInMinutes < endTimeInMinutes
+      );
     } else {
-      return currentHour >= startHour || currentHour < endHour;
+      // Horário passando pela meia-noite (ex.: 22:00 às 23:30)
+      return (
+        currentTimeInMinutes >= startTimeInMinutes ||
+        currentTimeInMinutes < endTimeInMinutes
+      );
     }
   };
 
-  // Função para exibir alerta se o horário for inválido
+  // Função para tratar cliques nos cards
   const handleCardClick = async (
     startHour: number,
+    startMinutes: number,
     endHour: number,
-    // @ts-ignore
-    routinePath: Url
+    endMinutes: number,
+    routinePath: string,
+    allowedTime: string
   ) => {
-    router.push(routinePath);
+    if (isAllowedTimeForRoutine(startHour, startMinutes, endHour, endMinutes)) {
+      router.push(routinePath);
+    } else {
+      alert(
+        `O horário permitido para este turno é das ${allowedTime}. Por favor, tente novamente dentro do horário.`
+      );
+    }
   };
 
   return (
@@ -75,7 +104,14 @@ export default function Home() {
               {/* Turno 1 */}
               <div
                 onClick={() =>
-                  handleCardClick(14, 22, "/attendants/shift-1-routine")
+                  handleCardClick(
+                    14,
+                    0,
+                    15,
+                    30,
+                    "/attendants/shift-1-routine",
+                    "14:00 às 15:30"
+                  )
                 }
                 className={styles.CardMenu}
               >
@@ -86,7 +122,14 @@ export default function Home() {
               {/* Turno 2 */}
               <div
                 onClick={() =>
-                  handleCardClick(22, 6, "/attendants/shift-2-routine")
+                  handleCardClick(
+                    22,
+                    0,
+                    23,
+                    30,
+                    "/attendants/shift-2-routine",
+                    "22:00 às 23:30"
+                  )
                 }
                 className={styles.CardMenu}
               >
@@ -97,7 +140,14 @@ export default function Home() {
               {/* Turno 3 */}
               <div
                 onClick={() =>
-                  handleCardClick(6, 14, "/attendants/shift-3-routine")
+                  handleCardClick(
+                    6,
+                    0,
+                    7,
+                    30,
+                    "/attendants/shift-3-routine",
+                    "06:00 às 07:30"
+                  )
                 }
                 className={styles.CardMenu}
               >
