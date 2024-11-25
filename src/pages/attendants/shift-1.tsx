@@ -25,7 +25,6 @@ import { uploadBytes } from "firebase/storage";
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.postName;
   const docId = router.query.docId;
   const [data, setData] = useState(null);
 
@@ -211,12 +210,40 @@ export default function NewPost() {
       ...Array.from({ length: isNaN(value) ? 0 : value }, () => [""]),
     ]);
 
+    setMaquininhasData(
+      Array.from({ length: isNaN(value) ? 0 : value }, () => ({
+        terminal: "",
+        credito: "",
+        debito: "",
+        pix: "",
+      }))
+    );
+
     maquininhasRefs.current = [
       maquininhasRefs.current[0] || createRef(),
       maquininhasRefs.current[1] || createRef(),
       ...Array.from({ length: isNaN(value) ? 0 : value }, () => createRef()),
     ];
   };
+
+  const [maquininhasData, setMaquininhasData] = useState(
+    Array.from({ length: numMaquininhas }, () => ({
+      terminal: "",
+      credito: "",
+      debito: "",
+      pix: "",
+    }))
+  );
+
+  // Manipulador de mudanças nos campos de texto das maquininhas
+  const handleMaquininhaDataChange =
+    (index: number, field: string) =>
+    (event: { target: { value: string } }) => {
+      const updatedData = maquininhasData.map((data, i) =>
+        i === index ? { ...data, [field]: event.target.value } : data
+      );
+      setMaquininhasData(updatedData);
+    };
 
   const handleImageChange =
     (maquininhaIndex: number, imageIndex: number) =>
@@ -449,7 +476,7 @@ export default function NewPost() {
       where("date", "==", date),
       where("id", "==", "turno-1"),
       where("userName", "==", userName),
-      where("postName", "==", postName)
+      where("postName", "==", userName)
     );
 
     const querySnapshot = await getDocs(q);
@@ -469,7 +496,7 @@ export default function NewPost() {
       date,
       time,
       attendant,
-      postName,
+      postName: userName,
       shift: "01",
       etPrice,
       gcPrice,
@@ -492,6 +519,7 @@ export default function NewPost() {
       expenses,
       images,
       mediaUrl,
+      maquininhasData,
       id: "turno-1",
     };
 
@@ -504,7 +532,7 @@ export default function NewPost() {
       toast.success("Tarefa salva com sucesso!");
 
       // @ts-ignore
-      router.push(`/attendants?post=${encodeURIComponent(postName)}`);
+      router.push(`/attendants/shift-1-routine`);
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
@@ -585,6 +613,7 @@ export default function NewPost() {
     difference: any;
     observations: any;
     expenses: any;
+    maquininhasData: any;
     images: string[];
     mediaUrl: string;
   }) {
@@ -595,6 +624,18 @@ export default function NewPost() {
           `*Tipo:* ${exp.expenseType}, *Valor:* R$ ${exp.expenseValue}`
       )
       .join("\n");
+
+    const formattedMaquininhas = data.maquininhasData
+      .map((maquininha: any, index: number) => {
+        return `*Maquininha ${index + 1}*\n*Terminal:* ${
+          maquininha.terminal
+        }\n*Crédito:* R$ ${Number(maquininha.credito).toFixed(
+          2
+        )}\n*Débito:* R$ ${Number(maquininha.debito).toFixed(
+          2
+        )}\n*Pix:* R$ ${Number(maquininha.pix).toFixed(2)}`;
+      })
+      .join("\n\n");
 
     const imagesDescription = await Promise.all(
       data.images.map(async (imageUrl, index) => {
@@ -649,7 +690,9 @@ export default function NewPost() {
       2
     )}\n\n*Despesas*\n${formattedExpenses}\n\n*Observações:* ${
       data.observations
-    }\n\n*Imagens da tarefa*\n\n${imagesDescription}\n${mediaDescription}`;
+    }
+    \n\n*Maquininhas*\n\n${formattedMaquininhas}
+    \n\n*Imagens da tarefa*\n\n${imagesDescription}\n${mediaDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -699,7 +742,7 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Relatório de turno 01</p>
-            <div className={styles.BudgetHeadS}>
+            <div className={styles.FinishTask}>
               {!docId && (
                 <button
                   className={styles.FinishButton}
@@ -835,72 +878,133 @@ export default function NewPost() {
                     )
                   )}
                 </div>
-                {Array.from(
-                  { length: numMaquininhas },
-                  (_, maquininhaIndex) => (
-                    <div
-                      key={maquininhaIndex}
-                      className={styles.InputContainer}
-                    >
-                      <p className={styles.FieldLabel}>
-                        Maquininha {maquininhaIndex + 1}
-                      </p>
-                      <div className={styles.InputField}>
-                        <p className={styles.FieldLabel}>Filipeta Maquininha</p>
-                        <input
-                          type="file"
-                          accept="image/*,video/*"
-                          style={{ display: "none" }}
-                          ref={(el) => {
-                            // @ts-ignore
+                <div className={styles.InputContainer}>
+                  {Array.from(
+                    { length: numMaquininhas },
+                    (_, maquininhaIndex) => (
+                      <div
+                        key={maquininhaIndex}
+                        className={styles.MaquininhaSection}
+                      >
+                        <p className={styles.titleTank}>
+                          Maquininha {maquininhaIndex + 1}
+                        </p>
 
-                            maquininhasRefs.current[maquininhaIndex + 2] = el;
-                          }}
-                          // @ts-ignore
-                          onChange={handleImageChange(maquininhaIndex, 2)}
-                        />
-                        <button
-                          onClick={() =>
-                            maquininhasRefs.current[
-                              maquininhaIndex + 2
+                        {/* Campo de Imagem */}
+                        <div className={styles.InputField}>
+                          <p className={styles.FieldLabel}>
+                            Filipeta Maquininha
+                          </p>
+                          <input
+                            type="file"
+                            accept="image/*,video/*"
+                            style={{ display: "none" }}
+                            ref={(el) => {
                               // @ts-ignore
-                            ]?.click()
-                          }
-                          className={styles.MidiaField}
-                        >
-                          Tire sua foto/vídeo
-                        </button>
-                        {maquininhasImages[maquininhaIndex + 1] &&
-                          maquininhasImages[maquininhaIndex + 1][0] && (
-                            <div>
-                              <img
+                              // @ts-ignore
+                              maquininhasRefs.current[maquininhaIndex + 2] = el;
+                            }}
+                            // @ts-ignore
+                            onChange={handleImageChange(maquininhaIndex, 2)}
+                          />
+                          <button
+                            onClick={() =>
+                              maquininhasRefs.current[
+                                maquininhaIndex + 2
                                 // @ts-ignore
-                                src={maquininhasImages[maquininhaIndex + 1][0]}
-                                alt={`Preview da Filipeta Maquininha ${
-                                  maquininhaIndex + 1
-                                }`}
-                                style={{
-                                  maxWidth: "17.5rem",
-                                  height: "auto",
-                                  border: "1px solid #939393",
-                                  borderRadius: "20px",
-                                }}
-                                onLoad={() =>
-                                  URL.revokeObjectURL(
-                                    // @ts-ignore
+                              ]?.click()
+                            }
+                            className={styles.MidiaField}
+                          >
+                            Tire sua foto/vídeo
+                          </button>
+                          {maquininhasImages[maquininhaIndex + 1] &&
+                            maquininhasImages[maquininhaIndex + 1][0] && (
+                              <div>
+                                <img
+                                  // @ts-ignore
+                                  src={
                                     maquininhasImages[maquininhaIndex + 1][0]
-                                  )
-                                }
-                              />
-                              <p className={styles.fileName}>
-                                {maquininhasFileNames[maquininhaIndex + 1][0]}
-                              </p>
-                            </div>
-                          )}
+                                  }
+                                  alt={`Preview da Filipeta Maquininha ${
+                                    maquininhaIndex + 1
+                                  }`}
+                                  style={{
+                                    maxWidth: "17.5rem",
+                                    height: "auto",
+                                    border: "1px solid #939393",
+                                    borderRadius: "20px",
+                                  }}
+                                />
+                                <p className={styles.fileName}>
+                                  {maquininhasFileNames[maquininhaIndex + 1][0]}
+                                </p>
+                              </div>
+                            )}
+                        </div>
+
+                        {/* Campos de Texto */}
+                        <div className={styles.InputField}>
+                          <p className={styles.FieldLabel}>Terminal</p>
+                          <input
+                            type="text"
+                            className={styles.Field}
+                            value={
+                              maquininhasData[maquininhaIndex]?.terminal || ""
+                            }
+                            onChange={handleMaquininhaDataChange(
+                              maquininhaIndex,
+                              "terminal"
+                            )}
+                          />
+                        </div>
+
+                        <div className={styles.InputField}>
+                          <p className={styles.FieldLabel}>Crédito</p>
+                          <input
+                            type="text"
+                            className={styles.Field}
+                            value={
+                              maquininhasData[maquininhaIndex]?.credito || ""
+                            }
+                            onChange={handleMaquininhaDataChange(
+                              maquininhaIndex,
+                              "credito"
+                            )}
+                          />
+                        </div>
+
+                        <div className={styles.InputField}>
+                          <p className={styles.FieldLabel}>Débito</p>
+                          <input
+                            type="text"
+                            className={styles.Field}
+                            value={
+                              maquininhasData[maquininhaIndex]?.debito || ""
+                            }
+                            onChange={handleMaquininhaDataChange(
+                              maquininhaIndex,
+                              "debito"
+                            )}
+                          />
+                        </div>
+
+                        <div className={styles.InputField}>
+                          <p className={styles.FieldLabel}>Pix</p>
+                          <input
+                            type="text"
+                            className={styles.Field}
+                            value={maquininhasData[maquininhaIndex]?.pix || ""}
+                            onChange={handleMaquininhaDataChange(
+                              maquininhaIndex,
+                              "pix"
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )
-                )}
+                    )
+                  )}
+                </div>
               </div>
 
               <p className={styles.BudgetTitle}>Preços</p>

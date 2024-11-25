@@ -200,6 +200,19 @@
   }
 }
 
+.finished {
+  font-family: "Syne";
+  font-size: 1rem;
+  color: #484852;
+  text-transform: uppercase;
+  font-weight: 700;
+
+  span {
+    color: #0bb07b;
+    font-size: 1.05rem;
+  }
+}
+
 .OrderContainer {
   display: flex;
   flex-direction: column;

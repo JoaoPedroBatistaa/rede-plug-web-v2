@@ -137,7 +137,7 @@ export default function Login() {
           } else if (user.type === "supervisor") {
             router.push("/supervisors-home").then(() => handleRefresh()); // Chama handleRefresh após redirecionar
           } else if (user.type === "post") {
-            router.push("/").then(() => handleRefresh()); // Chama handleRefresh após redirecionar
+            router.push("/attendants").then(() => handleRefresh()); // Chama handleRefresh após redirecionar
           } else {
             router.push("/home").then(() => handleRefresh()); // Chama handleRefresh após redirecionar
           }

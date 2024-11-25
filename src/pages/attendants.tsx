@@ -1,59 +1,13 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import styles from "../styles/Requests.module.scss";
+import styles from "../styles/Home.module.scss";
 
-import HeaderPosts from "@/components/HeaderAttendants";
+import HeaderHome from "@/components/HeaderAttendants";
 import SideMenuHome from "@/components/SideMenuHome";
-import TablePosts from "@/components/TableAttendants";
-
 import { ChangeEvent, useEffect, useState } from "react";
-import "react-toastify/dist/ReactToastify.css";
 
-type Budget = {
-  id: string;
-  [key: string]: any;
-};
-
-export default function Products() {
+export default function Home() {
   const router = useRouter();
-
-  //
-  // useEffect(() => {
-  // //   const checkLoginDuration = () => {
-  // //     console.log("Checking login duration...");
-  // //     const storedDate = localStorage.getItem("loginDate");
-  // //     const storedTime = localStorage.getItem("loginTime");
-
-  // //     if (storedDate && storedTime) {
-  // //       const storedDateTime = new Date(`${storedDate}T${storedTime}`);
-  // //       console.log("Stored login date and time:", storedDateTime);
-
-  // //       const now = new Date();
-  // //       const maxLoginDuration = 6 * 60 * 60 * 1000;
-
-  // //       if (now.getTime() - storedDateTime.getTime() > maxLoginDuration) {
-  // //         console.log("Login duration exceeded 60 seconds. Logging out...");
-
-  // //         localStorage.removeItem("userId");
-  // //         localStorage.removeItem("userName");
-  // //         localStorage.removeItem("userType");
-  // //         localStorage.removeItem("userPost");
-  // //         localStorage.removeItem("posts");
-  // //         localStorage.removeItem("loginDate");
-  // //         localStorage.removeItem("loginTime");
-
-  // //         alert("Sua sessão expirou. Por favor, faça login novamente.");
-  // //         window.location.href = "/";
-  // //       } else {
-  // //         console.log("Login duration within limits.");
-  // //       }
-  // //     } else {
-  // //       console.log("No stored login date and time found.");
-  // //     }
-  // //   };
-
-  // //   checkLoginDuration();
-  // // }, []);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -64,90 +18,46 @@ export default function Products() {
   }, []);
 
   const [openMenu, setOpenMenu] = useState(false);
-
-  const [filterStates, setFilterStates] = useState({
-    foam: false,
-    impressao: false,
-    paspatur: false,
-    perfil: false,
-    vidro: false,
-  });
-
-  const toggleFilter = (key: keyof typeof filterStates) => {
-    setFilterStates((prevState) => ({
-      ...prevState,
-      [key]: !prevState[key],
-    }));
-  };
-
-  const [openFilter, setOpenFilter] = useState(false);
   const [selectedOption, setSelectedOption] = useState("opcao1");
-  const [searchValue, setSearchValue] = useState("");
-  const [searchValue1, setSearchValue1] = useState("");
-  const [searchValue2, setSearchValue2] = useState("");
-  const [searchValue3, setSearchValue3] = useState("");
-  const [searchValue4, setSearchValue4] = useState("");
-  const [data, setData] = useState<Budget[]>([]);
+  const [searchText, setSearchText] = useState("");
 
-  const [valueRadio, setValueRadio] = useState("");
-
-  const [orderValue, setOrderValue] = useState<string>("");
-  const [filterValue, setFilterValue] = useState<string>("");
-
-  const [increaseValue, setIncreaseValue] = useState<string>("");
-
-  const handleOpenFilter = () => {
-    setOpenFilter(!openFilter);
+  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOption(event.target.value);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  };
-  const handleSearchChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue1(e.target.value);
-  };
-  const handleSearchChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue2(e.target.value);
-  };
-  const handleSearchChange3 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue3(e.target.value);
-  };
-  const handleSearchChange4 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue4(e.target.value);
+  // Função para obter o horário atual em UTC-3
+  const getCurrentHourInTimezone = () => {
+    const now = new Date();
+    const utcHour = now.getUTCHours();
+    return (utcHour - 3 + 24) % 24;
   };
 
-  console.log(searchValue);
+  // Função para verificar se o horário é permitido
+  const isAllowedTimeForRoutine = (startHour: number, endHour: number) => {
+    const currentHour = getCurrentHourInTimezone();
+    if (startHour < endHour) {
+      return currentHour >= startHour && currentHour < endHour;
+    } else {
+      return currentHour >= startHour || currentHour < endHour;
+    }
+  };
 
-  const handleOrderValueChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+  // Função para exibir alerta se o horário for inválido
+  const handleCardClick = async (
+    startHour: number,
+    endHour: number,
+    // @ts-ignore
+    routinePath: Url
   ) => {
-    setOrderValue(event.target.value);
+    router.push(routinePath);
   };
-
-  const handleFilterValueChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFilterValue(event.target.value);
-  };
-
-  const handleIncreaseChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setIncreaseValue(e.target.value);
-  };
-
-  let userId: string | null;
-  if (typeof window !== "undefined") {
-    userId = window.localStorage.getItem("userId");
-  }
-
-  const typeUser =
-    typeof window !== "undefined" ? localStorage.getItem("typeUser") : null;
 
   return (
     <>
       <Head>
         <style>{`
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
-`}</style>
+          @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+        `}</style>
 
         <title>Rede Postos</title>
       </Head>
@@ -159,67 +69,41 @@ export default function Products() {
         ></SideMenuHome>
 
         <div className={styles.OrderContainer}>
-          <HeaderPosts></HeaderPosts>
-          <div className={styles.MainContainer}>
-            <div className={styles.ListContainer} id="postos">
-              <div className={styles.topMenuMobile}>
-                <p className={styles.ProductNameMobile}>
-                  Rotina dos frentistas
-                </p>
-              </div>
-              <div className={styles.ListMenu}>
-                <div className={styles.ListMenu}>
-                  <p className={styles.ProductName}>Rotina dos frentistas</p>
-                  <div
-                    className={styles.ListMenuFilter}
-                    onClick={() => toggleFilter("foam")}
-                  >
-                    <img src="./Filter.svg"></img>{" "}
-                    <span className={styles.ListMenuFilterText}>Filtros</span>
-                  </div>
-                </div>
-              </div>
+          <HeaderHome></HeaderHome>
+          <div className={styles.CardsMenusContainer}>
+            <div className={styles.CardsMenus}>
+              {/* Turno 1 */}
               <div
-                className={`${
-                  filterStates.foam
-                    ? styles.containerFilter
-                    : styles.containerFilterClose
-                }`}
+                onClick={() =>
+                  handleCardClick(14, 22, "/attendants/shift-1-routine")
+                }
+                className={styles.CardMenu}
               >
-                <div className={styles.listFilter}>
-                  <h2>ORDENAR POR:</h2>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="codigoCrescente"
-                      name="ordenarPor"
-                      value="codigoCrescente"
-                      onChange={handleOrderValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="codigoCrescente">Codigo crescente</label>
-                  </div>
-                  <div className={styles.filterItem}>
-                    <input
-                      type="radio"
-                      id="codigoDescrescente"
-                      name="ordenarPor"
-                      value="codigoDescrescente"
-                      onChange={handleOrderValueChange}
-                      className={styles.filterItem}
-                    />
-                    <label htmlFor="codigoDescrescente">
-                      Codigo decrescente
-                    </label>
-                  </div>
-                </div>
+                <img src="/routine-14.svg" />
+                <span className={styles.CardMenuText}>TURNO 1</span>
               </div>
-              <div className={styles.MarginTop}></div>
-              <TablePosts
-                searchValue={searchValue}
-                orderValue={orderValue}
-                filterValue={filterValue}
-              />
+
+              {/* Turno 2 */}
+              <div
+                onClick={() =>
+                  handleCardClick(22, 6, "/attendants/shift-2-routine")
+                }
+                className={styles.CardMenu}
+              >
+                <img src="/routine-22.svg" />
+                <span className={styles.CardMenuText}>TURNO 2</span>
+              </div>
+
+              {/* Turno 3 */}
+              <div
+                onClick={() =>
+                  handleCardClick(6, 14, "/attendants/shift-3-routine")
+                }
+                className={styles.CardMenu}
+              >
+                <img src="/routine-6.svg" />
+                <span className={styles.CardMenuText}>TURNO 3</span>
+              </div>
             </div>
           </div>
 

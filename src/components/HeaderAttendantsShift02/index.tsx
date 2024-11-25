@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useState } from "react";
-import { useMenu } from "../../components/Context/context";
 import styles from "../../styles/Header.Home.module.scss";
+import { useMenu } from "../Context/context";
 
 export default function HeaderHome() {
   const [searchText, setSearchText] = useState("");
@@ -57,7 +57,7 @@ export default function HeaderHome() {
         </div>
         <div className={styles.HeaderTextContainer}>
           <img src="/post.png" alt="" />
-          <div className={styles.HeaderTextTitle}>Frentistas</div>
+          <div className={styles.HeaderTextTitle}>Frentistas Turno 02</div>
         </div>
         <div className={styles.HeaderTextContainer}>
           <div className={styles.HeaderTextDescription}>
