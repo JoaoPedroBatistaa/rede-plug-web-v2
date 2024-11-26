@@ -25,14 +25,17 @@ export default function Home() {
   };
 
   // Função para obter o horário atual em UTC-3
+  // Função para obter o horário atual em UTC-3
   const getCurrentTimeInTimezone = () => {
     const now = new Date();
     const utcHour = now.getUTCHours();
     const utcMinutes = now.getUTCMinutes();
-    return {
-      hour: (utcHour - 3 + 24) % 24,
-      minutes: utcMinutes,
-    };
+
+    const hour = (utcHour - 3 + 24) % 24;
+    const minutes = utcMinutes;
+
+    console.log(`Horário atual (UTC-3): ${hour}:${minutes}`);
+    return { hour, minutes };
   };
 
   // Função para verificar se o horário é permitido
@@ -48,18 +51,27 @@ export default function Home() {
     const startTimeInMinutes = startHour * 60 + startMinutes;
     const endTimeInMinutes = endHour * 60 + endMinutes;
 
+    console.log("---- Verificação de Horário ----");
+    console.log(`Horário atual em minutos: ${currentTimeInMinutes}`);
+    console.log(`Início do turno em minutos: ${startTimeInMinutes}`);
+    console.log(`Fim do turno em minutos: ${endTimeInMinutes}`);
+
     if (startTimeInMinutes < endTimeInMinutes) {
       // Horário contínuo (ex.: 14:00 às 15:30)
-      return (
+      console.log("Turno contínuo.");
+      const isAllowed =
         currentTimeInMinutes >= startTimeInMinutes &&
-        currentTimeInMinutes < endTimeInMinutes
-      );
+        currentTimeInMinutes < endTimeInMinutes;
+      console.log(`Acesso permitido: ${isAllowed}`);
+      return isAllowed;
     } else {
       // Horário passando pela meia-noite (ex.: 22:00 às 23:30)
-      return (
+      console.log("Turno cruzando meia-noite.");
+      const isAllowed =
         currentTimeInMinutes >= startTimeInMinutes ||
-        currentTimeInMinutes < endTimeInMinutes
-      );
+        currentTimeInMinutes < endTimeInMinutes;
+      console.log(`Acesso permitido: ${isAllowed}`);
+      return isAllowed;
     }
   };
 
@@ -72,9 +84,17 @@ export default function Home() {
     routinePath: string,
     allowedTime: string
   ) => {
+    console.log("---- Clique no Card ----");
+    console.log(`Turno: ${allowedTime}`);
+    console.log(
+      `Parâmetros: Início ${startHour}:${startMinutes}, Fim ${endHour}:${endMinutes}`
+    );
+
     if (isAllowedTimeForRoutine(startHour, startMinutes, endHour, endMinutes)) {
+      console.log("Acesso permitido. Redirecionando...");
       router.push(routinePath);
     } else {
+      console.log("Acesso negado. Fora do horário permitido.");
       alert(
         `O horário permitido para este turno é das ${allowedTime}. Por favor, tente novamente dentro do horário.`
       );
@@ -105,8 +125,8 @@ export default function Home() {
               <div
                 onClick={() =>
                   handleCardClick(
-                    14,
-                    0,
+                    13,
+                    45,
                     15,
                     30,
                     "/attendants/shift-1-routine",
@@ -123,8 +143,8 @@ export default function Home() {
               <div
                 onClick={() =>
                   handleCardClick(
-                    22,
-                    0,
+                    21,
+                    45,
                     23,
                     30,
                     "/attendants/shift-2-routine",
@@ -141,8 +161,8 @@ export default function Home() {
               <div
                 onClick={() =>
                   handleCardClick(
-                    6,
-                    0,
+                    5,
+                    45,
                     7,
                     30,
                     "/attendants/shift-3-routine",
