@@ -110,7 +110,7 @@ export default function Home() {
                     15,
                     30,
                     "/attendants/shift-1-routine",
-                    "14:00 às 15:30"
+                    "13:45 às 15:30"
                   )
                 }
                 className={styles.CardMenu}
@@ -128,7 +128,7 @@ export default function Home() {
                     23,
                     30,
                     "/attendants/shift-2-routine",
-                    "22:00 às 23:30"
+                    "21:45 às 23:30"
                   )
                 }
                 className={styles.CardMenu}
@@ -146,7 +146,7 @@ export default function Home() {
                     7,
                     30,
                     "/attendants/shift-3-routine",
-                    "06:00 às 07:30"
+                    "05:45 às 07:30"
                   )
                 }
                 className={styles.CardMenu}

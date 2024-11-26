@@ -99,9 +99,14 @@ export default function EditPost() {
   const [bombs, setBombs] = useState([{ bombNumber: 1, model: "" }]);
 
   const [nozzles, setNozzles] = useState([{ nozzleNumber: "", product: "" }]);
-  const [managers, setManagers] = useState([
-    { managerName: "", contact: "", password: "" },
-  ]);
+  const [managers, setManagers] = useState<
+    {
+      managerName: string;
+      oldManagerName: string;
+      contact: string;
+      password: string;
+    }[]
+  >([]);
 
   const [tankOptions, setTankOptions] = useState([]);
 
@@ -256,14 +261,14 @@ export default function EditPost() {
         ? router.query.id[0]
         : router.query.id;
 
-      console.log("Fetching data for docId:", docId); // Log para depuração
+      console.log("Fetching data for docId:", docId);
 
       if (docId) {
         const docRef = doc(db, "POSTS", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          console.log("Document data:", docSnap.data()); // Log para depuração
+          console.log("Document data:", docSnap.data());
           const postData = docSnap.data();
           setName(postData.name);
           setOwner(postData.owner);
@@ -273,9 +278,17 @@ export default function EditPost() {
           setTanks(postData.tanks || []);
           setBombs(postData.bombs || []);
           setNozzles(postData.nozzles || []);
-          setManagers(postData.managers || []);
 
-          // Fetch the password from the USERS collection
+          // Adiciona oldManagerName no estado dos gerentes
+          const managersWithOldName = (postData.managers || []).map(
+            (manager: any) => ({
+              ...manager,
+              oldManagerName: manager.managerName, // Adiciona o nome antigo
+            })
+          );
+          setManagers(managersWithOldName);
+
+          // Busca a senha do frentista na coleção USERS
           const q = query(
             collection(db, "USERS"),
             where("type", "==", "post"),
@@ -349,6 +362,7 @@ export default function EditPost() {
   };
 
   const addManager = () => {
+    // @ts-ignore
     setManagers([...managers, { managerName: "", contact: "", password: "" }]);
   };
 
@@ -410,14 +424,12 @@ export default function EditPost() {
     setNozzles(newNozzles);
   };
 
-  const handleManagerChange = (index: number, field: any, value: any) => {
-    const newManagers = managers.map((manager, i) => {
-      if (i === index) {
-        return { ...manager, [field]: value };
-      }
-      return manager;
-    });
-    setManagers(newManagers);
+  const handleManagerChange = (index: number, field: string, value: string) => {
+    setManagers((prevManagers) =>
+      prevManagers.map((manager, i) =>
+        i === index ? { ...manager, [field]: value } : manager
+      )
+    );
   };
 
   const addOrUpdateManagerToUsers = async (manager: {
@@ -490,6 +502,42 @@ export default function EditPost() {
     });
   };
 
+  const updateManagerFields = async (
+    manager: {
+      managerName: string;
+      oldManagerName: string;
+      contact: string;
+      password: string;
+    },
+    postName: string
+  ) => {
+    try {
+      const q = query(
+        collection(db, "USERS"),
+        where("type", "==", "manager"),
+        where("name", "==", manager.oldManagerName), // Busca pelo nome antigo
+        where("postName", "==", postName)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docRef = querySnapshot.docs[0].ref;
+        await updateDoc(docRef, {
+          name: manager.managerName, // Atualiza para o novo nome
+          contact: manager.contact,
+          password: manager.password,
+        });
+      } else {
+        throw new Error(
+          `Nenhum gerente encontrado para o nome ${manager.oldManagerName} e posto ${postName}.`
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar campos do gerente:", error);
+      toast.error("Erro ao atualizar campos do gerente.");
+    }
+  };
+
   const updateUserPassword = async (postName: string, newPassword: string) => {
     const q = query(
       collection(db, "USERS"),
@@ -548,30 +596,30 @@ export default function EditPost() {
         await updateUserPassword(name, password);
       }
 
-      // Atualiza os gerentes e suas senhas na coleção USERS
-      const updatedManagersWithPasswords = [];
+      // Atualiza gerentes
       for (const manager of managers) {
-        await updateManagerPassword(
-          manager.managerName,
-          name,
-          manager.password
-        );
-        updatedManagersWithPasswords.push(manager);
+        if (manager.password) {
+          await updateManagerFields(manager, name); // Inclui oldManagerName
+        } else {
+          console.error(
+            "Gerente não possui identificador válido (password):",
+            manager
+          );
+        }
       }
 
-      const updateData = {
+      // Atualiza o posto
+      const postRef = doc(db, "POSTS", docId);
+      await updateDoc(postRef, {
         name,
         location: coordinates,
         email,
-        password, // Atualiza a senha do frentista na coleção POSTS
+        password,
         tanks,
         nozzles,
         bombs,
-        managers: updatedManagersWithPasswords,
-      };
-
-      const postRef = doc(db, "POSTS", docId);
-      await updateDoc(postRef, updateData);
+        managers: managers.map(({ oldManagerName, ...rest }) => rest), // Remove oldManagerName
+      });
 
       toast.success("Posto e gerentes atualizados com sucesso!");
       router.push("/posts");
