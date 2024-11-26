@@ -20,11 +20,19 @@ export default async function handler(
       try {
          const { email, password, fingerprintId } = req.body; // Recebe o fingerprintId do frontend
 
+         // Certifique-se de que o e-mail recebido está em lowercase e sem espaços
+         const normalizedEmail = email?.trim().toLowerCase();
+         console.log(normalizedEmail, password);
+
          // Log para verificar se o fingerprintId está sendo recebido corretamente
          console.log("Fingerprint recebido no backend:", fingerprintId);
 
          const usersCollection = collection(db, 'USERS');
-         const q = query(usersCollection, where('email', '==', email), where('password', '==', password));
+         const q = query(
+            usersCollection,
+            where('email', '==', normalizedEmail), // Comparar com o e-mail normalizado
+            where('password', '==', password)
+         );
          const querySnapshot = await getDocs(q);
 
          if (querySnapshot.empty) {
@@ -37,18 +45,21 @@ export default async function handler(
             ...userDoc.data(), // Espalha os dados do Firestore no objeto user
          };
 
-         // // Verificar se o tipo é supervisor e as condições do fingerprintId
-         // if (user.type === 'supervisor') {
-         //    const userFingerprintId = user.IpAddress; // No campo IpAddress estamos armazenando o fingerprintId
-         //    const userEditIp = user.editIp;
+         // Certifique-se de que o e-mail do Firestore está em lowercase e sem espaços para comparação futura
+         user.email = user.email?.trim().toLowerCase();
 
-         //    // Verificar as condições para o login
-         //    if (userEditIp === false && userFingerprintId && userFingerprintId !== fingerprintId) {
-         //       return res.status(403).json({
-         //          message: 'Acesso negado: você não está no dispositivo autorizado.',
-         //       });
-         //    }
-         // }
+         // Verificar se o tipo é supervisor e as condições do fingerprintId
+         if (user.type === 'supervisor') {
+            const userFingerprintId = user.IpAddress; // No campo IpAddress estamos armazenando o fingerprintId
+            const userEditIp = user.editIp;
+
+            // Verificar as condições para o login
+            if (userEditIp === false && userFingerprintId && userFingerprintId !== fingerprintId) {
+               return res.status(403).json({
+                  message: 'Acesso negado: você não está no dispositivo autorizado.',
+               });
+            }
+         }
 
          return res.status(200).json({ user });
       } catch (error) {
