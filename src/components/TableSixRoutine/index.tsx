@@ -199,10 +199,16 @@ export default function TablePosts({
               link: "/managers/fuel-test-six",
             },
             {
+              id: "teste-game-proveta-desligado-6h",
+              name: "Teste do Game Desligado",
+              link: "/managers/game-test-six-off",
+            },
+            {
               id: "teste-game-proveta-6h",
-              name: "Teste do Game",
+              name: "Teste do Game Ligado",
               link: "/managers/game-test-six",
             },
+
             {
               id: "foto-maquininhas-6h",
               name: "Maquininhas",

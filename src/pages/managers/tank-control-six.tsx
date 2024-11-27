@@ -355,6 +355,7 @@ export default function NewPost() {
 
     const messageBody = `*Novo Controle de tanque às 6h*\n\nData: ${formattedDate}\nHora: ${data.time}\nPosto: ${data.postName}\nGerente: ${data.managerName}\n\n*Detalhes dos Arquivos*\n\n${filesDescription}`;
 
+    // Buscar número de contato do gerente
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
     const querySnapshot = await getDocs(q);
@@ -367,24 +368,85 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
 
-    const response = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        managerContact,
-        messageBody,
-      }),
-    });
+    console.log(`Enviando mensagem para o contato: ${managerContact}`);
 
-    if (!response.ok) {
-      throw new Error("Falha ao enviar mensagem via WhatsApp");
+    // Verificar se há imagem
+    if (!data.files || data.files.length === 0) {
+      console.error("Nenhuma imagem encontrada para enviar.");
+      throw new Error("Nenhuma imagem encontrada.");
     }
 
-    console.log(
-      "Mensagem da atualização do controle de tanque enviada com sucesso!"
-    );
+    const image = data.files[0]; // Considera apenas a primeira imagem
+
+    let authToken;
+    try {
+      const authResponse = await fetch("/api/auth-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "admredeplug@gmail.com",
+          password: "Sc125687!",
+        }),
+      });
+
+      const authResponseBody = await authResponse.json();
+      console.log(
+        `Resposta completa do login de autenticação: ${authResponseBody}`
+      );
+
+      if (!authResponse.ok) {
+        console.error(
+          `Erro na resposta ao obter token de autenticação: ${authResponseBody}`
+        );
+        throw new Error("Falha ao obter token de autenticação");
+      }
+
+      authToken = authResponseBody.data.token;
+
+      console.log(`Token de autenticação obtido: ${authToken}`);
+    } catch (error) {
+      console.error(`Erro ao obter token de autenticação: ${error}`);
+      toast.error("Falha ao obter token de autenticação");
+      return;
+    }
+
+    try {
+      // Enviar a imagem usando o endpoint de send-image-message
+      const response = await fetch("/api/send-image-message-full", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contacts: [managerContact],
+          messageBody: {
+            title: "*Novo Controle de tanques às 6h*",
+            body: messageBody,
+            measurementSheetUrl: data.files[0].fileUrl,
+          },
+          authToken: authToken,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error(`Erro ao enviar mensagem de imagem: ${errorMessage}`);
+        throw new Error("Falha ao enviar mensagem de imagem via WhatsApp");
+      }
+
+      console.log(
+        `Mensagem de imagem enviada com sucesso para ${managerContact}`
+      );
+    } catch (error) {
+      console.error(
+        `Erro ao enviar mensagem de imagem para ${managerContact}: ${error}`
+      );
+      throw error;
+    }
+
+    console.log("Mensagem de imagem enviada com sucesso!");
   }
 
   return (

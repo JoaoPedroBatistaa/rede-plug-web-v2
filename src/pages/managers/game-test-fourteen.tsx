@@ -24,8 +24,8 @@ import LoadingOverlay from "@/components/Loading";
 import imageCompression from "browser-image-compression";
 
 interface Nozzle {
-  bombNumber: string;
-  model: string;
+  nozzleNumber: string;
+  product: string;
 }
 
 export default function NewPost() {
@@ -199,7 +199,7 @@ export default function NewPost() {
 
           querySnapshot.forEach((doc) => {
             const postData = doc.data();
-            setNozzles(postData.bombs || []);
+            setNozzles(postData.nozzles || []);
           });
         } catch (error) {
           console.error("Error fetching post details:", error);
@@ -352,7 +352,7 @@ export default function NewPost() {
     const imagesDescription = await Promise.all(
       data.images.map(async (image, index) => {
         const shortUrl = await shortenUrl(image.imageUrl);
-        return `*Bomba ${index + 1}:* ${shortUrl}\n`;
+        return `*Bico ${index + 1}:* ${shortUrl}\n`;
       })
     ).then((descriptions) => descriptions.join("\n"));
 
@@ -457,7 +457,7 @@ export default function NewPost() {
                 // @ts-ignore
                 data?.images.map((image, index) => (
                   <div key={index} className={styles.InputField}>
-                    <p className={styles.titleTank}>Bomba {index + 1}</p>
+                    <p className={styles.titleTank}>Bico {index + 1}</p>
                     <p className={styles.FieldLabel}>Imagem do teste</p>
 
                     {image && (
@@ -508,9 +508,9 @@ export default function NewPost() {
                 ))}
 
               {nozzles.map((nozzle, index) => (
-                <div key={nozzle.bombNumber} className={styles.InputField}>
+                <div key={nozzle.nozzleNumber} className={styles.InputField}>
                   <p className={styles.titleTank}>
-                    Bico {nozzle.bombNumber} - {nozzle.model}{" "}
+                    Bico {nozzle.nozzleNumber} - {nozzle.product}{" "}
                   </p>
                   <p className={styles.FieldLabel}>Imagem do teste</p>
                   <input
@@ -533,7 +533,7 @@ export default function NewPost() {
                     <div>
                       <img
                         src={URL.createObjectURL(encerranteImages[index])}
-                        alt={`Preview do encerrante da bomba ${nozzle.bombNumber}`}
+                        alt={`Preview do encerrante da bomba ${nozzle.nozzleNumber}`}
                         style={{
                           maxWidth: "17.5rem",
                           height: "auto",

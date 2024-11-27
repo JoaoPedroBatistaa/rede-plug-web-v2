@@ -249,12 +249,12 @@ export default function NewPost() {
       managersRef,
       where("date", "==", date),
       where("userName", "==", userName),
-      where("id", "==", "teste-game-proveta-6h")
+      where("id", "==", "teste-game-proveta-desligado-6h")
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("O teste do game das 6h já foi cadastrado hoje!");
+      toast.error("O teste do game desligado das 6h já foi cadastrado hoje!");
       setIsLoading(false);
       return;
     }
@@ -271,7 +271,7 @@ export default function NewPost() {
         fileName: encerranteFileNames[index],
         imageUrl,
       })),
-      id: "teste-game-proveta-6h",
+      id: "teste-game-proveta-desligado-6h",
     };
 
     try {
@@ -358,7 +358,7 @@ export default function NewPost() {
     ).then((descriptions) => descriptions.join("\n"));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Teste do Game Ligado às 6h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes das Imagens*\n\n${imagesDescription}`;
+    const messageBody = `*Novo Teste do Game Desligado às 6h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes das Imagens*\n\n${imagesDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -408,7 +408,7 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>
-              Teste do game ligado na proveta de 1L 6h
+              Teste do game desligado na proveta de 1L 6h
             </p>
             <div className={styles.FinishTask}>
               {!docId && (
@@ -511,7 +511,7 @@ export default function NewPost() {
               {nozzles.map((nozzle, index) => (
                 <div key={nozzle.nozzleNumber} className={styles.InputField}>
                   <p className={styles.titleTank}>
-                    Bico {nozzle.nozzleNumber} - {nozzle.product}{" "}
+                    Bomba {nozzle.nozzleNumber} - {nozzle.product}{" "}
                   </p>
                   <p className={styles.FieldLabel}>Imagem do teste</p>
                   <input
