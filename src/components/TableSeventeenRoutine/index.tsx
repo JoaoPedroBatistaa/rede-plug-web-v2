@@ -276,30 +276,30 @@ export default function TablePosts({
         <tbody>
           {[
             {
-              id: "medicao-tanques-14h",
+              id: "medicao-tanques-17h",
               name: "Medição dos Tanques",
-              link: "/managers/tank-measurement-fourteen",
+              link: "/managers/tank-measurement-seventeen",
             },
             // {
             //   id: "encerrante-bico-14h",
             //   name: "Encerrantes",
             //   link: "/managers/nozzle-closure-fourteen",
             // },
+            // {
+            //   id: "foto-maquininhas-14h",
+            //   name: "Maquininhas",
+            //   link: "/managers/photo-machines-fourteen",
+            // },
             {
-              id: "foto-maquininhas-14h",
-              name: "Maquininhas",
-              link: "/managers/photo-machines-fourteen",
+              id: "teste-game-proveta-14h",
+              name: "Teste do game. (fazer somente antes de ir embora do posto!) ",
+              link: "/managers/game-test-fourteen",
             },
-            // {
-            //   id: "teste-game-proveta-14h",
-            //   name: "Teste do game. (fazer somente antes de ir embora do posto!) ",
-            //   link: "/managers/game-test-fourteen",
-            // },
-            // {
-            //   id: "teste-combustiveis-14h",
-            //   name: "Teste dos combustíveis (fazer somente antes de ir embora!)",
-            //   link: "/managers/fuel-test-fourteen",
-            // },
+            {
+              id: "teste-combustiveis-14h",
+              name: "Teste dos combustíveis (fazer somente antes de ir embora!)",
+              link: "/managers/fuel-test-fourteen",
+            },
           ].map((task) => {
             // @ts-ignore
             const taskRecord = todayTasks.find((t) => t.id === task.id);

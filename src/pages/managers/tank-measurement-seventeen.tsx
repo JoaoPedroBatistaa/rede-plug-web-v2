@@ -403,13 +403,13 @@ export default function NewPost() {
     const q = query(
       managersRef,
       where("date", "==", date),
-      where("id", "==", "medicao-tanques-14h"),
+      where("id", "==", "medicao-tanques-17h"),
       where("userName", "==", userName)
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      toast.error("A medição dos tanques das 14h já foi feita hoje!");
+      toast.error("A medição dos tanques das 17h já foi feita hoje!");
       setIsLoading(false);
       return;
     }
@@ -422,7 +422,7 @@ export default function NewPost() {
       postName,
       measurements: [],
       measurementSheet: measurementSheetUrl || "",
-      id: "medicao-tanques-14h",
+      id: "medicao-tanques-17h",
     };
 
     for (const tank of tanks) {
@@ -443,7 +443,7 @@ export default function NewPost() {
       console.log("Medição salva com ID: ", docRef.id);
 
       toast.success("Medição salva com sucesso!");
-      router.push("/manager-fourteen-routine");
+      router.push("/manager-seventeen-routine");
     } catch (error) {
       console.error("Erro ao salvar os dados da medição:", error);
       toast.error("Erro ao salvar a medição.");
@@ -539,7 +539,7 @@ export default function NewPost() {
       ? await shortenUrl(data.measurementSheet)
       : "";
 
-    const messageBody = `*Nova Medição dos Tanques às 14h*\n\n*Data:* ${formattedDate}\n*Hora:* ${
+    const messageBody = `*Nova Medição dos Tanques às 17h*\n\n*Data:* ${formattedDate}\n*Hora:* ${
       data.time
     }\n*Posto:* ${data.postName}\n*Gerente:* ${
       data.managerName
@@ -607,7 +607,7 @@ export default function NewPost() {
         body: JSON.stringify({
           contacts: [managerContact],
           messageBody: {
-            title: "*Nova Medição de Tanques às 14h*",
+            title: "*Nova Medição de Tanques às 17h*",
             body: messageBody,
             measurementSheetUrl: data.measurementSheet,
           },
@@ -711,7 +711,7 @@ export default function NewPost() {
           body: JSON.stringify({
             contacts: [contact],
             messageBody: {
-              title: "*Nova Medição às 14h*",
+              title: "*Nova Medição às 17h*",
               measurementSheetUrl: data.measurementSheet,
               postName: data.postName,
               formattedDate: formattedDate,
@@ -757,7 +757,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Medição de tanques 14h</p>
+            <p className={styles.BudgetTitle}>Medição de tanques 17h</p>
             <div className={styles.FinishTask}>
               {!docId && (
                 <button

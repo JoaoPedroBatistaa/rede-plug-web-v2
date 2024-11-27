@@ -298,7 +298,7 @@ export default function NewPost() {
       console.log("Teste dos combustíveis salvo com ID: ", docRef.id);
 
       toast.success("Teste dos combustíveis salvo com sucesso!");
-      router.push("/manager-fourteen-routine");
+      router.push("/manager-seventeen-routine");
     } catch (error) {
       console.error("Erro ao salvar o teste dos combustíveis: ", error);
       toast.error("Erro ao salvar o teste dos combustíveis.");
@@ -338,7 +338,7 @@ export default function NewPost() {
     const formattedDate = formatDate(data.date);
 
     let messageBody =
-      `*Novo Teste de Combustíveis às 14h*\n\n` +
+      `*Novo Teste de Combustíveis às 17h*\n\n` +
       `*Data:* ${formattedDate}\n` +
       `*Hora:* ${data.time}\n` +
       `*Posto:* ${data.postName}\n` +
@@ -503,7 +503,7 @@ export default function NewPost() {
       <div className={styles.Container}>
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Teste dos combustíveis 14h</p>
+            <p className={styles.BudgetTitle}>Teste dos combustíveis 17h</p>
             <div className={styles.FinishTask}>
               {!docId && (
                 <button className={styles.FinishButton} onClick={saveFuelTest}>

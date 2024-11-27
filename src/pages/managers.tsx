@@ -141,12 +141,22 @@ export default function Home() {
 
               <div
                 onClick={() =>
-                  handleCardClick(14, 22, "/manager-fourteen-routine")
+                  handleCardClick(14, 17, "/manager-fourteen-routine")
                 }
                 className={styles.CardMenu}
               >
                 <img src="./routine-14.svg" />
                 <span className={styles.CardMenuText}>ROTINA 14H</span>
+              </div>
+
+              <div
+                onClick={() =>
+                  handleCardClick(17, 22, "/manager-seventeen-routine")
+                }
+                className={styles.CardMenu}
+              >
+                <img src="./routine-17.svg" />
+                <span className={styles.CardMenuText}>ROTINA 17</span>
               </div>
 
               <div

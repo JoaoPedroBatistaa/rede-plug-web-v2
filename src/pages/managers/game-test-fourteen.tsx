@@ -357,7 +357,7 @@ export default function NewPost() {
     ).then((descriptions) => descriptions.join("\n"));
 
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Teste do Game às 14h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes das Imagens*\n\n${imagesDescription}`;
+    const messageBody = `*Novo Teste do Game às 17h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes das Imagens*\n\n${imagesDescription}`;
 
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
@@ -407,7 +407,7 @@ export default function NewPost() {
         <div className={styles.BudgetContainer}>
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>
-              Teste do game na proveta de 1L 14h
+              Teste do game na proveta de 1L 17h
             </p>
             <div className={styles.FinishTask}>
               {!docId && (
