@@ -781,7 +781,7 @@ export default function NewPost() {
                   <input
                     type="file"
                     capture="environment"
-                    accept="image/*,video/*"
+                    accept="video/*"
                     style={{ display: "none" }}
                     ref={taskMediaRef}
                     onChange={handleTaskMediaChange}
