@@ -437,7 +437,20 @@ export default function NewPost() {
 
     try {
       await sendMainMessage(measurementData);
-      await sendAdditionalMessages(measurementData);
+      const allowedPostNames = [
+        "Orense",
+        "Oratório",
+        "Vena",
+        "Golf",
+        "Cantareira",
+        "Maricar",
+      ];
+      // @ts-ignore
+      if (allowedPostNames.includes(postName)) {
+        await sendAdditionalMessages(measurementData);
+      } else {
+        console.log("Não é um posto da rede plug");
+      }
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);
