@@ -235,12 +235,34 @@ export default function NewPost() {
     }))
   );
 
+  useEffect(() => {
+    const totalCredito = maquininhasData.reduce(
+      (sum, maquininha) => sum + parseFloat(maquininha.credito || "0"),
+      0
+    );
+    const totalDebito = maquininhasData.reduce(
+      (sum, maquininha) => sum + parseFloat(maquininha.debito || "0"),
+      0
+    );
+    const totalPix = maquininhasData.reduce(
+      (sum, maquininha) => sum + parseFloat(maquininha.pix || "0"),
+      0
+    );
+
+    setCredit(totalCredito.toFixed(2));
+    setDebit(totalDebito.toFixed(2));
+    setPix(totalPix.toFixed(2));
+  }, [maquininhasData]);
+
   // Manipulador de mudanças nos campos de texto das maquininhas
   const handleMaquininhaDataChange =
     (index: number, field: string) =>
     (event: { target: { value: string } }) => {
+      const value = event.target.value
+        .replace(",", ".")
+        .replace(/[^0-9.]/g, "");
       const updatedData = maquininhasData.map((data, i) =>
-        i === index ? { ...data, [field]: event.target.value } : data
+        i === index ? { ...data, [field]: value } : data
       );
       setMaquininhasData(updatedData);
     };
@@ -1120,23 +1142,23 @@ export default function NewPost() {
                   />
                 </div>
                 <div className={styles.InputField}>
-                  <p className={styles.FieldLabel}>Débito</p>
-                  <input
-                    type="text"
-                    className={styles.Field}
-                    value={debit}
-                    onChange={handleInputChange(setDebit)}
-                    placeholder=""
-                  />
-                </div>
-                <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Crédito</p>
                   <input
                     type="text"
                     className={styles.Field}
                     value={credit}
-                    onChange={handleInputChange(setCredit)}
                     placeholder=""
+                    readOnly
+                  />
+                </div>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Débito</p>
+                  <input
+                    type="text"
+                    className={styles.Field}
+                    value={debit}
+                    placeholder=""
+                    readOnly
                   />
                 </div>
                 <div className={styles.InputField}>
@@ -1145,10 +1167,11 @@ export default function NewPost() {
                     type="text"
                     className={styles.Field}
                     value={pix}
-                    onChange={handleInputChange(setPix)}
                     placeholder=""
+                    readOnly
                   />
                 </div>
+
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Total Despesas</p>
                   <input
