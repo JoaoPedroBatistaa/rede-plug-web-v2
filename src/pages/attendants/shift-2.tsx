@@ -258,9 +258,13 @@ export default function NewPost() {
   const handleMaquininhaDataChange =
     (index: number, field: string) =>
     (event: { target: { value: string } }) => {
-      const value = event.target.value
-        .replace(",", ".")
-        .replace(/[^0-9.]/g, "");
+      let value = event.target.value;
+
+      // Permitir apenas números e ponto para campos específicos, senão manter texto
+      if (field !== "terminal") {
+        value = value.replace(",", ".").replace(/[^0-9.]/g, "");
+      }
+
       const updatedData = maquininhasData.map((data, i) =>
         i === index ? { ...data, [field]: value } : data
       );
