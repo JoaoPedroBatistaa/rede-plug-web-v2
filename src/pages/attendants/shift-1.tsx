@@ -448,116 +448,131 @@ export default function NewPost() {
   const saveMeasurement = async () => {
     setIsLoading(true);
 
-    let missingField = "";
-    const today = getLocalISODate();
-    console.log(today);
-
-    // Verificação de campos NaN
-    const fields = [
-      etPrice,
-      gcPrice,
-      gaPrice,
-      s10Price,
-      etSales,
-      gcSales,
-      gaSales,
-      s10Sales,
-      totalLiters,
-      cash,
-      debit,
-      credit,
-      pix,
-      totalOutput,
-      totalInput,
-      difference,
-      ...expenses.map((expense) => expense.expenseValue),
-    ];
-
-    const hasNaN = fields.some((field) => isNaN(Number(field)));
-
-    if (hasNaN) {
-      toast.error("Por favor, preencha todos os campos corretamente.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!date) missingField = "Data";
-    else if (date !== today) {
-      toast.error("Você deve cadastrar a data correta de hoje!");
-      setIsLoading(false);
-      return;
-    } else if (!time) missingField = "Hora";
-
-    if (missingField) {
-      toast.error(`Por favor, preencha o campo obrigatório: ${missingField}.`);
-      setIsLoading(false);
-      return;
-    }
-
-    const userName = localStorage.getItem("userName");
-
-    const managersRef = collection(db, "ATTENDANTS");
-    const q = query(
-      managersRef,
-      where("date", "==", date),
-      where("id", "==", "turno-1"),
-      where("userName", "==", userName),
-      where("postName", "==", userName)
-    );
-
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      toast.error("O relatório de turno 1 já foi feito hoje!");
-      setIsLoading(false);
-      return;
-    }
-
-    const images = maquininhasImages.flatMap((imageFiles) =>
-      imageFiles.filter((image) => image !== null)
-    );
-
-    console.log(images);
-
-    const taskData = {
-      date,
-      time,
-      attendant,
-      postName: userName,
-      shift: "01",
-      etPrice,
-      gcPrice,
-      gaPrice,
-      s10Price,
-      etSales,
-      gcSales,
-      gaSales,
-      s10Sales,
-      totalLiters,
-      cash,
-      debit,
-      credit,
-      pix,
-      totalOutput,
-      totalExpenses,
-      totalInput,
-      difference,
-      observations,
-      expenses,
-      images,
-      mediaUrl,
-      maquininhasData,
-      id: "turno-1",
-    };
-
     try {
+      const today = getLocalISODate();
+      let missingField = "";
+
+      // Lista dos campos obrigatórios
+      const requiredFields = {
+        date,
+        time,
+        etPrice,
+        gcPrice,
+        gaPrice,
+        s10Price,
+        etSales,
+        gcSales,
+        gaSales,
+        s10Sales,
+        totalLiters,
+        cash,
+        debit,
+        credit,
+        pix,
+        totalOutput,
+        totalInput,
+        difference,
+        maquininhasData,
+      };
+
+      // Verifica se algum dos campos obrigatórios está vazio ou inválido
+      for (const [field, value] of Object.entries(requiredFields)) {
+        if (!value || (isNaN(Number(value)) && typeof value === "number")) {
+          missingField = field;
+          break;
+        }
+      }
+
+      // Verifica a data obrigatória
+      if (!date) {
+        missingField = "Data";
+      } else if (date !== today) {
+        toast.error("Você deve cadastrar a data correta de hoje!");
+        setIsLoading(false);
+        return;
+      }
+
+      // Retorna mensagem de erro caso algum campo esteja ausente
+      if (missingField) {
+        toast.error(
+          `Por favor, preencha o campo obrigatório: ${missingField}.`
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // Verifica se expenses tem valores inválidos (opcional, pois pode estar vazio)
+      if (expenses.some((expense) => isNaN(Number(expense.expenseValue)))) {
+        toast.error(
+          "Por favor, preencha todos os campos de despesas corretamente."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      const userName = localStorage.getItem("userName");
+
+      // Verifica se o relatório já foi enviado para o turno 1 hoje
+      const managersRef = collection(db, "ATTENDANTS");
+      const q = query(
+        managersRef,
+        where("date", "==", date),
+        where("id", "==", "turno-1"),
+        where("userName", "==", userName),
+        where("postName", "==", userName)
+      );
+
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        toast.error("O relatório de turno 1 já foi feito hoje!");
+        setIsLoading(false);
+        return;
+      }
+
+      // Prepara imagens para upload
+      const images = maquininhasImages.flatMap((imageFiles) =>
+        imageFiles.filter((image) => image !== null)
+      );
+
+      const taskData = {
+        date,
+        time,
+        attendant,
+        postName: userName,
+        shift: "01",
+        etPrice,
+        gcPrice,
+        gaPrice,
+        s10Price,
+        etSales,
+        gcSales,
+        gaSales,
+        s10Sales,
+        totalLiters,
+        cash,
+        debit,
+        credit,
+        pix,
+        totalOutput,
+        totalExpenses,
+        totalInput,
+        difference,
+        observations,
+        expenses,
+        images,
+        mediaUrl,
+        maquininhasData,
+        id: "turno-1",
+      };
+
       // @ts-ignore
       await sendMessage(taskData);
-
       const docRef = await addDoc(collection(db, "ATTENDANTS"), taskData);
+
       console.log("Tarefa salva com ID: ", docRef.id);
       toast.success("Tarefa salva com sucesso!");
 
-      // @ts-ignore
+      // Redireciona para a rotina do turno 1
       router.push(`/attendants/shift-1-routine`);
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
