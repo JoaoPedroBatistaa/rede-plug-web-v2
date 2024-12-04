@@ -83,22 +83,73 @@ export default function Home() {
   };
 
   // Função para exibir alerta se o horário for inválido ou se o ponto digital não foi feito
+  // Função para verificar o horário de login
+  const isLoginWithinTimeFrame = (
+    minLoginHour: number,
+    minLoginMinute: number
+  ) => {
+    const loginDate = localStorage.getItem("loginDate");
+    const loginTime = localStorage.getItem("loginTime");
+    const todayDate = getTodayDateFormatted(); // Data de hoje no formato YYYY-MM-DD
+
+    // Valida se o login foi realizado no mesmo dia
+    if (loginDate !== todayDate) {
+      return false;
+    }
+
+    // @ts-ignore
+    const [loginHour, loginMinute] = loginTime.split(":").map(Number);
+    const now = new Date();
+    const currentHour = now.getUTCHours() - 3; // Fuso -3
+    const currentMinute = now.getMinutes();
+
+    console.log(loginHour);
+    console.log(loginMinute);
+    // Verifica se o login ocorreu dentro da janela permitida
+    if (
+      loginHour > minLoginHour ||
+      (loginHour === minLoginHour && loginMinute >= minLoginMinute)
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Função para exibir alerta e redirecionar para a página de login
+  const handleInvalidLogin = () => {
+    alert("Você precisa realizar o login novamente para acessar esta rotina.");
+    localStorage.clear(); // Limpa o localStorage
+    router.push("/"); // Redireciona para a página de login
+  };
+
+  // Função para exibir alerta se o horário for inválido, ponto digital não feito, ou login inválido
   const handleCardClick = async (
     startHour: number,
     endHour: number,
-    routinePath: Url
+    routinePath: Url,
+    minLoginHour: undefined,
+    minLoginMinute: undefined
   ) => {
-    if (await checkDigitalPoint()) {
-      if (isAllowedTimeForRoutine(startHour, endHour)) {
-        router.push(routinePath);
-      } else {
-        alert(
-          "Você só pode acessar essa rotina estando dentro do horário do turno."
-        );
-      }
-    } else {
+    if (!(await checkDigitalPoint())) {
       alert(
         "A tarefa de ponto precisa ser concluída hoje para acessar esta rotina."
+      );
+      return;
+    }
+
+    // @ts-ignore
+    if (!isLoginWithinTimeFrame(minLoginHour, minLoginMinute)) {
+      handleInvalidLogin();
+      return;
+    }
+
+    // Verifica se o horário atual é permitido
+    if (isAllowedTimeForRoutine(startHour, endHour)) {
+      router.push(routinePath);
+    } else {
+      alert(
+        "Você só pode acessar essa rotina estando dentro do horário do turno."
       );
     }
   };
@@ -123,16 +174,16 @@ export default function Home() {
           <HeaderHome></HeaderHome>
           <div className={styles.CardsMenusContainer}>
             <div className={styles.CardsMenus}>
-              <div
-                onClick={handlePointEntryClick} // Função isolada para o ponto de entrada
-                className={styles.CardMenu}
-              >
+              <div onClick={handlePointEntryClick} className={styles.CardMenu}>
                 <img src="./routine-point.svg" />
                 <span className={styles.CardMenuText}>PONTO DE ENTRADA</span>
               </div>
 
               <div
-                onClick={() => handleCardClick(6, 14, "/manager-six-routine")}
+                onClick={() =>
+                  // @ts-ignore
+                  handleCardClick(6, 14, "/manager-six-routine", 5, 55)
+                }
                 className={styles.CardMenu}
               >
                 <img src="./routine-6.svg" />
@@ -141,7 +192,9 @@ export default function Home() {
 
               <div
                 onClick={() =>
-                  handleCardClick(14, 17, "/manager-fourteen-routine")
+                  // @ts-ignore
+
+                  handleCardClick(14, 17, "/manager-fourteen-routine", 13, 55)
                 }
                 className={styles.CardMenu}
               >
@@ -151,17 +204,21 @@ export default function Home() {
 
               <div
                 onClick={() =>
-                  handleCardClick(17, 22, "/manager-seventeen-routine")
+                  // @ts-ignore
+
+                  handleCardClick(17, 22, "/manager-seventeen-routine", 16, 55)
                 }
                 className={styles.CardMenu}
               >
                 <img src="./routine-17.svg" />
-                <span className={styles.CardMenuText}>ROTINA 17</span>
+                <span className={styles.CardMenuText}>ROTINA 17H</span>
               </div>
 
               <div
                 onClick={() =>
-                  handleCardClick(22, 6, "/manager-twenty-two-routine")
+                  // @ts-ignore
+
+                  handleCardClick(22, 6, "/manager-twenty-two-routine", 21, 55)
                 }
                 className={styles.CardMenu}
               >

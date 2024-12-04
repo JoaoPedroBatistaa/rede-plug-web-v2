@@ -332,8 +332,25 @@ export default function NewPost() {
   }) {
     const formattedDate = formatDate(data.date);
 
+    // Encurtar URLs dos arquivos para a mensagem de texto
+    const filesDescription = await Promise.all(
+      data.files.map(async (file, index) => {
+        const shortUrl = await shortenUrl(file.fileUrl);
+        return {
+          originalUrl: file.fileUrl,
+          shortUrl: shortUrl,
+          description: `*Arquivo ${index + 1}:* ${shortUrl}\n`,
+        };
+      })
+    );
+
+    // Descrição formatada para a mensagem de texto
+    const filesDescriptionText = filesDescription
+      .map((file) => file.description)
+      .join("\n");
+
     // Montar o corpo da mensagem
-    const messageBody = `*Novo Quarto Caixa às 6h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n`;
+    const messageBody = `*Novo Quarto Caixa às 6h*\n\n*Data:* ${formattedDate}\n*Hora:* ${data.time}\n*Posto:* ${data.postName}\n*Gerente:* ${data.managerName}\n\n*Detalhes dos Arquivos*\n\n${filesDescriptionText}`;
 
     // Buscar número de contato do gerente
     const postsRef = collection(db, "POSTS");
