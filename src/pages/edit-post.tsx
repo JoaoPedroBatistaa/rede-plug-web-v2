@@ -526,6 +526,7 @@ export default function EditPost() {
           name: manager.managerName, // Atualiza para o novo nome
           contact: manager.contact,
           password: manager.password,
+          email: email,
         });
       } else {
         throw new Error(
@@ -548,7 +549,7 @@ export default function EditPost() {
 
     if (!querySnapshot.empty) {
       const docRef = querySnapshot.docs[0].ref;
-      await updateDoc(docRef, { password: newPassword });
+      await updateDoc(docRef, { password: newPassword, email: email });
     } else {
       throw new Error("No post user found for the provided post name.");
     }

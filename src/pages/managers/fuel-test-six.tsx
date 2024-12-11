@@ -323,6 +323,35 @@ export default function NewPost() {
     return `${day}/${month}/${year}`;
   }
 
+  async function shortenUrl(originalUrl: string): Promise<string> {
+    console.log(`Iniciando encurtamento da URL: ${originalUrl}`);
+
+    try {
+      const response = await fetch("/api/shorten-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ originalURL: originalUrl }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error("Falha ao encurtar URL:", data);
+        throw new Error(`Erro ao encurtar URL: ${data.message}`);
+      }
+
+      const data = await response.json();
+      const shortUrl = data.shortUrl;
+      console.log(`URL encurtada: ${shortUrl}`);
+
+      return shortUrl;
+    } catch (error) {
+      console.error("Erro ao encurtar URL:", error);
+      throw error;
+    }
+  }
+
   async function sendMessage(data: {
     date: any;
     time: any;
@@ -344,12 +373,10 @@ export default function NewPost() {
       `*Posto:* ${data.postName}\n` +
       `*Gerente:* ${data.managerName}\n\n`;
 
-    console.log("Tanks before sorting:", data.tanks);
     const sortedTanks = data.tanks.sort(
       (a: { tankNumber: number }, b: { tankNumber: number }) =>
         a.tankNumber - b.tankNumber
     );
-    console.log("Sorted tanks:", sortedTanks);
 
     sortedTanks.forEach((tank: { product: string; tankNumber: number }) => {
       if (tank.product === "ET") {
@@ -383,9 +410,18 @@ export default function NewPost() {
       }
     });
 
-    console.log("Mensagem final gerada:", messageBody);
+    // Encurtando a URL do vídeo
+    let shortVideoUrl;
+    try {
+      shortVideoUrl = await shortenUrl(taskMediaUrl);
+    } catch (error) {
+      console.error("Erro ao encurtar a URL do vídeo:", error);
+      throw new Error("Falha ao encurtar a URL do vídeo");
+    }
 
-    // Obtendo detalhes do contato do gerente
+    messageBody += `*Vídeo da tarefa:* ${shortVideoUrl}\n`;
+
+    // Obtendo o contato do gerente
     const postsRef = collection(db, "POSTS");
     const q = query(postsRef, where("name", "==", data.postName));
     const querySnapshot = await getDocs(q);
@@ -398,94 +434,33 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
 
-    console.log("Contato do gerente:", managerContact);
-
-    // Obtendo o eduNumber
-    let eduNumber;
-    try {
-      const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
-      const phoneDoc = await getDoc(phoneDocRef);
-
-      if (phoneDoc.exists()) {
-        eduNumber = phoneDoc.data().eduNumber;
-        console.log(`eduNumber obtido: ${eduNumber}`);
-      } else {
-        console.error("Documento PHONES não encontrado.");
-        toast.error("Falha ao obter eduNumber.");
-      }
-    } catch (error) {
-      console.error(`Erro ao buscar eduNumber: ${error}`);
-      toast.error("Erro ao buscar eduNumber.");
-    }
-
     const contacts = [managerContact];
-    if (eduNumber) contacts.push(eduNumber);
 
-    // Autenticando para obter o token
-    let authToken;
-    try {
-      const authResponse = await fetch("/api/auth-login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: "admredeplug@gmail.com",
-          password: "Sc125687!",
-        }),
-      });
-
-      const authResponseBody = await authResponse.json();
-      if (!authResponse.ok) {
-        console.error("Erro ao obter token de autenticação:", authResponseBody);
-        throw new Error("Falha ao obter token de autenticação");
-      }
-
-      authToken = authResponseBody.data.token;
-      console.log(`Token de autenticação obtido: ${authToken}`);
-    } catch (error) {
-      console.error(`Erro ao obter token de autenticação: ${error}`);
-      toast.error("Erro ao obter token de autenticação.");
-      return;
-    }
-
-    // Enviando mensagem de imagem para todos os contatos
-    for (const contact of contacts) {
+    // Enviando a mensagem
+    const sendMessages = contacts.map(async (contact) => {
       try {
-        const response = await fetch("/api/send-video-message-full", {
+        const response = await fetch("/api/send-message", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            contacts: [contact],
-            messageBody: {
-              title: "*Novo Teste de Combustíveis às 6h*",
-              body: messageBody,
-              measurementSheetUrl: taskMediaUrl, // URL da imagem/vídeo
-            },
-            authToken: authToken,
+            managerContact: contact,
+            messageBody,
           }),
         });
 
         if (!response.ok) {
-          const errorMessage = await response.text();
-          console.error(
-            `Erro ao enviar mensagem de imagem para ${contact}: ${errorMessage}`
-          );
-          throw new Error("Falha ao enviar mensagem de imagem via WhatsApp");
+          throw new Error(`Falha ao enviar mensagem para ${contact}`);
         }
 
-        console.log(`Mensagem de imagem enviada com sucesso para ${contact}`);
+        console.log(`Mensagem enviada com sucesso para ${contact}!`);
       } catch (error) {
-        console.error(
-          `Erro ao enviar mensagem de imagem para ${contact}: ${error}`
-        );
+        console.error(`Erro ao enviar mensagem para ${contact}:`, error);
       }
+    });
 
-      // Adiciona um intervalo entre os envios
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
+    await Promise.all(sendMessages);
   }
 
   return (
