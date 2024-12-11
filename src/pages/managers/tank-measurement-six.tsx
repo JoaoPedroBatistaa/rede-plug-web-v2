@@ -444,6 +444,8 @@ export default function NewPost() {
         "Golf",
         "Cantareira",
         "Maricar",
+        "Conselheiro",
+        "Mandaqui",
       ];
       // @ts-ignore
       if (allowedPostNames.includes(postName)) {
