@@ -199,9 +199,9 @@ export default function NewPost() {
       const file = files[0];
 
       // Verifica o tamanho do arquivo (máximo 10MB)
-      const maxFileSize = 10 * 1024 * 1024; // 10MB em bytes
+      const maxFileSize = 100 * 1024 * 1024; // 10MB em bytes
       if (file.size > maxFileSize) {
-        toast.error("O arquivo deve ter no máximo 10MB.");
+        toast.error("O arquivo deve ter no máximo 100MB.");
         return;
       }
 
@@ -434,7 +434,27 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
 
-    const contacts = [managerContact];
+    let contactNumber;
+    try {
+      // Busca o número de telefone no Firestore
+      const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
+      const phoneDoc = await getDoc(phoneDocRef);
+
+      if (phoneDoc.exists()) {
+        contactNumber = phoneDoc.data().eduNumber;
+        console.log(`Número de contato obtido: ${contactNumber}`);
+      } else {
+        console.error("Documento PHONES não encontrado.");
+        toast.error("Falha ao obter o número de contato.");
+        return;
+      }
+    } catch (error) {
+      console.error(`Erro ao buscar o número de contato: ${error}`);
+      toast.error("Erro ao buscar o número de contato.");
+      return;
+    }
+
+    const contacts = [managerContact, contactNumber];
 
     // Enviando a mensagem
     const sendMessages = contacts.map(async (contact) => {
