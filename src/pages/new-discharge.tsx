@@ -1043,6 +1043,25 @@ export default function NewPost() {
           throw new Error("Campo leoNumber não encontrado no documento.");
         }
 
+        // Verifica se data.postName é um dos valores permitidos
+        const validPostNames = [
+          "Orense",
+          "Oratório",
+          "Vena",
+          "Golf",
+          "Cantareira",
+          "Maricar",
+          "Conselheiro",
+          "Mandaqui",
+        ];
+
+        if (!validPostNames.includes(data.postName)) {
+          console.log(
+            `Post name ${data.postName} não está na lista permitida. Mensagem não enviada.`
+          );
+          return; // Sai da função caso o nome do posto não seja válido
+        }
+
         // Monta a mensagem
         const simplifiedMessageBody = `*Nova Descarga Realizada*\n\n*Data*: ${formattedDate}\n*Hora*: ${data.time}\n*Posto*: ${data.postName}\n*Responsável*: ${data.makerName}\n\n*Motorista*: ${data.driverName}\n*Tanque*: ${data.selectedTankDescription}\n*Produto*: ${data.product}\n${data.totalLiters} litros\n*Decalitro*: ${data.decalitro}\n\n*Observações*: ${data.observations}`;
 
