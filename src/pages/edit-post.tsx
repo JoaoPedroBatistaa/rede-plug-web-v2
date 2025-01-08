@@ -710,6 +710,42 @@ export default function EditPost() {
                 </div>
 
                 <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Latitude</p>
+                  <input
+                    id="latitude"
+                    type="number"
+                    className={styles.Field}
+                    value={coordinates.lat || ""}
+                    onChange={(e) =>
+                      setCoordinates((prev) => ({
+                        ...prev,
+                        lat: parseFloat(e.target.value) || null,
+                      }))
+                    }
+                    placeholder="Insira a latitude"
+                  />
+                </div>
+
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Longitude</p>
+                  <input
+                    id="longitude"
+                    type="number"
+                    className={styles.Field}
+                    value={coordinates.lng || ""}
+                    onChange={(e) =>
+                      setCoordinates((prev) => ({
+                        ...prev,
+                        lng: parseFloat(e.target.value) || null,
+                      }))
+                    }
+                    placeholder="Insira a longitude"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.InputContainer}>
+                <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Email</p>
                   <input
                     id="email"
@@ -720,6 +756,7 @@ export default function EditPost() {
                     placeholder=""
                   />
                 </div>
+
                 <div className={styles.InputField}>
                   <p className={styles.FieldLabel}>Senha para frentistas</p>
                   <input
@@ -732,6 +769,73 @@ export default function EditPost() {
                   />
                 </div>
               </div>
+
+              <div className={styles.BudgetHead}>
+                <p className={styles.BudgetTitle}>Gerentes</p>
+                <div className={styles.BudgetHeadS}></div>
+              </div>
+
+              <p className={styles.Notes}>
+                Informe abaixo as informações dos gerentes
+              </p>
+
+              {managers.map((manager, index) => (
+                <div key={index} className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Nome do Gerente</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={manager.managerName}
+                      onChange={(e) =>
+                        handleManagerChange(
+                          index,
+                          "managerName",
+                          e.target.value
+                        )
+                      }
+                      placeholder=""
+                    />
+                  </div>
+
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Contato</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={manager.contact}
+                      onChange={(e) =>
+                        handleManagerChange(index, "contact", e.target.value)
+                      }
+                      placeholder=""
+                    />
+                  </div>
+
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Senha</p>
+                    <input
+                      type="text"
+                      className={styles.Field}
+                      value={manager.password}
+                      onChange={(e) =>
+                        handleManagerChange(index, "password", e.target.value)
+                      }
+                      placeholder=""
+                    />
+                  </div>
+
+                  <button onClick={addManager} className={styles.NewButton}>
+                    <span className={styles.buttonText}>Novo gerente</span>
+                  </button>
+
+                  <button
+                    onClick={() => removeManager(index)}
+                    className={styles.DeleteButton}
+                  >
+                    <span className={styles.buttonText}>Excluir gerente</span>
+                  </button>
+                </div>
+              ))}
 
               <div className={styles.BudgetHead}>
                 <p className={styles.BudgetTitle}>Tanques</p>
@@ -962,73 +1066,6 @@ export default function EditPost() {
                       <span className={styles.buttonText}>Excluir bico</span>
                     </button>
                   )}
-                </div>
-              ))}
-
-              <div className={styles.BudgetHead}>
-                <p className={styles.BudgetTitle}>Gerentes</p>
-                <div className={styles.BudgetHeadS}></div>
-              </div>
-
-              <p className={styles.Notes}>
-                Informe abaixo as informações dos gerentes
-              </p>
-
-              {managers.map((manager, index) => (
-                <div key={index} className={styles.InputContainer}>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Nome do Gerente</p>
-                    <input
-                      type="text"
-                      className={styles.Field}
-                      value={manager.managerName}
-                      onChange={(e) =>
-                        handleManagerChange(
-                          index,
-                          "managerName",
-                          e.target.value
-                        )
-                      }
-                      placeholder=""
-                    />
-                  </div>
-
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Contato</p>
-                    <input
-                      type="text"
-                      className={styles.Field}
-                      value={manager.contact}
-                      onChange={(e) =>
-                        handleManagerChange(index, "contact", e.target.value)
-                      }
-                      placeholder=""
-                    />
-                  </div>
-
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Senha</p>
-                    <input
-                      type="text"
-                      className={styles.Field}
-                      value={manager.password}
-                      onChange={(e) =>
-                        handleManagerChange(index, "password", e.target.value)
-                      }
-                      placeholder=""
-                    />
-                  </div>
-
-                  <button onClick={addManager} className={styles.NewButton}>
-                    <span className={styles.buttonText}>Novo gerente</span>
-                  </button>
-
-                  <button
-                    onClick={() => removeManager(index)}
-                    className={styles.DeleteButton}
-                  >
-                    <span className={styles.buttonText}>Excluir gerente</span>
-                  </button>
                 </div>
               ))}
             </div>
