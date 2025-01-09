@@ -129,6 +129,7 @@ export default function Home() {
             const userData = docSnap.data();
             const routineData = userData.routine || [];
             setRoutine(routineData);
+            console.log(routine);
 
             if (userData.IpAddress) {
               setIpStored(userData.IpAddress);
@@ -142,7 +143,27 @@ export default function Home() {
             const todayRoutine = routineData
               .flatMap((week: WeekRoutine) => week.week)
               .find((day: RoutineDay) => day.date === today);
-            setCurrentDayRoutine(todayRoutine || null);
+
+            if (todayRoutine) {
+              setCurrentDayRoutine({
+                ...todayRoutine,
+                firstShift: todayRoutine.firstShift
+                  ? {
+                      label: todayRoutine.firstShift,
+                      value: todayRoutine.firstShift,
+                    }
+                  : null,
+                secondShift: todayRoutine.secondShift
+                  ? {
+                      label: todayRoutine.secondShift,
+                      value: todayRoutine.secondShift,
+                    }
+                  : null,
+              });
+            } else {
+              setCurrentDayRoutine(null);
+            }
+            console.log(currentDayRoutine);
           } else {
             console.error("No such document!");
           }
