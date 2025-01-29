@@ -436,6 +436,21 @@ export default function NewPost() {
 
     const contacts = [managerContact];
 
+    const specialPosts = [
+      "Cantareira",
+      "Conselheiro",
+      "Golf",
+      "Maricar",
+      "Mandaqui",
+      "Oratorio",
+      "Orense",
+      "Vena",
+    ];
+
+    if (specialPosts.includes(data.postName)) {
+      contacts.push("5511980323099");
+    }
+
     // Enviando a mensagem
     const sendMessages = contacts.map(async (contact) => {
       try {
