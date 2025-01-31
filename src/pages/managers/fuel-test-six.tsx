@@ -462,7 +462,7 @@ export default function NewPost() {
       "Golf",
       "Maricar",
       "Mandaqui",
-      "Oratorio",
+      "Oratório",
       "Orense",
       "Vena",
     ];

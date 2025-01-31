@@ -199,9 +199,9 @@ export default function NewPost() {
       const file = files[0];
 
       // Verifica o tamanho do arquivo (máximo 10MB)
-      const maxFileSize = 10 * 1024 * 1024; // 10MB em bytes
+      const maxFileSize = 100 * 1024 * 1024; // 10MB em bytes
       if (file.size > maxFileSize) {
-        toast.error("O arquivo deve ter no máximo 10MB.");
+        toast.error("O arquivo deve ter no máximo 100MB.");
         return;
       }
 
@@ -442,7 +442,7 @@ export default function NewPost() {
       "Golf",
       "Maricar",
       "Mandaqui",
-      "Oratorio",
+      "Oratório",
       "Orense",
       "Vena",
     ];
