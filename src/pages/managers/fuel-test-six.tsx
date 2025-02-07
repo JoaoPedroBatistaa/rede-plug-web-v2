@@ -434,15 +434,29 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
 
-    let contactNumber;
+    let contactNumber, japaNumber;
+
+    const specialPosts = [
+      "Cantareira",
+      "Conselheiro",
+      "Golf",
+      "Maricar",
+      "Mandaqui",
+      "Oratório",
+      "Orense",
+      "Vena",
+    ];
+
     try {
-      // Busca o número de telefone no Firestore
       const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
       const phoneDoc = await getDoc(phoneDocRef);
 
       if (phoneDoc.exists()) {
-        contactNumber = phoneDoc.data().eduNumber;
-        console.log(`Número de contato obtido: ${contactNumber}`);
+        const phoneData = phoneDoc.data();
+        contactNumber = phoneData.eduNumber;
+        if (specialPosts.includes(data.postName)) {
+          japaNumber = phoneData.japaNumber;
+        }
       } else {
         console.error("Documento PHONES não encontrado.");
         toast.error("Falha ao obter o número de contato.");
@@ -456,19 +470,8 @@ export default function NewPost() {
 
     const contacts = [managerContact, contactNumber];
 
-    const specialPosts = [
-      "Cantareira",
-      "Conselheiro",
-      "Golf",
-      "Maricar",
-      "Mandaqui",
-      "Oratório",
-      "Orense",
-      "Vena",
-    ];
-
-    if (specialPosts.includes(data.postName)) {
-      contacts.push("5511980323099");
+    if (specialPosts.includes(data.postName) && japaNumber) {
+      contacts.push(japaNumber);
     }
 
     // Enviando a mensagem

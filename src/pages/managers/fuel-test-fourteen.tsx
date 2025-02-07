@@ -434,7 +434,7 @@ export default function NewPost() {
     const postData = querySnapshot.docs[0].data();
     const managerContact = postData.managers[0].contact;
 
-    const contacts = [managerContact];
+    let contactNumber, japaNumber;
 
     const specialPosts = [
       "Cantareira",
@@ -447,8 +447,31 @@ export default function NewPost() {
       "Vena",
     ];
 
-    if (specialPosts.includes(data.postName)) {
-      contacts.push("5511980323099");
+    try {
+      const phoneDocRef = doc(db, "PHONES", "O7Ej9i0aaVeo0zTrn4UI");
+      const phoneDoc = await getDoc(phoneDocRef);
+
+      if (phoneDoc.exists()) {
+        const phoneData = phoneDoc.data();
+        contactNumber = phoneData.eduNumber;
+        if (specialPosts.includes(data.postName)) {
+          japaNumber = phoneData.japaNumber;
+        }
+      } else {
+        console.error("Documento PHONES não encontrado.");
+        toast.error("Falha ao obter o número de contato.");
+        return;
+      }
+    } catch (error) {
+      console.error(`Erro ao buscar o número de contato: ${error}`);
+      toast.error("Erro ao buscar o número de contato.");
+      return;
+    }
+
+    const contacts = [managerContact, contactNumber];
+
+    if (specialPosts.includes(data.postName) && japaNumber) {
+      contacts.push(japaNumber);
     }
 
     // Enviando a mensagem
