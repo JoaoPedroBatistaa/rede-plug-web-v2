@@ -102,6 +102,30 @@ export default function NewPost() {
   // // }, []);
 
   useEffect(() => {
+    const storedTankImages = JSON.parse(
+      localStorage.getItem("tankImages") || "{}"
+    );
+    const restoredTankImages: { [key: string]: string } = {};
+
+    for (const tankNumber in storedTankImages) {
+      restoredTankImages[tankNumber] = storedTankImages[tankNumber]; // Base64 já é usável diretamente
+    }
+
+    // @ts-ignore
+    setTankImages(restoredTankImages);
+  }, []);
+
+  useEffect(() => {
+    setDate(localStorage.getItem("date") || "");
+    setTime(localStorage.getItem("time") || "");
+    setTankMeasurements(
+      JSON.parse(localStorage.getItem("tankMeasurements") || "{}")
+    );
+    setTankImages(JSON.parse(localStorage.getItem("tankImages") || "{}"));
+    setMeasurementSheetUrl(localStorage.getItem("measurementSheetUrl") || "");
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       if (!docId) return;
 
@@ -161,6 +185,26 @@ export default function NewPost() {
   const [measurementSheetUrl, setMeasurementSheetUrl] = useState<string | null>(
     null
   );
+
+  useEffect(() => {
+    localStorage.setItem("date", date);
+  }, [date]);
+
+  useEffect(() => {
+    localStorage.setItem("time", time);
+  }, [time]);
+
+  useEffect(() => {
+    localStorage.setItem("tankMeasurements", JSON.stringify(tankMeasurements));
+  }, [tankMeasurements]);
+
+  useEffect(() => {
+    localStorage.setItem("tankImages", JSON.stringify(tankImages));
+  }, [tankImages]);
+
+  useEffect(() => {
+    localStorage.setItem("measurementSheetUrl", measurementSheetUrl || "");
+  }, [measurementSheetUrl]);
 
   async function compressImage(file: File) {
     const options = {
@@ -306,25 +350,25 @@ export default function NewPost() {
       try {
         let processedFile = file;
 
-        // Verifica se o arquivo é uma imagem antes de comprimir
         if (file.type.startsWith("image/")) {
           processedFile = await compressImage(file);
         }
 
-        const imageUrl = await uploadImageAndGetUrl(
-          processedFile,
-          `tankMeasurements/${tankNumber}/${processedFile.name}_${Date.now()}`
-        );
+        const reader = new FileReader();
+        reader.readAsDataURL(processedFile);
+        reader.onloadend = () => {
+          // @ts-ignore
+          setTankImages((prev) => ({
+            ...prev,
+            [tankNumber]: reader.result, // Salvar como Base64
+          }));
 
-        setTankImages((prev) => ({
-          ...prev,
-          [tankNumber]: processedFile,
-        }));
-        setTankFileNames((prev) => ({
-          ...prev,
-          [tankNumber]: processedFile.name,
-        }));
-        setTankImageUrls((prev) => ({ ...prev, [tankNumber]: imageUrl }));
+          // Atualizar o localStorage
+          localStorage.setItem(
+            "tankImages",
+            JSON.stringify({ ...tankImages, [tankNumber]: reader.result })
+          );
+        };
       } catch (error) {
         console.error(
           `Erro ao fazer upload da imagem do tanque ${tankNumber}:`,
@@ -336,6 +380,7 @@ export default function NewPost() {
       }
     }
   };
+
   useEffect(() => {
     const refs = tanks.reduce((acc, tank) => {
       // @ts-ignore
@@ -456,6 +501,13 @@ export default function NewPost() {
 
       const docRef = await addDoc(collection(db, "MANAGERS"), measurementData);
       console.log("Medição salva com ID: ", docRef.id);
+
+      localStorage.removeItem("date");
+      localStorage.removeItem("time");
+      localStorage.removeItem("tankMeasurements");
+      localStorage.removeItem("tankImages");
+      localStorage.removeItem("measurementSheetUrl");
+      localStorage.removeItem("tankImages");
 
       toast.success("Medição salva com sucesso!");
       router.push("/manager-six-routine");
@@ -1079,26 +1131,39 @@ export default function NewPost() {
 
                   {tankImages[tank.tankNumber] && (
                     <div>
-                      <img
-                        src={URL.createObjectURL(tankImages[tank.tankNumber])}
-                        alt="Visualização da imagem"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                        onLoad={() =>
-                          // @ts-ignore
-                          URL.revokeObjectURL(tankImages[tank.tankNumber])
-                        }
-                      />
-                      <p className={styles.fileName}>
-                        {
-                          //@ts-ignore
-                          tankFileNames[tank.tankNumber]
-                        }
-                      </p>
+                      {
+                        // @ts-ignore
+                        tankImages[tank.tankNumber].includes("video") ? (
+                          <video
+                            controls
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          >
+                            <source
+                              // @ts-ignore
+                              src={tankImages[tank.tankNumber]}
+                              type="video/mp4"
+                            />
+                            Seu navegador não suporta o elemento de vídeo.
+                          </video>
+                        ) : (
+                          <img
+                            // @ts-ignore
+                            src={tankImages[tank.tankNumber]}
+                            alt="Visualização da imagem"
+                            style={{
+                              maxWidth: "17.5rem",
+                              height: "auto",
+                              border: "1px solid #939393",
+                              borderRadius: "20px",
+                            }}
+                          />
+                        )
+                      }
                     </div>
                   )}
                 </>

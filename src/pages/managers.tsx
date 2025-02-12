@@ -73,12 +73,37 @@ export default function Home() {
     return !querySnapshot.empty;
   };
 
+  const checkMeasurement = async () => {
+    const userName = localStorage.getItem("userName");
+    const userPost = localStorage.getItem("userPost");
+    const today = getTodayDateFormatted(); // Obtém a data no formato YYYY-MM-DD
+
+    const q = query(
+      collection(db, "MANAGERS"),
+      where("id", "==", "medicao-tanques-6h"),
+      where("date", "==", today),
+      where("managerName", "==", userName),
+      where("postName", "==", userPost)
+    );
+
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  };
+
   // Função isolada para verificar o ponto de entrada
   const handlePointEntryClick = async () => {
     if (await checkDigitalPoint()) {
       alert("Ponto de entrada já registrado para hoje.");
     } else {
       router.push("/managers/point");
+    }
+  };
+
+  const handleMeasurementClick = async () => {
+    if (await checkMeasurement()) {
+      alert("Medição das 6h já registrado para hoje.");
+    } else {
+      router.push("/managers/tank-measurement-six");
     }
   };
 
@@ -177,6 +202,11 @@ export default function Home() {
               <div onClick={handlePointEntryClick} className={styles.CardMenu}>
                 <img src="./routine-point.svg" />
                 <span className={styles.CardMenuText}>PONTO DE ENTRADA</span>
+              </div>
+
+              <div onClick={handleMeasurementClick} className={styles.CardMenu}>
+                <img src="./routine-6.svg" />
+                <span className={styles.CardMenuText}>MEDIÇÃO DAS 6H</span>
               </div>
 
               <div

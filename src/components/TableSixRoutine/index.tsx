@@ -84,11 +84,11 @@ export default function TablePosts({ searchValue, orderValue }: ITableBudgets) {
   useEffect(() => {
     // Tarefas gerais
     const allTasks: Task[] = [
-      {
-        id: "medicao-tanques-6h",
-        name: "Medição dos Tanques",
-        link: "/managers/tank-measurement-six",
-      },
+      // {
+      //   id: "medicao-tanques-6h",
+      //   name: "Medição dos Tanques",
+      //   link: "/managers/tank-measurement-six",
+      // },
       {
         id: "teste-combustiveis-6h",
         name: "Teste dos Combustíveis",
