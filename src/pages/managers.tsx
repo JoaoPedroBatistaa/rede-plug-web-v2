@@ -199,14 +199,14 @@ export default function Home() {
           <HeaderHome></HeaderHome>
           <div className={styles.CardsMenusContainer}>
             <div className={styles.CardsMenus}>
-              <div onClick={handlePointEntryClick} className={styles.CardMenu}>
-                <img src="./routine-point.svg" />
-                <span className={styles.CardMenuText}>PONTO DE ENTRADA</span>
-              </div>
-
               <div onClick={handleMeasurementClick} className={styles.CardMenu}>
                 <img src="./routine-6.svg" />
                 <span className={styles.CardMenuText}>MEDIÇÃO DAS 6H</span>
+              </div>
+
+              <div onClick={handlePointEntryClick} className={styles.CardMenu}>
+                <img src="./routine-point.svg" />
+                <span className={styles.CardMenuText}>PONTO DE ENTRADA</span>
               </div>
 
               <div
