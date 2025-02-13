@@ -102,20 +102,6 @@ export default function NewPost() {
   // // }, []);
 
   useEffect(() => {
-    const storedTankImages = JSON.parse(
-      localStorage.getItem("tankImages") || "{}"
-    );
-    const restoredTankImages: { [key: string]: string } = {};
-
-    for (const tankNumber in storedTankImages) {
-      restoredTankImages[tankNumber] = storedTankImages[tankNumber]; // Base64 já é usável diretamente
-    }
-
-    // @ts-ignore
-    setTankImages(restoredTankImages);
-  }, []);
-
-  useEffect(() => {
     setDate(localStorage.getItem("date") || "");
     setTime(localStorage.getItem("time") || "");
     setTankMeasurements(
@@ -123,6 +109,11 @@ export default function NewPost() {
     );
     setTankImages(JSON.parse(localStorage.getItem("tankImages") || "{}"));
     setMeasurementSheetUrl(localStorage.getItem("measurementSheetUrl") || "");
+    setTankImageUrls(JSON.parse(localStorage.getItem("tankImageUrls") || "{}"));
+    setMeasurementSheetUrl(localStorage.getItem("measurementSheetUrl") || "");
+    setMeasurementSheetFileName(
+      localStorage.getItem("measurementSheetFileName") || ""
+    );
   }, []);
 
   useEffect(() => {
@@ -247,14 +238,22 @@ export default function NewPost() {
           processedFile = await compressImage(file);
         }
 
-        const imageUrl = await uploadImageAndGetUrl(
-          processedFile,
-          `measurementSheets/${processedFile.name}_${Date.now()}`
-        );
+        // Faz o upload da planilha para o Firebase Storage
+        const storagePath = `measurementSheets/${
+          processedFile.name
+        }_${Date.now()}`;
+        const imageUrl = await uploadImageAndGetUrl(processedFile, storagePath);
 
+        // Atualiza o estado com a URL do Storage
         setMeasurementSheet(processedFile);
         setMeasurementSheetFileName(processedFile.name);
         setMeasurementSheetUrl(imageUrl);
+
+        // Salva no localStorage
+        localStorage.setItem("measurementSheetUrl", imageUrl);
+        localStorage.setItem("measurementSheetFileName", processedFile.name);
+
+        toast.success("Planilha de medição enviada com sucesso!");
       } catch (error) {
         console.error("Erro ao fazer upload da planilha de medição:", error);
         toast.error("Erro ao fazer upload da planilha de medição.");
@@ -350,31 +349,37 @@ export default function NewPost() {
       try {
         let processedFile = file;
 
+        // Se for uma imagem, comprimimos antes de enviar
         if (file.type.startsWith("image/")) {
           processedFile = await compressImage(file);
         }
 
-        const reader = new FileReader();
-        reader.readAsDataURL(processedFile);
-        reader.onloadend = () => {
-          // @ts-ignore
-          setTankImages((prev) => ({
-            ...prev,
-            [tankNumber]: reader.result, // Salvar como Base64
-          }));
+        // Criar nome do arquivo no Storage
+        const storagePath = `tankMeasurements/${tankNumber}/${
+          processedFile.name
+        }_${Date.now()}`;
 
-          // Atualizar o localStorage
-          localStorage.setItem(
-            "tankImages",
-            JSON.stringify({ ...tankImages, [tankNumber]: reader.result })
-          );
-        };
-      } catch (error) {
-        console.error(
-          `Erro ao fazer upload da imagem do tanque ${tankNumber}:`,
-          error
+        // Upload do arquivo ao Firebase Storage
+        const storageRef = ref(storage, storagePath);
+        await uploadBytes(storageRef, processedFile);
+        const downloadUrl = await getDownloadURL(storageRef);
+
+        // Atualizar estado com a URL do Storage
+        setTankImageUrls((prev) => ({
+          ...prev,
+          [tankNumber]: downloadUrl,
+        }));
+
+        // Salvar no localStorage para persistência
+        localStorage.setItem(
+          "tankImageUrls",
+          JSON.stringify({ ...tankImageUrls, [tankNumber]: downloadUrl })
         );
-        toast.error(`Erro ao salvar a imagem do tanque ${tankNumber}.`);
+
+        toast.success(`Mídia do tanque ${tankNumber} enviada com sucesso!`);
+      } catch (error) {
+        console.error(`Erro ao enviar imagem do tanque ${tankNumber}:`, error);
+        toast.error(`Erro ao enviar imagem do tanque ${tankNumber}.`);
       } finally {
         setIsLoading(false);
       }
@@ -508,9 +513,12 @@ export default function NewPost() {
       localStorage.removeItem("tankImages");
       localStorage.removeItem("measurementSheetUrl");
       localStorage.removeItem("tankImages");
+      localStorage.removeItem("tankImagesUrls");
+      localStorage.removeItem("measurementSheetUrl");
+      localStorage.removeItem("measurementSheetFileName");
 
       toast.success("Medição salva com sucesso!");
-      router.push("/manager-six-routine");
+      router.push("/managers");
     } catch (error) {
       console.error("Erro ao salvar os dados da medição:", error);
       toast.error("Erro ao salvar a medição.");
@@ -892,23 +900,35 @@ export default function NewPost() {
                   >
                     Carregue sua planilha de medição
                   </button>
-                  {measurementSheet && (
+                  {measurementSheetUrl && (
                     <div>
-                      <img
-                        src={URL.createObjectURL(measurementSheet)}
-                        alt="Visualização da planilha de medição"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                        // @ts-ignore
-                        onLoad={() => URL.revokeObjectURL(measurementSheet)}
-                      />
-                      <p className={styles.fileName}>
-                        {measurementSheetFileName}
-                      </p>
+                      {measurementSheetUrl.includes(".mp4") ||
+                      measurementSheetUrl.includes(".avi") ||
+                      measurementSheetUrl.includes(".mov") ? (
+                        <video
+                          controls
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        >
+                          <source src={measurementSheetUrl} type="video/mp4" />
+                          Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                      ) : (
+                        <img
+                          src={measurementSheetUrl}
+                          alt="Visualização da planilha de medição"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -1129,41 +1149,38 @@ export default function NewPost() {
                     )
                   }
 
-                  {tankImages[tank.tankNumber] && (
+                  {tankImageUrls[tank.tankNumber] && (
                     <div>
-                      {
-                        // @ts-ignore
-                        tankImages[tank.tankNumber].includes("video") ? (
-                          <video
-                            controls
-                            style={{
-                              maxWidth: "17.5rem",
-                              height: "auto",
-                              border: "1px solid #939393",
-                              borderRadius: "20px",
-                            }}
-                          >
-                            <source
-                              // @ts-ignore
-                              src={tankImages[tank.tankNumber]}
-                              type="video/mp4"
-                            />
-                            Seu navegador não suporta o elemento de vídeo.
-                          </video>
-                        ) : (
-                          <img
-                            // @ts-ignore
-                            src={tankImages[tank.tankNumber]}
-                            alt="Visualização da imagem"
-                            style={{
-                              maxWidth: "17.5rem",
-                              height: "auto",
-                              border: "1px solid #939393",
-                              borderRadius: "20px",
-                            }}
+                      {tankImageUrls[tank.tankNumber].includes(".mp4") ||
+                      tankImageUrls[tank.tankNumber].includes(".avi") ||
+                      tankImageUrls[tank.tankNumber].includes(".mov") ? (
+                        <video
+                          controls
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        >
+                          <source
+                            src={tankImageUrls[tank.tankNumber]}
+                            type="video/mp4"
                           />
-                        )
-                      }
+                          Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                      ) : (
+                        <img
+                          src={tankImageUrls[tank.tankNumber]}
+                          alt="Imagem do tanque"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </>
