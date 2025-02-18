@@ -17,9 +17,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
-
+import dynamic from "next/dynamic";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 
 interface PostOption {
   label: string;

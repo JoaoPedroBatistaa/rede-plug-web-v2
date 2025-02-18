@@ -7,8 +7,6 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import LoadingOverlay from "@/components/Loading";
-
 import {
   addDoc,
   collection,
@@ -20,7 +18,11 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import dynamic from "next/dynamic";
 import { db } from "../../firebase";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 
 interface Supervisor {
   id: string;

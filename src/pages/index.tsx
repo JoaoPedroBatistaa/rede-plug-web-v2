@@ -8,7 +8,10 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs"; // Importa a bibliotec
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import LoadingOverlay from "@/components/Loading";
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);

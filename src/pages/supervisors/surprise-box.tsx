@@ -20,9 +20,11 @@ import {
 import { createRef, useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
 import { uploadBytes } from "firebase/storage";
-
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 interface TankMeasurements {
   [key: string]: string;
 }

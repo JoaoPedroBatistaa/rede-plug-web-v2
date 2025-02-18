@@ -21,8 +21,10 @@ import { db, storage } from "../../../firebase";
 
 import imageCompression from "browser-image-compression";
 
-import LoadingOverlay from "@/components/Loading";
-
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 interface Tank {
   tankNumber: string;
   capacity: string;

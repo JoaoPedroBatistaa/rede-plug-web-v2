@@ -10,9 +10,11 @@ import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
 import { uploadBytes } from "firebase/storage";
-
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 export default function NewPost() {
   const router = useRouter();
 

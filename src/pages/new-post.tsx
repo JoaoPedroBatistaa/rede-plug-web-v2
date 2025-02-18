@@ -10,8 +10,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
-
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 interface Supervisor {
   id: string;
   name: string;

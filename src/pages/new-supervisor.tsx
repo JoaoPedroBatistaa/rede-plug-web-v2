@@ -10,9 +10,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
+import dynamic from "next/dynamic";
 import InputMask from "react-input-mask"; // Importa a biblioteca de máscara
-
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 export default function NewPost() {
   const router = useRouter();
 

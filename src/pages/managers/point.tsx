@@ -1,8 +1,8 @@
 import HeaderNewProduct from "@/components/HeaderNewTask";
-import LoadingOverlay from "@/components/Loading";
 import imageCompression from "browser-image-compression";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { uploadBytes } from "firebase/storage";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
@@ -10,13 +10,21 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 import styles from "../../styles/ProductFoam.module.scss";
-
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 export default function DigitalPointTask() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isInspection, setIsInspection] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
+
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  const [postCoordinates, setPostCoordinates] = useState({
+    lat: null,
+    lng: null,
+  });
 
   const [date, setDate] = useState("");
 
@@ -26,17 +34,109 @@ export default function DigitalPointTask() {
   const [etanolFileName, setEtanolFileName] = useState("");
   const [etanolImageUrl, setEtanolImageUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    const storedInspection = localStorage.getItem("isInspection");
-    const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
-    const storedEtanolFileName = localStorage.getItem("etanolFileName");
+  // useEffect(() => {
+  //   const storedInspection = localStorage.getItem("isInspection");
+  //   const storedEtanolImageUrl = localStorage.getItem("etanolImageUrl");
+  //   const storedEtanolFileName = localStorage.getItem("etanolFileName");
 
-    if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
-    if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
-    if (storedInspection) {
-      setIsInspection(storedInspection); // Recupera o valor do localStorage
+  //   if (storedEtanolImageUrl) setEtanolImageUrl(storedEtanolImageUrl);
+  //   if (storedEtanolFileName) setEtanolFileName(storedEtanolFileName);
+  //   if (storedInspection) {
+  //     setIsInspection(storedInspection); // Recupera o valor do localStorage
+  //   }
+  // }, []);
+
+  const fetchCoordinates = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoordinates({
+            // @ts-ignore
+            lat: position.coords.latitude,
+            // @ts-ignore
+            lng: position.coords.longitude,
+          });
+          console.log(
+            `Supervisor coordinates obtained: lat=${position.coords.latitude}, lng=${position.coords.longitude}`
+          );
+        },
+        (error) => {
+          console.error("Error obtaining location:", error);
+          setCoordinates({ lat: null, lng: null });
+        }
+      );
+    } else {
+      console.log("Geolocation is not available in this browser.");
     }
+  };
+
+  useEffect(() => {
+    fetchCoordinates();
   }, []);
+
+  useEffect(() => {
+    const postName = localStorage.getItem("userPost");
+
+    const fetchPostCoordinates = async () => {
+      if (!postName) return;
+
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const postData = querySnapshot.docs[0].data();
+          setPostCoordinates({
+            lat: postData.location.lat,
+            lng: postData.location.lng,
+          });
+          console.log("Post coordinates fetched: ", postData.location);
+        }
+      } catch (error) {
+        console.error("Error fetching post coordinates:", error);
+      }
+    };
+
+    fetchPostCoordinates();
+  }, []);
+
+  const calculateCoordinatesInRadius = (
+    center: { lat: number; lng: number },
+    radius = 200,
+    stepSize = 0.1
+  ) => {
+    const points = [];
+    const earthRadius = 6371000;
+
+    const lat1 = (center.lat * Math.PI) / 180;
+    const lng1 = (center.lng * Math.PI) / 180;
+
+    for (let angle = 0; angle < 360; angle += stepSize) {
+      const bearing = (angle * Math.PI) / 180;
+
+      for (let dist = 0; dist <= radius; dist += stepSize) {
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(dist / earthRadius) +
+            Math.cos(lat1) * Math.sin(dist / earthRadius) * Math.cos(bearing)
+        );
+        const lng2 =
+          lng1 +
+          Math.atan2(
+            Math.sin(bearing) * Math.sin(dist / earthRadius) * Math.cos(lat1),
+            Math.cos(dist / earthRadius) - Math.sin(lat1) * Math.sin(lat2)
+          );
+
+        points.push({
+          lat: (lat2 * 180) / Math.PI,
+          lng: (lng2 * 180) / Math.PI,
+        });
+      }
+    }
+
+    console.log("Radius coordinates calculated: ", points);
+    return points;
+  };
 
   async function compressImage(file: File) {
     const options = {
@@ -148,6 +248,29 @@ export default function DigitalPointTask() {
       ],
       id: "digital_point",
     };
+
+    // @ts-ignore
+    const radiusCoords = calculateCoordinatesInRadius(postCoordinates);
+    // @ts-ignore
+    radiusCoords.push(postCoordinates); // Add the main post coordinate to the array for comparison
+
+    const isWithinRadius = radiusCoords.some(
+      (coord: { lat: number; lng: number }) =>
+        // @ts-ignore
+        Math.abs(coord.lat - coordinates.lat) < 0.0001 &&
+        // @ts-ignore
+        Math.abs(coord.lng - coordinates.lng) < 0.0001
+    );
+
+    console.log(`Supervisor is within radius: ${isWithinRadius}`);
+
+    if (!isWithinRadius && coordinates.lat && coordinates.lng) {
+      toast.error(
+        "Você não está dentro do raio permitido para realizar essa tarefa."
+      );
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Verifica se a tarefa já foi realizada hoje

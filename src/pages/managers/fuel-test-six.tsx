@@ -19,8 +19,10 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
 import { db, storage } from "../../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
-
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 interface Tank {
   product: string;
   saleDefense: string;

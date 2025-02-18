@@ -1,21 +1,25 @@
-// components/LoadingOverlay.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Lottie from "react-lottie";
 import animationData from "../../../public/animation/Animation - 1710953246441.json";
-
 interface LoadingOverlayProps {
   isLoading: boolean;
 }
 
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => {
-  if (!isLoading) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient || !isLoading) {
     return null;
   }
 
   const defaultOptions = {
     loop: true,
     autoplay: true,
-    animationData: animationData,
+    animationData,
     rendererSettings: {
       preserveAspectRatio: "xMidYMid slice",
     },
@@ -33,14 +37,14 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 1000, // Garantir que esteja acima de outros elementos
+        zIndex: 1000,
       }}
     >
       <div
         style={{
           width: "128px",
           height: "128px",
-          borderRadius: "70px", // Ajuste conforme necessário
+          borderRadius: "70px",
           overflow: "hidden",
         }}
       >

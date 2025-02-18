@@ -1,5 +1,4 @@
 import HeaderNewProduct from "@/components/HeaderNewTask";
-import LoadingOverlay from "@/components/Loading";
 import imageCompression from "browser-image-compression";
 import {
   addDoc,
@@ -11,6 +10,7 @@ import {
   where,
 } from "firebase/firestore";
 import { uploadBytes } from "firebase/storage";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
@@ -18,7 +18,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 import styles from "../../styles/ProductFoam.module.scss";
-
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 async function compressImage(file: File) {
   const options = {
     maxSizeMB: 1,

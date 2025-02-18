@@ -10,9 +10,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
+import dynamic from "next/dynamic";
 import AsyncSelect from "react-select/async";
-
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 interface PostOption {
   label: string;
   value: string;

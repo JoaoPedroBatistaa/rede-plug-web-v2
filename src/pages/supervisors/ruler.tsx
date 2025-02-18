@@ -18,10 +18,12 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { db, getDownloadURL, ref, storage } from "../../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
 import imageCompression from "browser-image-compression";
 import { uploadBytes } from "firebase/storage";
-
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 async function compressImage(file: File) {
   const options = {
     maxSizeMB: 1,

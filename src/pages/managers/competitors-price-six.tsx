@@ -19,9 +19,11 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { createRef, useEffect, useRef, useState } from "react";
 import { db, storage } from "../../../firebase";
 
-import LoadingOverlay from "@/components/Loading";
-
 import imageCompression from "browser-image-compression";
+import dynamic from "next/dynamic";
+const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 
 export default function NewPost() {
   const router = useRouter();
