@@ -45,6 +45,9 @@ export default function EditSupervisor() {
   const [password, setPassword] = useState<string>("");
   const [routine, setRoutine] = useState<WeekRoutine[]>([]);
 
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   useEffect(() => {
     const checkLoginDuration = () => {
       const storedDate = localStorage.getItem("loginDate");
@@ -166,25 +169,38 @@ export default function EditSupervisor() {
   };
 
   const handleAddRoutine = () => {
-    const nextMonday = getNextMonday();
+    if (!startDate || !endDate) {
+      toast.error("Selecione o período da nova rotina.");
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
     const newWeek: RoutineDay[] = [];
 
-    for (let i = 0; i < 6; i++) {
-      const day = new Date(nextMonday);
-      day.setDate(nextMonday.getDate() + i);
-      if (day.getDay() !== 0) {
-        newWeek.push({
-          date: day.toISOString().split("T")[0],
-          firstShift: null,
-          secondShift: null,
-        });
-      }
+    console.log("Período selecionado:", startDate, "até", endDate);
+
+    while (start.getTime() <= end.getTime()) {
+      // Inclui a data final corretamente
+      console.log("Adicionando dia:", start.toISOString().split("T")[0]);
+
+      newWeek.push({
+        date: start.toISOString().split("T")[0],
+        firstShift: null,
+        secondShift: null,
+      });
+
+      start.setDate(start.getDate() + 1);
+    }
+
+    if (newWeek.length === 0) {
+      toast.error("Selecione um período válido.");
+      return;
     }
 
     const newRoutine: WeekRoutine = { week: newWeek, isFromDatabase: false };
     setRoutine((prevRoutine) => [...prevRoutine, newRoutine]);
-
-    console.log("Nova rotina adicionada:", newRoutine);
+    toast.success("Nova rotina adicionada com sucesso!");
   };
 
   const handleRoutineChange = (
@@ -212,117 +228,26 @@ export default function EditSupervisor() {
   };
 
   const renderRoutine = () => {
-    const daysOfWeek = [
-      "Segunda-feira",
-      "Terça-feira",
-      "Quarta-feira",
-      "Quinta-feira",
-      "Sexta-feira",
-      "Sábado",
-    ];
-
     return routine
       .filter((weekObj) => !weekObj.isFromDatabase)
       .map((weekObj, weekIndex) => (
         <div key={weekIndex} className={styles.week}>
-          {Array.isArray(weekObj.week) &&
-            weekObj.week.map((day, dayIndex) => {
-              const dayDate = new Date(day.date + "T00:00:00-03:00");
-              const formattedDate = dayDate.toLocaleDateString("pt-BR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              });
-
-              const dayName = daysOfWeek[dayIndex];
-
-              return (
-                <div key={dayIndex} className={styles.day}>
-                  <p className={styles.dayTitle}>
-                    {`${dayName} - ${formattedDate}`}
-                  </p>
-                  <div className={styles.InputContainer}>
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>
-                        Primeiro turno (8h-14h)
-                      </p>
-                      <AsyncSelect
-                        cacheOptions
-                        loadOptions={loadOptions}
-                        defaultOptions={posts}
-                        value={day.firstShift}
-                        onChange={(selectedOption) =>
-                          handleRoutineChange(
-                            dayIndex,
-                            "firstShift",
-                            selectedOption
-                          )
-                        }
-                        placeholder="Selecione o posto"
-                        className={styles.SelectFieldSearch}
-                      />
-                    </div>
-                    <div className={styles.InputField}>
-                      <p className={styles.FieldLabel}>
-                        Segundo turno (14h-22h)
-                      </p>
-                      <AsyncSelect
-                        cacheOptions
-                        loadOptions={loadOptions}
-                        defaultOptions={posts}
-                        value={day.secondShift}
-                        onChange={(selectedOption) =>
-                          handleRoutineChange(
-                            dayIndex,
-                            "secondShift",
-                            selectedOption
-                          )
-                        }
-                        placeholder="Selecione o posto"
-                        className={styles.SelectFieldSearch}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-      ));
-  };
-
-  const renderExistingRoutine = () => {
-    const daysOfWeek = [
-      "Segunda-feira",
-      "Terça-feira",
-      "Quarta-feira",
-      "Quinta-feira",
-      "Sexta-feira",
-      "Sábado",
-    ];
-
-    // Filtra apenas a última rotina do banco de dados (a última com isFromDatabase como true)
-    const lastDatabaseRoutine = routine
-      .filter((weekObj) => weekObj.isFromDatabase)
-      .slice(-1); // Pega apenas o último elemento
-
-    return lastDatabaseRoutine.map((weekObj, weekIndex) => (
-      <div key={weekIndex} className={styles.week}>
-        {Array.isArray(weekObj.week) &&
-          weekObj.week.map((day, dayIndex) => {
+          {weekObj.week.map((day, dayIndex) => {
             const dayDate = new Date(day.date + "T00:00:00-03:00");
             const formattedDate = dayDate.toLocaleDateString("pt-BR", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
             });
-
-            const dayName = daysOfWeek[dayIndex];
+            const dayName = new Intl.DateTimeFormat("pt-BR", {
+              weekday: "long",
+            }).format(dayDate);
 
             return (
               <div key={dayIndex} className={styles.day}>
-                <p className={styles.dayTitle}>
-                  {`${dayName} - ${formattedDate}`}
-                </p>
+                <p
+                  className={styles.dayTitle}
+                >{`${dayName} - ${formattedDate}`}</p>
                 <div className={styles.InputContainer}>
                   <div className={styles.InputField}>
                     <p className={styles.FieldLabel}>Primeiro turno (8h-14h)</p>
@@ -338,6 +263,7 @@ export default function EditSupervisor() {
                           selectedOption
                         )
                       }
+                      placeholder="Selecione o posto"
                       className={styles.SelectFieldSearch}
                     />
                   </div>
@@ -355,6 +281,7 @@ export default function EditSupervisor() {
                           selectedOption
                         )
                       }
+                      placeholder="Selecione o posto"
                       className={styles.SelectFieldSearch}
                     />
                   </div>
@@ -362,6 +289,102 @@ export default function EditSupervisor() {
               </div>
             );
           })}
+        </div>
+      ));
+  };
+
+  const renderExistingRoutine = () => {
+    console.log("Rotinas no estado:", routine);
+
+    const databaseRoutines = routine
+      .filter((weekObj) => weekObj.isFromDatabase)
+      .reverse();
+
+    console.log("Rotinas carregadas do banco:", databaseRoutines);
+
+    if (databaseRoutines.length === 0) {
+      console.log("Nenhuma rotina do banco encontrada.");
+      return <p>Nenhuma rotina existente encontrada.</p>;
+    }
+
+    return databaseRoutines.map((weekObj, weekIndex) => (
+      <div key={weekIndex} className={styles.week}>
+        {weekObj.week && weekObj.week.length > 0 ? (
+          weekObj.week.map((day, dayIndex) => {
+            console.log("Processando dia:", day);
+
+            if (!day || !day.date) {
+              console.log("Dia inválido encontrado:", day);
+              return null;
+            }
+
+            const dayDate = new Date(day.date + "T00:00:00-03:00");
+            const formattedDate = dayDate.toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+            const dayName = new Intl.DateTimeFormat("pt-BR", {
+              weekday: "long",
+            }).format(dayDate);
+
+            const isLastRoutine = weekIndex === 0; // Apenas a última rotina será editável
+
+            return (
+              <div key={dayIndex} className={styles.day}>
+                <p
+                  className={styles.dayTitle}
+                >{`${dayName} - ${formattedDate}`}</p>
+                <div className={styles.InputContainer}>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Primeiro turno (8h-14h)</p>
+                    <AsyncSelect
+                      cacheOptions
+                      loadOptions={loadOptions}
+                      defaultOptions={posts}
+                      value={day.firstShift}
+                      onChange={
+                        isLastRoutine
+                          ? (selectedOption) =>
+                              handleRoutineChange(
+                                dayIndex,
+                                "firstShift",
+                                selectedOption
+                              )
+                          : undefined
+                      }
+                      isDisabled={!isLastRoutine} // Apenas a última rotina será editável
+                      className={styles.SelectFieldSearch}
+                    />
+                  </div>
+                  <div className={styles.InputField}>
+                    <p className={styles.FieldLabel}>Segundo turno (14h-22h)</p>
+                    <AsyncSelect
+                      cacheOptions
+                      loadOptions={loadOptions}
+                      defaultOptions={posts}
+                      value={day.secondShift}
+                      onChange={
+                        isLastRoutine
+                          ? (selectedOption) =>
+                              handleRoutineChange(
+                                dayIndex,
+                                "secondShift",
+                                selectedOption
+                              )
+                          : undefined
+                      }
+                      isDisabled={!isLastRoutine} // Apenas a última rotina será editável
+                      className={styles.SelectFieldSearch}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p>Nenhuma semana encontrada nesta rotina.</p>
+        )}
       </div>
     ));
   };
@@ -551,6 +574,23 @@ export default function EditSupervisor() {
           <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Programação</p>
             <div className={styles.BudgetHeadS}>
+              <p>De</p>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className={styles.Field}
+                placeholder="De"
+              />
+              <p>Até</p>
+
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className={styles.Field}
+                placeholder="Até"
+              />
               <button className={styles.editButton} onClick={handleAddRoutine}>
                 <img
                   src="/plus.png"
@@ -561,6 +601,9 @@ export default function EditSupervisor() {
               </button>
             </div>
           </div>
+          <p className={styles.Notes}>
+            Selecione o período e defina em qual posto o supervisor atuará.
+          </p>
 
           <p className={styles.Notes}>
             Altere abaixo as rotinas do supervisor, para definir em qual posto
