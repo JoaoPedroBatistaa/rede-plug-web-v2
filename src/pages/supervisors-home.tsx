@@ -1,33 +1,15 @@
 import HeaderHome from "@/components/HeaderSupervisors";
 import SideMenuHome from "@/components/SideMenuHome";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import styles from "../styles/Home.module.scss";
 
 interface PostOption {
   label: string;
   value: string;
-}
-
-interface RoutineDay {
-  date: string;
-  firstShift: PostOption | null;
-  secondShift: PostOption | null;
-}
-
-interface WeekRoutine {
-  week: RoutineDay[];
-  isFromDatabase: boolean;
 }
 
 interface Task {
@@ -38,22 +20,59 @@ interface Task {
 export default function Home() {
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
-  const [routine, setRoutine] = useState<WeekRoutine[]>([]);
-  const [currentDayRoutine, setCurrentDayRoutine] = useState<RoutineDay | null>(
-    null
-  );
+  const [postsAvailable, setPostsAvailable] = useState<PostOption[]>([]);
+  const [selectedPosts, setSelectedPosts] = useState<{
+    firstShift: string | null;
+    secondShift: string | null;
+  }>({
+    firstShift: null,
+    secondShift: null,
+  });
   const [userId, setUserId] = useState<string | null>(null);
 
   const tasksOrder: Task[] = [
     { id: "digital_point", route: "/supervisors/point" },
-    { id: "caixa-surpresa", route: "/supervisors/surprise-box" },
-    { id: "uniformes", route: "/supervisors/uniforms" },
-    { id: "atendimento", route: "/supervisors/service" },
-    { id: "limpeza-pista", route: "/supervisors/track-cleaning" },
-    { id: "limpeza-bombas", route: "/supervisors/bombs-cleaning" },
     { id: "limpeza-testeiras", route: "/supervisors/front-cleaning" },
     { id: "limpeza-banheiros", route: "/supervisors/bathroom-cleaning" },
     { id: "vestiario", route: "/supervisors/locker-room" },
+    { id: "troca-oleo", route: "/supervisors/oil-change" },
+    { id: "pintura-posto", route: "/supervisors/post-painting" },
+    { id: "canaletas", route: "/supervisors/channels" },
+    { id: "iluminacao-pista", route: "/supervisors/runway-lightning" },
+    { id: "iluminacao-testeiras", route: "/supervisors/front-lightning" },
+    { id: "forro", route: "/supervisors/lining" },
+    { id: "placas-sinalizacao", route: "/supervisors/traffic-signs" },
+    {
+      id: "identificacao-fornecedor",
+      route: "/supervisors/supplier-identification",
+    },
+    { id: "placas-faixa-preco", route: "/supervisors/price-signs" },
+    { id: "extintores", route: "/supervisors/extinguishers" },
+    { id: "aferidores", route: "/supervisors/gauges" },
+    { id: "regua", route: "/supervisors/ruler" },
+    { id: "compressor", route: "/supervisors/compressor" },
+    { id: "calibrador", route: "/supervisors/calibrator" },
+    { id: "bocas-visita", route: "/supervisors/manholes" },
+    {
+      id: "bocas-descarga-e-cadeados",
+      route: "/supervisors/discharge-nozzles-and-padlocks",
+    },
+    { id: "canetas", route: "/supervisors/pens" },
+    { id: "bicos", route: "/supervisors/nozzles" },
+    { id: "bicos-parados", route: "/supervisors/nozzles-stopped" },
+    { id: "mangueiras", route: "/supervisors/hoses" },
+    { id: "lacre-bombas", route: "/supervisors/bomb-seal" },
+    { id: "limpeza-samp", route: "/supervisors/samp-cleaning" },
+    { id: "passagem-bomba", route: "/supervisors/bomb-passage" },
+    { id: "calibragem-bombas", route: "/supervisors/pump-calibration" },
+    { id: "game", route: "/supervisors/game" },
+    { id: "teste-combustiveis-venda", route: "/supervisors/fuel-sell-test" },
+    { id: "combustiveis-defesa", route: "/supervisors/turn" },
+    { id: "maquininhas-uso", route: "/supervisors/use-machines" },
+    { id: "maquininhas-quebradas", route: "/supervisors/broken-machines" },
+    { id: "escala-trabalho", route: "/supervisors/work-schedule" },
+    { id: "notas-fiscais", route: "/supervisors/fiscal-notes" },
+    { id: "documentos", route: "/supervisors/documents" },
   ];
 
   useEffect(() => {
@@ -65,67 +84,30 @@ export default function Home() {
       return;
     }
 
-    const fetchRoutine = async () => {
+    const fetchPosts = async () => {
       try {
         const docRef = doc(db, "USERS", storedUserId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const userData = docSnap.data();
-          const routineData = userData.routine || [];
-          setRoutine(routineData);
-
-          const today = new Date().toISOString().split("T")[0];
-          const todayRoutine = routineData
-            .flatMap((week: WeekRoutine) => week.week)
-            .find((day: RoutineDay) => day.date === today);
-
-          setCurrentDayRoutine(todayRoutine || null);
+          setPostsAvailable(userData.postsAvailable || []);
         }
       } catch (error) {
-        console.error("Erro ao buscar rotina:", error);
+        console.error("Erro ao buscar postos disponíveis:", error);
       }
     };
 
-    fetchRoutine();
+    fetchPosts();
   }, [router]);
 
-  const getCompletedTasks = useCallback(
-    async (shift: "firstShift" | "secondShift", date: string) => {
-      const userName = localStorage.getItem("userName");
-      if (!userName) return [];
-
-      const collectionRef = collection(db, "SUPERVISORS");
-      const querySnapshot = await getDocs(
-        query(
-          collectionRef,
-          where("date", "==", date),
-          where("shift", "==", shift),
-          where("supervisorName", "==", userName)
-        )
-      );
-
-      return querySnapshot.docs.map((doc) => doc.data().id);
-    },
-    []
-  );
-
-  const getNextTask = useCallback(
-    async (shift: "firstShift" | "secondShift", date: string) => {
-      const completedTasks = await getCompletedTasks(shift, date);
-      return (
-        tasksOrder.find((task) => !completedTasks.includes(task.id))?.route ||
-        null
-      );
-    },
-    [getCompletedTasks, tasksOrder]
-  );
-
-  const handleCardClick = async (shift: "firstShift" | "secondShift") => {
-    if (!currentDayRoutine || !currentDayRoutine[shift]) return;
-
+  const handleCardClick = async (
+    shift: "firstShift" | "secondShift",
+    post: PostOption
+  ) => {
     const now = new Date();
     const hour = now.getHours();
+
     if (
       (shift === "firstShift" && (hour < 8 || hour >= 14)) ||
       (shift === "secondShift" && (hour < 14 || hour >= 22))
@@ -134,16 +116,20 @@ export default function Home() {
       return;
     }
 
-    const nextTaskRoute = await getNextTask(shift, currentDayRoutine.date);
-    if (nextTaskRoute) {
-      router.push(
-        `${nextTaskRoute}?post=${encodeURIComponent(
-          currentDayRoutine[shift]?.label || ""
-        )}&shift=${shift}`
-      );
-    } else {
-      alert("Todas as tarefas já foram concluídas.");
+    if (
+      (shift === "firstShift" && selectedPosts.secondShift === post.value) ||
+      (shift === "secondShift" && selectedPosts.firstShift === post.value)
+    ) {
+      alert("O mesmo posto não pode ser selecionado para ambos os turnos.");
+      return;
     }
+
+    const nextTaskRoute = tasksOrder[0].route;
+    setSelectedPosts((prev) => ({ ...prev, [shift]: post.value }));
+
+    router.push(
+      `${nextTaskRoute}?post=${encodeURIComponent(post.label)}&shift=${shift}`
+    );
   };
 
   return (
@@ -158,30 +144,36 @@ export default function Home() {
           <HeaderHome />
           <div className={styles.CardsMenusContainer}>
             <div className={styles.CardsMenus}>
-              {currentDayRoutine ? (
-                ["firstShift", "secondShift"].map(
-                  (shift) =>
-                    // @ts-ignore
-                    currentDayRoutine[shift] && (
+              {postsAvailable.length > 0 ? (
+                ["firstShift", "secondShift"].map((shift) => (
+                  <div key={shift} className={styles.CardsMenus}>
+                    {postsAvailable.map((post) => (
                       <div
-                        key={shift}
+                        key={post.value}
                         className={styles.CardMenu}
-                        // @ts-ignore
-                        onClick={() => handleCardClick(shift)}
+                        onClick={() =>
+                          handleCardClick(
+                            shift as "firstShift" | "secondShift",
+                            post
+                          )
+                        }
                       >
-                        <span className={styles.CardMenuText}>
-                          {shift === "firstShift" ? "08-14h" : "14-22h"}:{" "}
-                          {
-                            // @ts-ignore
-                            currentDayRoutine[shift]?.label
-                          }
-                        </span>
+                        <span className={styles.CardMenuText}>{`${
+                          post.label
+                        } - ${
+                          shift === "firstShift"
+                            ? "Primeiro turno"
+                            : "Segundo turno"
+                        }`}</span>
                       </div>
-                    )
-                )
+                    ))}
+                  </div>
+                ))
               ) : (
                 <div className={styles.CardMenu}>
-                  <span className={styles.CardMenuText}>Sem postos hoje</span>
+                  <span className={styles.CardMenuText}>
+                    Sem postos disponíveis
+                  </span>
                 </div>
               )}
             </div>

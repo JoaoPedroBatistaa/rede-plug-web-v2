@@ -10,8 +10,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
-import dynamic from "next/dynamic";
 import AsyncSelect from "react-select/async";
+
+import dynamic from "next/dynamic";
 const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
   ssr: false,
 });
@@ -38,6 +39,7 @@ export default function EditSupervisor() {
   const [ipAddress, setIpAddress] = useState("");
   const [editIp, setEditIp] = useState(false);
   const [posts, setPosts] = useState<PostOption[]>([]);
+  const [supervisorPosts, setSupervisorPosts] = useState<PostOption[]>([]);
 
   const [name, setName] = useState<string>("");
   const [contact, setContact] = useState<string>("");
@@ -82,20 +84,28 @@ export default function EditSupervisor() {
       try {
         const response = await fetch("/api/posts");
         const data = await response.json();
-        const sortedPosts = data
-          .map((post: any) => ({ label: post.name, value: post.id }))
-          .sort((a: { label: string }, b: { label: string }) =>
-            a.label.localeCompare(b.label)
-          );
-
-        setPosts(sortedPosts);
+        setPosts(
+          data.map((post: any) => ({ label: post.name, value: post.id }))
+        );
       } catch (error) {
         console.error("Erro ao buscar postos:", error);
       }
     };
-
     fetchPosts();
   }, []);
+
+  const handleAddPost = (selectedPost: PostOption | null) => {
+    if (
+      selectedPost &&
+      !supervisorPosts.some((p) => p.value === selectedPost.value)
+    ) {
+      setSupervisorPosts([...supervisorPosts, selectedPost]);
+    }
+  };
+
+  const handleRemovePost = (postId: string) => {
+    setSupervisorPosts(supervisorPosts.filter((post) => post.value !== postId));
+  };
 
   const filterPosts = (inputValue: string) => {
     return posts.filter((post) =>
@@ -136,7 +146,7 @@ export default function EditSupervisor() {
         email,
         password,
         editIp,
-        routine: updatedRoutine,
+        postsAvailable: supervisorPosts,
       };
 
       // Somente adicionar IpAddress se ele estiver definido
@@ -156,239 +166,6 @@ export default function EditSupervisor() {
     }
   };
 
-  const getNextMonday = () => {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-
-    const daysUntilNextMonday = (1 + 7 - dayOfWeek) % 7;
-
-    const nextMonday = new Date(today);
-    nextMonday.setDate(today.getDate() + daysUntilNextMonday);
-
-    return nextMonday;
-  };
-
-  const handleAddRoutine = () => {
-    if (!startDate || !endDate) {
-      toast.error("Selecione o período da nova rotina.");
-      return;
-    }
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const newWeek: RoutineDay[] = [];
-
-    console.log("Período selecionado:", startDate, "até", endDate);
-
-    while (start.getTime() <= end.getTime()) {
-      // Inclui a data final corretamente
-      console.log("Adicionando dia:", start.toISOString().split("T")[0]);
-
-      newWeek.push({
-        date: start.toISOString().split("T")[0],
-        firstShift: null,
-        secondShift: null,
-      });
-
-      start.setDate(start.getDate() + 1);
-    }
-
-    if (newWeek.length === 0) {
-      toast.error("Selecione um período válido.");
-      return;
-    }
-
-    const newRoutine: WeekRoutine = { week: newWeek, isFromDatabase: false };
-    setRoutine((prevRoutine) => [...prevRoutine, newRoutine]);
-    toast.success("Nova rotina adicionada com sucesso!");
-  };
-
-  const handleRoutineChange = (
-    dayIndex: number,
-    shift: "firstShift" | "secondShift",
-    value: PostOption | null
-  ) => {
-    const updatedRoutine = [...routine];
-
-    // Identifica o índice da última semana (maior índice)
-    const lastWeekIndex = updatedRoutine.length - 1;
-
-    console.log("Tentando alterar a última rotina", {
-      dayIndex,
-      shift,
-      value,
-      lastWeekIndex,
-    });
-
-    // Atualiza o turno na última semana
-    updatedRoutine[lastWeekIndex].week[dayIndex][shift] = value;
-    console.log("Última semana atualizada:", updatedRoutine);
-
-    setRoutine(updatedRoutine);
-  };
-
-  const renderRoutine = () => {
-    return routine
-      .filter((weekObj) => !weekObj.isFromDatabase)
-      .map((weekObj, weekIndex) => (
-        <div key={weekIndex} className={styles.week}>
-          {weekObj.week.map((day, dayIndex) => {
-            const dayDate = new Date(day.date + "T00:00:00-03:00");
-            const formattedDate = dayDate.toLocaleDateString("pt-BR", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            });
-            const dayName = new Intl.DateTimeFormat("pt-BR", {
-              weekday: "long",
-            }).format(dayDate);
-
-            return (
-              <div key={dayIndex} className={styles.day}>
-                <p
-                  className={styles.dayTitle}
-                >{`${dayName} - ${formattedDate}`}</p>
-                <div className={styles.InputContainer}>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Primeiro turno (8h-14h)</p>
-                    <AsyncSelect
-                      cacheOptions
-                      loadOptions={loadOptions}
-                      defaultOptions={posts}
-                      value={day.firstShift}
-                      onChange={(selectedOption) =>
-                        handleRoutineChange(
-                          dayIndex,
-                          "firstShift",
-                          selectedOption
-                        )
-                      }
-                      placeholder="Selecione o posto"
-                      className={styles.SelectFieldSearch}
-                    />
-                  </div>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Segundo turno (14h-22h)</p>
-                    <AsyncSelect
-                      cacheOptions
-                      loadOptions={loadOptions}
-                      defaultOptions={posts}
-                      value={day.secondShift}
-                      onChange={(selectedOption) =>
-                        handleRoutineChange(
-                          dayIndex,
-                          "secondShift",
-                          selectedOption
-                        )
-                      }
-                      placeholder="Selecione o posto"
-                      className={styles.SelectFieldSearch}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ));
-  };
-
-  const renderExistingRoutine = () => {
-    console.log("Rotinas no estado:", routine);
-
-    const databaseRoutines = routine
-      .filter((weekObj) => weekObj.isFromDatabase)
-      .reverse();
-
-    console.log("Rotinas carregadas do banco:", databaseRoutines);
-
-    if (databaseRoutines.length === 0) {
-      console.log("Nenhuma rotina do banco encontrada.");
-      return <p>Nenhuma rotina existente encontrada.</p>;
-    }
-
-    return databaseRoutines.map((weekObj, weekIndex) => (
-      <div key={weekIndex} className={styles.week}>
-        {weekObj.week && weekObj.week.length > 0 ? (
-          weekObj.week.map((day, dayIndex) => {
-            console.log("Processando dia:", day);
-
-            if (!day || !day.date) {
-              console.log("Dia inválido encontrado:", day);
-              return null;
-            }
-
-            const dayDate = new Date(day.date + "T00:00:00-03:00");
-            const formattedDate = dayDate.toLocaleDateString("pt-BR", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            });
-            const dayName = new Intl.DateTimeFormat("pt-BR", {
-              weekday: "long",
-            }).format(dayDate);
-
-            const isLastRoutine = weekIndex === 0; // Apenas a última rotina será editável
-
-            return (
-              <div key={dayIndex} className={styles.day}>
-                <p
-                  className={styles.dayTitle}
-                >{`${dayName} - ${formattedDate}`}</p>
-                <div className={styles.InputContainer}>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Primeiro turno (8h-14h)</p>
-                    <AsyncSelect
-                      cacheOptions
-                      loadOptions={loadOptions}
-                      defaultOptions={posts}
-                      value={day.firstShift}
-                      onChange={
-                        isLastRoutine
-                          ? (selectedOption) =>
-                              handleRoutineChange(
-                                dayIndex,
-                                "firstShift",
-                                selectedOption
-                              )
-                          : undefined
-                      }
-                      isDisabled={!isLastRoutine} // Apenas a última rotina será editável
-                      className={styles.SelectFieldSearch}
-                    />
-                  </div>
-                  <div className={styles.InputField}>
-                    <p className={styles.FieldLabel}>Segundo turno (14h-22h)</p>
-                    <AsyncSelect
-                      cacheOptions
-                      loadOptions={loadOptions}
-                      defaultOptions={posts}
-                      value={day.secondShift}
-                      onChange={
-                        isLastRoutine
-                          ? (selectedOption) =>
-                              handleRoutineChange(
-                                dayIndex,
-                                "secondShift",
-                                selectedOption
-                              )
-                          : undefined
-                      }
-                      isDisabled={!isLastRoutine} // Apenas a última rotina será editável
-                      className={styles.SelectFieldSearch}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <p>Nenhuma semana encontrada nesta rotina.</p>
-        )}
-      </div>
-    ));
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       const docId = Array.isArray(router.query.id)
@@ -406,17 +183,7 @@ export default function EditSupervisor() {
           setEmail(postData.email);
           setPassword(postData.password);
           setIpAddress(postData.ipAddress);
-
-          // Certifique-se de que as rotinas estão sendo corretamente carregadas
-          if (postData.routine) {
-            const existingRoutines = postData.routine.map((routine: any) => ({
-              week: routine.week,
-              isFromDatabase: true, // Define que essas rotinas vêm do banco de dados
-            }));
-
-            console.log("Rotinas existentes carregadas:", existingRoutines);
-            setRoutine(existingRoutines); // Armazena as rotinas no estado
-          }
+          setSupervisorPosts(postData.postsAvailable);
         }
       }
     };
@@ -517,39 +284,6 @@ export default function EditSupervisor() {
           </div>
 
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Dispositivo do supervisor</p>
-          </div>
-
-          <p className={styles.Notes}>
-            Veja abaixo o endereço IP do dispositivo validado do supervisor no
-            sistema e se desejar habilite a vaidação de um novo dispositivo
-          </p>
-
-          <div className={styles.InputContainer}>
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Endereço IP cadastrado</p>
-              <input
-                type="text"
-                value={ipAddress}
-                className={styles.Field}
-                disabled
-              />
-            </div>
-
-            <div className={styles.InputField}>
-              <p className={styles.FieldLabel}>Habilitar novo dispositivo</p>
-              <button
-                className={styles.locationButton}
-                onClick={handleEnableNewDevice}
-              >
-                {editIp
-                  ? "Habilitado novo cadastro"
-                  : "Habilitar novo cadastro"}
-              </button>
-            </div>
-          </div>
-
-          <div className={styles.BudgetHead}>
             <p className={styles.BudgetTitle}>Produtividade do supervisor</p>
           </div>
 
@@ -572,46 +306,35 @@ export default function EditSupervisor() {
           </div>
 
           <div className={styles.BudgetHead}>
-            <p className={styles.BudgetTitle}>Programação</p>
-            <div className={styles.BudgetHeadS}>
-              <p>De</p>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className={styles.Field}
-                placeholder="De"
-              />
-              <p>Até</p>
+            <p className={styles.BudgetTitle}>Postos do supervisor</p>
+          </div>
 
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className={styles.Field}
-                placeholder="Até"
+          <div className={styles.InputContainerPost}>
+            <div className={styles.InputField}>
+              <p className={styles.FieldLabel}>Selecione um Posto</p>
+              <AsyncSelect
+                cacheOptions
+                loadOptions={loadOptions}
+                defaultOptions={posts}
+                onChange={handleAddPost}
+                placeholder="Selecione um posto"
               />
-              <button className={styles.editButton} onClick={handleAddRoutine}>
-                <img
-                  src="/plus.png"
-                  alt="Adicionar rotina"
-                  className={styles.buttonImage}
-                />
-                <span className={styles.buttonText}>Nova rotina</span>
-              </button>
             </div>
           </div>
-          <p className={styles.Notes}>
-            Selecione o período e defina em qual posto o supervisor atuará.
-          </p>
 
-          <p className={styles.Notes}>
-            Altere abaixo as rotinas do supervisor, para definir em qual posto
-            ele deverá atuar em determinada data/turno
-          </p>
-
-          {renderRoutine()}
-          {renderExistingRoutine()}
+          <div className={styles.postList}>
+            {supervisorPosts.map((post) => (
+              <div key={post.value} className={styles.postItem}>
+                <p>{post.label}</p>
+                <button
+                  className={styles.editButton}
+                  onClick={() => handleRemovePost(post.value)}
+                >
+                  Remover
+                </button>
+              </div>
+            ))}
+          </div>
 
           <div className={styles.Copyright}>
             <p className={styles.Copy}>
