@@ -323,17 +323,18 @@ export default function EditSupervisor() {
           </div>
 
           <div className={styles.postList}>
-            {supervisorPosts.map((post) => (
-              <div key={post.value} className={styles.postItem}>
-                <p>{post.label}</p>
-                <button
-                  className={styles.editButton}
-                  onClick={() => handleRemovePost(post.value)}
-                >
-                  Remover
-                </button>
-              </div>
-            ))}
+            {Array.isArray(supervisorPosts) &&
+              supervisorPosts.map((post) => (
+                <div key={post.value} className={styles.postItem}>
+                  <p>{post.label}</p>
+                  <button
+                    className={styles.editButton}
+                    onClick={() => handleRemovePost(post.value)}
+                  >
+                    Remover
+                  </button>
+                </div>
+              ))}
           </div>
 
           <div className={styles.Copyright}>
