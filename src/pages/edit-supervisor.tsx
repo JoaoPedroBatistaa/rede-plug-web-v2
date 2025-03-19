@@ -103,9 +103,9 @@ export default function EditSupervisor() {
   const handleAddPost = () => {
     if (
       selectedPost &&
-      !supervisorPosts.some((p) => p.value === selectedPost.value)
+      !(supervisorPosts ?? []).some((p) => p.value === selectedPost.value)
     ) {
-      setSupervisorPosts([...supervisorPosts, selectedPost]);
+      setSupervisorPosts([...(supervisorPosts ?? []), selectedPost]);
       setSelectedPost(null); // Resetando após adicionar
     }
   };
