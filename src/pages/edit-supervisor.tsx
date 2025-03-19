@@ -94,12 +94,19 @@ export default function EditSupervisor() {
     fetchPosts();
   }, []);
 
-  const handleAddPost = (selectedPost: PostOption | null) => {
+  const [selectedPost, setSelectedPost] = useState<PostOption | null>(null);
+
+  const handleSelectPost = (selectedPost: PostOption | null) => {
+    setSelectedPost(selectedPost);
+  };
+
+  const handleAddPost = () => {
     if (
       selectedPost &&
       !supervisorPosts.some((p) => p.value === selectedPost.value)
     ) {
       setSupervisorPosts([...supervisorPosts, selectedPost]);
+      setSelectedPost(null); // Resetando após adicionar
     }
   };
 
@@ -316,10 +323,22 @@ export default function EditSupervisor() {
                 cacheOptions
                 loadOptions={loadOptions}
                 defaultOptions={posts}
-                onChange={handleAddPost}
+                onChange={handleSelectPost}
                 placeholder="Selecione um posto"
               />
             </div>
+
+            {selectedPost && (
+              <>
+                <div className={styles.InputField}>
+                  <p className={styles.FieldLabel}>Adicionar</p>
+
+                  <button className={styles.editButton} onClick={handleAddPost}>
+                    Adicionar Posto
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           <div className={styles.postList}>

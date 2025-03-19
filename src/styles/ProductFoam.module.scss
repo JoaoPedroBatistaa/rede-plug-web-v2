@@ -335,8 +335,6 @@
   gap: 1rem;
   margin-bottom: 2rem;
 
-  width: 19rem;
-
   .InputField {
     display: flex;
     flex-direction: column;
@@ -345,6 +343,12 @@
     margin-top: 0.5rem;
 
     width: 100%;
+
+    width: 19rem;
+  }
+
+  select {
+    color: #000;
   }
 }
 
@@ -729,6 +733,29 @@
     align-items: center;
   }
 
+  .InputContainerPost {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    .InputField {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      margin-top: 0.5rem;
+
+      width: 100%;
+
+      width: 19rem;
+    }
+
+    select {
+      color: #000;
+    }
+  }
+
   .FinishTask {
     position: fixed;
     bottom: 0;
@@ -754,7 +781,7 @@
   }
 
   .editButton {
-    width: 6rem;
+    width: 12rem;
   }
 
   .SelectFieldSearch {
