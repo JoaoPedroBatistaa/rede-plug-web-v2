@@ -298,6 +298,8 @@ export default function DigitalPointTask() {
 
       toast.success("Tarefa de ponto digital salva com sucesso!");
       localStorage.removeItem("isInspection");
+      localStorage.removeItem("etanolImageUrl");
+      localStorage.removeItem("etanolFileName");
 
       router.push(
         `/supervisors/surprise-box?post=${encodeURIComponent(

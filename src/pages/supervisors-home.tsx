@@ -1,9 +1,16 @@
 import HeaderHome from "@/components/HeaderSupervisors";
 import SideMenuHome from "@/components/SideMenuHome";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { db } from "../../firebase";
 import styles from "../styles/Home.module.scss";
 
@@ -29,9 +36,15 @@ export default function Home() {
     secondShift: null,
   });
   const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const tasksOrder: Task[] = [
     { id: "digital_point", route: "/supervisors/point" },
+    { id: "caixa-surpresa", route: "/supervisors/surprise-box" },
+    { id: "uniformes", route: "/supervisors/uniforms" },
+    { id: "atendimento", route: "/supervisors/service" },
+    { id: "limpeza-pista", route: "/supervisors/track-cleaning" },
+    { id: "limpeza-bombas", route: "/supervisors/bombs-cleaning" },
     { id: "limpeza-testeiras", route: "/supervisors/front-cleaning" },
     { id: "limpeza-banheiros", route: "/supervisors/bathroom-cleaning" },
     { id: "vestiario", route: "/supervisors/locker-room" },
@@ -77,7 +90,9 @@ export default function Home() {
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
+    const storedUserName = localStorage.getItem("userName");
     setUserId(storedUserId);
+    setUserName(storedUserName);
 
     if (!storedUserId) {
       router.push("/");
@@ -101,12 +116,56 @@ export default function Home() {
     fetchPosts();
   }, [router]);
 
+  const getCompletedTasks = useCallback(
+    async (shift: string, date: string, post: string) => {
+      if (!userName) return [];
+
+      const collectionRef = collection(db, "SUPERVISORS");
+      const querySnapshot = await getDocs(
+        query(
+          collectionRef,
+          where("date", "==", date),
+          where("shift", "==", shift),
+          where("supervisorName", "==", userName),
+          where("postName", "==", post)
+        )
+      );
+
+      return querySnapshot.docs.map((doc) => doc.data().id);
+    },
+    [userName]
+  );
+
+  const getNextTask = useCallback(
+    async (shift: string, date: string, post: string) => {
+      const completedTasks = await getCompletedTasks(shift, date, post);
+      return (
+        tasksOrder.find((task) => !completedTasks.includes(task.id))?.route ||
+        tasksOrder[0].route
+      );
+    },
+    [getCompletedTasks, tasksOrder]
+  );
+
   const handleCardClick = async (
     shift: "firstShift" | "secondShift",
     post: PostOption
   ) => {
     const now = new Date();
+    const date = now.toISOString().split("T")[0];
     const hour = now.getHours();
+
+    const oppositeShift = shift === "firstShift" ? "secondShift" : "firstShift";
+
+    const completedTasksOppositeShift = await getCompletedTasks(
+      oppositeShift,
+      date,
+      post.label
+    );
+    if (completedTasksOppositeShift.length > 0) {
+      alert("Este posto já foi selecionado no outro turno.");
+      return;
+    }
 
     if (
       (shift === "firstShift" && (hour < 8 || hour >= 14)) ||
@@ -116,17 +175,8 @@ export default function Home() {
       return;
     }
 
-    if (
-      (shift === "firstShift" && selectedPosts.secondShift === post.value) ||
-      (shift === "secondShift" && selectedPosts.firstShift === post.value)
-    ) {
-      alert("O mesmo posto não pode ser selecionado para ambos os turnos.");
-      return;
-    }
-
-    const nextTaskRoute = tasksOrder[0].route;
+    const nextTaskRoute = await getNextTask(shift, date, post.label);
     setSelectedPosts((prev) => ({ ...prev, [shift]: post.value }));
-
     router.push(
       `${nextTaskRoute}?post=${encodeURIComponent(post.label)}&shift=${shift}`
     );
