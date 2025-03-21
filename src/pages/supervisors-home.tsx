@@ -192,6 +192,7 @@ export default function Home() {
             }
 
             setReportEligibility(eligibility);
+            console.log(eligibility);
             setCompletedTasks(completedMap);
           }
         } catch (error) {
