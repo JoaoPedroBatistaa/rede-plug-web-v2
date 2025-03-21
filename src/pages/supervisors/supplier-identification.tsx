@@ -343,7 +343,7 @@ export default function NewPost() {
       observations,
       coordinates,
       shift,
-      pumps: pumpUrls,
+      pumps,
       id: "identificacao-fornecedor",
     };
 
@@ -362,13 +362,13 @@ export default function NewPost() {
 
     console.log(`Supervisor is within radius: ${isWithinRadius}`);
 
-    if (!isWithinRadius && coordinates.lat && coordinates.lng) {
-      toast.error(
-        "Você não está dentro do raio permitido para realizar essa tarefa."
-      );
-      setIsLoading(false);
-      return;
-    }
+    // if (!isWithinRadius && coordinates.lat && coordinates.lng) {
+    //   toast.error(
+    //     "Você não está dentro do raio permitido para realizar essa tarefa."
+    //   );
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     try {
       // await sendMessage(taskData);

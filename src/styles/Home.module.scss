@@ -16,6 +16,48 @@
   font-weight: 600;
 }
 
+.editButton {
+  width: 23em;
+  height: 2.7rem;
+  border-radius: 1rem;
+  background-color: #000000;
+  border: none;
+  cursor: pointer;
+
+  margin-top: 1.5rem;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  color: #fff;
+  font-family: "Syne", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+
+  .buttonImage {
+    display: none;
+  }
+
+  .buttonText {
+    display: block; // Mostra o texto por padrão
+    color: #fff;
+    font-family: "Syne", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .buttonImage {
+      display: block;
+    }
+
+    .buttonText {
+      display: none; // Esconde o texto em telas pequenas
+    }
+  }
+}
+
 .week {
   display: flex;
   flex-direction: column;
@@ -709,6 +751,48 @@
     margin-top: -2.5rem;
   }
 
+  .editButton {
+    width: 16em;
+    height: 2.7rem;
+    border-radius: 1rem;
+    background-color: #000000;
+    border: none;
+    cursor: pointer;
+
+    margin-top: 1.5rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: #fff;
+    font-family: "Syne", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+
+    .buttonImage {
+      display: none;
+    }
+
+    .buttonText {
+      display: block; // Mostra o texto por padrão
+      color: #fff;
+      font-family: "Syne", sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .buttonImage {
+        display: block;
+      }
+
+      .buttonText {
+        display: none; // Esconde o texto em telas pequenas
+      }
+    }
+  }
+
   .title {
     margin-left: 1rem;
 
@@ -728,7 +812,7 @@
   }
 
   .CardMenu {
-    padding: 2rem;
+    padding: 1.5rem;
 
     border-top: 1px #b6b6b6 solid;
     border-bottom: 1px #b6b6b6 solid;
