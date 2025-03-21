@@ -151,64 +151,71 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const run = async () => {
-      const storedUserId = localStorage.getItem("userId");
-      const storedUserName = localStorage.getItem("userName");
-      setUserId(storedUserId);
-      setUserName(storedUserName);
+    const storedUserId = localStorage.getItem("userId");
+    const storedUserName = localStorage.getItem("userName");
 
-      if (!storedUserId) {
-        router.push("/");
-        return;
-      }
+    setUserId(storedUserId);
+    setUserName(storedUserName);
 
-      const fetchPosts = async () => {
-        try {
-          const docRef = doc(db, "USERS", storedUserId);
-          const docSnap = await getDoc(docRef);
+    if (!storedUserId) {
+      router.push("/");
+      return;
+    }
 
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
-            const posts = userData.postsAvailable || [];
-            setPostsAvailable(posts);
+    fetchCompletedTasksData(storedUserId, {
+      setPostsAvailable,
+      setReportEligibility,
+      setCompletedTasks,
+    });
+  }, []);
 
-            const date = new Date().toISOString().split("T")[0];
-            const shifts = ["firstShift", "secondShift"];
+  const fetchCompletedTasksData = async (
+    userId: string,
+    setStates: {
+      setPostsAvailable: (posts: any[]) => void;
+      setReportEligibility: (data: { [key: string]: boolean }) => void;
+      setCompletedTasks: (data: { [key: string]: string[] }) => void;
+    }
+  ) => {
+    try {
+      const docRef = doc(db, "USERS", userId);
+      const docSnap = await getDoc(docRef);
 
-            const eligibility: { [key: string]: boolean } = {};
-            const completedMap: { [key: string]: string[] } = {};
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        const posts = userData.postsAvailable || [];
+        setStates.setPostsAvailable(posts);
 
-            for (const shift of shifts) {
-              for (const post of posts) {
-                const completed = await getCompletedTasks(
-                  shift,
-                  date,
-                  post.label
-                );
-                const key = `${post.label}_${shift}`;
-                eligibility[key] = completed.length > 30;
-                completedMap[key] = completed;
-              }
-            }
+        const date = new Date().toISOString().split("T")[0];
+        const shifts = ["firstShift", "secondShift"];
 
-            setReportEligibility(eligibility);
-            console.log(eligibility);
-            setCompletedTasks(completedMap);
+        const eligibility: { [key: string]: boolean } = {};
+        const completedMap: { [key: string]: string[] } = {};
+
+        for (const shift of shifts) {
+          for (const post of posts) {
+            const completed = await getCompletedTasks(shift, date, post.label);
+            const key = `${post.label}_${shift}`;
+            eligibility[key] = completed.length > 30;
+            completedMap[key] = completed;
           }
-        } catch (error) {
-          console.error("Erro ao buscar postos disponíveis:", error);
         }
-      };
 
-      fetchPosts();
-    };
+        console.log(completedMap);
 
-    run();
-  }, [router]);
+        setStates.setReportEligibility(eligibility);
+        setStates.setCompletedTasks(completedMap);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar postos disponíveis:", error);
+    }
+  };
 
   const getCompletedTasks = useCallback(
     async (shift: string, date: string, post: string) => {
       if (!userName) return [];
+
+      console.log(date);
 
       const collectionRef = collection(db, "SUPERVISORS");
       const querySnapshot = await getDocs(
