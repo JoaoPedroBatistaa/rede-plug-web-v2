@@ -178,6 +178,8 @@ export default function Home() {
     }
   ) => {
     try {
+      console.log(userId);
+
       const docRef = doc(db, "USERS", userId);
       const docSnap = await getDoc(docRef);
 
@@ -185,6 +187,8 @@ export default function Home() {
         const userData = docSnap.data();
         const posts = userData.postsAvailable || [];
         setStates.setPostsAvailable(posts);
+
+        console.log(posts);
 
         const date = new Date().toISOString().split("T")[0];
         const shifts = ["firstShift", "secondShift"];
@@ -228,6 +232,7 @@ export default function Home() {
         )
       );
 
+      console.log(querySnapshot.docs.map((doc) => doc.data().id));
       return querySnapshot.docs.map((doc) => doc.data().id);
     },
     [userName]

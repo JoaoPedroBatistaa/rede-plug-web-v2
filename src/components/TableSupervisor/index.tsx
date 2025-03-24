@@ -29,7 +29,7 @@ export default function TablePosts({
   const [teste, setTeste] = useState<Supervisor[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   let userId: string | null;
   if (typeof window !== "undefined") {
     userId = window.localStorage.getItem("userId");
