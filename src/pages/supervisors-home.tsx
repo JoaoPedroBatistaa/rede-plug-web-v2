@@ -178,41 +178,74 @@ export default function Home() {
     }
   ) => {
     try {
-      console.log(userId);
-
       const docRef = doc(db, "USERS", userId);
       const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        const posts = userData.postsAvailable || [];
-        setStates.setPostsAvailable(posts);
+      if (!docSnap.exists()) return;
 
-        console.log(posts);
+      const userData = docSnap.data();
+      const posts = userData.postsAvailable || [];
+      setStates.setPostsAvailable(posts);
 
-        const date = new Date().toISOString().split("T")[0];
-        const shifts = ["firstShift", "secondShift"];
+      const userName = userData.name || "";
+      const date = new Date().toISOString().split("T")[0];
+      const shifts = ["firstShift", "secondShift"];
 
-        const eligibility: { [key: string]: boolean } = {};
-        const completedMap: { [key: string]: string[] } = {};
+      const eligibility: { [key: string]: boolean } = {};
+      const completedMap: { [key: string]: string[] } = {};
 
-        for (const shift of shifts) {
-          for (const post of posts) {
-            const completed = await getCompletedTasks(shift, date, post.label);
-            const key = `${post.label}_${shift}`;
-            eligibility[key] = completed.length > 30;
-            completedMap[key] = completed;
-          }
-        }
+      for (const shift of shifts) {
+        const docs = await fetchTasksByShiftAndDate(userName, date, shift);
+        const grouped = groupTasksByPost(docs);
 
-        console.log(completedMap);
-
-        setStates.setReportEligibility(eligibility);
-        setStates.setCompletedTasks(completedMap);
+        posts.forEach((post: any) => {
+          const key = `${post.label}_${shift}`;
+          const completed = grouped[post.label] || [];
+          completedMap[key] = completed;
+          eligibility[key] = completed.length > 30;
+        });
       }
+
+      setStates.setCompletedTasks(completedMap);
+      setStates.setReportEligibility(eligibility);
     } catch (error) {
-      console.error("Erro ao buscar postos disponíveis:", error);
+      console.error("Erro ao buscar tarefas concluídas:", error);
     }
+  };
+
+  const fetchTasksByShiftAndDate = async (
+    supervisorName: string,
+    date: string,
+    shift: string
+  ) => {
+    const collectionRef = collection(db, "SUPERVISORS");
+    const querySnapshot = await getDocs(
+      query(
+        collectionRef,
+        where("date", "==", date),
+        where("shift", "==", shift),
+        where("supervisorName", "==", supervisorName)
+      )
+    );
+
+    return querySnapshot.docs.map((doc) => doc.data());
+  };
+
+  const groupTasksByPost = (docs: any[]): { [post: string]: string[] } => {
+    const grouped: { [post: string]: string[] } = {};
+
+    docs.forEach((doc) => {
+      const post = doc.postName;
+      const taskId = doc.id;
+
+      if (!grouped[post]) {
+        grouped[post] = [];
+      }
+
+      grouped[post].push(taskId);
+    });
+
+    return grouped;
   };
 
   const getCompletedTasks = useCallback(
