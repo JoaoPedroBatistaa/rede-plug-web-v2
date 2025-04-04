@@ -147,7 +147,6 @@ export default function Home() {
     { id: "maquininhas-quebradas", route: "/supervisors/broken-machines" },
     { id: "escala-trabalho", route: "/supervisors/work-schedule" },
     { id: "notas-fiscais", route: "/supervisors/fiscal-notes" },
-    { id: "documentos", route: "/supervisors/documents" },
   ];
 
   useEffect(() => {

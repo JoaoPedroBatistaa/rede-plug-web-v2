@@ -298,12 +298,7 @@ export default function NewPost() {
       await addDoc(collection(db, "SUPERVISORS"), taskData);
       toast.success("Tarefa salva com sucesso!");
 
-      router.push(
-        // @ts-ignore
-        `/supervisors/documents?post=${encodeURIComponent(postName)}&shift=${
-          shift as string
-        }`
-      );
+      router.push("/supervisors-home");
     } catch (error) {
       console.error("Erro ao salvar os dados da tarefa: ", error);
       toast.error("Erro ao salvar a medição.");
