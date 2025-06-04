@@ -24,6 +24,21 @@ import dynamic from "next/dynamic";
 const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
   ssr: false,
 });
+
+interface Pump {
+  liters: string;
+  isOk: string; // "ok", "nao ok", or ""
+  image1File?: File | null;
+  image1Preview?: string;
+  image1Url?: string;
+  image1Name?: string;
+  [key: string]: any; // Allows for dynamic properties like imageNFile, imageNPreview
+}
+
+const specialPosts = [
+  "Vena", "Orense", "Oratório", "Maricar", "Mandaqui",
+  "Golf", "Conselheiro", "Cantareira",
+];
 async function compressImage(file: File) {
   const options = {
     maxSizeMB: 1,
@@ -52,9 +67,11 @@ async function compressImage(file: File) {
 
 export default function NewPost() {
   const router = useRouter();
-  const postName = router.query.post;
+  const postName = router.query.post as string;
   const docId = router.query.docId;
   const shift = router.query.shift;
+
+  const isSpecialPost = postName ? specialPosts.includes(postName) : false;
 
   const [data, setData] = useState(null);
 
@@ -70,12 +87,32 @@ export default function NewPost() {
     const storedDate = localStorage.getItem("date");
     const storedTime = localStorage.getItem("time");
     const storedObservations = localStorage.getItem("observations");
-    const storedPumps = JSON.parse(localStorage.getItem("pumps") || "[]");
+    const storedPumpsRaw = localStorage.getItem("pumps");
 
     if (storedDate) setDate(storedDate);
     if (storedTime) setTime(storedTime);
     if (storedObservations) setObservations(storedObservations);
-    if (storedPumps.length > 0) setPumps(storedPumps);
+
+    if (storedPumpsRaw) {
+      try {
+        const loadedPumpsFromStorage: Pump[] = JSON.parse(storedPumpsRaw).map(
+          (p: any) => ({
+            liters: p.liters || "",
+            isOk: p.isOk || "",
+            image1File: null, // File objects are not stored directly
+            image1Preview: p.image1Preview || "",
+            image1Url: p.image1Url || "",
+            image1Name: p.image1Name || "",
+          })
+        );
+        if (loadedPumpsFromStorage.length > 0) {
+          setPumps(loadedPumpsFromStorage);
+        }
+      } catch (e) {
+        console.error("Error parsing pumps from localStorage", e);
+        setPumps([]); // Initialize as empty if parsing fails
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -193,7 +230,7 @@ export default function NewPost() {
   const [observations, setObservations] = useState("");
 
   const [numberOfPumps, setNumberOfPumps] = useState(0);
-  const [pumps, setPumps] = useState([]);
+  const [pumps, setPumps] = useState<Pump[]>([]);
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -340,14 +377,75 @@ export default function NewPost() {
     }
   };
 
-  const initializePumps = (num: any) => {
-    const newPumps = Array.from({ length: num }, () => ({
-      image1File: null,
-      image1Url: "",
-    }));
-    // @ts-ignore
-    setPumps(newPumps);
+  const initializePumps = (numPumpsStr: any) => {
+    const num = parseInt(numPumpsStr, 10);
+    if (isNaN(num) || num <= 0) {
+      setPumps([]);
+      localStorage.setItem("pumps", JSON.stringify([]));
+      return;
+    }
+    const newPumpsArray: Pump[] = Array(num)
+      .fill(null)
+      .map(() => ({
+        liters: "",
+        isOk: "",
+        image1File: null,
+        image1Preview: "",
+        image1Url: "",
+        image1Name: "",
+      }));
+    setPumps(newPumpsArray);
+    localStorage.setItem("pumps", JSON.stringify(newPumpsArray));
   };
+
+  useEffect(() => {
+    if (!isSpecialPost || pumps.length === 0) {
+      // If not a special post, or no pumps, isOk is manual or not applicable yet.
+      // However, if switching FROM a special post TO a non-special post,
+      // we might want to clear automatic 'isOk' values or leave them as manually editable.
+      // Current logic: they are left as is and become manually editable.
+      return;
+    }
+
+    const updatedPumps = pumps.map((pump) => {
+      let newIsOk = pump.isOk;
+      if (pump.liters && pump.liters.trim() !== "") {
+        let valStr = pump.liters.trim();
+        let litragemValueFloat: number;
+
+        // Normalize string to use '.' as decimal separator and remove thousand separators
+        if (valStr.includes(',') && valStr.includes('.')) {
+            // Handles formats like "1.234,56" (BR) or "1,234.56" (US)
+            if (valStr.lastIndexOf('.') < valStr.lastIndexOf(',')) { // BR format: 1.234,56
+                valStr = valStr.replace(/\./g, '').replace(',', '.');
+            } else { // US format: 1,234.56
+                valStr = valStr.replace(/,/g, '');
+            }
+        } else if (valStr.includes(',')) { // Only comma, e.g., "1234,56"
+            valStr = valStr.replace(',', '.');
+        }
+        // If only dot (e.g., "1234.56") or no separator (e.g., "1234"), 
+        // valStr is already suitable for parseFloat.
+
+        litragemValueFloat = parseFloat(valStr);
+        
+        if (!isNaN(litragemValueFloat)) {
+          const scaledValue = Math.round(litragemValueFloat * 1000);
+          newIsOk = scaledValue >= 19900 && scaledValue <= 20100 ? "ok" : "nao ok";
+        } else {
+          newIsOk = "nao ok"; // If parsing results in NaN
+        }
+      } else {
+        newIsOk = ""; // Clear status if litragem is empty or only whitespace
+      }
+      return pump.isOk !== newIsOk ? { ...pump, isOk: newIsOk } : pump;
+    });
+
+    if (updatedPumps.some((p, i) => p !== pumps[i])) {
+      setPumps(updatedPumps);
+      localStorage.setItem("pumps", JSON.stringify(updatedPumps));
+    }
+  }, [pumps.map(p => p.liters).join(','), isSpecialPost, pumps.length]);
 
   const getLocalISODate = () => {
     const date = new Date();
@@ -416,8 +514,10 @@ export default function NewPost() {
     }
 
     const pumpsData = pumps.map((pump) => ({
-      // @ts-ignore
-      image1: { url: pump.image1Url, name: pump.image1Name },
+      liters: pump.liters || "",
+      isOk: pump.isOk || "",
+      image1: { url: pump.image1Url || "", name: pump.image1Name || "" },
+      // Include other relevant pump data if needed
     }));
 
     const taskData = {
@@ -640,20 +740,37 @@ export default function NewPost() {
                         id={`liters-input-${index}`}
                         type="text"
                         className={styles.Field}
-                        // @ts-ignore
                         value={pump.liters || ""}
                         onChange={(e) => {
                           const newPumps = [...pumps];
-                          // @ts-ignore
-                          newPumps[index].liters = e.target.value;
+                          const updatedPump = { ...newPumps[index], liters: e.target.value };
+                          newPumps[index] = updatedPump;
                           setPumps(newPumps);
-                          localStorage.setItem(
-                            "pumps",
-                            JSON.stringify(newPumps)
-                          ); // Atualiza os dados dos pumps no localStorage
+                          localStorage.setItem("pumps", JSON.stringify(newPumps));
                         }}
                         placeholder={`Informe a litragem da bomba ${index + 1}`}
                       />
+                    </div>
+                    <div className={styles.InputField}>
+                      <p className={styles.FieldLabel}>Status Bico {index + 1}</p>
+                      <select
+                        id={`isOk-select-${index}`}
+                        className={styles.SelectField}
+                        value={pump.isOk}
+                        disabled={isSpecialPost}
+                        onChange={(e) => {
+                          if (isSpecialPost) return;
+                          const newPumps = [...pumps];
+                          const updatedPump = { ...newPumps[index], isOk: e.target.value };
+                          newPumps[index] = updatedPump;
+                          setPumps(newPumps);
+                          localStorage.setItem("pumps", JSON.stringify(newPumps));
+                        }}
+                      >
+                        <option value="">Selecione...</option>
+                        <option value="ok">OK</option>
+                        <option value="nao ok">Não OK</option>
+                      </select>
                     </div>
                   </div>
                 </div>

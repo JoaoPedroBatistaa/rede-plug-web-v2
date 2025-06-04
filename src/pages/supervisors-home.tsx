@@ -1220,7 +1220,7 @@ export default function Home() {
         const rowHeight = 8;
 
         const renderPumpHeader = () => {
-          const headers = ["Bico", "Mídia"];
+          const headers = ["Bico", "Mídia", "isOk"];
           docPdf.setFont("helvetica", "bold");
           for (let i = 0; i < headers.length; i++) {
             docPdf.rect(colX[i], y, colWidths[i], rowHeight);
@@ -1230,8 +1230,8 @@ export default function Home() {
           checkPageEnd();
         };
 
-        const renderPumpRow = (index: number, short1: string) => {
-          const values = [`Bico ${index + 1}`, short1];
+        const renderPumpRow = (index: number, short1: string, isOk: string) => {
+          const values = [`Bico ${index + 1}`, short1, isOk];
           docPdf.setFont("helvetica", "normal");
           for (let i = 0; i < values.length; i++) {
             docPdf.rect(colX[i], y, colWidths[i], rowHeight);
@@ -1267,7 +1267,7 @@ export default function Home() {
               }
             }
 
-            renderPumpRow(i, short1);
+            renderPumpRow(i, short1, isOk);
           }
         }
 
