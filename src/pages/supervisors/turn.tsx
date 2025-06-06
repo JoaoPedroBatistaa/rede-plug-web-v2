@@ -17,19 +17,30 @@ const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
   ssr: false,
 });
 async function compressImage(file: File) {
-  const options = {
-    maxSizeMB: 1,
-    maxWidthOrHeight: 1920,
-    useWebWorker: true,
-  };
-
-  try {
-    const compressedFile = await imageCompression(file, options);
-    return compressedFile;
-  } catch (error) {
-    console.error("Erro ao comprimir imagem:", error);
-    throw error;
+  // Se for vídeo, retorna o arquivo original sem compressão
+  if (file.type.startsWith('video/')) {
+    return file;
   }
+
+  // Se for imagem, aplica a compressão
+  if (file.type.startsWith('image/')) {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      throw error;
+    }
+  }
+
+  // Se não for nem imagem nem vídeo, lança erro
+  throw new Error("O arquivo deve ser uma imagem ou vídeo");
 }
 
 export default function NewPost() {
@@ -54,6 +65,8 @@ export default function NewPost() {
 
   const [etanolImageUrl, setEtanolImageUrl] = useState("");
   const [gasolineImageUrl, setGasolineImageUrl] = useState("");
+  const [etanolFileType, setEtanolFileType] = useState<"image" | "video" | null>(null);
+  const [gasolineFileType, setGasolineFileType] = useState<"image" | "video" | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,15 +76,23 @@ export default function NewPost() {
   const handleFileChange = async (
     event: ChangeEvent<HTMLInputElement>,
     setImageUrl: (url: string) => void,
+    setFileType: (type: "image" | "video" | null) => void,
     path: string
   ) => {
     const file = event.target.files?.[0];
     if (file) {
       setIsLoading(true);
-      const compressedFile = await compressImage(file);
-      const url = await uploadImageAndGetUrl(compressedFile, path);
-      setImageUrl(url);
-      setIsLoading(false);
+      try {
+        const processedFile = await compressImage(file);
+        const url = await uploadImageAndGetUrl(processedFile, path);
+        setImageUrl(url);
+        setFileType(file.type.startsWith('video/') ? 'video' : 'image');
+      } catch (error) {
+        console.error("Erro ao processar arquivo:", error);
+        toast.error("Erro ao processar o arquivo. Certifique-se de que é uma imagem ou vídeo válido.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -295,7 +316,7 @@ export default function NewPost() {
                     style={{ display: "none" }}
                     ref={etanolRef}
                     onChange={(e) =>
-                      handleFileChange(e, setEtanolImageUrl, "etanolImage")
+                      handleFileChange(e, setEtanolImageUrl, setEtanolFileType, "etanolImage")
                     }
                   />
                   <button
@@ -307,19 +328,32 @@ export default function NewPost() {
                   >
                     Tire sua foto/vídeo
                   </button>
-                  {isLoading && <p>Carregando imagem...</p>}
+                  {isLoading && <p>Carregando mídia...</p>}
                   {etanolImageUrl && (
                     <div>
-                      <img
-                        src={etanolImageUrl}
-                        alt="Preview do Etanol"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
+                      {etanolFileType === 'video' ? (
+                        <video
+                          src={etanolImageUrl}
+                          controls
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={etanolImageUrl}
+                          alt="Preview do Etanol"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -336,7 +370,7 @@ export default function NewPost() {
                     style={{ display: "none" }}
                     ref={gasolinaRef}
                     onChange={(e) =>
-                      handleFileChange(e, setGasolineImageUrl, "gasolineImage")
+                      handleFileChange(e, setGasolineImageUrl, setGasolineFileType, "gasolineImage")
                     }
                   />
                   <button
@@ -348,19 +382,32 @@ export default function NewPost() {
                   >
                     Tire sua foto/vídeo
                   </button>
-                  {isLoading && <p>Carregando imagem...</p>}
+                  {isLoading && <p>Carregando mídia...</p>}
                   {gasolineImageUrl && (
                     <div>
-                      <img
-                        src={gasolineImageUrl}
-                        alt="Preview da Gasolina"
-                        style={{
-                          maxWidth: "17.5rem",
-                          height: "auto",
-                          border: "1px solid #939393",
-                          borderRadius: "20px",
-                        }}
-                      />
+                      {gasolineFileType === 'video' ? (
+                        <video
+                          src={gasolineImageUrl}
+                          controls
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={gasolineImageUrl}
+                          alt="Preview da Gasolina"
+                          style={{
+                            maxWidth: "17.5rem",
+                            height: "auto",
+                            border: "1px solid #939393",
+                            borderRadius: "20px",
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
