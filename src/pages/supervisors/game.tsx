@@ -55,6 +55,7 @@ export default function NewPost() {
   const shift = router.query.shift;
 
   const isSpecialPost = postName ? specialPosts.includes(postName as string) : false;
+  const STORAGE_KEY = `gameSupervisors_${postName}_${shift}`;
 
   const [data, setData] = useState(null);
 
@@ -86,14 +87,26 @@ export default function NewPost() {
 
   useEffect(() => {
     // Recupera os valores armazenados no localStorage para os campos
-    const storedDate = localStorage.getItem("date");
-    const storedTime = localStorage.getItem("time");
-    const storedObservations = localStorage.getItem("observations");
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setDate(parsedData.date || "");
+      setTime(parsedData.time || "");
+      setObservations(parsedData.observations || "");
+      setPumps(parsedData.pumps || []);
+    }
+  }, [postName, shift]);
 
-    if (storedDate) setDate(storedDate);
-    if (storedTime) setTime(storedTime);
-    if (storedObservations) setObservations(storedObservations);
-  }, []);
+  useEffect(() => {
+    // Salva todos os dados no localStorage quando houver mudanças
+    const dataToStore = {
+      date,
+      time,
+      observations,
+      pumps
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
+  }, [date, time, observations, pumps, postName, shift]);
 
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
@@ -260,7 +273,7 @@ export default function NewPost() {
     const newFile = event.target.files?.[0];
     if (newFile) {
       setIsLoading(true);
-      const compressedFile = await compressImage(newFile); // Supondo que você tem uma função compressImage
+      const compressedFile = await compressImage(newFile);
       const url = await uploadImageAndGetUrl(
         compressedFile,
         `pumps/${compressedFile.name}`
@@ -276,7 +289,7 @@ export default function NewPost() {
       // @ts-ignore
       newPumps[pumpIndex][`${imageKey}Name`] = newFile.name;
 
-      setPumps(newPumps); // Atualiza o estado e salva no localStorage automaticamente
+      setPumps(newPumps);
       setIsLoading(false);
     }
   };
@@ -288,14 +301,13 @@ export default function NewPost() {
 
     const liters = parseFloat(value);
     if (!isNaN(liters)) {
-      // Se for um posto especial, usa 20L como base, senão usa 1L
       const baseLiters = isSpecialPost ? 20 : 1;
       const percentage = ((liters - baseLiters) / baseLiters) * 100;
       // @ts-ignore
       newPumps[pumpIndex].percentage = percentage.toFixed(1);
     }
 
-    setPumps(newPumps); // Atualiza o estado e salva no localStorage automaticamente
+    setPumps(newPumps);
   };
 
   // Função para lidar com a alteração do select "OK?"
@@ -303,7 +315,7 @@ export default function NewPost() {
     const newPumps = [...pumps];
     // @ts-ignore
     newPumps[pumpIndex].ok = value;
-    setPumps(newPumps); // Atualiza o estado e salva no localStorage automaticamente
+    setPumps(newPumps);
   };
 
   const getLocalISODate = () => {
@@ -426,10 +438,8 @@ export default function NewPost() {
 
       toast.success("Tarefa salva com sucesso!");
 
-      localStorage.removeItem("date");
-      localStorage.removeItem("time");
-      localStorage.removeItem("observations");
-      localStorage.removeItem("pumps");
+      // Limpa os dados do localStorage após salvar com sucesso
+      localStorage.removeItem(STORAGE_KEY);
 
       router.push(
         `/supervisors/fuel-sell-test?post=${encodeURIComponent(

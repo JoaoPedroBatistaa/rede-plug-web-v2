@@ -72,9 +72,9 @@ export default function NewPost() {
   const shift = router.query.shift;
 
   const isSpecialPost = postName ? specialPosts.includes(postName) : false;
+  const STORAGE_KEY = `pumpCalibration_${postName}_${shift}`;
 
   const [data, setData] = useState(null);
-
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [postCoordinates, setPostCoordinates] = useState({
     lat: null,
@@ -82,38 +82,36 @@ export default function NewPost() {
   });
   const [mapUrl, setMapUrl] = useState("");
   const [radiusCoordinates, setRadiusCoordinates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [managerName, setManagerName] = useState("");
+  const [isOk, setIsOk] = useState("");
+  const [observations, setObservations] = useState("");
+  const [numberOfPumps, setNumberOfPumps] = useState(0);
+  const [pumps, setPumps] = useState<Pump[]>([]);
 
   useEffect(() => {
-    const storedDate = localStorage.getItem("date");
-    const storedTime = localStorage.getItem("time");
-    const storedObservations = localStorage.getItem("observations");
-    const storedPumpsRaw = localStorage.getItem("pumps");
-
-    if (storedDate) setDate(storedDate);
-    if (storedTime) setTime(storedTime);
-    if (storedObservations) setObservations(storedObservations);
-
-    if (storedPumpsRaw) {
-      try {
-        const loadedPumpsFromStorage: Pump[] = JSON.parse(storedPumpsRaw).map(
-          (p: any) => ({
-            liters: p.liters || "",
-            isOk: p.isOk || "",
-            image1File: null, // File objects are not stored directly
-            image1Preview: p.image1Preview || "",
-            image1Url: p.image1Url || "",
-            image1Name: p.image1Name || "",
-          })
-        );
-        if (loadedPumpsFromStorage.length > 0) {
-          setPumps(loadedPumpsFromStorage);
-        }
-      } catch (e) {
-        console.error("Error parsing pumps from localStorage", e);
-        setPumps([]); // Initialize as empty if parsing fails
-      }
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setDate(parsedData.date || "");
+      setTime(parsedData.time || "");
+      setObservations(parsedData.observations || "");
+      setPumps(parsedData.pumps || []);
     }
-  }, []);
+  }, [postName, shift]);
+
+  useEffect(() => {
+    // Salva todos os dados no localStorage quando houver mudanças
+    const dataToStore = {
+      date,
+      time,
+      observations,
+      pumps
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
+  }, [date, time, observations, pumps, postName, shift]);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -220,18 +218,6 @@ export default function NewPost() {
     fetchData();
   }, [docId]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [managerName, setManagerName] = useState("");
-
-  const [isOk, setIsOk] = useState("");
-  const [observations, setObservations] = useState("");
-
-  const [numberOfPumps, setNumberOfPumps] = useState(0);
-  const [pumps, setPumps] = useState<Pump[]>([]);
-
   const fetchCoordinates = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -323,26 +309,56 @@ export default function NewPost() {
   };
 
   useEffect(() => {
-    if (postName) {
-      const fetchPostDetails = async () => {
-        try {
-          const postsRef = collection(db, "POSTS");
-          const q = query(postsRef, where("name", "==", postName));
-          const querySnapshot = await getDocs(q);
+    const fetchPostDetails = async () => {
+      if (!postName) return;
 
-          querySnapshot.forEach((doc) => {
-            const postData = doc.data();
-            setNumberOfPumps(postData.nozzles.length || []);
-            initializePumps(postData.nozzles.length || []);
-          });
-        } catch (error) {
-          console.error("Error fetching post details:.", error);
-        }
-      };
+      try {
+        const postsRef = collection(db, "POSTS");
+        const q = query(postsRef, where("name", "==", postName));
+        const querySnapshot = await getDocs(q);
 
-      fetchPostDetails();
-    }
+        querySnapshot.forEach((doc) => {
+          const postData = doc.data();
+          setNumberOfPumps(postData.nozzles.length || []);
+          
+          // Primeiro inicializa normalmente
+          initializePumps(postData.nozzles.length || []);
+
+          // Depois verifica se existem dados salvos no localStorage
+          const storedData = localStorage.getItem(STORAGE_KEY);
+          if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            if (parsedData.pumps && parsedData.pumps.length > 0) {
+              setPumps(parsedData.pumps);
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching post details:", error);
+      }
+    };
+
+    fetchPostDetails();
   }, [postName]);
+
+  const initializePumps = (numPumpsStr: any) => {
+    const num = parseInt(numPumpsStr, 10);
+    if (isNaN(num) || num <= 0) {
+      setPumps([]);
+      return;
+    }
+    const newPumpsArray: Pump[] = Array(num)
+      .fill(null)
+      .map(() => ({
+        liters: "",
+        isOk: "",
+        image1File: null,
+        image1Preview: "",
+        image1Url: "",
+        image1Name: "",
+      }));
+    setPumps(newPumpsArray);
+  };
 
   const handleImageChange = async (
     pumpIndex: number,
@@ -375,27 +391,6 @@ export default function NewPost() {
       localStorage.setItem("pumps", JSON.stringify(newPumps)); // Armazena os dados dos pumps no localStorage
       setIsLoading(false);
     }
-  };
-
-  const initializePumps = (numPumpsStr: any) => {
-    const num = parseInt(numPumpsStr, 10);
-    if (isNaN(num) || num <= 0) {
-      setPumps([]);
-      localStorage.setItem("pumps", JSON.stringify([]));
-      return;
-    }
-    const newPumpsArray: Pump[] = Array(num)
-      .fill(null)
-      .map(() => ({
-        liters: "",
-        isOk: "",
-        image1File: null,
-        image1Preview: "",
-        image1Url: "",
-        image1Name: "",
-      }));
-    setPumps(newPumpsArray);
-    localStorage.setItem("pumps", JSON.stringify(newPumpsArray));
   };
 
   useEffect(() => {
@@ -562,10 +557,8 @@ export default function NewPost() {
 
       toast.success("Tarefa salva com sucesso!");
 
-      localStorage.removeItem("date");
-      localStorage.removeItem("time");
-      localStorage.removeItem("observations");
-      localStorage.removeItem("pumps");
+      // Limpa os dados do localStorage após salvar com sucesso
+      localStorage.removeItem(STORAGE_KEY);
 
       // @ts-ignore
       router.push(
