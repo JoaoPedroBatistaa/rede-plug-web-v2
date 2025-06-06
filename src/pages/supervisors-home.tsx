@@ -1215,12 +1215,12 @@ export default function Home() {
         renderRow("Supervisor", data.supervisorName || "—");
 
         const fullWidth = 190;
-        const colX = [10, 40, 65, 132.5]; // posições X
-        const colWidths = [30, 160];
+        const colX = [10, 40, 75, 110]; // posições X para cada coluna
+        const colWidths = [30, 35, 35, 90]; // larguras correspondentes
         const rowHeight = 8;
 
         const renderPumpHeader = () => {
-          const headers = ["Bico", "Mídia", "isOk"];
+          const headers = ["Bico", "Está ok?", "Litros", "Mídia"];
           docPdf.setFont("helvetica", "bold");
           for (let i = 0; i < headers.length; i++) {
             docPdf.rect(colX[i], y, colWidths[i], rowHeight);
@@ -1230,8 +1230,8 @@ export default function Home() {
           checkPageEnd();
         };
 
-        const renderPumpRow = (index: number, short1: string, isOk: string) => {
-          const values = [`Bico ${index + 1}`, short1, isOk];
+        const renderPumpRow = (index: number, isOk: string, liters: string, short1: string) => {
+          const values = [`Bico ${index + 1}`, isOk, liters, short1];
           docPdf.setFont("helvetica", "normal");
           for (let i = 0; i < values.length; i++) {
             docPdf.rect(colX[i], y, colWidths[i], rowHeight);
@@ -1247,7 +1247,8 @@ export default function Home() {
         if (Array.isArray(data.nozzles)) {
           for (let i = 0; i < data.nozzles.length; i++) {
             const bomba = data.nozzles[i];
-            const isOk = bomba.ok === "yes" ? "Sim" : "Não";
+            const isOk = bomba.isOk === "ok" ? "Sim" : "Não";
+            const liters = bomba.liters ? Number(bomba.liters).toFixed(2) : "—";
 
             let short1 = "Sem mídia";
 
@@ -1267,7 +1268,7 @@ export default function Home() {
               }
             }
 
-            renderPumpRow(i, short1, isOk);
+            renderPumpRow(i, isOk, liters, short1);
           }
         }
 

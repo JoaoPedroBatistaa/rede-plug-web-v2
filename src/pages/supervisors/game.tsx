@@ -16,6 +16,12 @@ import dynamic from "next/dynamic";
 const LoadingOverlay = dynamic(() => import("@/components/Loading"), {
   ssr: false,
 });
+
+const specialPosts = [
+  "Vena", "Orense", "Oratório", "Maricar", "Mandaqui",
+  "Golf", "Consolheiro", "Cantareira",
+];
+
 async function compressImage(file: File) {
   const options = {
     maxSizeMB: 1,
@@ -47,6 +53,8 @@ export default function NewPost() {
   const postName = router.query.post;
   const docId = router.query.docId;
   const shift = router.query.shift;
+
+  const isSpecialPost = postName ? specialPosts.includes(postName as string) : false;
 
   const [data, setData] = useState(null);
 
@@ -280,7 +288,9 @@ export default function NewPost() {
 
     const liters = parseFloat(value);
     if (!isNaN(liters)) {
-      const percentage = ((liters - 1) / 1) * 100;
+      // Se for um posto especial, usa 20L como base, senão usa 1L
+      const baseLiters = isSpecialPost ? 20 : 1;
+      const percentage = ((liters - baseLiters) / baseLiters) * 100;
       // @ts-ignore
       newPumps[pumpIndex].percentage = percentage.toFixed(1);
     }
