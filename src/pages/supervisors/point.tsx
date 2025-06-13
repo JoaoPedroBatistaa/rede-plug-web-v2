@@ -297,9 +297,18 @@ export default function DigitalPointTask() {
       await addDoc(collection(db, "SUPERVISORS"), taskData);
 
       toast.success("Tarefa de ponto digital salva com sucesso!");
-      localStorage.removeItem("isInspection");
-      localStorage.removeItem("etanolImageUrl");
-      localStorage.removeItem("etanolFileName");
+      
+      const itemsToKeep = ["userId", "userName", "userType", "userPost", "posts", "loginDate", "loginTime"];
+      
+      // Get all keys from localStorage
+      const keys = Object.keys(localStorage);
+      
+      // Remove all items except the ones we want to keep
+      keys.forEach(key => {
+        if (!itemsToKeep.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
 
       router.push(
         `/supervisors/surprise-box?post=${encodeURIComponent(

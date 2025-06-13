@@ -319,10 +319,17 @@ export default function NewPost() {
 
       toast.success("Tarefa salva com sucesso!");
 
-      localStorage.removeItem("date");
-      localStorage.removeItem("time");
-      localStorage.removeItem("isOk");
-      localStorage.removeItem("observations");
+      const itemsToKeep = ["userId", "userName", "userType", "userPost", "posts", "loginDate", "loginTime"];
+      
+      // Get all keys from localStorage
+      const keys = Object.keys(localStorage);
+      
+      // Remove all items except the ones we want to keep
+      keys.forEach(key => {
+        if (!itemsToKeep.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
 
       // @ts-ignore
       router.push(

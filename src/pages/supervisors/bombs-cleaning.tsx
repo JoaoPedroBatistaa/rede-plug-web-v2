@@ -493,16 +493,16 @@ export default function NewPost() {
 
       toast.success("Tarefa salva com sucesso!");
 
-      localStorage.removeItem("date");
-      localStorage.removeItem("time");
-      localStorage.removeItem("observations");
-
-      [...Array(numberOfPumps)].forEach((_, index) => {
-        localStorage.removeItem(`pumpOk${index}`);
-        localStorage.removeItem(`pump${index}_image1Url`);
-        localStorage.removeItem(`pump${index}_image1Name`);
-        localStorage.removeItem(`pump${index}_image2Url`);
-        localStorage.removeItem(`pump${index}_image2Name`);
+      const itemsToKeep = ["userId", "userName", "userType", "userPost", "posts", "loginDate", "loginTime"];
+      
+      // Get all keys from localStorage
+      const keys = Object.keys(localStorage);
+      
+      // Remove all items except the ones we want to keep
+      keys.forEach(key => {
+        if (!itemsToKeep.includes(key)) {
+          localStorage.removeItem(key);
+        }
       });
 
       // @ts-ignore
